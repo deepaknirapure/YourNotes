@@ -1,131 +1,340 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  Sparkles,
+  Layers,
+  Globe,
+  ArrowRight,
+  ShieldCheck,
+  User,
+  Mail,
+  Lock,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
-import { YN_CSS, useNeuralCanvas, useTorusCanvas, useFlowCanvas, useCursor } from "./NeuralBackground";
-
-export default function LoginPage() {
-  const [form, setForm]       = useState({ email: "", password: "" });
+export default function RegisterPage() {
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const { login }             = useAuth();
-  const navigate              = useNavigate();
-
-  // canvas refs
-  const neuralRef    = useRef(null);
-  const torusRef     = useRef(null);
-  const flowRef      = useRef(null);
-  const mouseRef     = useRef({ x: null, y: null });
-  const cursorRef    = useRef(null);
-  const cursorDotRef = useRef(null);
-
-  useNeuralCanvas(neuralRef);
-  useTorusCanvas(torusRef, mouseRef);
-  useFlowCanvas(flowRef, mouseRef);
-  useCursor(mouseRef, cursorRef, cursorDotRef);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
-    if (!form.email || !form.password) return toast.error("All fields required");
+    if (!form.name || !form.email || !form.password)
+      return toast.error("All fields required");
     setLoading(true);
     try {
-      const { data } = await API.post("/auth/login", form);
+      const { data } = await API.post("/auth/register", form);
       login(data.user, data.token);
-      toast.success("Welcome back!");
+      toast.success("Account created!");
       navigate("/dashboard");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
-    } finally { setLoading(false); }
+      toast.error(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const theme = {
+    primary: "#10B981",
+    primarySoft: "#ECFDF5",
+    dark: "#111827",
+    textSub: "#6B7280",
+    border: "#E5E7EB",
   };
 
   return (
-    <>
-      <style>{YN_CSS + `
-        .yn-auth-wrap {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
-          position: relative;
-          z-index: 10;
-          padding-top: 100px;
-        }
-        .yn-auth-card {
-          width: 100%;
-          max-width: 420px;
-          animation: fadeUp .7s .2s both;
-        }
-      `}</style>
-
-      {/* Cursor */}
-      <div ref={cursorRef}    className="yn-cursor-ring" />
-      <div ref={cursorDotRef} className="yn-cursor-dot"  />
-
-      {/* Canvas stack */}
-      <canvas ref={neuralRef} className="yn-canvas" style={{ zIndex:0 }} />
-      <canvas ref={torusRef}  className="yn-canvas" style={{ zIndex:1, opacity:.45, pointerEvents:"none" }} />
-      <canvas ref={flowRef}   className="yn-canvas" style={{ zIndex:2, opacity:.25, pointerEvents:"none" }} />
-
-      {/* Nav */}
-      <nav className="yn-nav">
-        <Link to="/" className="yn-nav-logo">YOURNOTES</Link>
-        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <span style={{ fontSize:".8rem", color:"rgba(240,240,255,.4)" }}>No account?</span>
-          <Link to="/register" className="yn-btn-primary" style={{ padding:"8px 20px", fontSize:".78rem" }}>Sign up free</Link>
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        backgroundColor: "#fff",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      {/* --- LEFT COLUMN: BRAND & FEATURES --- */}
+      <div
+        style={{
+          flex: 1,
+          backgroundColor: theme.primarySoft,
+          padding: "80px 8%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "'Syne', sans-serif",
+            fontSize: "32px",
+            fontWeight: "800",
+            marginBottom: "48px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <span style={{ color: theme.dark }}>Your</span>
+          <span style={{ color: theme.primary }}>Notes.</span>
         </div>
-      </nav>
 
-      {/* Auth wrap */}
-      <div className="yn-auth-wrap">
-        <div className="yn-auth-card">
+        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+          <FeatureRow
+            icon={<Sparkles size={20} color={theme.primary} />}
+            title="AI Powered Summaries"
+            desc="Gemini AI ka use karke apne lambe notes ko seconds mein summarize karein."
+          />
+          <FeatureRow
+            icon={<Layers size={20} color={theme.primary} />}
+            title="Smart Flashcards"
+            desc="Spaced Repetition (SM-2) algorithm se complex topics ko asani se yaad karein."
+          />
+          <FeatureRow
+            icon={<Globe size={20} color={theme.primary} />}
+            title="Universal Access"
+            desc="Apne notes ko kahi bhi, kabhi bhi access karein. Students ke liye hamesha free."
+          />
+          <FeatureRow
+            icon={<ShieldCheck size={20} color={theme.primary} />}
+            title="Secure & Private"
+            desc="Aapka data encrypted hai. Aapke notes sirf aapke hain."
+          />
+        </div>
 
-          {/* Header */}
-          <div style={{ textAlign:"center", marginBottom:36 }}>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".65rem", letterSpacing:"4px", color:"var(--yn-cyan)", marginBottom:16 }}>// AUTH</div>
-            <h1 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"2.2rem", letterSpacing:-1, marginBottom:8, color:"#f0f0ff" }}>Welcome back</h1>
-            <p style={{ color:"rgba(240,240,255,.45)", fontSize:".88rem" }}>Sign in to your YourNotes account</p>
-          </div>
-
-          {/* Card */}
-          <div className="yn-card" style={{ padding:36 }}>
-            <div style={{ marginBottom:20 }}>
-              <label style={lbl}>Email address</label>
-              <input type="email" className="yn-field" placeholder="you@example.com"
-                value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-            </div>
-            <div style={{ marginBottom:28 }}>
-              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                <label style={lbl}>Password</label>
-                <Link to="/forgot-password" style={{ fontSize:"12px", color:"var(--yn-cyan)", textDecoration:"none", fontFamily:"'JetBrains Mono',monospace" }}>
-                  Forgot?
-                </Link>
-              </div>
-              <input type="password" className="yn-field" placeholder="••••••••"
-                value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                onKeyDown={e => e.key === "Enter" && handleSubmit(e)} />
-            </div>
-            <button className="yn-btn-primary" disabled={loading} onClick={handleSubmit}
-              style={{ width:"100%", padding:"13px", textAlign:"center" }}>
-              {loading ? "Signing in…" : "Sign in →"}
-            </button>
-
-            <div style={{ marginTop:24, paddingTop:20, borderTop:"1px solid rgba(255,255,255,.06)", textAlign:"center" }}>
-              <p style={{ fontSize:"13px", color:"rgba(240,240,255,.4)" }}>
-                Don't have an account?{" "}
-                <Link to="/register" style={{ color:"var(--yn-cyan)", fontWeight:600, textDecoration:"none" }}>Create one free</Link>
-              </p>
-            </div>
-          </div>
-
-          <p style={{ textAlign:"center", marginTop:20, fontFamily:"'JetBrains Mono',monospace", fontSize:".62rem", color:"rgba(240,240,255,.2)", letterSpacing:"2px" }}>
-            YOURNOTES · SECURE LOGIN · 2026
+        <div
+          style={{
+            marginTop: "60px",
+            padding: "24px",
+            borderRadius: "16px",
+            backgroundColor: "#fff",
+            border: `1px solid ${theme.border}`,
+          }}
+        >
+          <p
+            style={{
+              fontSize: "12px",
+              fontWeight: "800",
+              color: theme.primary,
+              letterSpacing: "1px",
+              marginBottom: "4px",
+            }}
+          >
+            ✓ STUDENT PROJECT
+          </p>
+          <p style={{ fontSize: "14px", color: theme.textSub }}>
+            S.V. Polytechnic College, Bhopal · 2026
           </p>
         </div>
       </div>
-    </>
+
+      {/* --- RIGHT COLUMN: SIGNUP FORM --- */}
+      <div
+        style={{
+          width: "500px",
+          padding: "80px 60px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          borderLeft: `1px solid ${theme.border}`,
+        }}
+      >
+        <div style={{ marginBottom: "40px" }}>
+          <h2
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: "36px",
+              fontWeight: "800",
+              color: theme.dark,
+              marginBottom: "12px",
+              letterSpacing: "-1.5px",
+            }}
+          >
+            Create Account.
+          </h2>
+          <p style={{ color: theme.textSub, fontSize: "15px" }}>
+            Start your journey with a clean AI workspace.
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+        >
+          <InputGroup
+            label="Full Name"
+            icon={<User size={18} />}
+            type="text"
+            placeholder="Nandkishor Barkhade"
+            value={form.name}
+            onChange={(val) => setForm({ ...form, name: val })}
+          />
+          <InputGroup
+            label="Email Address"
+            icon={<Mail size={18} />}
+            type="email"
+            placeholder="name@example.com"
+            value={form.email}
+            onChange={(val) => setForm({ ...form, email: val })}
+          />
+          <InputGroup
+            label="Password"
+            icon={<Lock size={18} />}
+            type="password"
+            placeholder="••••••••"
+            value={form.password}
+            onChange={(val) => setForm({ ...form, password: val })}
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "16px",
+              backgroundColor: theme.primary,
+              color: "#fff",
+              border: "none",
+              borderRadius: "12px",
+              fontWeight: "700",
+              fontSize: "16px",
+              cursor: "pointer",
+              transition: "0.3s",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+              marginTop: "10px",
+            }}
+          >
+            {loading ? (
+              "Creating account..."
+            ) : (
+              <>
+                Create Free Account <ArrowRight size={18} />
+              </>
+            )}
+          </button>
+        </form>
+
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "32px",
+            fontSize: "14px",
+            color: theme.textSub,
+          }}
+        >
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            style={{
+              color: theme.primary,
+              fontWeight: "700",
+              textDecoration: "none",
+            }}
+          >
+            Sign in
+          </Link>
+        </p>
+
+        <p
+          style={{
+            marginTop: "auto",
+            textAlign: "center",
+            fontSize: "10px",
+            color: "#ccc",
+            letterSpacing: "2px",
+            fontWeight: "600",
+          }}
+        >
+          YOURNOTES · BHOPAL · 2026
+        </p>
+      </div>
+    </div>
   );
 }
 
-const lbl = { display:"block", fontSize:"12px", fontWeight:500, color:"rgba(240,240,255,.6)", marginBottom:7, fontFamily:"'JetBrains Mono',monospace", letterSpacing:"1px" };
+// --- Internal Components ---
+function FeatureRow({ icon, title, desc }) {
+  return (
+    <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
+      <div
+        style={{
+          width: "44px",
+          height: "44px",
+          backgroundColor: "#fff",
+          borderRadius: "12px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          boxShadow: "0 4px 12px rgba(16, 185, 129, 0.08)",
+        }}
+      >
+        {icon}
+      </div>
+      <div>
+        <h3
+          style={{
+            fontSize: "17px",
+            fontWeight: "700",
+            color: "#111827",
+            marginBottom: "4px",
+          }}
+        >
+          {title}
+        </h3>
+        <p style={{ fontSize: "14px", color: "#6B7280", lineHeight: "1.5" }}>
+          {desc}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function InputGroup({ label, icon, type, placeholder, value, onChange }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <label
+        style={{
+          fontSize: "11px",
+          fontWeight: "800",
+          color: "#6B7280",
+          textTransform: "uppercase",
+          letterSpacing: "1px",
+        }}
+      >
+        {label}
+      </label>
+      <div style={{ position: "relative" }}>
+        <div
+          style={{
+            position: "absolute",
+            left: "16px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: "#9CA3AF",
+          }}
+        >
+          {icon}
+        </div>
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "14px 14px 14px 48px",
+            borderRadius: "12px",
+            border: "1.5px solid #E5E7EB",
+            fontSize: "15px",
+            outline: "none",
+            transition: "0.2s",
+          }}
+        />
+      </div>
+    </div>
+  );
+}

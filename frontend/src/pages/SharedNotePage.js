@@ -1,148 +1,407 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import {
+  Globe,
+  Calendar,
+  User,
+  ArrowRight,
+  FileText,
+  Sparkles,
+  Share2,
+  BookOpen,
+} from "lucide-react";
 import API from "../api/axios";
-import { YN_CSS, useNeuralCanvas, useCursor } from "./NeuralBackground";
 
 export default function SharedNotePage() {
-  const { token }             = useParams();
-  const [note, setNote]       = useState(null);
+  const { token } = useParams();
+  const [note, setNote] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
-  const neuralRef    = useRef(null);
-  const mouseRef     = useRef({ x: null, y: null });
-  const cursorRef    = useRef(null);
-  const cursorDotRef = useRef(null);
-
-  useNeuralCanvas(neuralRef);
-  useCursor(mouseRef, cursorRef, cursorDotRef);
+  const theme = {
+    primary: "#10B981",
+    primarySoft: "#ECFDF5",
+    dark: "#111827",
+    textSub: "#6B7280",
+    border: "#F3F4F6",
+    bgSidebar: "#F9FAFB",
+  };
 
   useEffect(() => {
     API.get(`/notes/shared/${token}`)
       .then(({ data }) => setNote(data))
-      .catch(err => setError(err.response?.data?.message || "Note not found or link expired"))
+      .catch((err) =>
+        setError(
+          err.response?.data?.message || "Note not found or link expired",
+        ),
+      )
       .finally(() => setLoading(false));
   }, [token]);
 
-  const formatDate = d => new Date(d).toLocaleDateString("en-IN", { day:"numeric", month:"long", year:"numeric" });
+  if (loading) return <LoadingState theme={theme} />;
+  if (error) return <ErrorState theme={theme} error={error} />;
 
-  // ── Loading ──────────────────────────────────────────────────────────────
-  if (loading) return (
-    <>
-      <style>{YN_CSS}</style>
-      <canvas ref={neuralRef} className="yn-canvas" style={{ zIndex:0 }} />
-      <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", position:"relative", zIndex:10, flexDirection:"column", gap:16 }}>
-        <div style={{ width:34, height:34, border:"1.5px solid rgba(0,229,255,.3)", borderTopColor:"var(--yn-cyan)", borderRadius:"50%", animation:"spin 1s linear infinite" }} />
-        <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".72rem", color:"rgba(240,240,255,.4)", letterSpacing:"2px" }}>LOADING NOTE…</p>
-      </div>
-    </>
-  );
-
-  // ── Error ────────────────────────────────────────────────────────────────
-  if (error) return (
-    <>
-      <style>{YN_CSS}</style>
-      <canvas ref={neuralRef} className="yn-canvas" style={{ zIndex:0 }} />
-      <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", position:"relative", zIndex:10, padding:24 }}>
-        <div className="yn-card" style={{ maxWidth:420, width:"100%", padding:"56px 40px", textAlign:"center", animation:"fadeUp .7s both" }}>
-          <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(239,68,68,.1)", border:"1px solid rgba(239,68,68,.25)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 24px", fontSize:26 }}>🔗</div>
-          <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"1.4rem", color:"#f0f0ff", marginBottom:10 }}>Link not found</h2>
-          <p style={{ fontSize:"14px", color:"rgba(240,240,255,.45)", lineHeight:1.7, marginBottom:32 }}>{error}</p>
-          <Link to="/login" className="yn-btn-primary">Go to YourNotes →</Link>
-        </div>
-      </div>
-    </>
-  );
-
-  // ── Note ─────────────────────────────────────────────────────────────────
   return (
-    <>
-      <style>{YN_CSS + `
-        .shared-body { min-height:100vh; position:relative; z-index:10; }
-        .shared-topbar {
-          position: sticky; top:0; z-index:100;
-          background: rgba(3,3,15,0.75);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(0,229,255,.1);
-          padding: 0 5%; height:58px;
-          display:flex; align-items:center; justify-content:space-between;
-        }
-      `}</style>
-      <div ref={cursorRef}    className="yn-cursor-ring" />
-      <div ref={cursorDotRef} className="yn-cursor-dot"  />
-      <canvas ref={neuralRef} className="yn-canvas" style={{ zIndex:0 }} />
-
-      <div className="shared-body">
-        <div className="shared-topbar">
-          <Link to="/" className="yn-nav-logo">YOURNOTES</Link>
-          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <span style={{ padding:"4px 12px", background:"rgba(255,255,255,.05)", color:"rgba(240,240,255,.4)", borderRadius:99, fontSize:"11px", fontFamily:"'JetBrains Mono',monospace", letterSpacing:"1px" }}>
-              VIEW ONLY
-            </span>
-            <Link to="/register" className="yn-btn-primary" style={{ padding:"8px 18px", fontSize:".78rem" }}>
-              Sign up free →
-            </Link>
-          </div>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#fff",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
+      {/* --- TOP BAR (Minimal) --- */}
+      <nav
+        style={{
+          height: "72px",
+          borderBottom: `1px solid ${theme.border}`,
+          padding: "0 8%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          position: "sticky",
+          top: 0,
+          backgroundColor: "#fff",
+          zIndex: 100,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "'Syne', sans-serif",
+            fontSize: "20px",
+            fontWeight: "800",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <span style={{ color: theme.dark }}>Your</span>
+          <span style={{ color: theme.primary }}>Notes.</span>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: "700",
+              color: theme.textSub,
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              backgroundColor: theme.border,
+              padding: "4px 10px",
+              borderRadius: "6px",
+            }}
+          >
+            View Only
+          </span>
+          <Link to="/register" style={btnCtaNav}>
+            Get Your Free Account
+          </Link>
+        </div>
+      </nav>
 
-        <div style={{ maxWidth:760, margin:"0 auto", padding:"60px 24px 120px", animation:"fadeUp .7s .1s both" }}>
-          {/* Tags */}
-          <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:20 }}>
-            {note.folder && (
-              <span style={{ padding:"4px 12px", background:"rgba(139,92,246,.12)", color:"#a78bfa", borderRadius:99, fontSize:"11px", fontFamily:"'JetBrains Mono',monospace", border:"1px solid rgba(139,92,246,.25)" }}>
-                📁 {note.folder.name}
-              </span>
-            )}
-            {note.tags?.map(tag => (
-              <span key={tag} style={{ padding:"4px 12px", background:"rgba(255,255,255,.05)", color:"rgba(240,240,255,.5)", borderRadius:99, fontSize:"11px", fontFamily:"'JetBrains Mono',monospace", border:"1px solid rgba(255,255,255,.08)" }}>
-                #{tag}
-              </span>
-            ))}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 340px",
+          maxWidth: "1200px",
+          margin: "0 auto",
+          gap: "60px",
+          padding: "80px 24px",
+        }}
+      >
+        {/* --- LEFT COLUMN: NOTE CONTENT --- */}
+        <article>
+          <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
+            {note.folder && <span style={badge}>{note.folder.name}</span>}
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "13px",
+                color: theme.textSub,
+              }}
+            >
+              <Calendar size={14} />{" "}
+              {new Date(note.updatedAt).toLocaleDateString("en-IN")}
+            </span>
           </div>
 
-          {/* Title */}
-          <h1 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"clamp(2rem,5vw,3.2rem)", letterSpacing:"-1.5px", marginBottom:24, lineHeight:1.1, color:"#f0f0ff" }}>
+          <h1
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: "52px",
+              fontWeight: "800",
+              letterSpacing: "-2.5px",
+              lineHeight: "1.1",
+              marginBottom: "32px",
+              color: theme.dark,
+            }}
+          >
             {note.title}
           </h1>
 
-          {/* Author */}
-          <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:48 }}>
-            <div style={{ width:36, height:36, borderRadius:"50%", background:"linear-gradient(135deg,var(--yn-cyan),var(--yn-purple))", display:"flex", alignItems:"center", justifyContent:"center", color:"#000", fontSize:"14px", fontWeight:700 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              marginBottom: "48px",
+            }}
+          >
+            <div
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                backgroundColor: theme.primary,
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "700",
+                fontSize: "14px",
+              }}
+            >
               {note.author?.[0]?.toUpperCase() || "U"}
             </div>
-            <span style={{ fontSize:"14px", color:"rgba(240,240,255,.6)", fontWeight:500 }}>{note.author || "Unknown"}</span>
-            <span style={{ color:"rgba(255,255,255,.1)" }}>·</span>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"12px", color:"rgba(240,240,255,.3)" }}>
-              Updated {formatDate(note.updatedAt)}
+            <span
+              style={{ fontSize: "15px", fontWeight: "600", color: theme.dark }}
+            >
+              {note.author || "Guest Author"}
             </span>
           </div>
 
-          {/* Divider */}
-          <div style={{ height:1, background:"linear-gradient(90deg,var(--yn-cyan),transparent)", marginBottom:52, opacity:.2 }} />
-
-          {/* Body */}
-          <div style={{ fontSize:"16px", color:"rgba(240,240,255,.65)", lineHeight:1.95, whiteSpace:"pre-wrap", wordBreak:"break-word", fontWeight:400, letterSpacing:".01em" }}>
-            {note.plainText || note.content || (
-              <span style={{ color:"rgba(240,240,255,.3)", fontStyle:"italic" }}>This note has no content.</span>
-            )}
+          <div
+            style={{
+              fontSize: "18px",
+              lineHeight: "1.8",
+              color: "#374151",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+            }}
+          >
+            {note.plainText || note.content || "This note has no content."}
           </div>
+        </article>
 
-          {/* Footer CTA */}
-          <div style={{ marginTop:96, background:"linear-gradient(135deg,rgba(0,229,255,.07),rgba(139,92,246,.07))", border:"1px solid rgba(0,229,255,.2)", borderRadius:24, padding:"clamp(32px,5vw,56px)", textAlign:"center" }}>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".65rem", letterSpacing:"4px", color:"var(--yn-cyan)", marginBottom:16 }}>// JOIN YOURNOTES</div>
-            <h3 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"clamp(1.4rem,3vw,2rem)", letterSpacing:-1, marginBottom:12, color:"#f0f0ff" }}>
-              Take smarter notes with AI
+        {/* --- RIGHT COLUMN: CTA SIDEBAR --- */}
+        <aside
+          style={{ position: "sticky", top: "152px", height: "fit-content" }}
+        >
+          <div
+            style={{
+              backgroundColor: theme.bgSidebar,
+              padding: "32px",
+              borderRadius: "24px",
+              border: `1px solid ${theme.border}`,
+            }}
+          >
+            <h3
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: "20px",
+                fontWeight: "800",
+                marginBottom: "16px",
+              }}
+            >
+              Take smarter notes.
             </h3>
-            <p style={{ fontSize:"14px", color:"rgba(240,240,255,.45)", marginBottom:32, lineHeight:1.7, maxWidth:420, margin:"0 auto 32px" }}>
-              Summaries, flashcards, spaced repetition, folders — completely free to start.
+            <p
+              style={{
+                fontSize: "14px",
+                color: theme.textSub,
+                lineHeight: "1.6",
+                marginBottom: "24px",
+              }}
+            >
+              Bhopal ke students ke liye built YourNotes AI summaries aur
+              flashcards provide karta hai—woh bhi bilkul free.
             </p>
-            <Link to="/register" className="yn-btn-primary" style={{ padding:"14px 36px", fontSize:".9rem" }}>
-              Get started free →
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                marginBottom: "32px",
+              }}
+            >
+              <FeatureRow
+                icon={<Sparkles size={16} />}
+                text="AI Note Summaries"
+              />
+              <FeatureRow
+                icon={<BookOpen size={16} />}
+                text="Smart Flashcards"
+              />
+              <FeatureRow icon={<Share2 size={16} />} text="Instant Sharing" />
+            </div>
+
+            <Link to="/register" style={btnCtaFull}>
+              Create Free Account <ArrowRight size={18} />
             </Link>
           </div>
-        </div>
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "24px",
+              fontSize: "11px",
+              color: "#ccc",
+              letterSpacing: "2px",
+              fontWeight: "700",
+            }}
+          >
+            YOURNOTES · 2026
+          </p>
+        </aside>
       </div>
-    </>
+    </div>
   );
 }
+
+// --- Internal UI Components ---
+function FeatureRow({ icon, text }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        fontSize: "13px",
+        fontWeight: "600",
+        color: "#111827",
+      }}
+    >
+      <div style={{ color: "#10B981" }}>{icon}</div>
+      {text}
+    </div>
+  );
+}
+
+function LoadingState({ theme }) {
+  return (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "16px",
+      }}
+    >
+      <div
+        style={{
+          width: "32px",
+          height: "32px",
+          border: `3px solid ${theme.primarySoft}`,
+          borderTopColor: theme.primary,
+          borderRadius: "50%",
+          animation: "spin 1s linear infinite",
+        }}
+      />
+      <p
+        style={{
+          fontSize: "12px",
+          fontWeight: "700",
+          color: theme.textSub,
+          letterSpacing: "2px",
+        }}
+      >
+        READING NOTE...
+      </p>
+    </div>
+  );
+}
+
+function ErrorState({ theme, error }) {
+  return (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "400px",
+          textAlign: "center",
+          padding: "48px",
+          borderRadius: "32px",
+          backgroundColor: theme.bgSidebar,
+          border: `1px solid ${theme.border}`,
+        }}
+      >
+        <Globe
+          size={48}
+          color={theme.textSub}
+          style={{ marginBottom: "24px" }}
+        />
+        <h2
+          style={{
+            fontFamily: "'Syne', sans-serif",
+            fontSize: "24px",
+            fontWeight: "800",
+            marginBottom: "12px",
+          }}
+        >
+          Link Expired
+        </h2>
+        <p
+          style={{
+            color: theme.textSub,
+            fontSize: "14px",
+            marginBottom: "32px",
+          }}
+        >
+          {error}
+        </p>
+        <Link
+          to="/"
+          style={{
+            color: theme.primary,
+            fontWeight: "700",
+            textDecoration: "none",
+          }}
+        >
+          Go to Homepage →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+const btnCtaNav = {
+  backgroundColor: "#10B981",
+  color: "#fff",
+  padding: "10px 18px",
+  borderRadius: "10px",
+  fontSize: "13px",
+  fontWeight: "700",
+  textDecoration: "none",
+};
+const btnCtaFull = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "10px",
+  backgroundColor: "#111827",
+  color: "#fff",
+  padding: "16px",
+  borderRadius: "14px",
+  fontSize: "14px",
+  fontWeight: "700",
+  textDecoration: "none",
+};
+const badge = {
+  backgroundColor: "#ECFDF5",
+  color: "#10B981",
+  padding: "4px 12px",
+  borderRadius: "6px",
+  fontSize: "11px",
+  fontWeight: "800",
+  textTransform: "uppercase",
+};
