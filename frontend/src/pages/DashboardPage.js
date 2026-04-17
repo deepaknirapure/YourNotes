@@ -23,17 +23,15 @@ export default function DashboardPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // State
   const [notes, setNotes] = useState([]);
   const [folders, setFolders] = useState([]);
   const [stats, setStats] = useState({ totalNotes: 0, starredNotes: 0, flashcardsDue: 0, totalFolders: 0 });
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeView, setActiveView] = useState("all"); // all | starred | trash | folder:<id>
+  const [activeView, setActiveView] = useState("all");
   const [selectedNote, setSelectedNote] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
 
-  // ─── Load data ──────────────────────────────────────────────────────────────
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -54,7 +52,6 @@ export default function DashboardPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // ─── Create note ────────────────────────────────────────────────────────────
   const createNote = async () => {
     try {
       const { data } = await API.post("/notes", { title: "Untitled Note", content: "" });
@@ -66,7 +63,6 @@ export default function DashboardPage() {
     }
   };
 
-  // ─── Star toggle ────────────────────────────────────────────────────────────
   const toggleStar = async (note, e) => {
     e.stopPropagation();
     try {
@@ -75,7 +71,6 @@ export default function DashboardPage() {
     } catch { toast.error("Star update nahi ho saka"); }
   };
 
-  // ─── Trash ──────────────────────────────────────────────────────────────────
   const trashNote = async (noteId) => {
     try {
       await API.patch(`/notes/${noteId}/trash`);
@@ -86,7 +81,6 @@ export default function DashboardPage() {
     } catch { toast.error("Trash nahi ho saka"); }
   };
 
-  // ─── Restore from trash ─────────────────────────────────────────────────────
   const restoreNote = async (noteId) => {
     try {
       await API.patch(`/notes/${noteId}/restore`);
@@ -95,7 +89,6 @@ export default function DashboardPage() {
     } catch { toast.error("Restore nahi ho saka"); }
   };
 
-  // ─── Permanent delete ───────────────────────────────────────────────────────
   const deleteNote = async (noteId) => {
     if (!window.confirm("Note permanently delete ho jayega. Sure ho?")) return;
     try {
@@ -107,13 +100,11 @@ export default function DashboardPage() {
     } catch { toast.error("Delete nahi ho saka"); }
   };
 
-  // ─── Logout ─────────────────────────────────────────────────────────────────
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  // ─── Filter notes ───────────────────────────────────────────────────────────
   const filteredNotes = notes.filter(note => {
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q || note.title.toLowerCase().includes(q) || note.content?.toLowerCase().includes(q);
@@ -126,7 +117,6 @@ export default function DashboardPage() {
     return !note.isTrashed && matchesSearch;
   });
 
-  // ─── If note is open, show editor ───────────────────────────────────────────
   if (selectedNote) {
     return (
       <NoteEditor
@@ -143,7 +133,7 @@ export default function DashboardPage() {
   return (
     <div style={{ display: "flex", height: "100vh", backgroundColor: "#fff", fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ── SIDEBAR ── */}
+      {/* SIDEBAR */}
       <aside style={{
         width: "280px", backgroundColor: theme.sidebar,
         borderRight: `1px solid ${theme.border}`,
@@ -197,7 +187,6 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* User info */}
         <div style={{
           marginTop: "auto", backgroundColor: theme.dark,
           padding: "20px", borderRadius: "16px", color: "#fff",
@@ -215,9 +204,8 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {/* ── MAIN ── */}
+      {/* MAIN */}
       <main style={{ flex: 1, padding: "48px 5%", overflowY: "auto" }}>
-        {/* Header */}
         <div style={{
           display: "flex", justifyContent: "space-between",
           alignItems: "center", marginBottom: "32px",
@@ -246,7 +234,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Search */}
         <div style={{ position: "relative", marginBottom: "32px", maxWidth: 480 }}>
           <Search size={16} style={{
             position: "absolute", left: 14, top: "50%",
@@ -264,7 +251,6 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Notes Grid */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "80px 0", color: theme.textSub }}>
             <div style={{ fontSize: 40, marginBottom: 16 }}>📝</div>
@@ -312,7 +298,6 @@ export default function DashboardPage() {
   );
 }
 
-// ── Note Card ────────────────────────────────────────────────────────────────
 function NoteCard({ note, isTrash, isMenuOpen, onOpen, onStar, onMenuToggle, onTrash, onRestore, onDelete }) {
   const snippet = note.plainText?.slice(0, 100) || note.content?.replace(/<[^>]+>/g, "").slice(0, 100) || "";
   const updatedAt = new Date(note.updatedAt);
@@ -331,7 +316,6 @@ function NoteCard({ note, isTrash, isMenuOpen, onOpen, onStar, onMenuToggle, onT
         transition: "box-shadow 0.2s",
       }}
     >
-      {/* Top row */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
         <div style={{ display: "flex", gap: 8 }}>
           {note.isPinned && <span style={tagStyle}>📌 PINNED</span>}
@@ -348,7 +332,6 @@ function NoteCard({ note, isTrash, isMenuOpen, onOpen, onStar, onMenuToggle, onT
         </div>
       </div>
 
-      {/* Dropdown menu */}
       {isMenuOpen && (
         <div style={{
           position: "absolute", top: 56, right: 16, background: "#fff",
@@ -375,7 +358,6 @@ function NoteCard({ note, isTrash, isMenuOpen, onOpen, onStar, onMenuToggle, onT
         {snippet || "No content yet..."}
       </p>
 
-      {/* Footer */}
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
         paddingTop: "16px", borderTop: "1px solid #F3F4F6", marginTop: "16px",
@@ -395,7 +377,6 @@ function NoteCard({ note, isTrash, isMenuOpen, onOpen, onStar, onMenuToggle, onT
   );
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
 function MenuBtn({ icon, label, onClick, danger }) {
   return (
     <button onClick={onClick} style={{
