@@ -1,6 +1,6 @@
 const Note = require("../models/Note");
 const Folder = require("../models/Folder");
-const Flashcard = require("../models/Flashcard"); 
+const Flashcard = require("../models/Flashcard");
 
 const getDashboard = async (req, res) => {
   try {
@@ -22,10 +22,10 @@ const getDashboard = async (req, res) => {
           .populate("folder", "name color"),
       ]);
 
-    res.status(200).json({ 
-      totalNotes, 
+    res.status(200).json({
+      totalNotes,
       totalFolders,
-      starredNotes, 
+      starredNotes,
       flashcardsDue,
       aiSummaries: 0, // extend later
       recentNotes,
@@ -35,4 +35,4 @@ const getDashboard = async (req, res) => {
   }
 };
 
-module.exports = { getDashboard }; 
+module.exports = { getDashboard };

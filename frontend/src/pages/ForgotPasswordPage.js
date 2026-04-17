@@ -1,357 +1,218 @@
 import { useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import {
-  KeyRound,
-  ShieldCheck,
-  Mail,
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  LifeBuoy,
-} from "lucide-react";
+import { Link } from "react-router-dom";
 import API from "../api/axios";
 
-// ─── Shared Recovery Shell ──────────────────────────────────────────────────
-function RecoveryShell({ children, title, subtitle }) {
-  const theme = {
-    primary: "#10B981",
-    primarySoft: "#ECFDF5",
-    dark: "#111827",
-    textSub: "#6B7280",
-    border: "#E5E7EB",
-  };
+const globalStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: #f7f7f5; }
+  input:focus { outline: none; }
+  button { font-family: inherit; }
+`;
 
-  return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        backgroundColor: "#fff",
-        fontFamily: "'DM Sans', sans-serif",
-      }}
-    >
-      {/* --- LEFT COLUMN: SAFETY INFO --- */}
-      <div
-        style={{
-          flex: 1,
-          backgroundColor: theme.primarySoft,
-          padding: "80px 8%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "'Syne', sans-serif",
-            fontSize: "24px",
-            fontWeight: "800",
-            marginBottom: "48px",
-          }}
-        >
-          <span style={{ color: theme.dark }}>Your</span>
-          <span style={{ color: theme.primary }}>Notes.</span>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "32px",
-            maxWidth: "400px",
-          }}
-        >
-          <div style={{ display: "flex", gap: "16px" }}>
-            <ShieldCheck size={24} color={theme.primary} />
-            <div>
-              <h3
-                style={{
-                  fontSize: "17px",
-                  fontWeight: "700",
-                  marginBottom: "4px",
-                }}
-              >
-                Secure Recovery
-              </h3>
-              <p style={{ fontSize: "14px", color: theme.textSub }}>
-                Hum secure tokens use karte hain taaki aapka account hamesha
-                safe rahe.
-              </p>
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: "16px" }}>
-            <LifeBuoy size={24} color={theme.primary} />
-            <div>
-              <h3
-                style={{
-                  fontSize: "17px",
-                  fontWeight: "700",
-                  marginBottom: "4px",
-                }}
-              >
-                Need Help?
-              </h3>
-              <p style={{ fontSize: "14px", color: theme.textSub }}>
-                Agar aapko access pane mein dikkat ho rahi hai, toh support team
-                se contact karein.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          style={{
-            marginTop: "60px",
-            padding: "20px",
-            borderRadius: "16px",
-            backgroundColor: "#fff",
-            border: `1px solid ${theme.border}`,
-          }}
-        >
-          <p
-            style={{
-              fontSize: "11px",
-              fontWeight: "800",
-              color: theme.primary,
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
-            ✓ ACCOUNT SAFETY
-          </p>
-          <p
-            style={{ fontSize: "13px", color: theme.textSub, marginTop: "4px" }}
-          >
-            Bhopal Student Network Support · 2026
-          </p>
-        </div>
-      </div>
-
-      {/* --- RIGHT COLUMN: FORM --- */}
-      <div
-        style={{
-          flex: 1,
-          padding: "80px 10%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          borderLeft: `1px solid ${theme.border}`,
-        }}
-      >
-        <div style={{ marginBottom: "40px" }}>
-          <Link
-            to="/login"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              textDecoration: "none",
-              color: theme.textSub,
-              fontSize: "14px",
-              fontWeight: "600",
-              marginBottom: "32px",
-            }}
-          >
-            <ArrowLeft size={16} /> Back to Login
-          </Link>
-          <h2
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "36px",
-              fontWeight: "800",
-              letterSpacing: "-1.5px",
-              marginBottom: "12px",
-            }}
-          >
-            {title}
-          </h2>
-          <p style={{ color: theme.textSub, fontSize: "15px" }}>{subtitle}</p>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-// ─── ForgotPassword View ─────────────────────────────────────────────────────
-export function ForgotPasswordPage() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
-    e?.preventDefault();
+    e.preventDefault();
     setLoading(true);
+    setError("");
     try {
       await API.post("/auth/forgot-password", { email });
       setSent(true);
     } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong");
+      setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <RecoveryShell
-      title={sent ? "Check Email." : "Forgot Password?"}
-      subtitle={
-        sent
-          ? "Reset link bhej diya gaya hai."
-          : "Enter email to receive a secure reset link."
-      }
-    >
-      {!sent ? (
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "24px" }}>
-            <label style={labelStyle}>Email Address</label>
-            <div style={{ position: "relative" }}>
-              <Mail size={18} style={iconStyle} />
-              <input
-                type="email"
-                placeholder="you@example.com"
-                style={inputStyle}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+    <>
+      <style>{globalStyles}</style>
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#f7f7f5",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: "380px" }}>
+          {/* Logo */}
+          <div style={{ textAlign: "center", marginBottom: "36px" }}>
+            <h1
+              style={{
+                fontSize: "28px",
+                fontWeight: 500,
+                color: "#1a1a1a",
+                fontFamily: "'Crimson Pro', Georgia, serif",
+                letterSpacing: "-0.3px",
+                marginBottom: "4px",
+              }}
+            >
+              Forgot Password?
+            </h1>
+            <p style={{ fontSize: "14px", color: "#999" }}>
+              {sent ? "Check your inbox" : "We'll send you a reset link"}
+            </p>
           </div>
-          <button disabled={loading} style={btnPrimary}>
-            {loading ? "Sending..." : "Send Reset Link"}{" "}
-            <ArrowRight size={18} />
-          </button>
-        </form>
-      ) : (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "20px",
-            backgroundColor: "#ECFDF5",
-            borderRadius: "20px",
-          }}
-        >
-          <CheckCircle2
-            size={40}
-            color="#10B981"
-            style={{ marginBottom: "16px" }}
-          />
-          <p style={{ fontSize: "14px", color: "#065F46", fontWeight: "600" }}>
-            Check your inbox! Reset link <br /> {email} par bhej diya hai.
+
+          {/* Card */}
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: "12px",
+              border: "1px solid #ebebea",
+              padding: "28px",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+            }}
+          >
+            {!sent ? (
+              <>
+                {error && (
+                  <div
+                    style={{
+                      background: "#fff5f5",
+                      border: "1px solid #fecaca",
+                      borderRadius: "8px",
+                      padding: "10px 12px",
+                      marginBottom: "16px",
+                      fontSize: "13px",
+                      color: "#dc2626",
+                    }}
+                  >
+                    {error}
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                  <div style={{ marginBottom: "20px" }}>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "13px",
+                        color: "#555",
+                        marginBottom: "6px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: "1px solid #e0e0dc",
+                        borderRadius: "8px",
+                        fontSize: "14px",
+                        color: "#1a1a1a",
+                        background: "#fafaf8",
+                        fontFamily: "inherit",
+                        transition: "border .15s",
+                      }}
+                      onFocus={(e) => (e.target.style.borderColor = "#1a1a1a")}
+                      onBlur={(e) => (e.target.style.borderColor = "#e0e0dc")}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                      width: "100%",
+                      padding: "11px",
+                      background: "#1a1a1a",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      cursor: loading ? "not-allowed" : "pointer",
+                      opacity: loading ? 0.7 : 1,
+                      transition: "opacity .13s",
+                    }}
+                  >
+                    {loading ? "Sending…" : "Send Reset Link"}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div style={{ textAlign: "center", padding: "8px 0" }}>
+                <div style={{ fontSize: "40px", marginBottom: "12px" }}>📬</div>
+                <h3
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: 500,
+                    color: "#1a1a1a",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Email sent!
+                </h3>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: "#999",
+                    lineHeight: 1.6,
+                    marginBottom: "20px",
+                  }}
+                >
+                  Reset link bhej diya hai{" "}
+                  <strong style={{ color: "#1a1a1a" }}>{email}</strong> pe. 15
+                  minutes mein expire hoga.
+                </p>
+                <Link
+                  to="/login"
+                  style={{
+                    display: "inline-block",
+                    padding: "10px 24px",
+                    background: "#1a1a1a",
+                    color: "#fff",
+                    borderRadius: "8px",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                  }}
+                >
+                  Back to Login
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "18px",
+              fontSize: "13.5px",
+              color: "#999",
+            }}
+          >
+            Remember your password?{" "}
+            <Link
+              to="/login"
+              style={{
+                color: "#1a1a1a",
+                fontWeight: 500,
+                textDecoration: "none",
+              }}
+            >
+              Sign in
+            </Link>
           </p>
         </div>
-      )}
-    </RecoveryShell>
+      </div>
+    </>
   );
 }
-
-// ─── ResetPassword View ──────────────────────────────────────────────────────
-export function ResetPasswordPage() {
-  const { token } = useParams();
-  const navigate = useNavigate();
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e?.preventDefault();
-    setLoading(true);
-    try {
-      await API.post(`/auth/reset-password/${token}`, { password });
-      setDone(true);
-      setTimeout(() => navigate("/login"), 3000);
-    } catch (err) {
-      alert("Invalid or expired link");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <RecoveryShell
-      title="New Password."
-      subtitle={
-        done
-          ? "Redirecting to login..."
-          : "Set a strong password for your account."
-      }
-    >
-      {!done ? (
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "24px" }}>
-            <label style={labelStyle}>New Password</label>
-            <div style={{ position: "relative" }}>
-              <KeyRound size={18} style={iconStyle} />
-              <input
-                type="password"
-                placeholder="••••••••"
-                style={inputStyle}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-          <button disabled={loading} style={btnPrimary}>
-            {loading ? "Updating..." : "Update Password"}{" "}
-            <ArrowRight size={18} />
-          </button>
-        </form>
-      ) : (
-        <div style={{ textAlign: "center" }}>
-          <CheckCircle2
-            size={48}
-            color="#10B981"
-            style={{ marginBottom: "16px" }}
-          />
-          <p style={{ fontWeight: "700", color: "#111827" }}>
-            Password changed successfully!
-          </p>
-        </div>
-      )}
-    </RecoveryShell>
-  );
-}
-
-// --- Shared Internal Styles ---
-const labelStyle = {
-  display: "block",
-  fontSize: "11px",
-  fontWeight: "800",
-  color: "#6B7280",
-  textTransform: "uppercase",
-  letterSpacing: "1px",
-  marginBottom: "8px",
-};
-const inputStyle = {
-  width: "100%",
-  padding: "14px 14px 14px 48px",
-  borderRadius: "12px",
-  border: "1.5px solid #E5E7EB",
-  fontSize: "15px",
-  outline: "none",
-};
-const iconStyle = {
-  position: "absolute",
-  left: "16px",
-  top: "50%",
-  transform: "translateY(-50%)",
-  color: "#9CA3AF",
-};
-const btnPrimary = {
-  width: "100%",
-  padding: "16px",
-  backgroundColor: "#10B981",
-  color: "#fff",
-  border: "none",
-  borderRadius: "12px",
-  fontWeight: "700",
-  fontSize: "16px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "10px",
-};
-
-export default ResetPasswordPage;
