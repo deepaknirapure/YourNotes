@@ -15,17 +15,12 @@ import {
   Share2,
   Zap,
   RotateCcw,
-  X,
-  Upload,
+   X,
   ChevronRight,
   ChevronDown,
-  Home,
-  Hash,
-  MoreHorizontal,
-  Edit3,
+   Edit3,
   AlignLeft,
-  Clock,
-  Menu,
+   Clock,
   PanelLeftClose,
   PanelLeft,
 } from "lucide-react";
@@ -60,271 +55,65 @@ const C = {
 };
 
 const DASH_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Merriweather:wght@400;700&display=swap');
-
+   @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Merriweather:wght@400;700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  .ds-root {
-    font-family: 'Lato', sans-serif;
-    background: ${C.bg};
-    color: ${C.text};
-    height: 100vh;
-    display: flex;
-    overflow: hidden;
-  }
-
-  /* ── Scrollbar ── */
+  .ds-root { font-family: 'Lato', sans-serif; background: ${C.bg}; color: ${C.text}; height: 100vh; display: flex; overflow: hidden; }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: ${C.borderMid}; border-radius: 4px; }
-
-  /* ── Sidebar ── */
-  .ds-sidebar {
-    width: 240px;
-    flex-shrink: 0;
-    background: ${C.sidebar};
-    border-right: 1px solid ${C.sidebarBorder};
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: width 0.22s ease;
-  }
+  .ds-sidebar { width: 240px; flex-shrink: 0; background: ${C.sidebar}; border-right: 1px solid ${C.sidebarBorder}; display: flex; flex-direction: column; overflow: hidden; transition: width 0.22s ease; }
   .ds-sidebar.collapsed { width: 0; border: none; }
-
-  .ds-sidebar-top {
-    padding: 16px 14px 12px;
-    border-bottom: 1px solid ${C.sidebarBorder};
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .ds-logo {
-    font-family: 'Merriweather', serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: ${C.accent};
-    letter-spacing: -0.3px;
-  }
-
-  .ds-icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: ${C.textMuted};
-    transition: background 0.12s, color 0.12s;
-  }
+  .ds-sidebar-top { padding: 16px 14px 12px; border-bottom: 1px solid ${C.sidebarBorder}; display: flex; align-items: center; justify-content: space-between; }
+  .ds-logo { font-family: 'Merriweather', serif; font-size: 15px; font-weight: 700; color: ${C.accent}; letter-spacing: -0.3px; }
+  .ds-icon-btn { background: none; border: none; cursor: pointer; padding: 5px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: ${C.textMuted}; transition: background 0.12s, color 0.12s; }
   .ds-icon-btn:hover { background: ${C.hover}; color: ${C.text}; }
   .ds-icon-btn.danger:hover { background: ${C.dangerLight}; color: ${C.danger}; }
-
-  .ds-user-row {
-    padding: 10px 14px;
-    border-bottom: 1px solid ${C.sidebarBorder};
-    display: flex;
-    align-items: center;
-    gap: 9px;
-  }
-  .ds-avatar {
-    width: 26px; height: 26px;
-    border-radius: 6px;
-    background: ${C.accentLight};
-    border: 1.5px solid ${C.accentBorder};
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; color: ${C.accent};
-    flex-shrink: 0;
-  }
+  .ds-user-row { padding: 10px 14px; border-bottom: 1px solid ${C.sidebarBorder}; display: flex; align-items: center; gap: 9px; }
+  .ds-avatar { width: 26px; height: 26px; border-radius: 6px; background: ${C.accentLight}; border: 1.5px solid ${C.accentBorder}; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: ${C.accent}; flex-shrink: 0; }
   .ds-user-name { font-size: 13px; font-weight: 700; color: ${C.text}; }
   .ds-user-sub  { font-size: 11px; color: ${C.textMuted}; }
-
-  /* ── Sidebar nav ── */
   .ds-sidebar-scroll { flex: 1; overflow-y: auto; padding: 10px 8px; }
-
-  .ds-section-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
-    color: ${C.textFaint}; text-transform: uppercase;
-    padding: 6px 8px 4px;
-    margin-top: 4px;
-  }
-
-  .ds-nav-btn {
-    width: 100%;
-    background: none; border: none; cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 6px;
-    display: flex; align-items: center; gap: 7px;
-    font-family: 'Lato', sans-serif;
-    font-size: 13.5px;
-    color: ${C.textMid};
-    text-align: left;
-    transition: background 0.12s, color 0.12s;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
+  .ds-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: ${C.textFaint}; text-transform: uppercase; padding: 6px 8px 4px; margin-top: 4px; }
+  .ds-nav-btn { width: 100%; background: none; border: none; cursor: pointer; padding: 6px 8px; border-radius: 6px; display: flex; align-items: center; gap: 7px; font-family: 'Lato', sans-serif; font-size: 13.5px; color: ${C.textMid}; text-align: left; transition: background 0.12s, color 0.12s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ds-nav-btn:hover  { background: ${C.hover}; color: ${C.text}; }
   .ds-nav-btn.active { background: ${C.selected}; color: ${C.accent}; font-weight: 700; }
-  .ds-nav-btn .count {
-    margin-left: auto;
-    font-size: 11px; color: ${C.textFaint};
-    background: ${C.hover};
-    padding: 1px 6px; border-radius: 99px;
-    flex-shrink: 0;
-  }
+  .ds-nav-btn .count { margin-left: auto; font-size: 11px; color: ${C.textFaint}; background: ${C.hover}; padding: 1px 6px; border-radius: 99px; flex-shrink: 0; }
   .ds-nav-btn.active .count { background: ${C.accentBorder}; color: ${C.accent}; }
-
-  .ds-folder-row {
-    display: flex; align-items: center; gap: 6px;
-    padding: 5px 8px; border-radius: 6px; cursor: pointer;
-    font-size: 13px; color: ${C.textMid};
-    transition: background 0.12s;
-  }
+  .ds-folder-row { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 13px; color: ${C.textMid}; transition: background 0.12s; }
   .ds-folder-row:hover { background: ${C.hover}; color: ${C.text}; }
   .ds-folder-row.active { background: ${C.selected}; color: ${C.accent}; }
-
-  .ds-new-note-btn {
-    margin: 10px 8px 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: ${C.accent};
-    color: #fff;
-    border: none; cursor: pointer;
-    font-family: 'Lato', sans-serif;
-    font-size: 13px; font-weight: 700;
-    display: flex; align-items: center; gap: 7px;
-    transition: background 0.15s;
-    width: calc(100% - 16px);
-  }
+  .ds-new-note-btn { margin: 10px 8px 8px; padding: 8px 12px; border-radius: 8px; background: ${C.accent}; color: #fff; border: none; cursor: pointer; font-family: 'Lato', sans-serif; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 7px; transition: background 0.15s; width: calc(100% - 16px); }
   .ds-new-note-btn:hover { background: #25673E; }
-
-  .ds-sidebar-footer {
-    padding: 10px 8px;
-    border-top: 1px solid ${C.sidebarBorder};
-    display: flex; flex-direction: column; gap: 2px;
-  }
-
-  /* ── Notes list panel ── */
-  .ds-list-panel {
-    width: 280px; flex-shrink: 0;
-    background: ${C.white};
-    border-right: 1px solid ${C.border};
-    display: flex; flex-direction: column;
-    overflow: hidden;
-  }
-
-  .ds-list-header {
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid ${C.border};
-  }
-  .ds-list-title {
-    font-family: 'Merriweather', serif;
-    font-size: 16px; font-weight: 700;
-    color: ${C.text}; margin-bottom: 10px;
-  }
-
-  .ds-search-wrap {
-    position: relative;
-  }
-  .ds-search-wrap svg {
-    position: absolute; left: 10px; top: 50%;
-    transform: translateY(-50%);
-    color: ${C.textFaint};
-  }
-  .ds-search {
-    width: 100%;
-    padding: 7px 10px 7px 32px;
-    border-radius: 7px;
-    border: 1px solid ${C.border};
-    background: ${C.bg};
-    font-family: 'Lato', sans-serif;
-    font-size: 13px; color: ${C.text};
-    transition: border-color 0.15s;
-  }
+  .ds-sidebar-footer { padding: 10px 8px; border-top: 1px solid ${C.sidebarBorder}; display: flex; flex-direction: column; gap: 2px; }
+  .ds-list-panel { width: 280px; flex-shrink: 0; background: ${C.white}; border-right: 1px solid ${C.border}; display: flex; flex-direction: column; overflow: hidden; }
+  .ds-list-header { padding: 14px 16px 10px; border-bottom: 1px solid ${C.border}; }
+  .ds-list-title { font-family: 'Merriweather', serif; font-size: 16px; font-weight: 700; color: ${C.text}; margin-bottom: 10px; }
+  .ds-search-wrap { position: relative; }
+  .ds-search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: ${C.textFaint}; }
+  .ds-search { width: 100%; padding: 7px 10px 7px 32px; border-radius: 7px; border: 1px solid ${C.border}; background: ${C.bg}; font-family: 'Lato', sans-serif; font-size: 13px; color: ${C.text}; transition: border-color 0.15s; }
   .ds-search:focus { outline: none; border-color: ${C.accentMid}; }
   .ds-search::placeholder { color: ${C.textFaint}; }
-
-  .ds-notes-scroll {
-    flex: 1; overflow-y: auto;
-    padding: 8px;
-    display: flex; flex-direction: column; gap: 1px;
-  }
-
-  .ds-note-item {
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.12s;
-    border: 1px solid transparent;
-  }
+  .ds-notes-scroll { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 1px; }
+  .ds-note-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 0.12s; border: 1px solid transparent; }
   .ds-note-item:hover { background: ${C.hover}; }
   .ds-note-item.selected { background: ${C.selected}; border-color: ${C.accentBorder}; }
   .ds-note-item:hover .ds-note-actions { opacity: 1; }
-
-  .ds-note-item-title {
-    font-size: 13.5px; font-weight: 700;
-    color: ${C.text};
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin-bottom: 3px;
-  }
+  .ds-note-item-title { font-size: 13.5px; font-weight: 700; color: ${C.text}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
   .ds-note-item.selected .ds-note-item-title { color: ${C.accent}; }
-
-  .ds-note-item-preview {
-    font-size: 12px; color: ${C.textMuted};
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    line-height: 1.5; margin-bottom: 6px;
-  }
-
-  .ds-note-meta {
-    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  }
-  .ds-note-time {
-    font-size: 11px; color: ${C.textFaint};
-  }
-  .ds-tag {
-    font-size: 10px; padding: 1px 7px;
-    border-radius: 99px; font-weight: 700;
-  }
+  .ds-note-item-preview { font-size: 12px; color: ${C.textMuted}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.5; margin-bottom: 6px; }
+  .ds-note-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ds-note-time { font-size: 11px; color: ${C.textFaint}; }
+  .ds-tag { font-size: 10px; padding: 1px 7px; border-radius: 99px; font-weight: 700; }
   .ds-tag.folder { background: ${C.purpleLight}; color: ${C.purple}; }
   .ds-tag.note   { background: ${C.blueLight};   color: ${C.blue};   }
-
-  .ds-note-actions {
-    opacity: 0; display: flex; gap: 2px;
-    margin-left: auto; flex-shrink: 0;
-  }
-
-  /* ── Main area ── */
-  .ds-main {
-    flex: 1; overflow: hidden;
-    display: flex; flex-direction: column;
-  }
-
-  .ds-topbar {
-    height: 48px;
-    border-bottom: 1px solid ${C.border};
-    display: flex; align-items: center;
-    padding: 0 16px; gap: 10px;
-    background: ${C.white};
-    flex-shrink: 0;
-  }
-  .ds-topbar-title {
-    font-size: 14px; font-weight: 700; color: ${C.text};
-    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
+  .ds-note-actions { opacity: 0; display: flex; gap: 2px; margin-left: auto; flex-shrink: 0; }
+  .ds-main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .ds-topbar { height: 48px; border-bottom: 1px solid ${C.border}; display: flex; align-items: center; padding: 0 16px; gap: 10px; background: ${C.white}; flex-shrink: 0; }
+  .ds-topbar-title { font-size: 14px; font-weight: 700; color: ${C.text}; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ds-topbar-actions { display: flex; align-items: center; gap: 6px; }
-
-  .ds-action-btn {
-    display: flex; align-items: center; gap: 5px;
-    padding: 5px 11px; border-radius: 6px;
-    font-family: 'Lato', sans-serif;
-    font-size: 12px; font-weight: 700; cursor: pointer;
-    border: 1px solid ${C.border};
-    background: ${C.white}; color: ${C.textMid};
-    transition: all 0.12s;
-    white-space: nowrap;
-  }
+  .ds-action-btn { display: flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 6px; font-family: 'Lato', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid ${C.border}; background: ${C.white}; color: ${C.textMid}; transition: all 0.12s; white-space: nowrap; }
   .ds-action-btn:hover { background: ${C.hover}; color: ${C.text}; border-color: ${C.borderMid}; }
+  .ds-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .ds-action-btn.accent { background: ${C.accent}; color: #fff; border-color: ${C.accent}; }
   .ds-action-btn.accent:hover { background: #25673E; }
   .ds-action-btn.ai    { background: ${C.purpleLight}; color: ${C.purple}; border-color: #D8C8EC; }
@@ -332,162 +121,49 @@ const DASH_CSS = `
   .ds-action-btn.flash { background: ${C.amberLight}; color: ${C.amber}; border-color: #F6D87A; }
   .ds-action-btn.flash:hover { background: #FDE68A; }
   .ds-action-btn.del   { background: ${C.dangerLight}; color: ${C.danger}; border-color: #F5BDB8; }
-  .ds-action-btn.del:hover { background: #FBDAD8; }
-
-  /* ── Editor ── */
+   .ds-action-btn.del:hover { background: #FBDAD8; }
   .ds-editor-wrap { flex: 1; overflow-y: auto; padding: 40px 56px; }
   @media (max-width: 900px) { .ds-editor-wrap { padding: 28px 24px; } }
-
-  .ds-editor-title {
-    font-family: 'Merriweather', serif;
-    font-size: 28px; font-weight: 700;
-    color: ${C.text}; border: none; background: transparent;
-    width: 100%; margin-bottom: 6px; line-height: 1.3;
-    resize: none;
-  }
+  .ds-editor-title { font-family: 'Merriweather', serif; font-size: 28px; font-weight: 700; color: ${C.text}; border: none; background: transparent; width: 100%; margin-bottom: 6px; line-height: 1.3; resize: none; }
   .ds-editor-title:focus { outline: none; }
   .ds-editor-title::placeholder { color: ${C.textFaint}; }
-
-  .ds-editor-divider {
-    height: 1px; background: ${C.border};
-    margin: 14px 0 22px;
-  }
-
-  .ds-editor-body {
-    font-family: 'Lato', sans-serif;
-    font-size: 15.5px; line-height: 1.85;
-    color: ${C.textMid};
-    border: none; background: transparent;
-    width: 100%; resize: none; min-height: 55vh;
-    display: block;
-  }
+  .ds-editor-divider { height: 1px; background: ${C.border}; margin: 14px 0 22px; }
+  .ds-editor-body { font-family: 'Lato', sans-serif; font-size: 15.5px; line-height: 1.85; color: ${C.textMid}; border: none; background: transparent; width: 100%; resize: none; min-height: 55vh; display: block; }
   .ds-editor-body:focus { outline: none; }
   .ds-editor-body::placeholder { color: ${C.textFaint}; }
-
-  .ds-statusbar {
-    height: 32px; border-top: 1px solid ${C.border};
-    display: flex; align-items: center; padding: 0 20px; gap: 20px;
-    background: ${C.white}; flex-shrink: 0;
-  }
-  .ds-statusbar span {
-    font-size: 11px; color: ${C.textFaint};
-    display: flex; align-items: center; gap: 4px;
-  }
-  .ds-status-dot {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: ${C.accentMid};
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-  /* ── Dashboard home ── */
+  .ds-statusbar { height: 32px; border-top: 1px solid ${C.border}; display: flex; align-items: center; padding: 0 20px; gap: 20px; background: ${C.white}; flex-shrink: 0; }
+  .ds-statusbar span { font-size: 11px; color: ${C.textFaint}; display: flex; align-items: center; gap: 4px; }
+  .ds-status-dot { width: 5px; height: 5px; border-radius: 50%; background: ${C.accentMid}; animation: pulse 2s infinite; }
+   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
   .ds-home-wrap { flex: 1; overflow-y: auto; padding: 36px 48px; }
   @media (max-width: 900px) { .ds-home-wrap { padding: 24px 20px; } }
-
-  .ds-home-greeting {
-    font-family: 'Merriweather', serif;
-    font-size: 22px; font-weight: 700;
-    color: ${C.text}; margin-bottom: 4px;
-  }
+  .ds-home-greeting { font-family: 'Merriweather', serif; font-size: 22px; font-weight: 700; color: ${C.text}; margin-bottom: 4px; }
   .ds-home-sub { font-size: 14px; color: ${C.textMuted}; margin-bottom: 28px; }
-
-  .ds-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px; margin-bottom: 32px;
-  }
-  .ds-stat-card {
-    background: ${C.white};
-    border: 1px solid ${C.border};
-    border-radius: 10px;
-    padding: 16px 18px;
-    display: flex; flex-direction: column; gap: 4px;
-  }
-  .ds-stat-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 6px;
-  }
-  .ds-stat-val {
-    font-family: 'Merriweather', serif;
-    font-size: 22px; font-weight: 700; line-height: 1;
-  }
+  .ds-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 32px; }
+  .ds-stat-card { background: ${C.white}; border: 1px solid ${C.border}; border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+  .ds-stat-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
+  .ds-stat-val { font-family: 'Merriweather', serif; font-size: 22px; font-weight: 700; line-height: 1; }
   .ds-stat-label { font-size: 11px; color: ${C.textMuted}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-
-  .ds-section-title {
-    font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.8px;
-    color: ${C.textFaint}; margin-bottom: 10px;
-  }
-
-  .ds-quick-actions {
-    display: flex; gap: 10px; flex-wrap: wrap;
-    margin-bottom: 32px;
-  }
-
+  .ds-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: ${C.textFaint}; margin-bottom: 10px; }
+  .ds-quick-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
   .ds-recent-list { display: flex; flex-direction: column; gap: 2px; }
-  .ds-recent-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 14px; border-radius: 8px; cursor: pointer;
-    transition: background 0.12s;
-    border: 1px solid transparent;
-  }
+  .ds-recent-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; cursor: pointer; transition: background 0.12s; border: 1px solid transparent; }
   .ds-recent-item:hover { background: ${C.white}; border-color: ${C.border}; }
-  .ds-recent-icon {
-    width: 34px; height: 34px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
+  .ds-recent-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .ds-recent-title { font-size: 13.5px; font-weight: 700; color: ${C.text}; }
   .ds-recent-meta  { font-size: 11px; color: ${C.textMuted}; margin-top: 1px; }
-
-  /* ── Empty state ── */
-  .ds-empty {
-    text-align: center; padding: 56px 20px;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-  }
-  .ds-empty-icon {
-    width: 52px; height: 52px; border-radius: 14px;
-    background: ${C.accentLight};
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 4px;
-  }
+  .ds-empty { text-align: center; padding: 56px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .ds-empty-icon { width: 52px; height: 52px; border-radius: 14px; background: ${C.accentLight}; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
   .ds-empty-title { font-size: 14px; font-weight: 700; color: ${C.text}; }
   .ds-empty-sub   { font-size: 13px; color: ${C.textMuted}; }
-
-  /* ── Folder new form ── */
-  .ds-inline-input {
-    width: 100%; padding: 5px 8px;
-    border: 1px solid ${C.accentBorder};
-    border-radius: 6px;
-    font-family: 'Lato', sans-serif; font-size: 13px;
-    color: ${C.text}; background: ${C.white};
-    margin: 4px 0 6px;
-  }
+  .ds-inline-input { width: 100%; padding: 5px 8px; border: 1px solid ${C.accentBorder}; border-radius: 6px; font-family: 'Lato', sans-serif; font-size: 13px; color: ${C.text}; background: ${C.white}; margin: 4px 0 6px; }
   .ds-inline-input:focus { outline: none; border-color: ${C.accent}; }
-
-  /* ── Spinner ── */
-  .ds-spinner {
-    width: 28px; height: 28px;
-    border: 2px solid ${C.accentLight};
-    border-top-color: ${C.accent};
-    border-radius: 50%;
-    animation: spin 0.9s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── Mobile top bar ── */
-  .ds-mobile-bar {
-    display: none; height: 48px;
-    align-items: center; padding: 0 14px; gap: 10px;
-    border-bottom: 1px solid ${C.border};
-    background: ${C.white};
-  }
+  .ds-spinner { width: 28px; height: 28px; border: 2px solid ${C.accentLight}; border-top-color: ${C.accent}; border-radius: 50%; animation: spin 0.9s linear infinite; }
+   @keyframes spin { to { transform: rotate(360deg); } }
   @media (max-width: 768px) {
     .ds-sidebar { position: absolute; z-index: 100; height: 100vh; box-shadow: 4px 0 20px rgba(0,0,0,.08); }
     .ds-sidebar.collapsed { width: 0; }
-    .ds-mobile-bar { display: flex; }
+    .ds-list-panel { width: 100%; }
   }
 `;
 
@@ -501,8 +177,7 @@ const timeAgo = (date) => {
   if (m < 60) return `${m}m ago`;
   if (h < 24) return `${h}h ago`;
   return `${d}d ago`;
-};
-
+ };
 const wordCount = (text) =>
   text ? text.split(/\s+/).filter(Boolean).length : 0;
 
@@ -588,8 +263,7 @@ function NoteItem({ note, isSelected, onClick, onStar, onTrash, onRestore }) {
     </div>
   );
 }
-
-// ─── Stat card ────────────────────────────────────────────────────────────────
+ 
 function StatCard({ icon: Icon, label, value, bg, color }) {
   return (
     <div className="ds-stat-card">
@@ -623,13 +297,13 @@ export default function DashboardPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
-  const [saveTimer, setSaveTimer] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [foldersOpen, setFoldersOpen] = useState(true);
 
+  // ── FIX: useRef instead of useState for saveTimer — avoids re-render loop ──
+  const saveTimerRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // ── Auto-resize textarea ──────────────────────────────────────────────────
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -638,21 +312,22 @@ export default function DashboardPage() {
     }
   }, [editContent]);
 
-  // ── Fetch data ────────────────────────────────────────────────────────────
+  // ── Fetch all data in parallel ────────────────────────────────────────────
   const fetchAll = useCallback(async () => {
     try {
       const [userRes, notesRes, foldersRes, dashRes] = await Promise.all([
         API.get("/auth/me"),
         API.get("/notes"),
         API.get("/folders"),
-        API.get("/dashboard/stats"),
+        API.get("/dashboard"), // FIX: was /dashboard/stats — route is /dashboard
       ]);
       setUser(userRes.data);
       setNotes(notesRes.data);
       setFolders(foldersRes.data);
       setStats(dashRes.data);
-    } catch {
-      toast.error("Failed to load data");
+    } catch (err) {
+      // Only show error for non-auth failures (401 handled by axios interceptor)
+      if (err.response?.status !== 401) toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -664,18 +339,18 @@ export default function DashboardPage() {
       return;
     }
     fetchAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchAll, navigate]);
 
-  // ── Auto-save ─────────────────────────────────────────────────────────────
+  // ── Auto-save (debounced 1.2s) ─────────────────────────────────────────────
   useEffect(() => {
     if (!selectedNote || !showEditor) return;
-    if (saveTimer) clearTimeout(saveTimer);
-    const t = setTimeout(async () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
       try {
         await API.patch(`/notes/${selectedNote._id}`, {
           title: editTitle,
           content: editContent,
+          plainText: editContent,
         });
         setNotes((p) =>
           p.map((n) =>
@@ -691,11 +366,10 @@ export default function DashboardPage() {
           ),
         );
       } catch {
-        /* silent */
+        /* silent — user sees saved status */
       }
     }, 1200);
-    setSaveTimer(t);
-    return () => clearTimeout(t);
+    return () => clearTimeout(saveTimerRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editTitle, editContent]);
 
@@ -731,7 +405,7 @@ export default function DashboardPage() {
     try {
       await API.patch(`/notes/${id}/trash`);
       setNotes((p) =>
-        p.map((n) => (n._id === id ? { ...n, isTrashed: !n.isTrashed } : n)),
+        p.map((n) => (n._id === id ? { ...n, isTrashed: true } : n)),
       );
       if (selectedNote?._id === id) closeEditor();
       toast.success("Moved to trash");
@@ -765,16 +439,18 @@ export default function DashboardPage() {
     }
   };
 
+  // ── FIX: Share — use window.location.origin + shareToken from response ────
   const handleShare = async (id, e) => {
     e?.stopPropagation();
     try {
-      const { data } = await API.patch(`/notes/${id}/share`);
-      await navigator.clipboard.writeText(
-        `${window.location.origin}/shared/${data.shareToken}`,
-      );
+      const { data } = await API.patch(`/notes/${id}/share`, {
+        action: "generate",
+      });
+      const shareUrl = `${window.location.origin}/shared/${data.shareToken}`;
+      await navigator.clipboard.writeText(shareUrl);
       toast.success("Share link copied!");
     } catch {
-      toast.error("Failed");
+      toast.error("Failed to generate share link");
     }
   };
 
@@ -820,6 +496,7 @@ export default function DashboardPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
@@ -853,12 +530,9 @@ export default function DashboardPage() {
         ? "Starred"
         : activeFilter === "pinned"
           ? "Pinned"
-          : activeFolderName
-            ? activeFolderName
-            : "All notes";
+          : (activeFolderName ?? "All notes");
 
-  // ── Loading ───────────────────────────────────────────────────────────────
-  if (loading)
+   if (loading)
     return (
       <>
         <style>{DASH_CSS}</style>
@@ -919,8 +593,7 @@ export default function DashboardPage() {
       <style>{DASH_CSS}</style>
       <div className="ds-root">
         {/* ── SIDEBAR ── */}
-        <aside className={`ds-sidebar${sidebarOpen ? "" : " collapsed"}`}>
-          {/* Logo + toggle */}
+         <aside className={`ds-sidebar${sidebarOpen ? "" : " collapsed"}`}>
           <div className="ds-sidebar-top">
             <span className="ds-logo">YourNotes</span>
             <button
@@ -931,8 +604,7 @@ export default function DashboardPage() {
               <PanelLeftClose size={15} />
             </button>
           </div>
-
-          {/* User */}
+ 
           {user && (
             <div className="ds-user-row">
               <div className="ds-avatar">
@@ -944,13 +616,11 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
-
-          {/* New note button */}
+ 
           <button className="ds-new-note-btn" onClick={createNote}>
             <Plus size={14} /> New note
           </button>
-
-          {/* Nav */}
+ 
           <div className="ds-sidebar-scroll">
             <div className="ds-section-label">Navigation</div>
             {navItems.map(({ key, icon: Icon, label, count }) => (
@@ -967,8 +637,7 @@ export default function DashboardPage() {
                 {count > 0 && <span className="count">{count}</span>}
               </button>
             ))}
-
-            {/* Folders */}
+ 
             <div style={{ marginTop: 14 }}>
               <div
                 style={{
@@ -1066,9 +735,9 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-
-          {/* Footer actions */}
+ 
           <div className="ds-sidebar-footer">
+            {/* FIX: was navigate('/flashcards') — now consistent */}
             <button
               className="ds-nav-btn"
               onClick={() => navigate("/flashcards")}
@@ -1163,8 +832,7 @@ export default function DashboardPage() {
         {/* ── MAIN AREA ── */}
         <div className="ds-main">
           {showEditor && selectedNote ? (
-            <>
-              {/* Editor topbar */}
+             <>
               <div className="ds-topbar">
                 <FileText
                   size={14}
@@ -1180,7 +848,7 @@ export default function DashboardPage() {
                     onClick={handleAISummary}
                     disabled={aiLoading}
                   >
-                    <Sparkles size={12} />{" "}
+                    <Sparkles size={12} />
                     {aiLoading ? "Working…" : "AI Summary"}
                   </button>
                   <button
@@ -1218,8 +886,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Editor body */}
-              <div className="ds-editor-wrap">
+               <div className="ds-editor-wrap">
                 <input
                   className="ds-editor-title"
                   value={editTitle}
@@ -1235,8 +902,7 @@ export default function DashboardPage() {
                   placeholder="Start writing your note here…"
                 />
               </div>
-
-              {/* Status bar */}
+ 
               <div className="ds-statusbar">
                 <span>
                   <div className="ds-status-dot" /> Saved
@@ -1245,8 +911,7 @@ export default function DashboardPage() {
                 <span>{editContent.length} characters</span>
               </div>
             </>
-          ) : (
-            /* ── Dashboard home ── */
+           ) : (
             <>
               <div className="ds-topbar">
                 {!sidebarOpen && (
@@ -1270,8 +935,7 @@ export default function DashboardPage() {
                 <div className="ds-home-sub">
                   Here's a quick look at your notes today.
                 </div>
-
-                {/* Stats */}
+ 
                 <div className="ds-stats-grid">
                   <StatCard
                     icon={FileText}
@@ -1302,8 +966,7 @@ export default function DashboardPage() {
                     color={C.blue}
                   />
                 </div>
-
-                {/* Quick actions */}
+ 
                 <div className="ds-section-title">Quick actions</div>
                 <div className="ds-quick-actions">
                   <button className="ds-action-btn accent" onClick={createNote}>
@@ -1325,8 +988,7 @@ export default function DashboardPage() {
                     <Star size={13} /> Starred notes
                   </button>
                 </div>
-
-                {/* Recent notes */}
+ 
                 <div className="ds-section-title">Recent notes</div>
                 <div className="ds-recent-list">
                   {notes

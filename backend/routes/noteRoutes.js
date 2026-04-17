@@ -27,6 +27,7 @@ router.get("/", getNotes);
 router.get("/:id", getNote);
 router.post("/", createNote);
 router.put("/:id", updateNote);
+router.patch("/:id", updateNote);       // ← FIX: auto-save uses PATCH, was missing
 router.patch("/:id/star", toggleStar);
 router.patch("/:id/pin", togglePin);
 router.patch("/:id/trash", trashNote);
@@ -34,4 +35,4 @@ router.patch("/:id/restore", restoreNote);
 router.patch("/:id/share", generateShareLink);
 router.delete("/:id", deleteNote);
 
-module.exports = router;
+module.exports = router; 
