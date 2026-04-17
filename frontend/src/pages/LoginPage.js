@@ -1,37 +1,29 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import {
-  Sparkles,
-  Layers,
-  Globe,
-  ArrowRight,
-  ShieldCheck,
-  User,
-  Mail,
-  Lock,
-} from "lucide-react";
+import { ArrowRight, Mail, Lock } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
 
-export default function RegisterPage() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+export default function LoginPage() {
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
-    if (!form.name || !form.email || !form.password)
-      return toast.error("All fields required");
+    if (!form.email || !form.password)
+      return toast.error("Email aur password dono zaroori hain");
     setLoading(true);
     try {
-      const { data } = await API.post("/auth/register", form);
+      // FIX: was calling /auth/register (register code was pasted here by mistake)
+      const { data } = await API.post("/auth/login", form);
       login(data.user, data.token);
-      toast.success("Account created!");
+      toast.success("Welcome back!");
       navigate("/dashboard");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Registration failed");
+      toast.error(err.response?.data?.message || "Login failed. Check credentials.");
     } finally {
       setLoading(false);
     }
@@ -54,7 +46,7 @@ export default function RegisterPage() {
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      {/* --- LEFT COLUMN: BRAND & FEATURES --- */}
+      {/* LEFT COLUMN */}
       <div
         style={{
           flex: 1,
@@ -80,27 +72,23 @@ export default function RegisterPage() {
           <span style={{ color: theme.primary }}>Notes.</span>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-          <FeatureRow
-            icon={<Sparkles size={20} color={theme.primary} />}
-            title="AI Powered Summaries"
-            desc="Gemini AI ka use karke apne lambe notes ko seconds mein summarize karein."
-          />
-          <FeatureRow
-            icon={<Layers size={20} color={theme.primary} />}
-            title="Smart Flashcards"
-            desc="Spaced Repetition (SM-2) algorithm se complex topics ko asani se yaad karein."
-          />
-          <FeatureRow
-            icon={<Globe size={20} color={theme.primary} />}
-            title="Universal Access"
-            desc="Apne notes ko kahi bhi, kabhi bhi access karein. Students ke liye hamesha free."
-          />
-          <FeatureRow
-            icon={<ShieldCheck size={20} color={theme.primary} />}
-            title="Secure & Private"
-            desc="Aapka data encrypted hai. Aapke notes sirf aapke hain."
-          />
+        <div style={{ maxWidth: 380 }}>
+          <h2
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: "38px",
+              fontWeight: "800",
+              color: theme.dark,
+              letterSpacing: "-2px",
+              lineHeight: 1.1,
+              marginBottom: 20,
+            }}
+          >
+            Welcome back to your workspace.
+          </h2>
+          <p style={{ color: theme.textSub, fontSize: "16px", lineHeight: 1.7 }}>
+            Apne notes, AI summaries aur flashcards se dobara connect karein.
+          </p>
         </div>
 
         <div
@@ -129,7 +117,7 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* --- RIGHT COLUMN: SIGNUP FORM --- */}
+      {/* RIGHT COLUMN: LOGIN FORM */}
       <div
         style={{
           width: "500px",
@@ -151,10 +139,10 @@ export default function RegisterPage() {
               letterSpacing: "-1.5px",
             }}
           >
-            Create Account.
+            Sign In.
           </h2>
           <p style={{ color: theme.textSub, fontSize: "15px" }}>
-            Start your journey with a clean AI workspace.
+            Apne account mein login karein.
           </p>
         </div>
 
@@ -162,14 +150,6 @@ export default function RegisterPage() {
           onSubmit={handleSubmit}
           style={{ display: "flex", flexDirection: "column", gap: "20px" }}
         >
-          <InputGroup
-            label="Full Name"
-            icon={<User size={18} />}
-            type="text"
-            placeholder="Nandkishor Barkhade"
-            value={form.name}
-            onChange={(val) => setForm({ ...form, name: val })}
-          />
           <InputGroup
             label="Email Address"
             icon={<Mail size={18} />}
@@ -187,6 +167,15 @@ export default function RegisterPage() {
             onChange={(val) => setForm({ ...form, password: val })}
           />
 
+          <div style={{ textAlign: "right", marginTop: "-8px" }}>
+            <Link
+              to="/forgot-password"
+              style={{ fontSize: "13px", color: theme.primary, textDecoration: "none" }}
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -200,7 +189,6 @@ export default function RegisterPage() {
               fontWeight: "700",
               fontSize: "16px",
               cursor: "pointer",
-              transition: "0.3s",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -209,10 +197,10 @@ export default function RegisterPage() {
             }}
           >
             {loading ? (
-              "Creating account..."
+              "Logging in..."
             ) : (
               <>
-                Create Free Account <ArrowRight size={18} />
+                Sign In <ArrowRight size={18} />
               </>
             )}
           </button>
@@ -226,16 +214,16 @@ export default function RegisterPage() {
             color: theme.textSub,
           }}
         >
-          Already have an account?{" "}
+          Account nahi hai?{" "}
           <Link
-            to="/login"
+            to="/register"
             style={{
               color: theme.primary,
               fontWeight: "700",
               textDecoration: "none",
             }}
           >
-            Sign in
+            Register karein
           </Link>
         </p>
 
@@ -250,44 +238,6 @@ export default function RegisterPage() {
           }}
         >
           YOURNOTES · BHOPAL · 2026
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// --- Internal Components ---
-function FeatureRow({ icon, title, desc }) {
-  return (
-    <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
-      <div
-        style={{
-          width: "44px",
-          height: "44px",
-          backgroundColor: "#fff",
-          borderRadius: "12px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          boxShadow: "0 4px 12px rgba(16, 185, 129, 0.08)",
-        }}
-      >
-        {icon}
-      </div>
-      <div>
-        <h3
-          style={{
-            fontSize: "17px",
-            fontWeight: "700",
-            color: "#111827",
-            marginBottom: "4px",
-          }}
-        >
-          {title}
-        </h3>
-        <p style={{ fontSize: "14px", color: "#6B7280", lineHeight: "1.5" }}>
-          {desc}
         </p>
       </div>
     </div>
@@ -332,7 +282,7 @@ function InputGroup({ label, icon, type, placeholder, value, onChange }) {
             border: "1.5px solid #E5E7EB",
             fontSize: "15px",
             outline: "none",
-            transition: "0.2s",
+            boxSizing: "border-box",
           }}
         />
       </div>

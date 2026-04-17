@@ -1,19 +1,22 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useCallback, useRef } from 'react';
+// FIX: was using direct axios with hardcoded localhost:8000 URL
+// Now using the shared API instance which reads REACT_APP_API_URL env variable
+import API from '../api/axios';
 
-const API = 'http://localhost:8000/api';
-
-export default function NoteEditor({ note, token, onUpdate, onClose }) {
+export default function NoteEditor({ note, onUpdate, onClose }) {
   const [title, setTitle] = useState(note?.title || '');
   const [saving, setSaving] = useState(false);
   const [aiSummary, setAiSummary] = useState(note?.aiSummary || '');
   const [loadingAI, setLoadingAI] = useState(false);
   const [flashcards, setFlashcards] = useState([]);
-  const [showFlashcards, setShowFlashcards] = useState(false);
-  const [activeTab, setActiveTab] = useState('write'); // write | summary | flashcards
+  const [activeTab, setActiveTab] = useState('write');
+
+  // FIX: Use ref to store latest title so debounce closure doesn't go stale
+  const titleRef = useRef(title);
+  useEffect(() => { titleRef.current = title; }, [title]);
 
   const editor = useEditor({
     extensions: [
@@ -22,52 +25,46 @@ export default function NoteEditor({ note, token, onUpdate, onClose }) {
     ],
     content: note?.content || '',
     onUpdate: ({ editor }) => {
-      autoSave(editor.getHTML(), editor.getText());
+      debouncedSave(editor.getHTML(), editor.getText());
     }
   });
 
-  // Auto save
-  const autoSave = useCallback(
+  // FIX: Stable debounced save using ref for title (avoids stale closure bug)
+  const debouncedSave = useCallback(
     debounce(async (content, plainText) => {
       if (!note?._id) return;
       setSaving(true);
       try {
-        const res = await axios.put(`${API}/notes/${note._id}`,
-          { title, content, plainText },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await API.put(`/notes/${note._id}`, {
+          title: titleRef.current,
+          content,
+          plainText,
+        });
         onUpdate && onUpdate(res.data);
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error('Auto-save failed:', e); }
       setSaving(false);
     }, 1500),
-    [note?._id, title, token]
+    [note?._id] // only recreate if note changes
   );
 
-  // Save title on change
+  // FIX: Added note._id to dependency array (was missing — could skip save on note switch)
   useEffect(() => {
     if (!note?._id || !title) return;
     const timer = setTimeout(async () => {
       setSaving(true);
       try {
-        await axios.put(`${API}/notes/${note._id}`,
-          { title },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } catch (e) { console.error(e); }
+        await API.put(`/notes/${note._id}`, { title });
+      } catch (e) { console.error('Title save failed:', e); }
       setSaving(false);
     }, 1000);
     return () => clearTimeout(timer);
-  }, [title]);
+  }, [title, note?._id]);
 
-  // AI Summarize
   const handleSummarize = async () => {
     setLoadingAI(true);
     setActiveTab('summary');
     try {
-      const res = await axios.post(`${API}/ai/summarize/${note._id}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await API.post(`/ai/summarize/${note._id}`, {});
       setAiSummary(res.data.summary);
     } catch (e) {
       setAiSummary('Error: Note mein kam se kam 50 characters hone chahiye!');
@@ -75,19 +72,14 @@ export default function NoteEditor({ note, token, onUpdate, onClose }) {
     setLoadingAI(false);
   };
 
-  // Generate Flashcards
   const handleFlashcards = async () => {
     setLoadingAI(true);
     setActiveTab('flashcards');
     try {
-      const res = await axios.post(`${API}/ai/flashcards/${note._id}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await API.post(`/ai/flashcards/${note._id}`, {});
       setFlashcards(res.data.flashcards);
-      setShowFlashcards(true);
     } catch (e) {
-      console.error(e);
+      console.error('Flashcards generation failed:', e);
     }
     setLoadingAI(false);
   };
@@ -100,8 +92,7 @@ export default function NoteEditor({ note, token, onUpdate, onClose }) {
       {/* Top Bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '12px 24px', borderBottom: '1px solid #e5e7eb',
-        background: '#fff'
+        padding: '12px 24px', borderBottom: '1px solid #e5e7eb', background: '#fff'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button onClick={onClose} style={{
@@ -148,7 +139,6 @@ export default function NoteEditor({ note, token, onUpdate, onClose }) {
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
 
-        {/* Write Tab */}
         {activeTab === 'write' && (
           <>
             <input
@@ -165,7 +155,6 @@ export default function NoteEditor({ note, token, onUpdate, onClose }) {
           </>
         )}
 
-        {/* Summary Tab */}
         {activeTab === 'summary' && (
           <div>
             <h3 style={{ color: '#4F46E5', marginBottom: 16 }}>🤖 AI Generated Summary</h3>
@@ -189,7 +178,6 @@ export default function NoteEditor({ note, token, onUpdate, onClose }) {
           </div>
         )}
 
-        {/* Flashcards Tab */}
         {activeTab === 'flashcards' && (
           <div>
             <h3 style={{ color: '#4F46E5', marginBottom: 16 }}>🃏 Flashcards</h3>
@@ -216,7 +204,6 @@ export default function NoteEditor({ note, token, onUpdate, onClose }) {
   );
 }
 
-// Flip Card Component
 function FlashCard({ question, answer, index }) {
   const [flipped, setFlipped] = useState(false);
   return (
@@ -239,7 +226,6 @@ function FlashCard({ question, answer, index }) {
   );
 }
 
-// Debounce helper
 function debounce(fn, delay) {
   let timer;
   return (...args) => {

@@ -11,14 +11,15 @@ const getDashboard = async (req, res) => {
         Note.countDocuments({ user: userId, isTrashed: false }),
         Folder.countDocuments({ user: userId }),
         Note.countDocuments({ user: userId, isStarred: true, isTrashed: false }),
+        // FIX: was querying 'nextReview' but field is 'nextReviewDate' in Flashcard model
         Flashcard.countDocuments({
           user: userId,
-          nextReview: { $lte: new Date() },
-        }).catch(() => 0), // graceful fallback if Flashcard model missing
+          nextReviewDate: { $lte: new Date() },
+        }).catch(() => 0),
         Note.find({ user: userId, isTrashed: false })
-          .sort({ updatedAt: -1 })
+          .sort({ isPinned: -1, updatedAt: -1 })
           .limit(5)
-          .select("title updatedAt folder tags")
+          .select("title updatedAt folder tags isPinned isStarred")
           .populate("folder", "name color"),
       ]);
 
@@ -27,7 +28,6 @@ const getDashboard = async (req, res) => {
       totalFolders,
       starredNotes,
       flashcardsDue,
-      aiSummaries: 0, // extend later
       recentNotes,
     });
   } catch (error) {
