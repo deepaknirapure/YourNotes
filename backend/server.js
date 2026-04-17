@@ -15,7 +15,8 @@ app.use(helmet());
 
 // ── CORS: allow Vercel frontend + localhost dev ───────────────────────────────
 const allowedOrigins = [
-  process.env.FRONTEND_URL,           // e.g. https://your-notes-webapp.vercel.app
+  'https://your-notes-webapp.vercel.app',  // ← apna actual Vercel URL
+  process.env.FRONTEND_URL,
   'http://localhost:3000',
   'http://localhost:3001',
 ].filter(Boolean);
