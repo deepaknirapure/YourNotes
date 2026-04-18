@@ -573,12 +573,6 @@ export default function LandingPage() {
             {/* YourNotes */}
             <div style={{ background: "#111", border: "1px solid rgba(229,91,45,.25)", borderRadius: 14, padding: "32px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-                <div style={{ width: 28, height: 28, background: "#E55B2D", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                    <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
-                  </svg>
-                </div>
                 <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, color: "#fff", fontSize: 15 }}>YourNotes</span>
               </div>
               {["Completely Free, No Quality Cuts", "AI-Powered, Skill-First Learning", "Spaced Repetition Built In", "Smart Flashcards & Summaries", "Industry-Relevant Curriculum"].map((item, i) => (
