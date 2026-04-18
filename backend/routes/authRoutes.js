@@ -19,3 +19,8 @@ router.post("/reset-password/:token", resetPassword);
 router.get("/me", protect, getMe);
 
 module.exports = router;
+
+// Profile update routes (protected)
+const { updateProfile, changePassword } = require('../controllers/authController');
+router.put('/me', protect, updateProfile);
+router.put('/change-password', protect, changePassword);

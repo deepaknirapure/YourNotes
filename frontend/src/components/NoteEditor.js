@@ -1,310 +1,274 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Bot, CreditCard, PenLine, FileText, ArrowLeft, Save, Check, Loader2, ChevronRight } from 'lucide-react';
+import { Bot, CreditCard, PenLine, FileText, ArrowLeft, Save, Check, Loader2, Tag, Download } from 'lucide-react';
 import API from '../api/axios';
+import toast from 'react-hot-toast';
 
 export default function NoteEditor({ note, onUpdate, onClose }) {
   const [title, setTitle]       = useState(note?.title || '');
   const [content, setContent]   = useState(
-    (note?.plainText || note?.content?.replace(/<[^>]+>/g, '') || '')
+    note?.plainText || note?.content?.replace(/<[^>]+>/g, '') || ''
   );
   const [saving, setSaving]     = useState(false);
+  const [saved, setSaved]       = useState(false);
   const [aiSummary, setAiSummary] = useState(note?.aiSummary || '');
   const [loadingAI, setLoadingAI] = useState(false);
   const [flashcards, setFlashcards] = useState([]);
   const [activeTab, setActiveTab]   = useState('write');
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState(note?.tags || []);
 
   const titleRef   = useRef(title);
   const contentRef = useRef(content);
+  const tagsRef    = useRef(tags);
   useEffect(() => { titleRef.current   = title;   }, [title]);
   useEffect(() => { contentRef.current = content; }, [content]);
+  useEffect(() => { tagsRef.current    = tags;    }, [tags]);
 
   // ── Auto-save (debounced 1.5s) ──────────────────────────────────────────
   const saveTimer = useRef(null);
-
   const scheduleSave = useCallback(() => {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       if (!note?._id) return;
-      setSaving(true);
+      setSaving(true); setSaved(false);
       try {
         const res = await API.put(`/notes/${note._id}`, {
           title:     titleRef.current,
           content:   contentRef.current,
           plainText: contentRef.current,
+          tags:      tagsRef.current,
         });
         onUpdate && onUpdate(res.data);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
       } catch (_) {}
       setSaving(false);
     }, 1500);
   }, [note?._id, onUpdate]);
 
-  useEffect(() => { scheduleSave(); }, [title, content, scheduleSave]);
+  useEffect(() => { scheduleSave(); }, [title, content, tags, scheduleSave]);
   useEffect(() => () => clearTimeout(saveTimer.current), []);
 
   // ── AI Summary ──────────────────────────────────────────────────────────
   const handleSummarize = async () => {
     clearTimeout(saveTimer.current);
-    try {
-      await API.put(`/notes/${note._id}`, {
-        title: titleRef.current, content: contentRef.current, plainText: contentRef.current,
-      });
-    } catch (_) {}
-    setLoadingAI(true);
-    setActiveTab('summary');
+    try { await API.put(`/notes/${note._id}`, { title: titleRef.current, content: contentRef.current, plainText: contentRef.current }); } catch (_) {}
+    setLoadingAI(true); setActiveTab('summary');
     try {
       const res = await API.post(`/ai/summarize/${note._id}`, {});
       setAiSummary(res.data.summary);
-    } catch (_) {
-      setAiSummary('Error: Note mein kam se kam 50 characters hone chahiye.');
-    }
+    } catch (_) { setAiSummary('Error: Note mein kam se kam 50 characters hone chahiye.'); }
     setLoadingAI(false);
   };
 
   // ── Flashcards ──────────────────────────────────────────────────────────
   const handleFlashcards = async () => {
     clearTimeout(saveTimer.current);
-    try {
-      await API.put(`/notes/${note._id}`, {
-        title: titleRef.current, content: contentRef.current, plainText: contentRef.current,
-      });
-    } catch (_) {}
-    setLoadingAI(true);
-    setActiveTab('flashcards');
+    try { await API.put(`/notes/${note._id}`, { title: titleRef.current, content: contentRef.current, plainText: contentRef.current }); } catch (_) {}
+    setLoadingAI(true); setActiveTab('flashcards');
     try {
       const res = await API.post(`/ai/flashcards/${note._id}`, {});
       setFlashcards(res.data.flashcards);
-    } catch (_) {}
+    } catch (_) { toast.error('Flashcard generation failed'); }
     setLoadingAI(false);
   };
 
+  // ── PDF Export ──────────────────────────────────────────────────────────
+  const handlePDFExport = () => {
+    const content_html = `
+      <!DOCTYPE html><html><head>
+      <meta charset="utf-8">
+      <title>${titleRef.current || 'Note'}</title>
+      <style>
+        body{font-family:'Segoe UI',Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;color:#1a1a1a;line-height:1.7}
+        h1{font-size:28px;font-weight:800;margin-bottom:8px;color:#1a1a1a}
+        .meta{font-size:12px;color:#666;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #E55B2D}
+        .tags span{display:inline-block;padding:2px 10px;background:#fff3f0;border:1px solid #E55B2D;border-radius:4px;font-size:11px;color:#E55B2D;font-weight:700;margin-right:6px}
+        pre{white-space:pre-wrap;font-family:'Segoe UI',sans-serif;font-size:15px;color:#333}
+      </style></head><body>
+      <h1>${titleRef.current || 'Untitled Note'}</h1>
+      <div class="meta">
+        <span>YourNotes Export · ${new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })}</span>
+        ${tagsRef.current?.length ? `<div class="tags" style="margin-top:6px">${tagsRef.current.map(t=>`<span>${t}</span>`).join('')}</div>` : ''}
+      </div>
+      <pre>${contentRef.current}</pre>
+      </body></html>
+    `;
+    const blob = new Blob([content_html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${titleRef.current || 'note'}.html`;
+    a.click(); URL.revokeObjectURL(url);
+    toast.success('Note exported! Browser se Print > Save as PDF karo');
+  };
+
+  // ── Tags ──────────────────────────────────────────────────────────────
+  const addTag = (e) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      const t = tagInput.trim().replace(/^#/, '');
+      if (t && !tags.includes(t)) { setTags(prev => [...prev, t]); }
+      setTagInput('');
+    }
+  };
+  const removeTag = (t) => setTags(prev => prev.filter(x => x !== t));
+
   const tabs = [
     { key: 'write',      label: 'Write',      Icon: PenLine   },
-    { key: 'summary',    label: 'Summary',    Icon: FileText  },
+    { key: 'summary',    label: 'AI Summary', Icon: FileText  },
     { key: 'flashcards', label: 'Flashcards', Icon: CreditCard },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#fff', flex: 1, fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#fff', flex: 1, fontFamily: "'DM Sans', sans-serif", overflow: 'hidden' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
-        .yn-tab-btn { padding: 10px 18px; border: none; background: none; cursor: pointer; display: flex; align-items: center; gap: 7px; font-size: 14px; font-family: 'DM Sans', sans-serif; border-bottom: 2px solid transparent; transition: all .2s; }
-        .yn-tab-btn.active { color: #4F46E5; border-bottom-color: #4F46E5; font-weight: 700; }
-        .yn-tab-btn:not(.active) { color: #6b7280; }
-        .yn-tab-btn:hover:not(.active) { color: #374151; }
-        .yn-ai-btn { color: #fff; border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 7px; font-family: 'DM Sans', sans-serif; transition: opacity .2s; }
-        .yn-ai-btn:hover { opacity: 0.87; }
-        .yn-toolbar-btn { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 14px; color: #374151; font-family: 'DM Sans', sans-serif; transition: background .15s; }
-        .yn-toolbar-btn:hover { background: #f3f4f6; }
+        
+        .yn-tab-btn{padding:10px 18px;border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:13px;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+        .yn-tab-btn.active{color:#E55B2D;border-bottom-color:#E55B2D;font-weight:700}
+        .yn-tab-btn:not(.active){color:#6b7280}
+        .yn-tab-btn:hover:not(.active){color:#374151}
+        .yn-ai-btn{color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;transition:all .2s}
+        .yn-ai-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+        .yn-ai-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+        .yn-tag-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:#fff3f0;border:1px solid rgba(229,91,45,.3);border-radius:20px;font-size:11px;color:#E55B2D;font-weight:700;cursor:pointer;transition:background .15s}
+        .yn-tag-pill:hover{background:rgba(229,91,45,.1)}
+        .yn-tag-input{border:none;outline:none;font-size:12px;font-family:'DM Sans',sans-serif;color:#374151;background:transparent;min-width:80px}
+        .yn-note-textarea{flex:1;padding:28px 32px;font-size:16px;font-family:'DM Sans',sans-serif;line-height:1.85;color:#1a1a1a;border:none;outline:none;resize:none;width:100%;background:#fff}
+        .yn-note-textarea::placeholder{color:#d1d5db}
+        @keyframes ynSpin{to{transform:rotate(360deg)}}
+        @keyframes ynFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .yn-fc-card{background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:12px;transition:border-color .2s;animation:ynFadeIn .3s ease both}
+        .yn-fc-card:hover{border-color:rgba(229,91,45,.3)}
       `}</style>
 
       {/* ── Top Bar ── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '12px 24px', borderBottom: '1px solid #e5e7eb', background: '#fff',
-        position: 'sticky', top: 0, zIndex: 10,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={onClose} style={{
-            background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280',
-            display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, padding: '4px 8px',
-            borderRadius: 6, transition: 'background .15s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = '#f3f4f6'}
-          onMouseLeave={e => e.currentTarget.style.background = 'none'}>
-            <ArrowLeft size={16} />
-          </button>
-          <span style={{ fontSize: 13, color: saving ? '#f59e0b' : '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
-            {saving
-              ? <><Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</>
-              : <><Check size={13} /> Saved</>}
-          </span>
+      <div style={{ borderBottom: '1px solid #f0f0f0', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56, gap: 12, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 }}>
+          {onClose && (
+            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', padding: '6px', borderRadius: 6, display: 'flex', transition: 'color .15s', flexShrink: 0 }}
+              onMouseEnter={e => e.currentTarget.style.color = '#374151'} onMouseLeave={e => e.currentTarget.style.color = '#9ca3af'}>
+              <ArrowLeft size={18} />
+            </button>
+          )}
+          <div style={{ fontSize: 12, fontWeight: 600, color: saving ? '#f59e0b' : saved ? '#10b981' : '#d1d5db', display: 'flex', alignItems: 'center', gap: 5, transition: 'color .3s', flexShrink: 0 }}>
+            {saving ? <><span style={{ width: 12, height: 12, border: '1.5px solid rgba(245,158,11,.3)', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'ynSpin 1s linear infinite', display: 'inline-block' }} />Saving...</>
+              : saved ? <><Check size={13} />Saved</> : <><Save size={13} />Auto-save</>}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={handleSummarize} className="yn-ai-btn"
-            style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
-            <Bot size={14} /> AI Summary
+
+        {/* AI Buttons */}
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+          <button className="yn-ai-btn" style={{ background: 'linear-gradient(135deg,#4F46E5,#7C3AED)' }} onClick={handleSummarize} disabled={loadingAI}>
+            <Bot size={13} /> AI Summary
           </button>
-          <button onClick={handleFlashcards} className="yn-ai-btn"
-            style={{ background: 'linear-gradient(135deg, #f093fb, #f5576c)' }}>
-            <CreditCard size={14} /> Flashcards
+          <button className="yn-ai-btn" style={{ background: 'linear-gradient(135deg,#E55B2D,#c94d23)' }} onClick={handleFlashcards} disabled={loadingAI}>
+            <CreditCard size={13} /> Flashcards
+          </button>
+          <button className="yn-ai-btn" style={{ background: '#374151' }} onClick={handlePDFExport} title="Export as HTML (print to PDF)">
+            <Download size={13} /> Export
           </button>
         </div>
       </div>
 
       {/* ── Tabs ── */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', padding: '0 24px', background: '#fff' }}>
+      <div style={{ borderBottom: '1px solid #f0f0f0', paddingLeft: 20, display: 'flex', gap: 0, flexShrink: 0 }}>
         {tabs.map(({ key, label, Icon }) => (
-          <button key={key} onClick={() => setActiveTab(key)}
-            className={`yn-tab-btn${activeTab === key ? ' active' : ''}`}>
+          <button key={key} className={`yn-tab-btn ${activeTab === key ? 'active' : ''}`} onClick={() => setActiveTab(key)}>
             <Icon size={14} /> {label}
           </button>
         ))}
       </div>
 
-      {/* ── Content Area ── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '32px 40px', maxWidth: 860, width: '100%', margin: '0 auto' }}>
+      {/* ── Title ── */}
+      <input
+        value={title} onChange={e => setTitle(e.target.value)}
+        placeholder="Note ka title likhein..."
+        style={{ padding: '20px 32px 10px', fontSize: 22, fontWeight: 800, fontFamily: "'DM Sans', sans-serif", border: 'none', outline: 'none', color: '#111', background: '#fff', flexShrink: 0 }}
+      />
 
-        {/* WRITE TAB */}
-        {activeTab === 'write' && (
-          <>
-            <input
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="Note ka title..."
-              style={{
-                width: '100%', fontSize: 30, fontWeight: 700,
-                border: 'none', outline: 'none', marginBottom: 8,
-                color: '#1f2937', background: 'transparent',
-                fontFamily: "'Syne', sans-serif",
-              }}
-            />
-            <div style={{ height: 1, background: '#e5e7eb', marginBottom: 24 }} />
-            <Toolbar />
-            <textarea
-              id="note-content-area"
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              placeholder={"Yahan apne notes likho...\n\nKuch tips:\n• **bold text** ke liye double asterisk use karo\n• Bullet points ke liye - ya • use karo\n• Headings ke liye # use karo"}
-              style={{
-                width: '100%', minHeight: '60vh', border: 'none', outline: 'none',
-                fontSize: 16, lineHeight: 1.9, color: '#374151', background: 'transparent',
-                resize: 'none', fontFamily: "'DM Sans', sans-serif", boxSizing: 'border-box',
-              }}
-            />
-            <div style={{ marginTop: 16, fontSize: 12, color: '#9ca3af', textAlign: 'right' }}>
-              {content.trim().split(/\s+/).filter(Boolean).length} words · {content.length} characters
+      {/* ── Tags row ── */}
+      <div style={{ padding: '0 32px 10px', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', flexShrink: 0 }}>
+        <Tag size={13} color="#d1d5db" />
+        {tags.map(t => (
+          <span key={t} className="yn-tag-pill" onClick={() => removeTag(t)} title="Click to remove">
+            #{t} ×
+          </span>
+        ))}
+        <input className="yn-tag-input" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={addTag} placeholder={tags.length === 0 ? "Tag add karein (Enter)" : ""} />
+      </div>
+
+      {/* ── Write Tab ── */}
+      {activeTab === 'write' && (
+        <textarea
+          className="yn-note-textarea"
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          placeholder="Yahan apna note likhein..."
+        />
+      )}
+
+      {/* ── Summary Tab ── */}
+      {activeTab === 'summary' && (
+        <div style={{ flex: 1, padding: '24px 32px', overflowY: 'auto', animation: 'ynFadeIn .3s ease' }}>
+          {loadingAI ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 200, gap: 16 }}>
+              <div style={{ width: 36, height: 36, border: '3px solid rgba(79,70,229,.2)', borderTopColor: '#4F46E5', borderRadius: '50%', animation: 'ynSpin 1s linear infinite' }} />
+              <p style={{ color: '#6b7280', fontSize: 14 }}>Groq AI se summary le raha hoon...</p>
             </div>
-          </>
-        )}
-
-        {/* SUMMARY TAB */}
-        {activeTab === 'summary' && (
-          <div>
-            <h3 style={{ color: '#4F46E5', marginBottom: 20, fontSize: 20, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Bot size={20} /> AI Generated Summary
-            </h3>
-            {loadingAI ? (
-              <LoadingCard icon={<Bot size={32} />} text="AI summary generate kar raha hai..." />
-            ) : aiSummary ? (
-              <div style={{
-                background: '#f5f3ff', borderRadius: 16, padding: 28,
-                lineHeight: 1.9, color: '#374151', whiteSpace: 'pre-wrap',
-                fontSize: 15, border: '1px solid #e0d9ff',
-              }}>
-                {aiSummary}
+          ) : aiSummary ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '10px 16px', background: 'rgba(79,70,229,.06)', borderRadius: 8, border: '1px solid rgba(79,70,229,.15)' }}>
+                <Bot size={16} color="#4F46E5" />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#4F46E5' }}>AI SUMMARY</span>
               </div>
-            ) : (
-              <EmptyState icon={<Bot size={36} />} text='Upar "AI Summary" button dabao!' />
-            )}
-          </div>
-        )}
+              <div style={{ fontSize: 15, color: '#374151', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{aiSummary}</div>
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+              <Bot size={40} color="#d1d5db" style={{ marginBottom: 16 }} />
+              <p style={{ color: '#9ca3af', fontSize: 14, marginBottom: 16 }}>AI Summary abhi generate nahi hui</p>
+              <button className="yn-ai-btn" style={{ background: 'linear-gradient(135deg,#4F46E5,#7C3AED)', margin: '0 auto' }} onClick={handleSummarize}>
+                <Bot size={14} /> Generate Summary
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
-        {/* FLASHCARDS TAB */}
-        {activeTab === 'flashcards' && (
-          <div>
-            <h3 style={{ color: '#4F46E5', marginBottom: 20, fontSize: 20, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <CreditCard size={20} /> Flashcards
-            </h3>
-            {loadingAI ? (
-              <LoadingCard icon={<CreditCard size={32} />} text="Flashcards generate ho rahe hain..." />
-            ) : flashcards.length > 0 ? (
-              <>
-                <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
-                  {flashcards.length} flashcards · Click karo flip karne ke liye
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {flashcards.map((fc, i) => (
-                    <FlashCard key={i} question={fc.question} answer={fc.answer} index={i} />
-                  ))}
+      {/* ── Flashcards Tab ── */}
+      {activeTab === 'flashcards' && (
+        <div style={{ flex: 1, padding: '24px 32px', overflowY: 'auto', animation: 'ynFadeIn .3s ease' }}>
+          {loadingAI ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 200, gap: 16 }}>
+              <div style={{ width: 36, height: 36, border: '3px solid rgba(229,91,45,.2)', borderTopColor: '#E55B2D', borderRadius: '50%', animation: 'ynSpin 1s linear infinite' }} />
+              <p style={{ color: '#6b7280', fontSize: 14 }}>Flashcards generate kar raha hoon...</p>
+            </div>
+          ) : flashcards.length > 0 ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, padding: '10px 16px', background: 'rgba(229,91,45,.06)', borderRadius: 8, border: '1px solid rgba(229,91,45,.15)' }}>
+                <CreditCard size={16} color="#E55B2D" />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#E55B2D' }}>{flashcards.length} FLASHCARDS GENERATED</span>
+              </div>
+              {flashcards.map((fc, i) => (
+                <div key={fc._id || i} className="yn-fc-card">
+                  <div style={{ fontSize: 11, fontWeight: 800, color: '#E55B2D', letterSpacing: '.06em', marginBottom: 6 }}>Q {i + 1}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#111', marginBottom: 10 }}>{fc.question}</div>
+                  <div style={{ height: 1, background: '#e5e7eb', margin: '10px 0' }} />
+                  <div style={{ fontSize: 11, fontWeight: 800, color: '#10b981', letterSpacing: '.06em', marginBottom: 6 }}>ANSWER</div>
+                  <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.6 }}>{fc.answer}</div>
                 </div>
-              </>
-            ) : (
-              <EmptyState icon={<CreditCard size={36} />} text='Upar "Flashcards" button dabao!' />
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Toolbar ───────────────────────────────────────────────────────────────────
-function Toolbar() {
-  return (
-    <div style={{ display: 'flex', gap: 4, marginBottom: 16, flexWrap: 'wrap' }}>
-      {[
-        { label: 'B', title: 'Bold (**text**)',  style: { fontWeight: 700 }, before: '**', after: '**' },
-        { label: 'I', title: 'Italic (_text_)',  style: { fontStyle: 'italic' }, before: '_', after: '_' },
-        { label: 'H', title: 'Heading (# text)', style: { fontWeight: 700 }, before: '# ', after: '' },
-        { label: '—', title: 'Divider',          style: {}, before: '\n---\n', after: '' },
-        { label: '•', title: 'Bullet point',     style: {}, before: '\n• ', after: '' },
-      ].map(btn => (
-        <button key={btn.label} title={btn.title} className="yn-toolbar-btn"
-          onClick={() => insertAtCursor(btn.before, btn.after)} style={btn.style}>
-          {btn.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function insertAtCursor(before, after) {
-  const ta = document.getElementById('note-content-area');
-  if (!ta) return;
-  const start = ta.selectionStart;
-  const end   = ta.selectionEnd;
-  const selected = ta.value.substring(start, end);
-  const newVal = ta.value.substring(0, start) + before + selected + after + ta.value.substring(end);
-  const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
-  nativeInputValueSetter.call(ta, newVal);
-  ta.dispatchEvent(new Event('input', { bubbles: true }));
-  setTimeout(() => ta.setSelectionRange(start + before.length, start + before.length + selected.length), 0);
-}
-
-// ── FlashCard ─────────────────────────────────────────────────────────────────
-function FlashCard({ question, answer, index }) {
-  const [flipped, setFlipped] = useState(false);
-  return (
-    <div onClick={() => setFlipped(!flipped)} style={{
-      background: flipped ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#f9fafb',
-      borderRadius: 14, padding: '24px 28px', cursor: 'pointer',
-      border: '1px solid #e5e7eb', transition: 'all 0.25s',
-      color: flipped ? '#fff' : '#1f2937',
-      boxShadow: flipped ? '0 4px 20px rgba(99,102,241,0.25)' : 'none',
-    }}>
-      <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 10, opacity: 0.7, letterSpacing: 1, display: 'flex', alignItems: 'center', gap: 5 }}>
-        {flipped
-          ? <><Check size={11} /> ANSWER</>
-          : <>Q {index + 1}</>}
-      </div>
-      <div style={{ fontSize: 16, lineHeight: 1.7 }}>
-        {flipped ? answer : question}
-      </div>
-      <div style={{ fontSize: 11, marginTop: 14, opacity: 0.55 }}>
-        {flipped ? 'Click to see question' : 'Click to reveal answer'}
-      </div>
-    </div>
-  );
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function LoadingCard({ icon, text }) {
-  return (
-    <div style={{ textAlign: 'center', padding: '60px 0', color: '#6b7280' }}>
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, opacity: 0.4 }}>{icon}</div>
-      <p style={{ fontSize: 15 }}>{text}</p>
-    </div>
-  );
-}
-
-function EmptyState({ icon, text }) {
-  return (
-    <div style={{
-      textAlign: 'center', padding: '60px 0', color: '#6b7280',
-      background: '#f9fafb', borderRadius: 16, border: '1px dashed #e5e7eb',
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, opacity: 0.35 }}>{icon}</div>
-      <p style={{ fontSize: 15 }}>{text}</p>
+              ))}
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+              <CreditCard size={40} color="#d1d5db" style={{ marginBottom: 16 }} />
+              <p style={{ color: '#9ca3af', fontSize: 14, marginBottom: 16 }}>Flashcards abhi generate nahi hue</p>
+              <button className="yn-ai-btn" style={{ background: 'linear-gradient(135deg,#E55B2D,#c94d23)', margin: '0 auto' }} onClick={handleFlashcards}>
+                <CreditCard size={14} /> Generate Flashcards
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

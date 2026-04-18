@@ -37,7 +37,7 @@ const testimonials = [
 
 const faqs = [
   { q: "Is YourNotes completely free?", a: "Yes! YourNotes is free for all students. No credit card, no hidden fees, no limits. Just sign up and start studying." },
-  { q: "How does the AI summarisation work?", a: "We send your note content to Gemini AI. It returns a structured summary with key points, which we display alongside your original note instantly." },
+  { q: "How does the AI summarisation work?", a: "We use Groq AI (Llama 3.3) to process your note content. It returns a structured summary with key points, which we display alongside your original note instantly." },
   { q: "What is spaced repetition (SM-2)?", a: "SM-2 is a scientifically proven algorithm that schedules flashcard reviews based on how well you remember each card, so you study more efficiently over time." },
   { q: "Can I share notes with classmates?", a: "Yes. Any note can be shared via a unique public link in view-only mode. Recipients don't need an account to read shared notes." },
   { q: "Can I import existing notes?", a: "Yes! You can import .txt, .md, .pdf, .doc, and .docx files directly from the dashboard. The content becomes a new editable note instantly." },
@@ -80,7 +80,7 @@ export default function LandingPage() {
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#0a0a0a", minHeight: "100vh", overflowX: "hidden", color: "#fff" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Syne:wght@700;800&display=swap');
+        
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         .yn-anim { opacity: 0; transform: translateY(28px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }

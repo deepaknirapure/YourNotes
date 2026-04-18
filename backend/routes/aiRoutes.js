@@ -1,12 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { summarizeNote, generateFlashcards, getFlashcards, reviewFlashcard, getDueFlashcards } = require('../controllers/aiController');
 const { protect } = require('../middleware/authMiddleware');
+const {
+  summarizeNote,
+  generateFlashcards,
+  getFlashcards,
+  reviewFlashcard,
+  getDueFlashcards,
+  checkAIRateLimit,
+} = require('../controllers/aiController');
 
-router.post('/summarize/:id', protect, summarizeNote);
-router.post('/flashcards/:id', protect, generateFlashcards);
-router.get('/flashcards/:id', protect, getFlashcards);
-router.patch('/flashcards/:id/review', protect, reviewFlashcard);
-router.get('/flashcards-due', protect, getDueFlashcards);
+router.use(protect);
+
+router.get('/flashcards-due',         getDueFlashcards);
+router.get('/flashcards/:id',         getFlashcards);
+router.post('/summarize/:id',         checkAIRateLimit, summarizeNote);
+router.post('/flashcards/:id',        checkAIRateLimit, generateFlashcards);
+router.patch('/flashcards/:id/review', reviewFlashcard);
 
 module.exports = router;

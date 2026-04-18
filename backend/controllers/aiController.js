@@ -179,4 +179,35 @@ const getDueFlashcards = async (req, res) => {
   }
 };
 
-module.exports = { summarizeNote, generateFlashcards, getFlashcards, reviewFlashcard, getDueFlashcards };
+
+
+// ✅ RATE LIMIT MIDDLEWARE — 20 AI calls per hour per user
+const checkAIRateLimit = async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(401).json({ message: 'User not found' });
+
+    const now = new Date();
+    const resetAt = user.aiCallsResetAt ? new Date(user.aiCallsResetAt) : null;
+
+    // Reset counter if an hour has passed
+    if (!resetAt || now - resetAt >= 60 * 60 * 1000) {
+      user.aiCallsThisHour = 0;
+      user.aiCallsResetAt = now;
+    }
+
+    if (user.aiCallsThisHour >= 20) {
+      const waitMins = Math.ceil((60 * 60 * 1000 - (now - user.aiCallsResetAt)) / 60000);
+      return res.status(429).json({ message: `AI rate limit reached. ${waitMins} minute(s) mein reset ho jayega.` });
+    }
+
+    user.aiCallsThisHour += 1;
+    await user.save();
+    next();
+  } catch (error) {
+    next(); // on error, allow the request (fail open)
+  }
+};
+
+module.exports = { summarizeNote, generateFlashcards, getFlashcards, reviewFlashcard, getDueFlashcards, checkAIRateLimit };

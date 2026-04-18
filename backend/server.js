@@ -13,7 +13,13 @@ const app = express();
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet());
 
-// ── CORS: allow Vercel frontend + localhost dev ───────────────────────────────
+// ── Compression (gzip responses) ─────────────────────────────────────────────
+try {
+  const compression = require('compression');
+  app.use(compression());
+} catch (_) { /* compression not installed — skip silently */ }
+
+// ── CORS ──────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
   'https://your-notes-webapp.vercel.app',
   process.env.FRONTEND_URL,
@@ -33,14 +39,6 @@ app.use(cors({
 if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 app.use(express.json({ limit: '2mb' }));
 
-// ── Cache headers for static-ish API responses ───────────────────────────────
-app.use((req, res, next) => {
-  if (req.method === 'GET') {
-    res.setHeader('Cache-Control', 'no-store'); // Auth'd data — never cache
-  }
-  next();
-});
-
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth',      require('./routes/authRoutes'));
 app.use('/api/notes',     require('./routes/noteRoutes'));
@@ -49,11 +47,11 @@ app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/tags',      require('./routes/tagRoutes'));
 app.use('/api/ai',        require('./routes/aiRoutes'));
 
-// ── Health check (keep-alive ping from frontend) ──────────────────────────────
+// ── Health check (frontend warmup ping for Render free tier) ──────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: Date.now() }));
 app.get('/', (_req, res) => res.json({ message: 'YourNotes API is running!' }));
 
-// ── 404 handler ───────────────────────────────────────────────────────────────
+// ── 404 ───────────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ message: 'Route not found' }));
 
 // ── Global error handler ──────────────────────────────────────────────────────
@@ -63,4 +61,4 @@ app.use((err, _req, res, _next) => {
 });
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ YourNotes API running on port ${PORT}`));
