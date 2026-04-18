@@ -1,13 +1,14 @@
+import { Sparkles, CreditCard, Folder, Search, Share2, Lock } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 const features = [
-  { icon: "✨", title: "AI Note Summaries", desc: "One click to get a structured summary and key points from any note, powered by Gemini AI." },
-  { icon: "🃏", title: "Smart Flashcards", desc: "Auto-generate question-answer pairs with SM-2 spaced repetition scheduling for better recall." },
-  { icon: "📁", title: "Folders & Tags", desc: "Color-coded folders with tags. Organize all your subjects perfectly and find notes instantly." },
-  { icon: "🔍", title: "Full-Text Search", desc: "Instant search across all your notes, including content, tags, and titles." },
-  { icon: "🔗", title: "Share Notes", desc: "Generate a public link to share any note with classmates. No login needed to read." },
-  { icon: "🔒", title: "Secure & Private", desc: "JWT authentication, bcrypt-hashed passwords. Your notes are only yours — always." },
+  { icon: "Sparkles", title: "AI Note Summaries", desc: "One click to get a structured summary and key points from any note, powered by Groq AI." },
+  { icon: "CreditCard", title: "Smart Flashcards", desc: "Auto-generate question-answer pairs with SM-2 spaced repetition scheduling for better recall." },
+  { icon: "Folder", title: "Folders & Tags", desc: "Color-coded folders with tags. Organize all your subjects perfectly and find notes instantly." },
+  { icon: "Search", title: "Full-Text Search", desc: "Instant search across all your notes, including content, tags, and titles." },
+  { icon: "Share2", title: "Share Notes", desc: "Generate a public link to share any note with classmates. No login needed to read." },
+  { icon: "Lock", title: "Secure & Private", desc: "JWT authentication, bcrypt-hashed passwords. Your notes are only yours — always." },
 ];
 
 const notesPreview = [
@@ -46,12 +47,12 @@ const faqs = [
 ];
 
 const stack = [
-  { name: "MongoDB", icon: "🍃" },
-  { name: "Express.js", icon: "⚡" },
-  { name: "React.js", icon: "⚛️" },
-  { name: "Node.js", icon: "🟢" },
-  { name: "Gemini AI", icon: "✨" },
-  { name: "JWT Auth", icon: "🔐" },
+  { name: "MongoDB", bg: "#13AA52", label: "M" },
+  { name: "Express.js", bg: "#444", label: "Ex" },
+  { name: "React.js", bg: "#149ECA", label: "Re" },
+  { name: "Node.js", bg: "#539E43", label: "N" },
+  { name: "Groq AI", bg: "#F55036", label: "AI" },
+  { name: "JWT Auth", bg: "#4B5563", label: "🔑" },
 ];
 
 export default function LandingPage() {
@@ -302,7 +303,7 @@ export default function LandingPage() {
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 48, flexWrap: "wrap" }}>
           {stack.map((t, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,.3)" }}>
-              <span style={{ fontSize: 16 }}>{t.icon}</span>
+              <span style={{ fontSize: 12, fontWeight: 800 }}>{t.label}</span>
               <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: ".04em" }}>{t.name}</span>
             </div>
           ))}
@@ -399,10 +400,10 @@ export default function LandingPage() {
           <div className="yn-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "start" }}>
             <div className="yn-anim" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
               {[
-                { n: "01", icon: "📝", title: "Create or import your notes", desc: "Write directly in the editor, or import .txt, .md, .pdf, .doc, .docx files instantly." },
-                { n: "02", icon: "✨", title: "Let AI summarize and create flashcards", desc: "One click on any note generates a clean summary or a full set of Q&A flashcards." },
-                { n: "03", icon: "🃏", title: "Review with spaced repetition", desc: "The SM-2 algorithm schedules your flashcard reviews so you remember everything long-term." },
-                { n: "04", icon: "📁", title: "Stay organized with folders & tags", desc: "Keep every subject in its own folder with color-coded tags. Find any note in seconds." },
+                { n: "01", title: "Create or import your notes", desc: "Write directly in the editor, or import .txt, .md, .pdf, .doc, .docx files instantly." },
+                { n: "02", title: "Let AI summarize and create flashcards", desc: "One click on any note generates a clean summary or a full set of Q&A flashcards." },
+                { n: "03", title: "Review with spaced repetition", desc: "The SM-2 algorithm schedules your flashcard reviews so you remember everything long-term." },
+                { n: "04", title: "Stay organized with folders & tags", desc: "Keep every subject in its own folder with color-coded tags. Find any note in seconds." },
               ].map((step, i) => (
                 <div key={i} style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
                   <div style={{
@@ -413,7 +414,7 @@ export default function LandingPage() {
                     color: i === 0 ? "#fff" : "#E55B2D", flexShrink: 0,
                   }}>{step.n}</div>
                   <div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 6 }}>{step.icon} {step.title}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 6 }}>{step.title}</div>
                     <div style={{ fontSize: 14, color: "rgba(255,255,255,.4)", lineHeight: 1.7 }}>{step.desc}</div>
                   </div>
                 </div>
@@ -493,8 +494,15 @@ export default function LandingPage() {
                   width: 44, height: 44, background: "rgba(229,91,45,.1)",
                   border: "1px solid rgba(229,91,45,.2)",
                   borderRadius: 10, display: "flex", alignItems: "center",
-                  justifyContent: "center", marginBottom: 16, fontSize: 20,
-                }}>{f.icon}</div>
+                  justifyContent: "center", marginBottom: 16, color: "#E55B2D",
+                }}>
+                  {f.icon === "Sparkles" && <Sparkles size={20} />}
+                  {f.icon === "CreditCard" && <CreditCard size={20} />}
+                  {f.icon === "Folder" && <Folder size={20} />}
+                  {f.icon === "Search" && <Search size={20} />}
+                  {f.icon === "Share2" && <Share2 size={20} />}
+                  {f.icon === "Lock" && <Lock size={20} />}
+                </div>
                 <h3 style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 8 }}>{f.title}</h3>
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,.4)", lineHeight: 1.7 }}>{f.desc}</p>
               </div>
@@ -518,7 +526,7 @@ export default function LandingPage() {
             Completely free — no credit card, no limits.
           </p>
           <button className="yn-btn-primary" onClick={() => navigate("/register")} style={{ fontSize: 16, padding: "16px 40px" }}>
-            Explore Courses →
+            Start Learning Free →
           </button>
         </div>
       </section>
@@ -655,7 +663,7 @@ export default function LandingPage() {
             Completely free — no credit card, no limits, no catch. Join now.
           </p>
           <button className="yn-btn-primary" onClick={() => navigate("/register")} style={{ fontSize: 16, padding: "18px 44px" }}>
-            Explore Courses →
+            Start Learning Free →
           </button>
         </div>
         {/* Big faded brand text like Sheryians */}

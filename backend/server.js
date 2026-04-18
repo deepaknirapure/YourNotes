@@ -15,7 +15,7 @@ app.use(helmet());
 
 // ── CORS: allow Vercel frontend + localhost dev ───────────────────────────────
 const allowedOrigins = [
-  'https://your-notes-webapp.vercel.app',  // ← apna actual Vercel URL
+  'https://your-notes-webapp.vercel.app',
   process.env.FRONTEND_URL,
   'http://localhost:3000',
   'http://localhost:3001',
@@ -23,7 +23,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // allow server-to-server / curl (no origin) or whitelisted origins
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS blocked: ${origin}`));
   },
@@ -34,6 +33,14 @@ app.use(cors({
 if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 app.use(express.json({ limit: '2mb' }));
 
+// ── Cache headers for static-ish API responses ───────────────────────────────
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    res.setHeader('Cache-Control', 'no-store'); // Auth'd data — never cache
+  }
+  next();
+});
+
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth',      require('./routes/authRoutes'));
 app.use('/api/notes',     require('./routes/noteRoutes'));
@@ -42,6 +49,8 @@ app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/tags',      require('./routes/tagRoutes'));
 app.use('/api/ai',        require('./routes/aiRoutes'));
 
+// ── Health check (keep-alive ping from frontend) ──────────────────────────────
+app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: Date.now() }));
 app.get('/', (_req, res) => res.json({ message: 'YourNotes API is running!' }));
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
@@ -54,4 +63,4 @@ app.use((err, _req, res, _next) => {
 });
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); 
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
