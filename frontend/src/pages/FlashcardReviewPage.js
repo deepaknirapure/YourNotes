@@ -6,21 +6,10 @@ import { YN_CSS, useNeuralCanvas, useCursor } from "./NeuralBackground";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
 
-const EXTRA_CSS = `
-  .fc-rate-btn {
-    padding: 13px 8px; border-radius: 12px;
-    font-family: 'Syne', sans-serif; font-weight: 700;
-    font-size: .82rem; cursor: pointer;
-    transition: all .2s; text-align: center;
-    border: 1px solid;
-  }
-  .fc-rate-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.35); }
-`;
-
 export default function FlashcardReviewPage() {
-  const navigate = useNavigate();
-  const token    = localStorage.getItem("token");
-  const headers  = { Authorization: `Bearer ${token}` };
+  const navigate  = useNavigate();
+  const token     = localStorage.getItem("token");
+  const headers   = { Authorization: `Bearer ${token}` };
 
   const [cards,   setCards]   = useState([]);
   const [current, setCurrent] = useState(0);
@@ -29,21 +18,13 @@ export default function FlashcardReviewPage() {
   const [done,    setDone]    = useState(false);
   const [stats,   setStats]   = useState({ reviewed: 0, total: 0 });
 
-  const neuralRef    = useRef(null);
-  const mouseRef     = useRef({ x: null, y: null });
-  const cursorRef    = useRef(null);
-  const cursorDotRef = useRef(null);
-
-  useNeuralCanvas(neuralRef);
-  useCursor(mouseRef, cursorRef, cursorDotRef);
-
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
     axios.get(`${API_URL}/ai/flashcards-due`, { headers })
       .then(({ data }) => { setCards(data); setStats({ reviewed: 0, total: data.length }); })
       .catch(() => toast.error("Error loading flashcards"))
       .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -64,188 +45,164 @@ export default function FlashcardReviewPage() {
     else { setCurrent(next); setFlipped(false); setStats(s => ({ ...s, reviewed: next })); }
   };
 
-  const Shell = ({ children }) => (
-    <>
-      <style>{YN_CSS + EXTRA_CSS}</style>
-      <div ref={cursorRef}    className="yn-cursor-ring" />
-      <div ref={cursorDotRef} className="yn-cursor-dot"  />
-      <canvas ref={neuralRef} className="yn-canvas" style={{ zIndex: 0 }} />
-      <div style={{ minHeight: "100vh", position: "relative", zIndex: 10 }}>
-        {children}
-      </div>
-    </>
-  );
-
-  // ── Loading ────────────────────────────────────────────────────────────────
-  if (loading) return (
-    <Shell>
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }}>
-        <div style={{ width: 34, height: 34, border: "1.5px solid rgba(16,185,129,.3)", borderTopColor: "#10B981", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-        <p style={{ fontFamily: "'Syne', sans-serif", fontSize: ".72rem", color: "rgba(240,255,248,.35)", letterSpacing: "2px" }}>LOADING CARDS…</p>
-      </div>
-    </Shell>
-  );
-
-  // ── Done / Empty ────────────────────────────────────────────────────────────
-  if (done || cards.length === 0) return (
-    <Shell>
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-        <div style={{ textAlign: "center", maxWidth: 480, animation: "fadeUp .7s both" }}>
-          <div style={{
-            width: 80, height: 80, borderRadius: "50%",
-            background: "rgba(16,185,129,.08)", border: "1px solid rgba(16,185,129,.3)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 28px", fontSize: 30,
-          }}>
-            {cards.length === 0 ? "🎉" : "✓"}
-          </div>
-          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: ".65rem", letterSpacing: "4px", color: "#10B981", marginBottom: 16 }}>
-            // SESSION END
-          </div>
-          <h1 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "2.2rem", color: "#f0fff8", marginBottom: 12, letterSpacing: -1 }}>
-            {cards.length === 0 ? "All caught up!" : "Session complete!"}
-          </h1>
-          <p style={{ fontSize: "15px", color: "rgba(240,255,248,.5)", marginBottom: 8, lineHeight: 1.7 }}>
-            {cards.length === 0 ? "No flashcards due — check back later." : `You reviewed ${stats.total} flashcard${stats.total !== 1 ? "s" : ""}.`}
-          </p>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".8rem", color: "rgba(240,255,248,.3)", marginBottom: 44, letterSpacing: "0.5px" }}>
-            Great work keeping up with your studies.
-          </p>
-          <button onClick={() => navigate("/dashboard")} className="yn-btn-primary" style={{ padding: "13px 36px" }}>
-            Back to dashboard
-          </button>
-        </div>
-      </div>
-    </Shell>
-  );
-
-  const card     = cards[current];
-  const progress = Math.round((stats.reviewed / stats.total) * 100);
+  const progress = stats.total > 0 ? (stats.reviewed / stats.total) * 100 : 0;
+  const card = cards[current];
 
   return (
-    <Shell>
-      {/* ── Topbar ── */}
-      <div style={{
-        position: "sticky", top: 0, zIndex: 100,
-        background: "rgba(5,15,10,.8)", backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(16,185,129,.12)",
-        padding: "0 5%", height: 58,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          {/* Wordmark */}
-          <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 15, color: "#fff", letterSpacing: "-0.3px" }}>
-            Your<span style={{ color: "#10B981" }}>Notes</span>
-          </span>
-          <span style={{ color: "rgba(255,255,255,.1)" }}>·</span>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".72rem", color: "rgba(240,255,248,.35)", letterSpacing: "1px", textTransform: "uppercase" }}>
-            Flashcard Review
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".72rem", color: "rgba(240,255,248,.35)" }}>
-            {stats.reviewed} / {stats.total}
-          </span>
-          <button onClick={() => navigate("/dashboard")} style={{
-            padding: "7px 16px", background: "transparent",
-            border: "1px solid rgba(16,185,129,.2)", borderRadius: 100,
-            fontSize: "12px", color: "rgba(240,255,248,.45)", cursor: "pointer",
-            fontFamily: "'DM Sans', sans-serif", transition: "border-color .2s",
-          }}>
-            Exit
-          </button>
-        </div>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'DM Sans', sans-serif", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", position: "relative", overflow: "hidden" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @keyframes ynFadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes ynSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes ynPulse { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+        @keyframes ynFlipIn { from { opacity:0; transform: rotateY(90deg) scale(.95); } to { opacity:1; transform: rotateY(0deg) scale(1); } }
+
+        .fc-card {
+          background: #111; border: 1px solid rgba(255,255,255,.09);
+          border-radius: 20px; padding: 48px 44px;
+          min-height: 280px; display: flex; flex-direction: column;
+          align-items: center; justify-content: center; text-align: center;
+          cursor: pointer; transition: border-color .2s, box-shadow .2s;
+          animation: ynFadeUp .5s cubic-bezier(.16,1,.3,1) both;
+          user-select: none;
+        }
+        .fc-card:hover { border-color: rgba(229,91,45,.3); }
+        .fc-card.flipped { border-color: rgba(229,91,45,.4); box-shadow: 0 0 40px rgba(229,91,45,.08); }
+
+        .fc-rate-btn {
+          padding: 13px 10px; border-radius: 10px;
+          font-family: 'Syne', sans-serif; font-weight: 700;
+          font-size: 13px; border: none; cursor: pointer;
+          transition: all .2s; flex: 1;
+        }
+        .fc-rate-btn:hover { transform: translateY(-2px); }
+
+        .fc-nav-btn {
+          background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+          color: rgba(255,255,255,.6); padding: 10px 20px;
+          border-radius: 9px; font-size: 14px; font-weight: 600;
+          cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s;
+        }
+        .fc-nav-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+      `}</style>
+
+      {/* Background decoration */}
+      <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
+        {[...Array(5)].map((_, i) => (
+          <div key={i} style={{ position: "absolute", width: "1px", height: "200%", background: "rgba(255,255,255,0.018)", left: `${10 + i * 20}%`, top: "-50%", transform: "rotate(15deg)" }} />
+        ))}
+        <div style={{ position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse, rgba(229,91,45,.06) 0%, transparent 70%)" }} />
       </div>
 
-      {/* ── Progress bar ── */}
-      <div style={{ height: 2, background: "rgba(255,255,255,.05)" }}>
-        <div style={{ height: 2, background: "#10B981", width: `${progress}%`, transition: "width .4s ease", boxShadow: "0 0 8px #10B981" }} />
+      {/* Back button + Logo */}
+      <div style={{ position: "fixed", top: 28, left: 40, display: "flex", alignItems: "center", gap: 12, zIndex: 10 }}>
+        <button className="fc-nav-btn" onClick={() => navigate("/dashboard")}>← Dashboard</button>
+      </div>
+      <div style={{ position: "fixed", top: 28, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8, zIndex: 10 }}>
+        <div style={{ width: 28, height: 28, background: "#E55B2D", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontSize: 13 }}>🃏</span>
+        </div>
+        <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 16, color: "#fff" }}>
+          Your<span style={{ color: "#E55B2D" }}>Notes</span> · Flashcards
+        </span>
       </div>
 
-      {/* ── Main ── */}
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "60px 24px" }}>
-
-        {/* Card flip scene */}
-        <div style={{ perspective: 1200, height: 280, marginBottom: 24 }}>
-          <div key={current} style={{
-            width: "100%", height: "100%", position: "relative",
-            transformStyle: "preserve-3d",
-            transition: "transform .65s cubic-bezier(.4,0,.2,1)",
-            transform: flipped ? "rotateY(180deg)" : "none",
-          }}>
-            {/* Front */}
-            <div style={{
-              position: "absolute", inset: 0, backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden",
-              background: "rgba(16,185,129,.04)", border: "1px solid rgba(16,185,129,.15)",
-              borderRadius: 24,
-              display: "flex", flexDirection: "column", alignItems: "center",
-              justifyContent: "center", padding: 40, textAlign: "center",
-            }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".62rem", letterSpacing: "3px", color: "rgba(16,185,129,.6)", marginBottom: 16, textTransform: "uppercase" }}>
-                Question · {current + 1}/{stats.total}
-              </div>
-              <p style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1.45, color: "#f0fff8" }}>
-                {card.question}
-              </p>
-            </div>
-
-            {/* Back */}
-            <div style={{
-              position: "absolute", inset: 0, backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)",
-              background: "rgba(16,185,129,.06)", border: "1px solid rgba(16,185,129,.3)",
-              borderRadius: 24,
-              display: "flex", flexDirection: "column", alignItems: "center",
-              justifyContent: "center", padding: 40, textAlign: "center",
-            }}>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".62rem", letterSpacing: "3px", color: "rgba(16,185,129,.6)", marginBottom: 16, textTransform: "uppercase" }}>
-                Answer
-              </div>
-              <p style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1.45, color: "#f0fff8", marginBottom: 12 }}>
-                {card.question}
-              </p>
-              <div style={{ height: 1, width: "60%", background: "rgba(16,185,129,.2)", margin: "12px 0" }} />
-              <p style={{ fontSize: ".92rem", color: "rgba(240,255,248,.65)", lineHeight: 1.75 }}>
-                {card.answer}
-              </p>
-            </div>
-          </div>
+      {/* Loading */}
+      {loading && (
+        <div style={{ textAlign: "center", animation: "ynFadeUp .5s both", zIndex: 1 }}>
+          <div style={{ width: 36, height: 36, border: "2px solid rgba(229,91,45,.25)", borderTopColor: "#E55B2D", borderRadius: "50%", animation: "ynSpin 1s linear infinite", margin: "0 auto 16px" }} />
+          <p style={{ color: "rgba(255,255,255,.4)", fontSize: 14, letterSpacing: ".06em" }}>Loading flashcards...</p>
         </div>
+      )}
 
-        {/* Actions */}
-        {!flipped ? (
-          <div style={{ textAlign: "center" }}>
-            <button onClick={() => setFlipped(true)} className="yn-btn-primary" style={{ padding: "14px 52px", fontSize: ".92rem" }}>
-              Show answer
+      {/* Done screen */}
+      {!loading && done && (
+        <div style={{ textAlign: "center", maxWidth: 440, animation: "ynFadeUp .6s both", zIndex: 1 }}>
+          <div style={{ fontSize: 64, marginBottom: 20 }}>🎉</div>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 36, color: "#fff", letterSpacing: "-1.2px", marginBottom: 12 }}>Session Complete!</h2>
+          <p style={{ fontSize: 16, color: "rgba(255,255,255,.45)", marginBottom: 8 }}>
+            Aapne <strong style={{ color: "#E55B2D" }}>{stats.total}</strong> flashcards review kiye.
+          </p>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,.3)", marginBottom: 36 }}>Kal phir review schedule hoga based on your performance.</p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <button className="fc-nav-btn" onClick={() => navigate("/dashboard")}>← Dashboard</button>
+            <button style={{ background: "#E55B2D", color: "#fff", border: "none", padding: "11px 24px", borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
+              onClick={() => { setCurrent(0); setFlipped(false); setDone(false); setStats(s => ({ ...s, reviewed: 0 })); }}>
+              Restart →
             </button>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".66rem", color: "rgba(240,255,248,.3)", marginTop: 12, letterSpacing: "1px", textTransform: "uppercase" }}>
-              Press Space to flip
-            </p>
           </div>
-        ) : (
-          <>
-            <p style={{ textAlign: "center", fontFamily: "'DM Sans', sans-serif", fontSize: ".66rem", color: "rgba(240,255,248,.4)", marginBottom: 16, letterSpacing: "2px", textTransform: "uppercase" }}>
-              How well did you know this?
+        </div>
+      )}
+
+      {/* Cards */}
+      {!loading && !done && card && (
+        <div style={{ width: "100%", maxWidth: 600, zIndex: 1 }}>
+          {/* Stats bar */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,.4)", fontWeight: 600 }}>
+              {stats.reviewed + 1} / {stats.total}
+            </span>
+            <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,.08)", borderRadius: 99, margin: "0 16px", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${progress}%`, background: "#E55B2D", borderRadius: 99, transition: "width .4s cubic-bezier(.16,1,.3,1)" }} />
+            </div>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,.4)", fontWeight: 600 }}>
+              {Math.round(progress)}%
+            </span>
+          </div>
+
+          {/* Card */}
+          <div className={`fc-card ${flipped ? "flipped" : ""}`} onClick={() => setFlipped(f => !f)} key={`${current}-${flipped}`}
+            style={{ animationDelay: "0s" }}>
+            <div style={{ marginBottom: 16 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: flipped ? "#E55B2D" : "rgba(255,255,255,.3)", letterSpacing: ".1em", textTransform: "uppercase" }}>
+                {flipped ? "ANSWER" : "QUESTION"}
+              </span>
+            </div>
+            <p style={{ fontSize: flipped ? 18 : 22, fontWeight: flipped ? 500 : 700, color: "#fff", lineHeight: 1.5, maxWidth: 460 }}>
+              {flipped ? card.answer : card.question}
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+            {!flipped && (
+              <p style={{ marginTop: 24, fontSize: 12, color: "rgba(255,255,255,.2)", letterSpacing: ".06em" }}>
+                CLICK TO REVEAL · SPACE KEY
+              </p>
+            )}
+          </div>
+
+          {/* Rating buttons */}
+          {flipped && (
+            <div style={{ display: "flex", gap: 10, marginTop: 20, animation: "ynFadeUp .35s both" }}>
               {[
-                { label: "Again", quality: 1, color: "#f87171",  border: "rgba(248,113,113,.25)", bg: "rgba(239,68,68,.08)"   },
-                { label: "Hard",  quality: 2, color: "#fbbf24",  border: "rgba(251,191,36,.25)",  bg: "rgba(245,158,11,.08)"  },
-                { label: "Good",  quality: 4, color: "#10B981",  border: "rgba(16,185,129,.3)",   bg: "rgba(16,185,129,.08)"  },
-                { label: "Easy",  quality: 5, color: "#4ade80",  border: "rgba(74,222,128,.25)",  bg: "rgba(74,222,128,.07)"  },
-              ].map(r => (
-                <button key={r.label} className="fc-rate-btn"
-                  onClick={() => handleRate(r.quality)}
-                  style={{ color: r.color, borderColor: r.border, background: r.bg }}>
-                  {r.label}
+                { label: "Again", q: 0, bg: "rgba(239,68,68,.15)", bc: "rgba(239,68,68,.25)", c: "#ef4444" },
+                { label: "Hard", q: 2, bg: "rgba(245,158,11,.12)", bc: "rgba(245,158,11,.22)", c: "#f59e0b" },
+                { label: "Good", q: 4, bg: "rgba(16,185,129,.12)", bc: "rgba(16,185,129,.22)", c: "#10b981" },
+                { label: "Easy", q: 5, bg: "rgba(229,91,45,.12)", bc: "rgba(229,91,45,.22)", c: "#E55B2D" },
+              ].map(({ label, q, bg, bc, c }) => (
+                <button key={label} className="fc-rate-btn" onClick={() => handleRate(q)}
+                  style={{ background: bg, border: `1px solid ${bc}`, color: c }}>
+                  {label}
                 </button>
               ))}
             </div>
-          </>
-        )}
-      </div>
-    </Shell>
+          )}
+
+          {!flipped && (
+            <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
+              <button className="fc-nav-btn" onClick={() => setFlipped(true)}>Show Answer →</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!loading && !done && cards.length === 0 && (
+        <div style={{ textAlign: "center", zIndex: 1, animation: "ynFadeUp .5s both" }}>
+          <div style={{ fontSize: 52, marginBottom: 16 }}>✅</div>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 28, color: "#fff", marginBottom: 10 }}>Sab Clear!</h2>
+          <p style={{ color: "rgba(255,255,255,.4)", marginBottom: 28 }}>Aaj ke liye koi flashcard due nahi hai.</p>
+          <button className="fc-nav-btn" onClick={() => navigate("/dashboard")}>← Dashboard</button>
+        </div>
+      )}
+    </div>
   );
 }

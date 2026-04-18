@@ -11,69 +11,54 @@ const features = [
 ];
 
 const notesPreview = [
-  { title: "Newton's 3 Laws of Motion", subject: "Physics",   tags: "#mechanics", updated: "2h ago",    sc: "#052e16", tc: "#6ee7b7" },
-  { title: "World War II – Key Events",  subject: "History",   tags: "#wars",      updated: "5h ago",    sc: "#1a1000", tc: "#fbbf24" },
-  { title: "Calculus: Limits",           subject: "Maths",     tags: "#calculus",  updated: "Yesterday", sc: "#052e16", tc: "#6ee7b7" },
-  { title: "Cell Division – Mitosis",    subject: "Biology",   tags: "#cells",     updated: "2d ago",    sc: "#052e16", tc: "#34d399" },
-  { title: "Organic Chemistry",          subject: "Chemistry", tags: "#organic",   updated: "3d ago",    sc: "#052e16", tc: "#6ee7b7" },
+  { title: "Newton's 3 Laws of Motion", subject: "Physics", tags: "#mechanics", updated: "2h ago" },
+  { title: "World War II – Key Events", subject: "History", tags: "#wars", updated: "5h ago" },
+  { title: "Calculus: Limits", subject: "Maths", tags: "#calculus", updated: "Yesterday" },
+  { title: "Cell Division – Mitosis", subject: "Biology", tags: "#cells", updated: "2d ago" },
+  { title: "Organic Chemistry", subject: "Chemistry", tags: "#organic", updated: "3d ago" },
 ];
 
 const flashcardsPreview = [
-  { card: "What is Newton's 1st Law?", subject: "Physics", diff: "Easy",   due: "Now", dc: "#052e16", dtc: "#34d399" },
-  { card: "Define mitosis phases",     subject: "Biology", diff: "Medium", due: "Now", dc: "#1a1000", dtc: "#fbbf24" },
-  { card: "Derivative of sin(x)?",     subject: "Maths",   diff: "Hard",   due: "+1h", dc: "#1a0000", dtc: "#f87171" },
-  { card: "Year WW2 ended?",           subject: "History", diff: "Easy",   due: "+2h", dc: "#052e16", dtc: "#34d399" },
+  { card: "What is Newton's 1st Law?", subject: "Physics", diff: "Easy", due: "Now" },
+  { card: "Define mitosis phases", subject: "Biology", diff: "Medium", due: "Now" },
+  { card: "Derivative of sin(x)?", subject: "Maths", diff: "Hard", due: "+1h" },
+  { card: "Year WW2 ended?", subject: "History", diff: "Easy", due: "+2h" },
 ];
 
 const testimonials = [
-  { text: "The AI summaries save me hours every week. I paste in my lecture notes and get a clean bullet-point summary instantly.", name: "Aarav Rajput",    role: "B.Tech, IIT Indore",         avatar: "AR", color: "#10b981" },
-  { text: "The flashcard system with spaced repetition is exactly what I needed for MBBS exams. Game changer for memory.",          name: "Priya Sharma",   role: "MBBS Year 2, Bhopal",        avatar: "PS", color: "#059669" },
-  { text: "Clean interface, fast search, the folder system keeps all my subjects separated. Recommended it to my entire class.",     name: "Rohan Kulkarni", role: "Diploma Engineering, RGPV", avatar: "RK", color: "#34d399" },
-  { text: "I love being able to share notes with my study group. We each summarise one topic and share it.",                        name: "Neha Patel",     role: "BSc Chemistry, Pune",        avatar: "NP", color: "#10b981" },
-  { text: "The study streak feature keeps me consistent. My weekly note count is up 3x compared to paper notebooks.",               name: "Karan Mehta",    role: "BBA Finance, Delhi",         avatar: "KM", color: "#059669" },
-  { text: "Finally an app designed for students — not bloated like Notion, not too simple like Google Keep.",                       name: "Sneha Joshi",    role: "Commerce, Nagpur University", avatar: "SJ", color: "#34d399" },
+  { text: "The AI summaries save me hours every week. I paste in my lecture notes and get a clean bullet-point summary instantly.", name: "Aarav Rajput", role: "B.Tech, IIT Indore", avatar: "AR" },
+  { text: "The flashcard system with spaced repetition is exactly what I needed for MBBS exams. Game changer for memory.", name: "Priya Sharma", role: "MBBS Year 2, Bhopal", avatar: "PS" },
+  { text: "Clean interface, fast search, the folder system keeps all my subjects separated. Recommended it to my entire class.", name: "Rohan Kulkarni", role: "Diploma Engineering, RGPV", avatar: "RK" },
+  { text: "I love being able to share notes with my study group. We each summarise one topic and share it.", name: "Neha Patel", role: "BSc Chemistry, Pune", avatar: "NP" },
+  { text: "The study streak feature keeps me consistent. My weekly note count is up 3x compared to paper notebooks.", name: "Karan Mehta", role: "BBA Finance, Delhi", avatar: "KM" },
+  { text: "Finally an app designed for students — not bloated like Notion, not too simple like Google Keep.", name: "Sneha Joshi", role: "Commerce, Nagpur University", avatar: "SJ" },
 ];
 
 const faqs = [
-  { q: "Is YourNotes completely free?",          a: "Yes! YourNotes is free for all students. No credit card, no hidden fees, no limits. Just sign up and start studying." },
-  { q: "How does the AI summarisation work?",    a: "We send your note content to Gemini AI. It returns a structured summary with key points, which we display alongside your original note instantly." },
-  { q: "What is spaced repetition (SM-2)?",      a: "SM-2 is a scientifically proven algorithm that schedules flashcard reviews based on how well you remember each card, so you study more efficiently over time." },
-  { q: "Can I share notes with classmates?",     a: "Yes. Any note can be shared via a unique public link in view-only mode. Recipients don't need an account to read shared notes." },
-  { q: "Can I import existing notes?",           a: "Yes! You can import .txt, .md, .pdf, .doc, and .docx files directly from the dashboard. The content becomes a new editable note instantly." },
-  { q: "Is my data secure?",                     a: "All data is stored in MongoDB Atlas with JWT authentication. Passwords are hashed with bcrypt. We never share your data with third parties." },
-  { q: "Does YourNotes work on mobile?",         a: "Yes, YourNotes is fully responsive and works on all devices — mobile, tablet, and desktop." },
-  { q: "Can I export my notes as PDF?",          a: "Yes! Every note has a one-click PDF export button in the editor toolbar so you can save or print your notes anytime." },
+  { q: "Is YourNotes completely free?", a: "Yes! YourNotes is free for all students. No credit card, no hidden fees, no limits. Just sign up and start studying." },
+  { q: "How does the AI summarisation work?", a: "We send your note content to Gemini AI. It returns a structured summary with key points, which we display alongside your original note instantly." },
+  { q: "What is spaced repetition (SM-2)?", a: "SM-2 is a scientifically proven algorithm that schedules flashcard reviews based on how well you remember each card, so you study more efficiently over time." },
+  { q: "Can I share notes with classmates?", a: "Yes. Any note can be shared via a unique public link in view-only mode. Recipients don't need an account to read shared notes." },
+  { q: "Can I import existing notes?", a: "Yes! You can import .txt, .md, .pdf, .doc, and .docx files directly from the dashboard. The content becomes a new editable note instantly." },
+  { q: "Is my data secure?", a: "All data is stored in MongoDB Atlas with JWT authentication. Passwords are hashed with bcrypt. We never share your data with third parties." },
+  { q: "Does YourNotes work on mobile?", a: "Yes, YourNotes is fully responsive and works on all devices — mobile, tablet, and desktop." },
+  { q: "Can I export my notes as PDF?", a: "Yes! Every note has a one-click PDF export button in the editor toolbar so you can save or print your notes anytime." },
 ];
 
 const stack = [
-  { name: "MongoDB",   icon: "🍃" },
-  { name: "Express.js",icon: "⚡" },
-  { name: "React.js",  icon: "⚛️" },
-  { name: "Node.js",   icon: "🟢" },
+  { name: "MongoDB", icon: "🍃" },
+  { name: "Express.js", icon: "⚡" },
+  { name: "React.js", icon: "⚛️" },
+  { name: "Node.js", icon: "🟢" },
   { name: "Gemini AI", icon: "✨" },
-  { name: "JWT Auth",  icon: "🔐" },
+  { name: "JWT Auth", icon: "🔐" },
 ];
-
-// ── Wordmark component ────────────────────────────────────────────────────────
-function Wordmark({ size = 18, dark = false }) {
-  return (
-    <span style={{
-      fontFamily: "'Syne', sans-serif",
-      fontWeight: 800,
-      fontSize: size,
-      color: dark ? "#111827" : "#ffffff",
-      letterSpacing: "-0.5px",
-    }}>
-      Your<span style={{ color: "#10B981" }}>Notes</span>
-    </span>
-  );
-}
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const [scrollY,  setScrollY]  = useState(0);
-  const [openFaq,  setOpenFaq]  = useState(null);
-  const [activeTab,setActiveTab]= useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const [openFaq, setOpenFaq] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
   const observerRef = useRef(null);
 
   useEffect(() => {
@@ -92,12 +77,12 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#ffffff", minHeight: "100vh", overflowX: "hidden", color: "#111827" }}>
+    <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#0a0a0a", minHeight: "100vh", overflowX: "hidden", color: "#fff" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&family=Syne:wght@700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Syne:wght@700;800&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .yn-anim { opacity: 0; transform: translateY(24px); transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
+        .yn-anim { opacity: 0; transform: translateY(28px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
         .yn-anim.yn-visible { opacity: 1; transform: translateY(0); }
         .yn-d1 { transition-delay: .1s !important }
         .yn-d2 { transition-delay: .2s !important }
@@ -105,182 +90,248 @@ export default function LandingPage() {
         .yn-d4 { transition-delay: .4s !important }
         .yn-d5 { transition-delay: .5s !important }
 
-        @keyframes ynHero  { from { opacity:0; transform:translateY(32px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes ynPulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+        @keyframes ynHero { from { opacity:0; transform:translateY(36px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes ynPulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+        @keyframes ynDiag { 0% { transform: rotate(45deg) translate(-100%, -100%); } 100% { transform: rotate(45deg) translate(100%, 100%); } }
+        @keyframes ynSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .yn-btn-primary {
-          background: #10b981; color: #fff; border: none;
-          padding: 13px 28px; border-radius: 10px;
+          background: #E55B2D; color: #fff; border: none;
+          padding: 14px 30px; border-radius: 8px;
           font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
-          cursor: pointer; transition: all .2s; letter-spacing: -.2px;
+          cursor: pointer; transition: all .2s; letter-spacing: -.1px;
+          display: inline-flex; align-items: center; gap: 8px;
         }
-        .yn-btn-primary:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(16,185,129,.3); }
+        .yn-btn-primary:hover { background: #c94d23; transform: translateY(-2px); box-shadow: 0 12px 32px rgba(229,91,45,.35); }
 
-        .yn-btn-outline {
-          background: transparent; color: #374151;
-          border: 1.5px solid #d1d5db; padding: 12px 24px; border-radius: 10px;
+        .yn-btn-ghost {
+          background: transparent; color: rgba(255,255,255,0.7);
+          border: 1.5px solid rgba(255,255,255,0.15); padding: 13px 24px; border-radius: 8px;
           font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
           cursor: pointer; transition: all .2s;
         }
-        .yn-btn-outline:hover { border-color: #10b981; color: #10b981; }
+        .yn-btn-ghost:hover { border-color: rgba(255,255,255,.4); color: #fff; }
 
-        .yn-btn-white {
-          background: #fff; color: #10b981; border: none;
-          padding: 13px 32px; border-radius: 10px;
-          font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
-          cursor: pointer; transition: all .2s;
-        }
-        .yn-btn-white:hover { background: #f0fdf4; transform: translateY(-2px); }
-
-        .yn-nav-link { color: #6b7280; text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
-        .yn-nav-link:hover { color: #10b981; }
+        .yn-nav-link { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
+        .yn-nav-link:hover { color: #fff; }
 
         .yn-feat-card {
-          background: #fff; border: 1.5px solid #e5e7eb;
-          border-radius: 14px; padding: 24px; transition: all .25s;
+          background: #111111; border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px; padding: 28px;
+          transition: all .25s;
         }
-        .yn-feat-card:hover { box-shadow: 0 16px 48px rgba(16,185,129,.1); border-color: #6ee7b7; transform: translateY(-3px); }
+        .yn-feat-card:hover { border-color: rgba(229,91,45,.4); transform: translateY(-3px); box-shadow: 0 20px 48px rgba(0,0,0,.4); }
 
         .yn-test-card {
-          background: #fff; border: 1.5px solid #f0fdf4;
-          border-radius: 14px; padding: 24px; transition: box-shadow .2s;
+          background: #111; border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 12px; padding: 28px;
+          transition: border-color .2s;
         }
-        .yn-test-card:hover { box-shadow: 0 8px 32px rgba(16,185,129,.08); }
+        .yn-test-card:hover { border-color: rgba(229,91,45,.3); }
 
-        .yn-faq-item { border-bottom: 1px solid #e5e7eb; }
+        .yn-faq-item { border-bottom: 1px solid rgba(255,255,255,.07); }
         .yn-faq-q {
-          padding: 18px 0; font-size: 14px; font-weight: 600; color: #111827;
+          padding: 20px 0; font-size: 15px; font-weight: 600; color: rgba(255,255,255,.85);
           cursor: pointer; display: flex; justify-content: space-between; align-items: center;
           transition: color .2s; gap: 12px;
         }
-        .yn-faq-q:hover { color: #10b981; }
-        .yn-faq-a { font-size: 13px; color: #6b7280; line-height: 1.8; padding-bottom: 18px; }
-
-        .yn-trow:hover td { background: #f0fdf4; }
-
-        .yn-step-num {
-          width: 40px; height: 40px; background: #10b981; color: #fff;
-          border-radius: 50%; display: flex; align-items: center; justify-content: center;
-          font-size: 16px; font-weight: 800; flex-shrink: 0;
-          font-family: 'Syne', sans-serif;
-        }
+        .yn-faq-q:hover { color: #E55B2D; }
+        .yn-faq-a { font-size: 14px; color: rgba(255,255,255,.45); line-height: 1.8; padding-bottom: 20px; }
 
         .yn-tab-btn {
-          padding: 14px 0 14px 18px;
-          border-left: 2px solid rgba(255,255,255,.1);
+          padding: 16px 0 16px 20px;
+          border-left: 2px solid rgba(255,255,255,.08);
           cursor: pointer; transition: all .2s;
         }
-        .yn-tab-btn.active { border-left-color: #10b981; }
-        .yn-tab-btn h4 { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.4); margin-bottom: 3px; }
+        .yn-tab-btn.active { border-left-color: #E55B2D; }
+        .yn-tab-btn h4 { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.3); margin-bottom: 4px; }
         .yn-tab-btn.active h4 { color: #fff; }
-        .yn-tab-btn p { font-size: 12px; color: rgba(255,255,255,.45); line-height: 1.5; margin: 0; }
+        .yn-tab-btn p { font-size: 12px; color: rgba(255,255,255,.4); line-height: 1.6; margin: 0; }
+
+        .yn-tag-badge {
+          display: inline-flex; align-items: center; gap: 6px;
+          border: 1px solid rgba(229,91,45,.35); border-radius: 4px;
+          padding: 3px 10px; font-size: 11px; font-weight: 700;
+          color: #E55B2D; letter-spacing: .08em; text-transform: uppercase;
+        }
+
+        .yn-grid-line {
+          position: absolute; pointer-events: none;
+          background: rgba(255,255,255,0.03);
+        }
+
+        .yn-stat-box {
+          background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+          border-radius: 12px; padding: 28px; flex: 1;
+        }
 
         @media(max-width:900px){
           .yn-grid3 { grid-template-columns: 1fr 1fr !important; }
-          .yn-2col  { grid-template-columns: 1fr !important; }
-          .yn-fbgrid{ grid-template-columns: 1fr !important; }
+          .yn-2col { grid-template-columns: 1fr !important; }
+          .yn-fbgrid { grid-template-columns: 1fr !important; }
         }
         @media(max-width:640px){
-          .yn-hero-h1   { font-size: 34px !important; letter-spacing: -1px !important; }
-          .yn-grid3     { grid-template-columns: 1fr !important; }
+          .yn-hero-h1 { font-size: 38px !important; letter-spacing: -1px !important; }
+          .yn-grid3 { grid-template-columns: 1fr !important; }
           .yn-nav-links { display: none !important; }
-          .yn-faq-grid  { grid-template-columns: 1fr !important; }
+          .yn-faq-grid { grid-template-columns: 1fr !important; }
+          .yn-stats-row { flex-direction: column !important; }
         }
       `}</style>
 
       {/* ── NAV ── */}
       <nav style={{
         position: "sticky", top: 0, zIndex: 200,
-        background: scrollY > 20 ? "rgba(255,255,255,.97)" : "#fff",
-        borderBottom: "1px solid #e5e7eb",
-        padding: "0 5%", height: 64,
+        background: scrollY > 20 ? "rgba(10,10,10,.96)" : "transparent",
+        borderBottom: scrollY > 20 ? "1px solid rgba(255,255,255,.07)" : "1px solid transparent",
+        padding: "0 5%", height: 68,
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        boxShadow: scrollY > 20 ? "0 1px 24px rgba(0,0,0,.06)" : "none",
-        transition: "all .3s",
+        backdropFilter: scrollY > 20 ? "blur(20px)" : "none",
+        transition: "all .4s",
       }}>
-        <Wordmark size={19} dark />
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 32, height: 32,
+            background: "#E55B2D",
+            borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
+            </svg>
+          </div>
+          <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18, color: "#fff", letterSpacing: "-.4px" }}>
+            Your<span style={{ color: "#E55B2D" }}>Notes</span>
+          </span>
+        </div>
 
-        <div className="yn-nav-links" style={{ display: "flex", gap: 28 }}>
+        <div className="yn-nav-links" style={{ display: "flex", gap: 32 }}>
           {["Features", "How it works", "FAQ"].map((l, i) => (
             <a key={i} href={`#${l.toLowerCase().replace(/ /g, "-")}`} className="yn-nav-link">{l}</a>
           ))}
         </div>
 
         <div style={{ display: "flex", gap: 10 }}>
-          <button className="yn-btn-outline" style={{ padding: "8px 18px", fontSize: 13 }} onClick={() => navigate("/login")}>Sign in</button>
-          <button className="yn-btn-primary" style={{ padding: "8px 18px", fontSize: 13 }} onClick={() => navigate("/register")}>Get started free →</button>
+          <button className="yn-btn-ghost" style={{ padding: "8px 18px", fontSize: 13 }} onClick={() => navigate("/login")}>Sign in</button>
+          <button className="yn-btn-primary" style={{ padding: "9px 18px", fontSize: 13 }} onClick={() => navigate("/register")}>Get started free →</button>
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section style={{ padding: "96px 5% 80px", textAlign: "center", background: "#fff", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: -80, left: "10%", width: 400, height: 400, background: "radial-gradient(circle, rgba(16,185,129,.07) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: -60, right: "8%", width: 320, height: 320, background: "radial-gradient(circle, rgba(5,150,105,.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <section style={{ padding: "100px 5% 90px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        {/* Diagonal grid lines like Sheryians */}
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+          {[...Array(6)].map((_, i) => (
+            <div key={i} style={{
+              position: "absolute",
+              width: "1px", height: "200%",
+              background: "rgba(255,255,255,0.03)",
+              left: `${15 + i * 15}%`,
+              top: "-50%",
+              transform: "rotate(15deg)",
+            }} />
+          ))}
+          {/* Orange glow */}
+          <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: 600, height: 300, background: "radial-gradient(ellipse, rgba(229,91,45,.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+        </div>
 
-        <div style={{ maxWidth: 760, margin: "0 auto", animation: "ynHero .85s cubic-bezier(.16,1,.3,1) both", position: "relative" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 99, padding: "5px 16px", marginBottom: 28 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10b981", animation: "ynPulse 2s infinite", display: "inline-block" }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#065f46", letterSpacing: ".04em" }}>
-              Free for all students · No credit card required
+        <div style={{ maxWidth: 800, margin: "0 auto", animation: "ynHero .9s cubic-bezier(.16,1,.3,1) both", position: "relative" }}>
+          {/* Badge */}
+          <div style={{ display: "inline-flex", marginBottom: 30 }}>
+            <span className="yn-tag-badge">
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#E55B2D", animation: "ynPulse 2s infinite", display: "inline-block" }} />
+              LEARN. BUILD. GET PLACED.
             </span>
           </div>
 
-          <h1 className="yn-hero-h1" style={{ fontFamily: "'Syne', sans-serif", fontSize: 56, fontWeight: 800, color: "#111827", lineHeight: 1.08, letterSpacing: "-2px", marginBottom: 22 }}>
-            Study smarter.<br />
-            <span style={{ color: "#10b981" }}>Remember more.</span>
+          <h1 className="yn-hero-h1" style={{
+            fontFamily: "'Syne', sans-serif",
+            fontSize: 64, fontWeight: 800, color: "#fff",
+            lineHeight: 1.05, letterSpacing: "-2.5px", marginBottom: 24,
+          }}>
+            Become The Student<br />
+            That <span style={{ color: "#E55B2D", borderBottom: "3px solid #E55B2D" }}>Exams</span> Can't Stop!
           </h1>
 
-          <p style={{ fontSize: 17, color: "#6b7280", lineHeight: 1.8, maxWidth: 520, margin: "0 auto 38px", fontWeight: 400 }}>
+          <p style={{ fontSize: 17, color: "rgba(255,255,255,.55)", lineHeight: 1.8, maxWidth: 520, margin: "0 auto 40px", fontWeight: 400 }}>
             YourNotes is an AI-powered workspace built for students. Organize by subject, auto-generate flashcards, and let Gemini AI summarize your notes in one click.
           </p>
 
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <button className="yn-btn-primary" style={{ fontSize: 15, padding: "15px 34px" }} onClick={() => navigate("/register")}>
-              Start for free — no card needed
+              Start Journey →
             </button>
-            <button className="yn-btn-outline" style={{ fontSize: 15, padding: "14px 28px" }} onClick={() => navigate("/login")}>
-              Sign in →
+            <button className="yn-btn-ghost" style={{ fontSize: 15, padding: "14px 28px" }} onClick={() => navigate("/login")}>
+              Sign in
             </button>
           </div>
 
-          <p style={{ marginTop: 22, fontSize: 12, color: "#9ca3af", letterSpacing: ".04em" }}>
-            ✓ Completely free &nbsp;·&nbsp; ✓ No limits &nbsp;·&nbsp; ✓ No credit card
+          <p style={{ marginTop: 24, fontSize: 12, color: "rgba(255,255,255,.25)", letterSpacing: ".06em" }}>
+            ✓ COMPLETELY FREE &nbsp;·&nbsp; ✓ NO LIMITS &nbsp;·&nbsp; ✓ NO CREDIT CARD
           </p>
+        </div>
+
+        {/* Stats bar */}
+        <div style={{ maxWidth: 860, margin: "72px auto 0", background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 16, padding: "28px 40px", display: "flex", gap: 0, alignItems: "stretch" }} className="yn-stats-row">
+          <div style={{ flex: 1, textAlign: "center", borderRight: "1px solid rgba(255,255,255,.07)", paddingRight: 32 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
+              <span style={{ fontSize: 13, color: "#E55B2D" }}>▶</span>
+              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 28, color: "#fff" }}>1M+</span>
+            </div>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,.4)", letterSpacing: ".04em" }}>Students Learning</p>
+          </div>
+          <div style={{ flex: 1, textAlign: "center", borderRight: "1px solid rgba(255,255,255,.07)", padding: "0 32px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 6 }}>
+              <span style={{ color: "#E55B2D" }}>★</span>
+              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 28, color: "#fff" }}>662k</span>
+            </div>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,.4)", letterSpacing: ".04em" }}>Notes Created</p>
+          </div>
+          <div style={{ flex: 1, textAlign: "center", paddingLeft: 32 }}>
+            <div style={{ marginBottom: 6 }}>
+              <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 28, color: "#E55B2D" }}>Free</span>
+            </div>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,.4)", letterSpacing: ".04em" }}>Always, Forever</p>
+          </div>
         </div>
       </section>
 
       {/* ── STACK STRIP ── */}
-      <section style={{ borderTop: "1px solid #e5e7eb", borderBottom: "1px solid #e5e7eb", padding: "20px 5%", background: "#f9fafb" }}>
-        <p style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", marginBottom: 16, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".1em" }}>Built with</p>
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 40, flexWrap: "wrap" }}>
+      <section style={{ borderTop: "1px solid rgba(255,255,255,.06)", borderBottom: "1px solid rgba(255,255,255,.06)", padding: "20px 5%", background: "#0d0d0d" }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 48, flexWrap: "wrap" }}>
           {stack.map((t, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 7, color: "#6b7280" }}>
-              <span style={{ fontSize: 15 }}>{t.icon}</span>
-              <span style={{ fontSize: 13, fontWeight: 500 }}>{t.name}</span>
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,.3)" }}>
+              <span style={{ fontSize: 16 }}>{t.icon}</span>
+              <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: ".04em" }}>{t.name}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── FEATURE BAND ── */}
-      <section id="features" style={{ background: "linear-gradient(150deg, #052e16 0%, #064e3b 50%, #065f46 100%)", padding: "88px 5%" }}>
+      {/* ── IMPACT SECTION ── */}
+      <section id="features" style={{ background: "#0a0a0a", padding: "100px 5% 80px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 56 }}>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-1px", marginBottom: 12, lineHeight: 1.1 }}>
-              Everything you need to study better.
+          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 64 }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+              <span className="yn-tag-badge">IMPACT</span>
+            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 42, fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", marginBottom: 14, lineHeight: 1.1 }}>
+              How We Are Doing It Faster<br />And Better Than Others!
             </h2>
-            <p style={{ fontSize: 15, color: "rgba(255,255,255,.6)", maxWidth: 460, margin: "0 auto" }}>
-              One clean workspace with AI tools, flashcards, and smart organization — all built for students.
+            <p style={{ fontSize: 16, color: "rgba(255,255,255,.45)", maxWidth: 480, margin: "0 auto" }}>
+              One clean workspace with AI tools, flashcards, and smart organization.
             </p>
           </div>
 
-          <div className="yn-fbgrid yn-anim" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 0, background: "rgba(255,255,255,.05)", borderRadius: 18, overflow: "hidden", border: "1px solid rgba(16,185,129,.2)" }}>
-            <div style={{ padding: "28px 20px", borderRight: "1px solid rgba(16,185,129,.12)", display: "flex", flexDirection: "column", gap: 4 }}>
+          {/* Feature tabs panel */}
+          <div className="yn-fbgrid yn-anim" style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 0, background: "rgba(255,255,255,.03)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,.08)" }}>
+            <div style={{ padding: "32px 24px", borderRight: "1px solid rgba(255,255,255,.07)", display: "flex", flexDirection: "column", gap: 4, background: "#0d0d0d" }}>
               {[
-                { title: "AI Summaries",     desc: "Paste lecture notes, get structured summaries in one click." },
+                { title: "AI Summaries", desc: "Paste lecture notes, get structured summaries in one click." },
                 { title: "Smart Flashcards", desc: "Auto-generate Q&A with SM-2 spaced repetition." },
-                { title: "Folders & Tags",   desc: "Keep subjects organized with searchable tags." },
-                { title: "Study Dashboard",  desc: "Track notes, streaks, and flashcards due today." },
+                { title: "Folders & Tags", desc: "Keep subjects organized with searchable tags." },
+                { title: "Study Dashboard", desc: "Track notes, streaks, and flashcards due today." },
               ].map((tab, i) => (
                 <div key={i} className={`yn-tab-btn ${activeTab === i ? "active" : ""}`} onClick={() => setActiveTab(i)}>
                   <h4>{tab.title}</h4>
@@ -289,34 +340,36 @@ export default function LandingPage() {
               ))}
             </div>
 
-            <div style={{ padding: "24px" }}>
-              <div style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 28px 64px rgba(0,0,0,.25)" }}>
-                <div style={{ background: "#f8fafc", borderBottom: "1px solid #e5e7eb", padding: "10px 16px", display: "flex", alignItems: "center", gap: 6 }}>
-                  {["#FF5F57","#FFBD2E","#28C840"].map((c, i) => <div key={i} style={{ width: 9, height: 9, borderRadius: "50%", background: c }} />)}
-                  <span style={{ fontSize: 11, color: "#9ca3af", marginLeft: 8, fontFamily: "monospace" }}>YourNotes — Notes</span>
+            <div style={{ padding: "28px" }}>
+              <div style={{ background: "#111", borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,.08)" }}>
+                <div style={{ background: "#0d0d0d", borderBottom: "1px solid rgba(255,255,255,.07)", padding: "10px 16px", display: "flex", alignItems: "center", gap: 6 }}>
+                  {["#FF5F57","#FFBD2E","#28C840"].map((c, i) => (
+                    <div key={i} style={{ width: 9, height: 9, borderRadius: "50%", background: c }} />
+                  ))}
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,.2)", marginLeft: 8, fontFamily: "monospace" }}>YourNotes — Dashboard</span>
                 </div>
-                <div style={{ padding: "16px 18px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>Recent Notes</span>
-                    <button style={{ background: "#10b981", color: "#fff", border: "none", padding: "4px 12px", borderRadius: 6, fontSize: 11, cursor: "pointer", fontWeight: 600 }}>+ New Note</button>
+                <div style={{ padding: "20px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>Recent Notes</span>
+                    <button style={{ background: "#E55B2D", color: "#fff", border: "none", padding: "5px 14px", borderRadius: 6, fontSize: 11, cursor: "pointer", fontWeight: 700 }}>+ New Note</button>
                   </div>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, color: "#374151" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, color: "rgba(255,255,255,.7)" }}>
                     <thead>
-                      <tr style={{ borderBottom: "1px solid #f0fdf4" }}>
+                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,.06)" }}>
                         {["Title","Subject","Tags","Updated"].map(h => (
-                          <th key={h} style={{ padding: "6px 10px", textAlign: "left", color: "#9ca3af", fontWeight: 600, fontSize: 10 }}>{h}</th>
+                          <th key={h} style={{ padding: "6px 10px", textAlign: "left", color: "rgba(255,255,255,.25)", fontWeight: 600, fontSize: 10, letterSpacing: ".06em" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {notesPreview.map((r, i) => (
-                        <tr key={i} className="yn-trow">
-                          <td style={{ padding: "8px 10px", fontWeight: 600, color: "#111827" }}>{r.title}</td>
-                          <td style={{ padding: "8px 10px" }}>
-                            <span style={{ padding: "2px 8px", borderRadius: 99, fontSize: 10, fontWeight: 700, background: "#f0fdf4", color: "#065f46" }}>{r.subject}</span>
+                        <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,.04)" }}>
+                          <td style={{ padding: "10px 10px", fontWeight: 600, color: "#fff" }}>{r.title}</td>
+                          <td style={{ padding: "10px 10px" }}>
+                            <span style={{ padding: "2px 10px", borderRadius: 4, fontSize: 10, fontWeight: 700, background: "rgba(229,91,45,.15)", color: "#E55B2D", border: "1px solid rgba(229,91,45,.25)" }}>{r.subject}</span>
                           </td>
-                          <td style={{ padding: "8px 10px", color: "#9ca3af" }}>{r.tags}</td>
-                          <td style={{ padding: "8px 10px", color: "#9ca3af" }}>{r.updated}</td>
+                          <td style={{ padding: "10px 10px", color: "rgba(255,255,255,.3)" }}>{r.tags}</td>
+                          <td style={{ padding: "10px 10px", color: "rgba(255,255,255,.3)" }}>{r.updated}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -329,76 +382,91 @@ export default function LandingPage() {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" style={{ padding: "96px 5%", background: "#fff" }}>
+      <section id="how-it-works" style={{ padding: "100px 5%", background: "#0d0d0d", borderTop: "1px solid rgba(255,255,255,.06)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 64 }}>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 36, fontWeight: 800, color: "#111827", letterSpacing: "-1px", marginBottom: 10 }}>
-              Simplify your study workflow.
+          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 72 }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+              <span className="yn-tag-badge">COURSES</span>
+            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 40, fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", marginBottom: 12 }}>
+              Simplify Your Study Workflow.
             </h2>
-            <p style={{ fontSize: 15, color: "#6b7280", maxWidth: 440, margin: "0 auto" }}>
+            <p style={{ fontSize: 16, color: "rgba(255,255,255,.4)", maxWidth: 440, margin: "0 auto" }}>
               Focus on learning while YourNotes handles organisation and memory work.
             </p>
           </div>
 
-          <div className="yn-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "start" }}>
-            <div className="yn-anim" style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+          <div className="yn-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "start" }}>
+            <div className="yn-anim" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
               {[
-                { n: "01", icon: "📝", title: "Create or import your notes",               desc: "Write directly in the editor, or import .txt, .md, .pdf, .doc, .docx files instantly." },
-                { n: "02", icon: "✨", title: "Let AI summarize and create flashcards",     desc: "One click on any note generates a clean summary or a full set of Q&A flashcards." },
-                { n: "03", icon: "🃏", title: "Review with spaced repetition",              desc: "The SM-2 algorithm schedules your flashcard reviews so you remember everything long-term." },
-                { n: "04", icon: "📁", title: "Stay organized with folders & tags",         desc: "Keep every subject in its own folder with color-coded tags. Find any note in seconds." },
+                { n: "01", icon: "📝", title: "Create or import your notes", desc: "Write directly in the editor, or import .txt, .md, .pdf, .doc, .docx files instantly." },
+                { n: "02", icon: "✨", title: "Let AI summarize and create flashcards", desc: "One click on any note generates a clean summary or a full set of Q&A flashcards." },
+                { n: "03", icon: "🃏", title: "Review with spaced repetition", desc: "The SM-2 algorithm schedules your flashcard reviews so you remember everything long-term." },
+                { n: "04", icon: "📁", title: "Stay organized with folders & tags", desc: "Keep every subject in its own folder with color-coded tags. Find any note in seconds." },
               ].map((step, i) => (
-                <div key={i} style={{ display: "flex", gap: 18, alignItems: "flex-start" }}>
-                  <div className="yn-step-num">{step.n}</div>
+                <div key={i} style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+                  <div style={{
+                    width: 44, height: 44, background: i === 0 ? "#E55B2D" : "rgba(229,91,45,.1)",
+                    border: i !== 0 ? "1px solid rgba(229,91,45,.25)" : "none",
+                    borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 14,
+                    color: i === 0 ? "#fff" : "#E55B2D", flexShrink: 0,
+                  }}>{step.n}</div>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#111827", marginBottom: 5 }}>{step.icon} {step.title}</div>
-                    <div style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.7 }}>{step.desc}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 6 }}>{step.icon} {step.title}</div>
+                    <div style={{ fontSize: 14, color: "rgba(255,255,255,.4)", lineHeight: 1.7 }}>{step.desc}</div>
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="yn-anim yn-d2" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ border: "1.5px solid #d1fae5", borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 20px rgba(16,185,129,.06)" }}>
-                <div style={{ background: "#f0fdf4", borderBottom: "1px solid #d1fae5", padding: "12px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#065f46" }}>📝 Recent Notes</span>
-                  <span style={{ fontSize: 11, color: "#10b981", cursor: "pointer", fontWeight: 600 }}>View all →</span>
+              {/* Notes table */}
+              <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, overflow: "hidden" }}>
+                <div style={{ background: "rgba(229,91,45,.08)", borderBottom: "1px solid rgba(229,91,45,.15)", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#E55B2D" }}>📝 Recent Notes</span>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,.4)", cursor: "pointer" }}>View all →</span>
                 </div>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
-                  <thead><tr style={{ borderBottom: "1px solid #f0fdf4", background: "#f9fafb" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, background: "#111" }}>
+                  <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,.06)" }}>
                     {["Title","Subject","Updated"].map(h => (
-                      <th key={h} style={{ padding: "7px 12px", textAlign: "left", color: "#9ca3af", fontWeight: 600, fontSize: 10 }}>{h}</th>
+                      <th key={h} style={{ padding: "8px 14px", textAlign: "left", color: "rgba(255,255,255,.25)", fontWeight: 600, fontSize: 10 }}>{h}</th>
                     ))}
                   </tr></thead>
                   <tbody>
                     {notesPreview.slice(0,4).map((r, i) => (
-                      <tr key={i} className="yn-trow" style={{ borderBottom: "1px solid #f9fafb" }}>
-                        <td style={{ padding: "9px 12px", fontWeight: 600, color: "#111827", fontSize: 12 }}>{r.title}</td>
-                        <td style={{ padding: "9px 12px" }}><span style={{ padding: "2px 9px", borderRadius: 99, fontSize: 10, fontWeight: 700, background: "#f0fdf4", color: "#065f46" }}>{r.subject}</span></td>
-                        <td style={{ padding: "9px 12px", color: "#9ca3af" }}>{r.updated}</td>
+                      <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,.04)" }}>
+                        <td style={{ padding: "10px 14px", fontWeight: 600, color: "#fff" }}>{r.title}</td>
+                        <td style={{ padding: "10px 14px" }}><span style={{ padding: "2px 10px", borderRadius: 4, fontSize: 10, fontWeight: 700, background: "rgba(229,91,45,.12)", color: "#E55B2D" }}>{r.subject}</span></td>
+                        <td style={{ padding: "10px 14px", color: "rgba(255,255,255,.3)" }}>{r.updated}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
 
-              <div style={{ border: "1.5px solid #d1fae5", borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 16px rgba(16,185,129,.05)" }}>
-                <div style={{ background: "#f0fdf4", borderBottom: "1px solid #d1fae5", padding: "12px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#065f46" }}>🃏 Flashcards Due Today</span>
-                  <span style={{ fontSize: 11, color: "#10b981", cursor: "pointer", fontWeight: 600 }}>Start review →</span>
+              {/* Flashcards table */}
+              <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, overflow: "hidden" }}>
+                <div style={{ background: "rgba(229,91,45,.08)", borderBottom: "1px solid rgba(229,91,45,.15)", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#E55B2D" }}>🃏 Flashcards Due Today</span>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,.4)", cursor: "pointer" }}>Start review →</span>
                 </div>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
-                  <thead><tr style={{ borderBottom: "1px solid #f0fdf4", background: "#f9fafb" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, background: "#111" }}>
+                  <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,.06)" }}>
                     {["Card","Difficulty","Due"].map(h => (
-                      <th key={h} style={{ padding: "7px 12px", textAlign: "left", color: "#9ca3af", fontWeight: 600, fontSize: 10 }}>{h}</th>
+                      <th key={h} style={{ padding: "8px 14px", textAlign: "left", color: "rgba(255,255,255,.25)", fontWeight: 600, fontSize: 10 }}>{h}</th>
                     ))}
                   </tr></thead>
                   <tbody>
                     {flashcardsPreview.map((r, i) => (
-                      <tr key={i} className="yn-trow" style={{ borderBottom: "1px solid #f9fafb" }}>
-                        <td style={{ padding: "9px 12px", fontWeight: 600, color: "#111827" }}>{r.card}</td>
-                        <td style={{ padding: "9px 12px" }}><span style={{ padding: "2px 9px", borderRadius: 99, fontSize: 10, fontWeight: 700, background: "#f0fdf4", color: "#065f46" }}>{r.diff}</span></td>
-                        <td style={{ padding: "9px 12px", color: "#9ca3af" }}>{r.due}</td>
+                      <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,.04)" }}>
+                        <td style={{ padding: "10px 14px", fontWeight: 600, color: "#fff" }}>{r.card}</td>
+                        <td style={{ padding: "10px 14px" }}><span style={{
+                          padding: "2px 10px", borderRadius: 4, fontSize: 10, fontWeight: 700,
+                          background: r.diff === "Easy" ? "rgba(16,185,129,.12)" : r.diff === "Medium" ? "rgba(245,158,11,.12)" : "rgba(239,68,68,.12)",
+                          color: r.diff === "Easy" ? "#10b981" : r.diff === "Medium" ? "#f59e0b" : "#ef4444",
+                        }}>{r.diff}</span></td>
+                        <td style={{ padding: "10px 14px", color: "rgba(255,255,255,.3)" }}>{r.due}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -410,22 +478,25 @@ export default function LandingPage() {
       </section>
 
       {/* ── 6 FEATURES GRID ── */}
-      <section style={{ padding: "80px 5%", background: "#f9fafb", borderTop: "1px solid #e5e7eb" }}>
+      <section style={{ padding: "88px 5%", background: "#0a0a0a", borderTop: "1px solid rgba(255,255,255,.05)" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 52 }}>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 32, fontWeight: 800, color: "#111827", letterSpacing: "-.8px", marginBottom: 10 }}>
+          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 60 }}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 36, fontWeight: 800, color: "#fff", letterSpacing: "-1.2px", marginBottom: 12 }}>
               All the tools you need to learn.
             </h2>
-            <p style={{ fontSize: 15, color: "#6b7280", maxWidth: 380, margin: "0 auto" }}>Built for students from the ground up.</p>
+            <p style={{ fontSize: 15, color: "rgba(255,255,255,.4)", maxWidth: 380, margin: "0 auto" }}>Built for students from the ground up.</p>
           </div>
           <div className="yn-grid3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
             {features.map((f, i) => (
-              <div key={i} className={`yn-feat-card yn-anim yn-d${Math.min(i, 5)}`}>
-                <div style={{ width: 42, height: 42, background: "#f0fdf4", borderRadius: 11, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14, fontSize: 18, border: "1px solid #d1fae5" }}>
-                  {f.icon}
-                </div>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111827", marginBottom: 7 }}>{f.title}</h3>
-                <p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.7 }}>{f.desc}</p>
+              <div key={i} className={`yn-feat-card yn-anim yn-d${Math.min(i+1, 5)}`}>
+                <div style={{
+                  width: 44, height: 44, background: "rgba(229,91,45,.1)",
+                  border: "1px solid rgba(229,91,45,.2)",
+                  borderRadius: 10, display: "flex", alignItems: "center",
+                  justifyContent: "center", marginBottom: 16, fontSize: 20,
+                }}>{f.icon}</div>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 8 }}>{f.title}</h3>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,.4)", lineHeight: 1.7 }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -433,46 +504,54 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA BAND ── */}
-      <section style={{ background: "linear-gradient(140deg, #052e16, #10b981, #059669)", padding: "80px 5%", textAlign: "center" }}>
-        <div className="yn-anim">
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-1px", marginBottom: 12 }}>
-            Ready to study smarter?
+      <section style={{ background: "#111", borderTop: "1px solid rgba(255,255,255,.06)", borderBottom: "1px solid rgba(255,255,255,.06)", padding: "88px 5%", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(229,91,45,.08) 0%, transparent 65%)", pointerEvents: "none" }} />
+        <div className="yn-anim" style={{ position: "relative" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+            <span className="yn-tag-badge">COMMUNITY</span>
+          </div>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: "-1.5px", marginBottom: 14, lineHeight: 1.1 }}>
+            They Came. They Cooked.<br />They Got Placed.
           </h2>
-          <p style={{ fontSize: 15, color: "rgba(255,255,255,.75)", maxWidth: 440, margin: "0 auto 32px", lineHeight: 1.7 }}>
+          <p style={{ fontSize: 16, color: "rgba(255,255,255,.45)", maxWidth: 460, margin: "0 auto 36px", lineHeight: 1.7 }}>
             Join students using YourNotes to ace their exams.<br />
-            Completely free — no credit card, no limits, no catch.
+            Completely free — no credit card, no limits.
           </p>
-          <button className="yn-btn-white" onClick={() => navigate("/register")} style={{ fontSize: 15, padding: "15px 36px" }}>
-            Create your free account →
+          <button className="yn-btn-primary" onClick={() => navigate("/register")} style={{ fontSize: 16, padding: "16px 40px" }}>
+            Explore Courses →
           </button>
         </div>
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section id="testimonials" style={{ padding: "96px 5%", background: "#fff" }}>
+      <section id="testimonials" style={{ padding: "100px 5%", background: "#0a0a0a" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 56 }}>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 34, fontWeight: 800, color: "#111827", letterSpacing: "-.8px", marginBottom: 10 }}>
-              Loved by students.
+          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 60 }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+              <span className="yn-tag-badge">HEAR FROM OUR STUDENTS</span>
+            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-1.2px", marginBottom: 12 }}>
+              We Help Learners Become<br />Industry-Ready Developers.
             </h2>
-            <p style={{ fontSize: 15, color: "#6b7280", maxWidth: 380, margin: "0 auto" }}>
-              Here's what students from across India say about YourNotes.
-            </p>
           </div>
           <div className="yn-grid3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
             {testimonials.map((t, i) => (
-              <div key={i} className={`yn-test-card yn-anim yn-d${Math.min(i, 5)}`}>
-                <div style={{ display: "flex", gap: 2, marginBottom: 14 }}>
-                  {[...Array(5)].map((_, s) => <span key={s} style={{ color: "#10b981", fontSize: 13 }}>★</span>)}
+              <div key={i} className={`yn-test-card yn-anim yn-d${Math.min(i+1, 5)}`}>
+                <div style={{ display: "flex", gap: 2, marginBottom: 16 }}>
+                  {[...Array(5)].map((_, s) => (
+                    <span key={s} style={{ color: "#E55B2D", fontSize: 14 }}>★</span>
+                  ))}
                 </div>
-                <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.8, marginBottom: 18 }}>"{t.text}"</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "#fff", flexShrink: 0 }}>
-                    {t.avatar}
-                  </div>
+                <p style={{ fontSize: 14, color: "rgba(255,255,255,.55)", lineHeight: 1.8, marginBottom: 20 }}>"{t.text}"</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 38, height: 38, borderRadius: "50%", background: "#E55B2D",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 12, fontWeight: 800, color: "#fff", flexShrink: 0,
+                  }}>{t.avatar}</div>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{t.name}</div>
-                    <div style={{ fontSize: 11, color: "#9ca3af" }}>{t.role}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{t.name}</div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,.3)" }}>{t.role}</div>
                   </div>
                 </div>
               </div>
@@ -481,21 +560,73 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FAQ ── */}
-      <section id="faq" style={{ padding: "88px 5%", background: "#f9fafb", borderTop: "1px solid #e5e7eb" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="yn-anim" style={{ marginBottom: 52 }}>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 34, fontWeight: 800, color: "#111827", letterSpacing: "-.8px", marginBottom: 8 }}>
-              Frequently asked questions
+      {/* ── COMPARISON ── */}
+      <section style={{ padding: "100px 5%", background: "#0d0d0d", borderTop: "1px solid rgba(255,255,255,.06)" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <div className="yn-anim" style={{ textAlign: "center", marginBottom: 64 }}>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+              <span className="yn-tag-badge">COMPARISON</span>
+            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-1.2px" }}>
+              What Sets YourNotes Apart<br />From Other Apps
             </h2>
-            <p style={{ fontSize: 15, color: "#6b7280" }}>Can't find what you're looking for? Reach out and we'll help.</p>
           </div>
-          <div className="yn-faq-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 56px" }}>
+          <div className="yn-anim" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            {/* YourNotes */}
+            <div style={{ background: "#111", border: "1px solid rgba(229,91,45,.25)", borderRadius: 14, padding: "32px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+                <div style={{ width: 28, height: 28, background: "#E55B2D", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
+                  </svg>
+                </div>
+                <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, color: "#fff", fontSize: 15 }}>YourNotes</span>
+              </div>
+              {["Completely Free, No Quality Cuts", "AI-Powered, Skill-First Learning", "Spaced Repetition Built In", "Smart Flashcards & Summaries", "Industry-Relevant Curriculum"].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                  <span style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(16,185,129,.2)", border: "1px solid rgba(16,185,129,.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#10b981", flexShrink: 0 }}>✓</span>
+                  <span style={{ fontSize: 14, color: "rgba(255,255,255,.75)" }}>{item}</span>
+                </div>
+              ))}
+            </div>
+            {/* Others */}
+            <div style={{ background: "#0d0d0d", border: "1px solid rgba(255,255,255,.07)", borderRadius: 14, padding: "32px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+                <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, color: "rgba(255,255,255,.4)", fontSize: 15 }}>Others</span>
+              </div>
+              {["Expensive or Paywalled Features", "Theory-Centric Learning", "Manual Review Scheduling", "No AI Integration", "Outdated, Static Curriculum"].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                  <span style={{ width: 18, height: 18, borderRadius: "50%", background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#ef4444", flexShrink: 0 }}>✕</span>
+                  <span style={{ fontSize: 14, color: "rgba(255,255,255,.3)" }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section id="faq" style={{ padding: "100px 5%", background: "#0a0a0a", borderTop: "1px solid rgba(255,255,255,.05)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div className="yn-anim" style={{ marginBottom: 60 }}>
+            <div style={{ display: "flex", marginBottom: 20 }}>
+              <span className="yn-tag-badge">FAQS</span>
+            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-1.2px", marginBottom: 10 }}>
+              Frequently Asked Questions<br />From Our Students
+            </h2>
+          </div>
+          <div className="yn-faq-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 64px" }}>
             {faqs.map((f, i) => (
               <div key={i} className="yn-faq-item yn-anim">
                 <div className="yn-faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
                   <span style={{ paddingRight: 8 }}>{f.q}</span>
-                  <span style={{ fontSize: 20, color: openFaq === i ? "#10b981" : "#9ca3af", flexShrink: 0, transform: openFaq === i ? "rotate(45deg)" : "none", transition: "transform .2s, color .2s", fontWeight: 400 }}>+</span>
+                  <span style={{
+                    fontSize: 22, color: openFaq === i ? "#E55B2D" : "rgba(255,255,255,.25)",
+                    flexShrink: 0, transform: openFaq === i ? "rotate(45deg)" : "none",
+                    transition: "transform .2s, color .2s", fontWeight: 300, lineHeight: 1,
+                  }}>+</span>
                 </div>
                 {openFaq === i && <p className="yn-faq-a">{f.a}</p>}
               </div>
@@ -504,42 +635,77 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── FINAL CTA ── */}
+      <section style={{ background: "#0d0d0d", borderTop: "1px solid rgba(255,255,255,.06)", padding: "120px 5%", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          {[...Array(5)].map((_, i) => (
+            <div key={i} style={{
+              position: "absolute", width: "1px", height: "200%",
+              background: "rgba(255,255,255,0.025)",
+              left: `${10 + i * 20}%`, top: "-50%",
+              transform: "rotate(15deg)",
+            }} />
+          ))}
+        </div>
+        <div className="yn-anim" style={{ position: "relative" }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 52, fontWeight: 800, color: "#fff", letterSpacing: "-2px", marginBottom: 16, lineHeight: 1.05 }}>
+            Transform Your Learning Journey<br />Into A Career Breakthrough<br />With <span style={{ color: "#E55B2D" }}>YourNotes</span>
+          </h2>
+          <p style={{ fontSize: 16, color: "rgba(255,255,255,.4)", maxWidth: 440, margin: "0 auto 40px", lineHeight: 1.7 }}>
+            Completely free — no credit card, no limits, no catch. Join now.
+          </p>
+          <button className="yn-btn-primary" onClick={() => navigate("/register")} style={{ fontSize: 16, padding: "18px 44px" }}>
+            Explore Courses →
+          </button>
+        </div>
+        {/* Big faded brand text like Sheryians */}
+        <div style={{ position: "absolute", bottom: -20, left: "50%", transform: "translateX(-50%)", fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "clamp(60px, 12vw, 140px)", color: "rgba(255,255,255,.025)", whiteSpace: "nowrap", pointerEvents: "none", userSelect: "none", letterSpacing: "-4px" }}>
+          YourNotes
+        </div>
+      </section>
+
       {/* ── FOOTER ── */}
-      <footer style={{ background: "#111827", color: "rgba(255,255,255,.45)", padding: "52px 5% 28px" }}>
+      <footer style={{ background: "#080808", borderTop: "1px solid rgba(255,255,255,.06)", color: "rgba(255,255,255,.35)", padding: "56px 5% 28px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, marginBottom: 44 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, marginBottom: 48 }}>
             <div>
-              <div style={{ marginBottom: 14 }}>
-                <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 17, color: "#fff" }}>
-                  Your<span style={{ color: "#10b981" }}>Notes</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                <div style={{ width: 28, height: 28, background: "#E55B2D", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
+                  </svg>
+                </div>
+                <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 16, color: "#fff" }}>
+                  Your<span style={{ color: "#E55B2D" }}>Notes</span>
                 </span>
               </div>
-              <p style={{ fontSize: 12, lineHeight: 1.8, maxWidth: 220 }}>
+              <p style={{ fontSize: 13, lineHeight: 1.8, maxWidth: 220 }}>
                 AI-powered notes for students.<br />
                 Diploma Final Year Project<br />
                 S.V. Polytechnic College, Bhopal · RGPV 2024–25
               </p>
             </div>
             {[
-              { title: "Product", links: ["Features", "How it works", "FAQ"] },
-              { title: "Account", links: ["Sign in", "Register", "Forgot password"] },
-              { title: "Legal",   links: ["Privacy", "Terms", "Cookies"] },
+              { title: "ABOUT", links: ["Features", "How it works", "FAQ"] },
+              { title: "COMPANY", links: ["Discord", "Jobs", "Feedback"] },
+              { title: "CONTACT", links: ["Online: 11am - 8pm", "+91 9993478545", "hello@yournotes.in", "23-B, Sector C, Bhopal(MP)"] },
             ].map((col, i) => (
               <div key={i}>
-                <h5 style={{ fontSize: 11, fontWeight: 700, color: "#fff", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 16 }}>{col.title}</h5>
+                <h5 style={{ fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,.6)", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 18 }}>{col.title}</h5>
                 <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
                   {col.links.map((l, j) => (
                     <li key={j}>
-                      <a href="/" style={{ fontSize: 13, color: "rgba(255,255,255,.35)", textDecoration: "none", transition: "color .2s" }}
-                        onMouseEnter={e => e.target.style.color = "#10b981"}
-                        onMouseLeave={e => e.target.style.color = "rgba(255,255,255,.35)"}>{l}</a>
+                      <a href="/" style={{ fontSize: 13, color: "rgba(255,255,255,.3)", textDecoration: "none", transition: "color .2s" }}
+                        onMouseEnter={e => e.target.style.color = "#fff"}
+                        onMouseLeave={e => e.target.style.color = "rgba(255,255,255,.3)"}>{l}</a>
                     </li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,.07)", paddingTop: 22, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, color: "rgba(255,255,255,.2)" }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,.06)", paddingTop: 24, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, color: "rgba(255,255,255,.18)" }}>
             <span>© 2025 YourNotes. Free for all students, forever.</span>
             <span>Made with ♥ in Bhopal, India</span>
           </div>
