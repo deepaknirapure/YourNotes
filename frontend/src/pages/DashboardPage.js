@@ -3,7 +3,7 @@ import {
   Plus, Search, Star, Folder, Trash2, Home,
   MoreHorizontal, CreditCard, Share2, LogOut,
   RefreshCw, User, Inbox, BookOpen, Flame,
-  FolderPlus, X,
+  FolderPlus, X, Users,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -178,11 +178,6 @@ export default function DashboardPage() {
     <>
       {/* Logo */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 8px", marginBottom: 8 }}>
-        <div style={{ width: 30, height: 30, background: "#E55B2D", borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
-          </svg>
-        </div>
         <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 16, color: "#fff" }}>
           Your<span style={{ color: "#E55B2D" }}>Notes</span>
         </span>
@@ -281,6 +276,10 @@ export default function DashboardPage() {
           <button onClick={() => navigate("/profile")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", color: "rgba(255,255,255,.5)", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
             onMouseEnter={e => e.currentTarget.style.color = "#fff"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,.5)"}>
             <User size={12} /> Profile
+          </button>
+          <button onClick={() => navigate("/community")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(139,92,246,.08)", border: "1px solid rgba(139,92,246,.2)", color: "#a78bfa", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(139,92,246,.18)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(139,92,246,.08)"}>
+            <Users size={12} /> Community
           </button>
           <button onClick={handleLogout} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.15)", color: "#ef4444", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,.15)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(239,68,68,.08)"}>

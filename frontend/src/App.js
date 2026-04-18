@@ -14,6 +14,7 @@ const DashboardPage     = lazy(() => import("./pages/DashboardPage"));
 const FlashcardReviewPage = lazy(() => import("./pages/FlashcardReviewPage"));
 const SharedNotePage    = lazy(() => import("./pages/SharedNotePage"));
 const ProfilePage       = lazy(() => import("./pages/ProfilePage"));
+const CommunityPage     = lazy(() => import("./pages/CommunityPage"));
 const NotFoundPage      = lazy(() => import("./pages/NotFoundPage"));
 
 // Full-screen spinner shown during lazy load
@@ -62,6 +63,7 @@ function App() {
             <Route path="/dashboard"          element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
             <Route path="/flashcard-review"   element={<PrivateRoute><FlashcardReviewPage /></PrivateRoute>} />
             <Route path="/profile"            element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+            <Route path="/community"          element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
             <Route path="*"                   element={<NotFoundPage />} />
           </Routes>
         </Suspense>
