@@ -6,10 +6,21 @@ import { YN_CSS, useNeuralCanvas, useCursor } from "./NeuralBackground";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
 
+const EXTRA_CSS = `
+  .fc-rate-btn {
+    padding: 13px 8px; border-radius: 12px;
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: .82rem; cursor: pointer;
+    transition: all .2s; text-align: center;
+    border: 1px solid;
+  }
+  .fc-rate-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.35); }
+`;
+
 export default function FlashcardReviewPage() {
-  const navigate  = useNavigate();
-  const token     = localStorage.getItem("token");
-  const headers   = { Authorization: `Bearer ${token}` };
+  const navigate = useNavigate();
+  const token    = localStorage.getItem("token");
+  const headers  = { Authorization: `Bearer ${token}` };
 
   const [cards,   setCards]   = useState([]);
   const [current, setCurrent] = useState(0);
@@ -32,10 +43,9 @@ export default function FlashcardReviewPage() {
       .then(({ data }) => { setCards(data); setStats({ reviewed: 0, total: data.length }); })
       .catch(() => toast.error("Error loading flashcards"))
       .finally(() => setLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Space to flip
   useEffect(() => {
     const handler = (e) => { if (e.code === "Space") { e.preventDefault(); setFlipped(f => !f); } };
     window.addEventListener("keydown", handler);
@@ -54,24 +64,13 @@ export default function FlashcardReviewPage() {
     else { setCurrent(next); setFlipped(false); setStats(s => ({ ...s, reviewed: next })); }
   };
 
-  const EXTRA_CSS = `
-    .fc-rate-btn {
-      padding: 12px 8px; border-radius: 12px;
-      font-family: 'Syne', sans-serif; font-weight: 700;
-      font-size: .8rem; cursor: pointer;
-      transition: all .2s; text-align: center;
-      border: 1px solid;
-    }
-    .fc-rate-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.4); }
-  `;
-
   const Shell = ({ children }) => (
     <>
       <style>{YN_CSS + EXTRA_CSS}</style>
       <div ref={cursorRef}    className="yn-cursor-ring" />
       <div ref={cursorDotRef} className="yn-cursor-dot"  />
-      <canvas ref={neuralRef} className="yn-canvas" style={{ zIndex:0 }} />
-      <div style={{ minHeight:"100vh", position:"relative", zIndex:10 }}>
+      <canvas ref={neuralRef} className="yn-canvas" style={{ zIndex: 0 }} />
+      <div style={{ minHeight: "100vh", position: "relative", zIndex: 10 }}>
         {children}
       </div>
     </>
@@ -80,32 +79,39 @@ export default function FlashcardReviewPage() {
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) return (
     <Shell>
-      <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:16 }}>
-        <div style={{ width:34, height:34, border:"1.5px solid rgba(0,229,255,.3)", borderTopColor:"var(--yn-cyan)", borderRadius:"50%", animation:"spin 1s linear infinite" }} />
-        <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".72rem", color:"rgba(240,240,255,.4)", letterSpacing:"2px" }}>LOADING CARDS…</p>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }}>
+        <div style={{ width: 34, height: 34, border: "1.5px solid rgba(16,185,129,.3)", borderTopColor: "#10B981", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        <p style={{ fontFamily: "'Syne', sans-serif", fontSize: ".72rem", color: "rgba(240,255,248,.35)", letterSpacing: "2px" }}>LOADING CARDS…</p>
       </div>
     </Shell>
   );
 
-  // ── Done / Empty ───────────────────────────────────────────────────────────
+  // ── Done / Empty ────────────────────────────────────────────────────────────
   if (done || cards.length === 0) return (
     <Shell>
-      <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
-        <div style={{ textAlign:"center", maxWidth:480, animation:"fadeUp .7s both" }}>
-          <div style={{ width:80, height:80, borderRadius:"50%", background:"rgba(0,229,255,.08)", border:"1px solid rgba(0,229,255,.3)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 28px", fontSize:30, color:"var(--yn-cyan)", fontWeight:700 }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <div style={{ textAlign: "center", maxWidth: 480, animation: "fadeUp .7s both" }}>
+          <div style={{
+            width: 80, height: 80, borderRadius: "50%",
+            background: "rgba(16,185,129,.08)", border: "1px solid rgba(16,185,129,.3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 28px", fontSize: 30,
+          }}>
             {cards.length === 0 ? "🎉" : "✓"}
           </div>
-          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".65rem", letterSpacing:"4px", color:"var(--yn-cyan)", marginBottom:16 }}>// SESSION END</div>
-          <h1 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"2.2rem", color:"#f0f0ff", marginBottom:12, letterSpacing:-1 }}>
+          <div style={{ fontFamily: "'Syne', sans-serif", fontSize: ".65rem", letterSpacing: "4px", color: "#10B981", marginBottom: 16 }}>
+            // SESSION END
+          </div>
+          <h1 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "2.2rem", color: "#f0fff8", marginBottom: 12, letterSpacing: -1 }}>
             {cards.length === 0 ? "All caught up!" : "Session complete!"}
           </h1>
-          <p style={{ fontSize:"15px", color:"rgba(240,240,255,.5)", marginBottom:8, lineHeight:1.7 }}>
+          <p style={{ fontSize: "15px", color: "rgba(240,255,248,.5)", marginBottom: 8, lineHeight: 1.7 }}>
             {cards.length === 0 ? "No flashcards due — check back later." : `You reviewed ${stats.total} flashcard${stats.total !== 1 ? "s" : ""}.`}
           </p>
-          <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".72rem", color:"rgba(240,240,255,.3)", marginBottom:44, letterSpacing:"1px" }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".8rem", color: "rgba(240,255,248,.3)", marginBottom: 44, letterSpacing: "0.5px" }}>
             Great work keeping up with your studies.
           </p>
-          <button onClick={() => navigate("/dashboard")} className="yn-btn-primary" style={{ padding:"13px 36px" }}>
+          <button onClick={() => navigate("/dashboard")} className="yn-btn-primary" style={{ padding: "13px 36px" }}>
             Back to dashboard
           </button>
         </div>
@@ -118,77 +124,121 @@ export default function FlashcardReviewPage() {
 
   return (
     <Shell>
-      {/* Topbar */}
-      <div style={{ position:"sticky", top:0, zIndex:100, background:"rgba(3,3,15,.75)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderBottom:"1px solid rgba(0,229,255,.1)", padding:"0 5%", height:58, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <span className="yn-nav-logo" style={{ fontSize:".88rem" }}>YOURNOTES</span>
-          <span style={{ color:"rgba(255,255,255,.1)" }}>·</span>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".72rem", color:"rgba(240,240,255,.4)", letterSpacing:"1px" }}>FLASHCARD REVIEW</span>
+      {/* ── Topbar ── */}
+      <div style={{
+        position: "sticky", top: 0, zIndex: 100,
+        background: "rgba(5,15,10,.8)", backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(16,185,129,.12)",
+        padding: "0 5%", height: 58,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {/* Wordmark */}
+          <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 15, color: "#fff", letterSpacing: "-0.3px" }}>
+            Your<span style={{ color: "#10B981" }}>Notes</span>
+          </span>
+          <span style={{ color: "rgba(255,255,255,.1)" }}>·</span>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".72rem", color: "rgba(240,255,248,.35)", letterSpacing: "1px", textTransform: "uppercase" }}>
+            Flashcard Review
+          </span>
         </div>
-        <div style={{ display:"flex", alignItems:"center", gap:20 }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".72rem", color:"rgba(240,240,255,.4)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".72rem", color: "rgba(240,255,248,.35)" }}>
             {stats.reviewed} / {stats.total}
           </span>
-          <button onClick={() => navigate("/dashboard")}
-            style={{ padding:"7px 16px", background:"transparent", border:"1px solid rgba(0,229,255,.2)", borderRadius:100, fontSize:"12px", color:"rgba(240,240,255,.5)", cursor:"pointer", fontFamily:"'DM Sans',sans-serif", transition:"border-color .2s" }}>
+          <button onClick={() => navigate("/dashboard")} style={{
+            padding: "7px 16px", background: "transparent",
+            border: "1px solid rgba(16,185,129,.2)", borderRadius: 100,
+            fontSize: "12px", color: "rgba(240,255,248,.45)", cursor: "pointer",
+            fontFamily: "'DM Sans', sans-serif", transition: "border-color .2s",
+          }}>
             Exit
           </button>
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div style={{ height:2, background:"rgba(255,255,255,.06)" }}>
-        <div style={{ height:2, background:"var(--yn-cyan)", width:`${progress}%`, transition:"width .4s ease", boxShadow:"0 0 8px var(--yn-cyan)" }} />
+      {/* ── Progress bar ── */}
+      <div style={{ height: 2, background: "rgba(255,255,255,.05)" }}>
+        <div style={{ height: 2, background: "#10B981", width: `${progress}%`, transition: "width .4s ease", boxShadow: "0 0 8px #10B981" }} />
       </div>
 
-      {/* Main */}
-      <div style={{ maxWidth:680, margin:"0 auto", padding:"60px 24px" }}>
+      {/* ── Main ── */}
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: "60px 24px" }}>
 
         {/* Card flip scene */}
-        <div style={{ perspective:1200, height:280, marginBottom:24 }}>
-          <div key={current} style={{ width:"100%", height:"100%", position:"relative", transformStyle:"preserve-3d", transition:"transform .65s cubic-bezier(.4,0,.2,1)", transform: flipped ? "rotateY(180deg)" : "none" }}>
+        <div style={{ perspective: 1200, height: 280, marginBottom: 24 }}>
+          <div key={current} style={{
+            width: "100%", height: "100%", position: "relative",
+            transformStyle: "preserve-3d",
+            transition: "transform .65s cubic-bezier(.4,0,.2,1)",
+            transform: flipped ? "rotateY(180deg)" : "none",
+          }}>
             {/* Front */}
-            <div style={{ position:"absolute", inset:0, backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden", background:"rgba(255,255,255,.03)", border:"1px solid rgba(0,229,255,.14)", borderRadius:24, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:40, textAlign:"center" }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".6rem", letterSpacing:"3px", color:"rgba(240,240,255,.35)", marginBottom:16 }}>
-                QUESTION · {current+1}/{stats.total}
+            <div style={{
+              position: "absolute", inset: 0, backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+              background: "rgba(16,185,129,.04)", border: "1px solid rgba(16,185,129,.15)",
+              borderRadius: 24,
+              display: "flex", flexDirection: "column", alignItems: "center",
+              justifyContent: "center", padding: 40, textAlign: "center",
+            }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".62rem", letterSpacing: "3px", color: "rgba(16,185,129,.6)", marginBottom: 16, textTransform: "uppercase" }}>
+                Question · {current + 1}/{stats.total}
               </div>
-              <p style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:"1.15rem", lineHeight:1.45, color:"#f0f0ff" }}>{card.question}</p>
+              <p style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1.45, color: "#f0fff8" }}>
+                {card.question}
+              </p>
             </div>
+
             {/* Back */}
-            <div style={{ position:"absolute", inset:0, backfaceVisibility:"hidden", WebkitBackfaceVisibility:"hidden", transform:"rotateY(180deg)", background:"rgba(0,229,255,.04)", border:"1px solid rgba(0,229,255,.28)", borderRadius:24, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:40, textAlign:"center" }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".6rem", letterSpacing:"3px", color:"rgba(240,240,255,.35)", marginBottom:16 }}>ANSWER</div>
-              <p style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:"1.15rem", lineHeight:1.45, color:"#f0f0ff", marginBottom:12 }}>{card.question}</p>
-              <div style={{ height:1, width:"60%", background:"rgba(0,229,255,.15)", margin:"12px 0" }} />
-              <p style={{ fontSize:".92rem", color:"rgba(240,240,255,.65)", lineHeight:1.75 }}>{card.answer}</p>
+            <div style={{
+              position: "absolute", inset: 0, backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)",
+              background: "rgba(16,185,129,.06)", border: "1px solid rgba(16,185,129,.3)",
+              borderRadius: 24,
+              display: "flex", flexDirection: "column", alignItems: "center",
+              justifyContent: "center", padding: 40, textAlign: "center",
+            }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".62rem", letterSpacing: "3px", color: "rgba(16,185,129,.6)", marginBottom: 16, textTransform: "uppercase" }}>
+                Answer
+              </div>
+              <p style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "1.15rem", lineHeight: 1.45, color: "#f0fff8", marginBottom: 12 }}>
+                {card.question}
+              </p>
+              <div style={{ height: 1, width: "60%", background: "rgba(16,185,129,.2)", margin: "12px 0" }} />
+              <p style={{ fontSize: ".92rem", color: "rgba(240,255,248,.65)", lineHeight: 1.75 }}>
+                {card.answer}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Flip button */}
+        {/* Actions */}
         {!flipped ? (
-          <div style={{ textAlign:"center" }}>
-            <button onClick={() => setFlipped(true)} className="yn-btn-primary" style={{ padding:"14px 52px", fontSize:".92rem" }}>
+          <div style={{ textAlign: "center" }}>
+            <button onClick={() => setFlipped(true)} className="yn-btn-primary" style={{ padding: "14px 52px", fontSize: ".92rem" }}>
               Show answer
             </button>
-            <p style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".66rem", color:"rgba(240,240,255,.3)", marginTop:12, letterSpacing:"1px" }}>
-              PRESS SPACE TO FLIP
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: ".66rem", color: "rgba(240,255,248,.3)", marginTop: 12, letterSpacing: "1px", textTransform: "uppercase" }}>
+              Press Space to flip
             </p>
           </div>
         ) : (
           <>
-            <p style={{ textAlign:"center", fontFamily:"'JetBrains Mono',monospace", fontSize:".66rem", color:"rgba(240,240,255,.4)", marginBottom:16, letterSpacing:"2px" }}>
-              HOW WELL DID YOU KNOW THIS?
+            <p style={{ textAlign: "center", fontFamily: "'DM Sans', sans-serif", fontSize: ".66rem", color: "rgba(240,255,248,.4)", marginBottom: 16, letterSpacing: "2px", textTransform: "uppercase" }}>
+              How well did you know this?
             </p>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
               {[
-                { label:"Again", quality:1, color:"#f87171", border:"rgba(248,113,113,.25)", bg:"rgba(239,68,68,.08)"  },
-                { label:"Hard",  quality:2, color:"#fbbf24", border:"rgba(251,191,36,.25)",  bg:"rgba(245,158,11,.08)" },
-                { label:"Good",  quality:4, color:"var(--yn-cyan)", border:"rgba(0,229,255,.25)", bg:"rgba(0,229,255,.07)" },
-                { label:"Easy",  quality:5, color:"#4ade80", border:"rgba(74,222,128,.25)", bg:"rgba(74,222,128,.07)" },
+                { label: "Again", quality: 1, color: "#f87171",  border: "rgba(248,113,113,.25)", bg: "rgba(239,68,68,.08)"   },
+                { label: "Hard",  quality: 2, color: "#fbbf24",  border: "rgba(251,191,36,.25)",  bg: "rgba(245,158,11,.08)"  },
+                { label: "Good",  quality: 4, color: "#10B981",  border: "rgba(16,185,129,.3)",   bg: "rgba(16,185,129,.08)"  },
+                { label: "Easy",  quality: 5, color: "#4ade80",  border: "rgba(74,222,128,.25)",  bg: "rgba(74,222,128,.07)"  },
               ].map(r => (
                 <button key={r.label} className="fc-rate-btn"
                   onClick={() => handleRate(r.quality)}
-                  style={{ color:r.color, borderColor:r.border, background:r.bg }}>
+                  style={{ color: r.color, borderColor: r.border, background: r.bg }}>
                   {r.label}
                 </button>
               ))}
