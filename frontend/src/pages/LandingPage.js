@@ -668,12 +668,6 @@ export default function LandingPage() {
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, marginBottom: 48 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                <div style={{ width: 28, height: 28, background: "#E55B2D", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                    <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
-                  </svg>
-                </div>
                 <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 16, color: "#fff" }}>
                   Your<span style={{ color: "#E55B2D" }}>Notes</span>
                 </span>
@@ -681,7 +675,7 @@ export default function LandingPage() {
               <p style={{ fontSize: 13, lineHeight: 1.8, maxWidth: 220 }}>
                 AI-powered notes for students.<br />
                 Diploma Final Year Project<br />
-                S.V. Polytechnic College, Bhopal · RGPV 2024–25
+                S.V. Polytechnic College, Bhopal · RGPV 2025–26
               </p>
             </div>
             {[
