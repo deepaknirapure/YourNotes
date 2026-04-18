@@ -425,7 +425,7 @@ export default function LandingPage() {
               {/* Notes table */}
               <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, overflow: "hidden" }}>
                 <div style={{ background: "rgba(229,91,45,.08)", borderBottom: "1px solid rgba(229,91,45,.15)", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#E55B2D" }}>📝 Recent Notes</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#E55B2D" }}>Recent Notes</span>
                   <span style={{ fontSize: 11, color: "rgba(255,255,255,.4)", cursor: "pointer" }}>View all →</span>
                 </div>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, background: "#111" }}>
@@ -449,7 +449,7 @@ export default function LandingPage() {
               {/* Flashcards table */}
               <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, overflow: "hidden" }}>
                 <div style={{ background: "rgba(229,91,45,.08)", borderBottom: "1px solid rgba(229,91,45,.15)", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#E55B2D" }}>🃏 Flashcards Due Today</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#E55B2D" }}>Flashcards Due Today</span>
                   <span style={{ fontSize: 11, color: "rgba(255,255,255,.4)", cursor: "pointer" }}>Start review →</span>
                 </div>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, background: "#111" }}>
