@@ -167,10 +167,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
             <div style={{ height: 1, background: '#e5e7eb', marginBottom: 24 }} />
 
             {/* Toolbar */}
-            <Toolbar
-              onBold={() => wrapSelection('**')}
-              onItalic={() => wrapSelection('_')}
-            />
+            <Toolbar />
 
             {/* Content Textarea */}
             <textarea
