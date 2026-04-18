@@ -37,7 +37,7 @@ app.use(cors({
 
 // ── Logging + body parsing ────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth',      require('./routes/authRoutes'));
@@ -46,6 +46,7 @@ app.use('/api/folders',   require('./routes/folderRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/tags',      require('./routes/tagRoutes'));
 app.use('/api/ai',        require('./routes/aiRoutes'));
+app.use('/api/community', require('./routes/communityRoutes'));
 
 // ── Health check (frontend warmup ping for Render free tier) ──────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: Date.now() }));

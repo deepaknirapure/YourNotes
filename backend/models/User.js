@@ -52,6 +52,8 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    totalPublicUploads: { type: Number, default: 0 },
+    savedCommunityNotes: [{ type: mongoose.Schema.Types.ObjectId, ref: "CommunityNote" }],
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },
