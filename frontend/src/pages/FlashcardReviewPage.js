@@ -43,7 +43,7 @@ export default function FlashcardReviewPage() {
   const card = cards[current];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'DM Sans', sans-serif", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'Inter', 'DM Sans', sans-serif", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", position: "relative", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -54,7 +54,7 @@ export default function FlashcardReviewPage() {
         .fc-card.flipped { border-color: rgba(229,91,45,.4); box-shadow: 0 0 40px rgba(229,91,45,.08); }
         .fc-rate-btn { padding: 13px 10px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; border: none; cursor: pointer; transition: all .2s; flex: 1; }
         .fc-rate-btn:hover { transform: translateY(-2px); }
-        .fc-nav-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.6); padding: 10px 20px; border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s; }
+        .fc-nav-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.6); padding: 10px 20px; border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', 'DM Sans', sans-serif; transition: all .2s; }
         .fc-nav-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
         @media (max-width: 600px) { .fc-card { padding: 32px 20px !important; min-height: 220px !important; } .fc-top-logo { display: none !important; } }
       `}</style>
@@ -106,7 +106,7 @@ export default function FlashcardReviewPage() {
           <p style={{ fontSize: 14, color: "rgba(255,255,255,.3)", marginBottom: 36 }}>Kal phir review schedule hoga based on your performance.</p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             <button className="fc-nav-btn" onClick={() => navigate("/dashboard")}>← Dashboard</button>
-            <button style={{ background: "#E55B2D", color: "#fff", border: "none", padding: "11px 24px", borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
+            <button style={{ background: "#E55B2D", color: "#fff", border: "none", padding: "11px 24px", borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "'Inter', 'DM Sans', sans-serif" }}
               onClick={() => { setCurrent(0); setFlipped(false); setDone(false); setStats(s => ({ ...s, reviewed: 0 })); }}>
               Restart →
             </button>

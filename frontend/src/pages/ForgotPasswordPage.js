@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
       minHeight: "100vh",
       background: "#0a0a0a",
       display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "24px", fontFamily: "'DM Sans', sans-serif",
+      padding: "24px", fontFamily: "'Inter', 'DM Sans', sans-serif",
       position: "relative", overflow: "hidden",
     }}>
       <style>{`
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
           background: rgba(255,255,255,.04);
           border: 1.5px solid rgba(255,255,255,.1);
           border-radius: 10px; font-size: 15px; color: #fff;
-          font-family: 'DM Sans', sans-serif;
+          font-family: 'Inter', 'DM Sans', sans-serif;
           transition: border-color .2s, background .2s;
         }
         .yn-fp-input::placeholder { color: rgba(255,255,255,.25); }
@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
           width: 100%; padding: 15px;
           background: #E55B2D; color: #fff; border: none;
           border-radius: 10px; font-weight: 700; font-size: 15px;
-          font-family: 'DM Sans', sans-serif;
+          font-family: 'Inter', 'DM Sans', sans-serif;
           cursor: pointer; transition: all .2s;
         }
         .yn-fp-btn:hover:not(:disabled) { background: #c94d23; transform: translateY(-1px); box-shadow: 0 12px 32px rgba(229,91,45,.3); }

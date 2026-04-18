@@ -4,12 +4,12 @@ import { Home, ArrowLeft } from "lucide-react";
 export default function NotFoundPage() {
   const navigate = useNavigate();
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif", padding: "24px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', 'DM Sans', sans-serif", padding: "24px", position: "relative", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=Syne:wght@700;800&display=swap');
         @keyframes ynFadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
         @keyframes ynFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-        .yn-404-btn{padding:13px 28px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+        .yn-404-btn{padding:13px 28px;border-radius:9px;font-family:'Inter','DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
         .yn-404-btn-primary{background:#E55B2D;color:#fff;border:none}
         .yn-404-btn-primary:hover{background:#c94d23;transform:translateY(-2px);box-shadow:0 12px 32px rgba(229,91,45,.3)}
         .yn-404-btn-ghost{background:transparent;color:rgba(255,255,255,.6);border:1.5px solid rgba(255,255,255,.15)}

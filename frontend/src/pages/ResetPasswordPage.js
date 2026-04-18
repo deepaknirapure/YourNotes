@@ -31,17 +31,17 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "'DM Sans', sans-serif", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "'Inter', 'DM Sans', sans-serif", position: "relative", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         input:focus{outline:none}
         @keyframes ynFadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
         @keyframes ynSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        .yn-rp-input{width:100%;padding:14px 14px 14px 48px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;font-size:15px;color:#fff;font-family:'DM Sans',sans-serif;transition:border-color .2s,background .2s}
+        .yn-rp-input{width:100%;padding:14px 14px 14px 48px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;font-size:15px;color:#fff;font-family:'Inter','DM Sans',sans-serif;transition:border-color .2s,background .2s}
         .yn-rp-input::placeholder{color:rgba(255,255,255,.25)}
         .yn-rp-input:focus{border-color:#E55B2D;background:rgba(229,91,45,.05)}
-        .yn-rp-btn{width:100%;padding:15px;background:#E55B2D;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+        .yn-rp-btn{width:100%;padding:15px;background:#E55B2D;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;font-family:'Inter','DM Sans',sans-serif;cursor:pointer;transition:all .2s}
         .yn-rp-btn:hover:not(:disabled){background:#c94d23;transform:translateY(-1px);box-shadow:0 12px 32px rgba(229,91,45,.3)}
         .yn-rp-btn:disabled{opacity:.6;cursor:not-allowed}
       `}</style>

@@ -78,7 +78,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#0a0a0a", minHeight: "100vh", overflowX: "hidden", color: "#fff" }}>
+    <div style={{ fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif", background: "#0a0a0a", minHeight: "100vh", overflowX: "hidden", color: "#fff" }}>
       <style>{`
         
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -99,7 +99,7 @@ export default function LandingPage() {
         .yn-btn-primary {
           background: #E55B2D; color: #fff; border: none;
           padding: 14px 30px; border-radius: 8px;
-          font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+          font-family: 'Inter', 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
           cursor: pointer; transition: all .2s; letter-spacing: -.1px;
           display: inline-flex; align-items: center; gap: 8px;
         }
@@ -108,7 +108,7 @@ export default function LandingPage() {
         .yn-btn-ghost {
           background: transparent; color: rgba(255,255,255,0.7);
           border: 1.5px solid rgba(255,255,255,0.15); padding: 13px 24px; border-radius: 8px;
-          font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+          font-family: 'Inter', 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
           cursor: pointer; transition: all .2s;
         }
         .yn-btn-ghost:hover { border-color: rgba(255,255,255,.4); color: #fff; }
@@ -679,18 +679,33 @@ export default function LandingPage() {
               </p>
             </div>
             {[
-              { title: "ABOUT", links: ["Features", "How it works", "FAQ"] },
-              { title: "COMPANY", links: ["Discord", "Jobs", "Feedback"] },
-              { title: "CONTACT", links: ["Online: 11am - 8pm", "+91 9993478545", "hello@yournotes.in", "23-B, Sector C, Bhopal(MP)"] },
+              { title: "PRODUCT", links: [
+                { label: "Features", href: "#features" },
+                { label: "How it works", href: "#howitworks" },
+                { label: "FAQ", href: "#faq" },
+                { label: "Community Notes", href: "/community", internal: true },
+              ]},
+              { title: "ACCOUNT", links: [
+                { label: "Sign In", href: "/login", internal: true },
+                { label: "Register Free", href: "/register", internal: true },
+                { label: "Dashboard", href: "/dashboard", internal: true },
+              ]},
+              { title: "CONTACT", links: [
+                { label: "hello@yournotes.in", href: "mailto:hello@yournotes.in" },
+                { label: "Made in Bhopal, India", href: "#" },
+              ]},
             ].map((col, i) => (
               <div key={i}>
                 <h5 style={{ fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,.6)", textTransform: "uppercase", letterSpacing: ".12em", marginBottom: 18 }}>{col.title}</h5>
                 <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
                   {col.links.map((l, j) => (
                     <li key={j}>
-                      <a href="/" style={{ fontSize: 13, color: "rgba(255,255,255,.3)", textDecoration: "none", transition: "color .2s" }}
+                      <a href={l.href || "#"} onClick={l.internal ? (e) => { e.preventDefault(); navigate(l.href); } : undefined}
+                        style={{ fontSize: 13, color: "rgba(255,255,255,.35)", textDecoration: "none", transition: "color .2s", cursor: "pointer" }}
                         onMouseEnter={e => e.target.style.color = "#fff"}
-                        onMouseLeave={e => e.target.style.color = "rgba(255,255,255,.3)"}>{l}</a>
+                        onMouseLeave={e => e.target.style.color = "rgba(255,255,255,.35)"}>
+                        {l.label}
+                      </a>
                     </li>
                   ))}
                 </ul>

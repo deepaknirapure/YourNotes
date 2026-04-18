@@ -46,7 +46,7 @@ export default function SharedNotePage() {
       display: inline-flex; align-items: center; gap: 8px;
       background: #E55B2D; color: #fff; padding: 13px 24px;
       border-radius: 9px; font-weight: 700; font-size: 14px;
-      text-decoration: none; transition: all .2s; font-family: 'DM Sans', sans-serif;
+      text-decoration: none; transition: all .2s; font-family: 'Inter', 'DM Sans', sans-serif;
     }
     .yn-cta-btn:hover { background: #c94d23; transform: translateY(-1px); }
   `;
@@ -57,7 +57,7 @@ export default function SharedNotePage() {
       <style>{sharedStyles}</style>
       <div style={{ minHeight:"100vh", background:"#0a0a0a", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:16 }}>
         <div style={{ width:34, height:34, border:"2px solid rgba(229,91,45,.25)", borderTopColor:"#E55B2D", borderRadius:"50%", animation:"ynSpin 1s linear infinite" }} />
-        <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:"rgba(255,255,255,.25)", letterSpacing:"2px", textTransform:"uppercase" }}>Loading note…</p>
+        <p style={{ fontFamily:"'Inter','DM Sans',sans-serif", fontSize:13, color:"rgba(255,255,255,.25)", letterSpacing:"2px", textTransform:"uppercase" }}>Loading note…</p>
       </div>
     </>
   );
@@ -66,7 +66,7 @@ export default function SharedNotePage() {
   if (error) return (
     <>
       <style>{sharedStyles}</style>
-      <div style={{ minHeight:"100vh", background:"#0a0a0a", display:"flex", alignItems:"center", justifyContent:"center", padding:24, fontFamily:"'DM Sans',sans-serif" }}>
+      <div style={{ minHeight:"100vh", background:"#0a0a0a", display:"flex", alignItems:"center", justifyContent:"center", padding:24, fontFamily:"'Inter','DM Sans',sans-serif" }}>
         <div style={{ maxWidth:420, width:"100%", background:"#111", border:"1px solid rgba(255,255,255,.08)", borderRadius:18, padding:"52px 40px", textAlign:"center", animation:"ynFadeUp .7s both" }}>
           <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(239,68,68,.1)", border:"1px solid rgba(239,68,68,.2)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 24px", fontSize:26 }}>🔗</div>
           <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:"1.5rem", color:"#fff", marginBottom:10, letterSpacing:"-.5px" }}>Link not found</h2>
@@ -81,7 +81,7 @@ export default function SharedNotePage() {
   return (
     <>
       <style>{sharedStyles}</style>
-      <div style={{ minHeight:"100vh", background:"#0a0a0a", fontFamily:"'DM Sans',sans-serif", color:"#fff" }}>
+      <div style={{ minHeight:"100vh", background:"#0a0a0a", fontFamily:"'Inter','DM Sans',sans-serif", color:"#fff" }}>
 
         {/* Sticky top bar */}
         <nav style={{

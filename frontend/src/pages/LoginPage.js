@@ -29,7 +29,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", backgroundColor: "#0a0a0a", fontFamily: "'DM Sans', sans-serif", overflow: "hidden" }}>
+    <div style={{ display: "flex", height: "100vh", backgroundColor: "#0a0a0a", fontFamily: "'Inter', 'DM Sans', sans-serif", overflow: "hidden" }}>
       <style>{`
         
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,7 +43,7 @@ export default function LoginPage() {
           background: rgba(255,255,255,.04);
           border: 1.5px solid rgba(255,255,255,.1);
           border-radius: 10px; font-size: 15px; color: #fff;
-          font-family: 'DM Sans', sans-serif;
+          font-family: 'Inter', 'DM Sans', sans-serif;
           transition: border-color .2s, background .2s;
         }
         .yn-input::placeholder { color: rgba(255,255,255,.25); }
@@ -53,7 +53,7 @@ export default function LoginPage() {
           width: 100%; padding: 16px;
           background: #E55B2D; color: #fff; border: none;
           border-radius: 10px; font-weight: 700; font-size: 16px;
-          font-family: 'DM Sans', sans-serif;
+          font-family: 'Inter', 'DM Sans', sans-serif;
           cursor: pointer; transition: all .2s;
           display: flex; align-items: center; justify-content: center; gap: 10px;
         }

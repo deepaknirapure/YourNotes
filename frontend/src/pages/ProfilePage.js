@@ -89,21 +89,21 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'DM Sans', sans-serif", color: "#fff" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'Inter', 'DM Sans', sans-serif", color: "#fff" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         input:focus{outline:none}
         @keyframes ynFadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
         @keyframes ynSpin{to{transform:rotate(360deg)}}
-        .yn-prof-input{width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;font-size:14px;color:#fff;font-family:'DM Sans',sans-serif;transition:border-color .2s}
+        .yn-prof-input{width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;font-size:14px;color:#fff;font-family:'Inter','DM Sans',sans-serif;transition:border-color .2s}
         .yn-prof-input:focus{border-color:#E55B2D;background:rgba(229,91,45,.04)}
         .yn-prof-input::placeholder{color:rgba(255,255,255,.25)}
-        .yn-prof-btn{padding:11px 24px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;border:none}
+        .yn-prof-btn{padding:11px 24px;border-radius:9px;font-family:'Inter','DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;border:none}
         .yn-prof-btn-primary{background:#E55B2D;color:#fff}
         .yn-prof-btn-primary:hover:not(:disabled){background:#c94d23;transform:translateY(-1px);box-shadow:0 8px 24px rgba(229,91,45,.3)}
         .yn-prof-btn-primary:disabled{opacity:.6;cursor:not-allowed}
-        .yn-prof-tab{padding:10px 20px;border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border-bottom:2px solid transparent;transition:all .2s;color:rgba(255,255,255,.4);white-space:nowrap}
+        .yn-prof-tab{padding:10px 20px;border:none;background:none;cursor:pointer;font-family:'Inter','DM Sans',sans-serif;font-size:14px;font-weight:600;border-bottom:2px solid transparent;transition:all .2s;color:rgba(255,255,255,.4);white-space:nowrap}
         .yn-prof-tab.active{color:#E55B2D;border-bottom-color:#E55B2D}
         .yn-prof-tab:hover:not(.active){color:rgba(255,255,255,.7)}
         .yn-upload-card:hover{border-color:rgba(229,91,45,.35)!important;transform:translateY(-2px)}
@@ -150,7 +150,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Stats row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10, marginBottom: 36 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10, marginBottom: 36 }}>
           {statCards.map((s, i) => (
             <div key={i} style={{ background: "#111", border: "1px solid rgba(255,255,255,.07)", borderRadius: 12, padding: "16px 12px", textAlign: "center" }}>
               <div style={{ color: s.color, display: "flex", justifyContent: "center", marginBottom: 8 }}>{s.icon}</div>

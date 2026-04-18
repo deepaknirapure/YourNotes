@@ -10,6 +10,13 @@ import API from "../api/axios";
 import toast from "react-hot-toast";
 
 const EXAMS = ["All", "JEE", "NEET", "GATE", "UPSC", "CA", "Class 10", "Class 12", "Other"];
+const COURSES = [
+  "All Courses",
+  "B.Tech - CSE", "B.Tech - ECE", "B.Tech - Mechanical",
+  "B.Tech - Civil", "B.Tech - Electrical", "B.Tech - IT",
+  "Polytechnic - CSE", "Polytechnic - Mechanical", "Polytechnic - Electrical",
+  "MBA", "BCA", "MCA", "BSc", "Commerce", "Arts", "Other"
+];
 const SORTS = [
   { value: "latest", label: "Latest" },
   { value: "popular", label: "Most Downloaded" },
@@ -18,7 +25,7 @@ const SORTS = [
 // ── Upload Modal ──────────────────────────────────────────────────────────────
 function UploadModal({ onClose, onSuccess }) {
   const [form, setForm] = useState({
-    title: "", description: "", subject: "", exam: "Other", tags: "",
+    title: "", description: "", subject: "", exam: "Other", course: "Other", tags: "",
   });
   const [file, setFile] = useState(null);
   const [dragging, setDragging] = useState(false);
@@ -115,27 +122,36 @@ function UploadModal({ onClose, onSuccess }) {
               {type === "textarea" ? (
                 <textarea value={form[key]} onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))}
                   placeholder={ph} rows={3}
-                  style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,.04)", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'DM Sans', sans-serif", resize: "vertical" }} />
+                  style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,.04)", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif", resize: "vertical" }} />
               ) : (
                 <input type="text" value={form[key]} onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))}
                   placeholder={ph}
-                  style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,.04)", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'DM Sans', sans-serif" }} />
+                  style={{ width: "100%", padding: "10px 14px", background: "rgba(255,255,255,.04)", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }} />
               )}
             </div>
           ))}
 
           <div>
             <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 7 }}>
+              Course / Stream
+            </label>
+            <select value={form.course} onChange={(e) => setForm(f => ({ ...f, course: e.target.value }))}
+              style={{ width: "100%", padding: "10px 14px", background: "#1a1a1a", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'Inter', sans-serif" }}>
+              {COURSES.filter(c => c !== "All Courses").map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 7 }}>
               Exam Category
             </label>
             <select value={form.exam} onChange={(e) => setForm(f => ({ ...f, exam: e.target.value }))}
-              style={{ width: "100%", padding: "10px 14px", background: "#1a1a1a", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'DM Sans', sans-serif" }}>
+              style={{ width: "100%", padding: "10px 14px", background: "#1a1a1a", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
               {EXAMS.filter(e => e !== "All").map(e => <option key={e} value={e}>{e}</option>)}
             </select>
           </div>
 
           <button onClick={submit} disabled={loading}
-            style={{ padding: "13px 24px", background: loading ? "rgba(229,91,45,.5)" : "#E55B2D", border: "none", borderRadius: 10, color: "#fff", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "'DM Sans', sans-serif", marginTop: 4 }}>
+            style={{ padding: "13px 24px", background: loading ? "rgba(229,91,45,.5)" : "#E55B2D", border: "none", borderRadius: 10, color: "#fff", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif", marginTop: 4 }}>
             {loading ? <><Loader size={16} style={{ animation: "ynSpin 1s linear infinite" }} /> Uploading...</> : <><Upload size={16} /> Upload Note</>}
           </button>
         </div>
@@ -244,7 +260,7 @@ function ActionBtn({ icon, label, active, activeColor = "#E55B2D", onClick }) {
       display: "flex", alignItems: "center", gap: 4, padding: "5px 10px",
       background: "none", border: "1px solid rgba(255,255,255,.07)", borderRadius: 8,
       cursor: "pointer", color: active ? activeColor : "rgba(255,255,255,.35)",
-      fontSize: 12, fontWeight: 600, transition: "all .15s", fontFamily: "'DM Sans', sans-serif",
+      fontSize: 12, fontWeight: 600, transition: "all .15s", fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif",
     }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = activeColor; e.currentTarget.style.color = activeColor; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,.07)"; e.currentTarget.style.color = active ? activeColor : "rgba(255,255,255,.35)"; }}
@@ -336,15 +352,15 @@ function NoteDetailModal({ note: initialNote, currentUserId, onClose, onLike, on
         {/* Actions */}
         <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
           <button onClick={() => { onLike(note._id); setNote(n => ({ ...n, likedByMe: !n.likedByMe, likesCount: n.likedByMe ? n.likesCount - 1 : n.likesCount + 1 })); }}
-            style={{ flex: 1, padding: "10px", background: note.likedByMe ? "rgba(239,68,68,.15)" : "rgba(255,255,255,.05)", border: `1px solid ${note.likedByMe ? "rgba(239,68,68,.3)" : "rgba(255,255,255,.08)"}`, borderRadius: 10, color: note.likedByMe ? "#ef4444" : "rgba(255,255,255,.5)", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "'DM Sans',sans-serif" }}>
+            style={{ flex: 1, padding: "10px", background: note.likedByMe ? "rgba(239,68,68,.15)" : "rgba(255,255,255,.05)", border: `1px solid ${note.likedByMe ? "rgba(239,68,68,.3)" : "rgba(255,255,255,.08)"}`, borderRadius: 10, color: note.likedByMe ? "#ef4444" : "rgba(255,255,255,.5)", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
             <Heart size={14} fill={note.likedByMe ? "#ef4444" : "none"} /> {note.likesCount || 0} Likes
           </button>
           <button onClick={() => { onSave(note._id); setNote(n => ({ ...n, savedByMe: !n.savedByMe })); }}
-            style={{ flex: 1, padding: "10px", background: note.savedByMe ? "rgba(245,158,11,.15)" : "rgba(255,255,255,.05)", border: `1px solid ${note.savedByMe ? "rgba(245,158,11,.3)" : "rgba(255,255,255,.08)"}`, borderRadius: 10, color: note.savedByMe ? "#f59e0b" : "rgba(255,255,255,.5)", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "'DM Sans',sans-serif" }}>
+            style={{ flex: 1, padding: "10px", background: note.savedByMe ? "rgba(245,158,11,.15)" : "rgba(255,255,255,.05)", border: `1px solid ${note.savedByMe ? "rgba(245,158,11,.3)" : "rgba(255,255,255,.08)"}`, borderRadius: 10, color: note.savedByMe ? "#f59e0b" : "rgba(255,255,255,.5)", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
             <Bookmark size={14} fill={note.savedByMe ? "#f59e0b" : "none"} /> Save
           </button>
           <button onClick={() => onDownload(note)}
-            style={{ flex: 1, padding: "10px", background: "#E55B2D", border: "none", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "'DM Sans',sans-serif" }}>
+            style={{ flex: 1, padding: "10px", background: "#E55B2D", border: "none", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
             <Download size={14} /> Download
           </button>
         </div>
@@ -358,7 +374,7 @@ function NoteDetailModal({ note: initialNote, currentUserId, onClose, onLike, on
             <input value={comment} onChange={e => setComment(e.target.value)}
               onKeyDown={e => e.key === "Enter" && submitComment()}
               placeholder="Comment likho..."
-              style={{ flex: 1, padding: "10px 14px", background: "rgba(255,255,255,.04)", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'DM Sans',sans-serif" }} />
+              style={{ flex: 1, padding: "10px 14px", background: "rgba(255,255,255,.04)", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, color: "#fff", fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }} />
             <button onClick={submitComment} disabled={submitting || !comment.trim()}
               style={{ padding: "0 16px", background: "#E55B2D", border: "none", borderRadius: 10, color: "#fff", cursor: submitting ? "not-allowed" : "pointer" }}>
               {submitting ? <Loader size={14} style={{ animation: "ynSpin 1s linear infinite" }} /> : <Send size={14} />}
@@ -405,6 +421,7 @@ export default function CommunityPage() {
   const [searchInput, setSearchInput] = useState("");
   const [exam, setExam] = useState("All");
   const [sort, setSort] = useState("latest");
+  const [course, setCourse] = useState("All Courses");
   const [showUpload, setShowUpload] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
 
@@ -421,7 +438,7 @@ export default function CommunityPage() {
     } catch {
       toast.error("Feed load nahi ho saka");
     } finally { setLoading(false); }
-  }, [page, exam, search, sort]);
+  }, [page, exam, search, sort, course]);
 
   useEffect(() => { fetchNotes(); }, [fetchNotes]);
 
@@ -466,7 +483,7 @@ export default function CommunityPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'DM Sans', sans-serif", color: "#fff" }}>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif", color: "#fff" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -501,7 +518,7 @@ export default function CommunityPage() {
             <span style={{ fontSize: 12, color: "rgba(255,255,255,.5)" }}>{total} notes</span>
           </div>
           <button onClick={() => setShowUpload(true)}
-            style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 18px", background: "#E55B2D", border: "none", borderRadius: 9, color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700, fontFamily: "'DM Sans',sans-serif" }}>
+            style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 18px", background: "#E55B2D", border: "none", borderRadius: 9, color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
             <Plus size={15} /> Upload Note
           </button>
         </div>
@@ -527,7 +544,7 @@ export default function CommunityPage() {
                 placeholder="Notes dhundo..."
                 style={{ flex: 1, padding: "10px 12px", background: "none", border: "none", fontSize: 14 }} />
             </div>
-            <button type="submit" style={{ padding: "0 16px", background: "#E55B2D", border: "none", borderRadius: "0 10px 10px 0", cursor: "pointer", color: "#fff", fontWeight: 700, fontSize: 13, fontFamily: "'DM Sans',sans-serif" }}>
+            <button type="submit" style={{ padding: "0 16px", background: "#E55B2D", border: "none", borderRadius: "0 10px 10px 0", cursor: "pointer", color: "#fff", fontWeight: 700, fontSize: 13, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
               Search
             </button>
           </form>
@@ -537,6 +554,11 @@ export default function CommunityPage() {
             {EXAMS.map(e => <option key={e} value={e}>{e}</option>)}
           </select>
 
+          <select value={course} onChange={e => { setCourse(e.target.value); setPage(1); }}
+            style={{ padding: "10px 14px", background: "#1a1a1a", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, minWidth: 160 }}>
+            {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+
           <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
             style={{ padding: "10px 14px", background: "#1a1a1a", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 10, fontSize: 14, minWidth: 150 }}>
             {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -544,7 +566,7 @@ export default function CommunityPage() {
 
           {(search || exam !== "All") && (
             <button onClick={() => { setSearch(""); setSearchInput(""); setExam("All"); setPage(1); }}
-              style={{ padding: "10px 14px", background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 10, color: "#ef4444", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, fontFamily: "'DM Sans',sans-serif" }}>
+              style={{ padding: "10px 14px", background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 10, color: "#ef4444", cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
               <X size={13} /> Clear
             </button>
           )}
@@ -563,7 +585,7 @@ export default function CommunityPage() {
               {search ? `"${search}" ke liye koi result nahi` : "Pehle note upload karo!"}
             </p>
             <button onClick={() => setShowUpload(true)}
-              style={{ padding: "11px 24px", background: "#E55B2D", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, fontFamily: "'DM Sans',sans-serif" }}>
+              style={{ padding: "11px 24px", background: "#E55B2D", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
               Pehla Note Upload Karo
             </button>
           </div>
@@ -582,14 +604,14 @@ export default function CommunityPage() {
         {totalPages > 1 && (
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginTop: 40 }}>
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-              style={{ padding: "9px 16px", background: page === 1 ? "rgba(255,255,255,.03)" : "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 9, color: page === 1 ? "rgba(255,255,255,.2)" : "#fff", cursor: page === 1 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontFamily: "'DM Sans',sans-serif" }}>
+              style={{ padding: "9px 16px", background: page === 1 ? "rgba(255,255,255,.03)" : "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 9, color: page === 1 ? "rgba(255,255,255,.2)" : "#fff", cursor: page === 1 ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
               <ChevronLeft size={15} /> Prev
             </button>
             <span style={{ fontSize: 13, color: "rgba(255,255,255,.4)" }}>
               Page {page} of {totalPages}
             </span>
             <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-              style={{ padding: "9px 16px", background: page === totalPages ? "rgba(255,255,255,.03)" : "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 9, color: page === totalPages ? "rgba(255,255,255,.2)" : "#fff", cursor: page === totalPages ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontFamily: "'DM Sans',sans-serif" }}>
+              style={{ padding: "9px 16px", background: page === totalPages ? "rgba(255,255,255,.03)" : "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 9, color: page === totalPages ? "rgba(255,255,255,.2)" : "#fff", cursor: page === totalPages ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontFamily: "'Inter', 'Inter', 'DM Sans', sans-serif" }}>
               Next <ChevronRight size={15} />
             </button>
           </div>

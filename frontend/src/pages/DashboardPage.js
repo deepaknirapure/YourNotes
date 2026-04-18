@@ -137,7 +137,7 @@ export default function DashboardPage() {
   // ── Editor view (full screen on mobile, split on desktop) ──
   if (selectedNote) {
     return (
-      <div style={{ display: "flex", height: "100vh", fontFamily: "'DM Sans', sans-serif", overflow: "hidden" }}>
+      <div style={{ display: "flex", height: "100vh", fontFamily: "'Inter', 'DM Sans', sans-serif", overflow: "hidden" }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
           *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -226,7 +226,7 @@ export default function DashboardPage() {
           {showNewFolder && (
             <div style={{ background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 9, padding: "10px", marginBottom: 6, display: "flex", gap: 6 }}>
               <input value={newFolderName} onChange={e => setNewFolderName(e.target.value)} placeholder="Folder name..." onKeyDown={e => e.key === "Enter" && createFolder()} autoFocus
-                style={{ flex: 1, background: "none", border: "none", outline: "none", color: "#fff", fontSize: 13, fontFamily: "'DM Sans', sans-serif" }} />
+                style={{ flex: 1, background: "none", border: "none", outline: "none", color: "#fff", fontSize: 13, fontFamily: "'Inter', 'DM Sans', sans-serif" }} />
               <button onClick={createFolder} disabled={creatingFolder} style={{ background: "#E55B2D", border: "none", borderRadius: 6, padding: "4px 10px", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>
                 {creatingFolder ? "..." : "Add"}
               </button>
@@ -273,15 +273,15 @@ export default function DashboardPage() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 6 }}>
-          <button onClick={() => navigate("/profile")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", color: "rgba(255,255,255,.5)", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
+          <button onClick={() => navigate("/profile")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", color: "rgba(255,255,255,.5)", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'Inter', 'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
             onMouseEnter={e => e.currentTarget.style.color = "#fff"} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,.5)"}>
             <User size={12} /> Profile
           </button>
-          <button onClick={() => navigate("/community")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(139,92,246,.08)", border: "1px solid rgba(139,92,246,.2)", color: "#a78bfa", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
+          <button onClick={() => navigate("/community")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(139,92,246,.08)", border: "1px solid rgba(139,92,246,.2)", color: "#a78bfa", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'Inter', 'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(139,92,246,.18)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(139,92,246,.08)"}>
             <Users size={12} /> Community
           </button>
-          <button onClick={handleLogout} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.15)", color: "#ef4444", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
+          <button onClick={handleLogout} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.15)", color: "#ef4444", borderRadius: 7, padding: "7px 0", fontSize: 11, cursor: "pointer", fontFamily: "'Inter', 'DM Sans', sans-serif", fontWeight: 600, transition: "all .2s" }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,.15)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(239,68,68,.08)"}>
             <LogOut size={12} /> Logout
           </button>
@@ -291,7 +291,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#0a0a0a", fontFamily: "'DM Sans', sans-serif", color: "#fff", overflow: "hidden" }}>
+    <div style={{ display: "flex", height: "100vh", background: "#0a0a0a", fontFamily: "'Inter', 'DM Sans', sans-serif", color: "#fff", overflow: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -304,13 +304,13 @@ export default function DashboardPage() {
         .yn-note-card{background:#111;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:22px;cursor:pointer;transition:all .22s;animation:ynFadeIn .4s cubic-bezier(.16,1,.3,1) both;position:relative}
         .yn-note-card:hover{border-color:rgba(229,91,45,.3);transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
         .yn-note-card.trash-card{cursor:default;opacity:.7}
-        .yn-search-input{width:100%;padding:11px 16px 11px 42px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;font-size:14px;color:#fff;font-family:'DM Sans',sans-serif;transition:border-color .2s}
+        .yn-search-input{width:100%;padding:11px 16px 11px 42px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;font-size:14px;color:#fff;font-family:'Inter','DM Sans',sans-serif;transition:border-color .2s}
         .yn-search-input::placeholder{color:rgba(255,255,255,.2)}
         .yn-search-input:focus{outline:none;border-color:rgba(229,91,45,.4)}
-        .yn-btn-new{background:#E55B2D;color:#fff;padding:10px 20px;border-radius:9px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
+        .yn-btn-new{background:#E55B2D;color:#fff;padding:10px 20px;border-radius:9px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;font-family:'Inter','DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
         .yn-btn-new:hover{background:#c94d23;transform:translateY(-1px);box-shadow:0 8px 24px rgba(229,91,45,.3)}
         .yn-menu{position:absolute;top:52px;right:16px;background:#1c1c1c;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:6px;box-shadow:0 12px 40px rgba(0,0,0,.6);z-index:100;min-width:170px;animation:ynFadeIn .15s ease}
-        .yn-menu-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;background:none;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;color:rgba(255,255,255,.6);transition:background .15s;text-align:left}
+        .yn-menu-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;background:none;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:'Inter','DM Sans',sans-serif;color:rgba(255,255,255,.6);transition:background .15s;text-align:left}
         .yn-menu-btn:hover{background:rgba(255,255,255,.06);color:#fff}
         .yn-menu-btn.danger{color:#ef4444}
         .yn-menu-btn.danger:hover{background:rgba(239,68,68,.08)}
