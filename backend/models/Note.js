@@ -13,6 +13,8 @@ const noteSchema = new mongoose.Schema(
     isStarred: { type: Boolean, default: false },
     trashedAt: { type: Date, default: null },
     aiSummary: { type: String, default: "" },
+    // FIX: added missing field used by aiController
+    summaryGeneratedAt: { type: Date, default: null },
     shareToken: { type: String, default: null },
     sharePermission: { type: String, enum: ["view", "edit"], default: "view" },
   },
@@ -23,3 +25,4 @@ noteSchema.index({ user: 1, isTrashed: 1, updatedAt: -1 });
 noteSchema.index({ title: "text", content: "text" });
 
 module.exports = mongoose.model("Note", noteSchema);
+

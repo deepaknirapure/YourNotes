@@ -4,6 +4,42 @@ const Flashcard = require('../models/Flashcard');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+// ── AI hourly limit (free for everyone) ───────────────────────────────────────
+const AI_HOURLY_LIMIT = 10;
+
+// ✅ RATE LIMIT MIDDLEWARE — 10 AI calls/hour per user
+const checkAIRateLimit = async (req, res, next) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(401).json({ message: 'User not found' });
+
+    const now = new Date();
+    const resetAt = user.aiCallsResetAt ? new Date(user.aiCallsResetAt) : null;
+
+    if (!resetAt || now - resetAt >= 60 * 60 * 1000) {
+      user.aiCallsThisHour = 0;
+      user.aiCallsResetAt = now;
+    }
+
+    if (user.aiCallsThisHour >= AI_HOURLY_LIMIT) {
+      const waitMins = Math.ceil((60 * 60 * 1000 - (now - user.aiCallsResetAt)) / 60000);
+      return res.status(429).json({
+        message: `AI limit reached (${AI_HOURLY_LIMIT}/hour). ${waitMins} minute(s) mein reset hoga.`,
+        limit: AI_HOURLY_LIMIT,
+      });
+    }
+
+    user.aiCallsThisHour += 1;
+    await user.save();
+    next();
+  } catch (error) {
+    console.error('Rate limit error:', error);
+    // fail-closed — do NOT allow request on error
+    return res.status(500).json({ message: 'Server error checking rate limit' });
+  }
+};
+
 // ✅ SUMMARIZE NOTE
 const summarizeNote = async (req, res) => {
   try {
@@ -25,17 +61,7 @@ const summarizeNote = async (req, res) => {
         },
         {
           role: 'user',
-          content: `Summarize the following student notes clearly and concisely.
-
-Note Title: ${note.title}
-Note Content: ${noteText}
-
-Rules:
-- Use bullet points
-- Maximum 150 words
-- Highlight key concepts
-- Match the language of the note content exactly
-- Be helpful for a student`
+          content: `Summarize the following student notes clearly and concisely.\n\nNote Title: ${note.title}\nNote Content: ${noteText}\n\nRules:\n- Use bullet points\n- Maximum 150 words\n- Highlight key concepts\n- Match the language of the note content exactly\n- Be helpful for a student`
         }
       ],
       max_tokens: 500,
@@ -47,10 +73,9 @@ Rules:
     await note.save();
 
     res.status(200).json({ summary, generatedAt: note.summaryGeneratedAt });
-
   } catch (error) {
     console.error('Groq Error:', error);
-    res.status(500).json({ message: 'AI error', error: error.message });
+    res.status(500).json({ message: 'AI service error. Please try again.' });
   }
 };
 
@@ -71,23 +96,11 @@ const generateFlashcards = async (req, res) => {
       messages: [
         {
           role: 'system',
-          content: 'You are a flashcard generator. Always write questions and answers in the same language as the note content. If the note is in English, write in English only. Never mix languages. Return only valid JSON.'
+          content: 'You are a flashcard generator. Always write questions and answers in the same language as the note content. Return only valid JSON.'
         },
         {
           role: 'user',
-          content: `Generate exactly 5 flashcards from the following notes.
-
-Note Title: ${note.title}
-Note Content: ${noteText}
-
-Rules:
-- Each flashcard must have a clear question and a short answer
-- Match the language of the note content exactly
-- Focus on important concepts
-- Return ONLY a JSON array, no extra text, no markdown
-
-Format:
-[{"question": "...", "answer": "..."},{"question": "...", "answer": "..."}]`
+          content: `Generate exactly 5 flashcards from the following notes.\n\nNote Title: ${note.title}\nNote Content: ${noteText}\n\nRules:\n- Each flashcard must have a clear question and a short answer\n- Match the language of the note content exactly\n- Focus on important concepts\n- Return ONLY a JSON array, no extra text, no markdown\n\nFormat:\n[{"question": "...", "answer": "..."},{"question": "...", "answer": "..."}]`
         }
       ],
       max_tokens: 800,
@@ -110,10 +123,9 @@ Format:
     );
 
     res.status(201).json({ message: `${flashcards.length} flashcards generated!`, flashcards });
-
   } catch (error) {
     console.error('Groq Error:', error);
-    res.status(500).json({ message: 'AI error', error: error.message });
+    res.status(500).json({ message: 'AI service error. Please try again.' });
   }
 };
 
@@ -123,7 +135,7 @@ const getFlashcards = async (req, res) => {
     const flashcards = await Flashcard.find({ note: req.params.id, user: req.user.id });
     res.status(200).json(flashcards);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -159,9 +171,8 @@ const reviewFlashcard = async (req, res) => {
     await flashcard.save();
 
     res.status(200).json({ message: 'Review saved!', nextReviewDate, interval });
-
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -175,38 +186,7 @@ const getDueFlashcards = async (req, res) => {
 
     res.status(200).json(flashcards);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
-
-
-// ✅ RATE LIMIT MIDDLEWARE — 20 AI calls per hour per user
-const checkAIRateLimit = async (req, res, next) => {
-  try {
-    const User = require('../models/User');
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(401).json({ message: 'User not found' });
-
-    const now = new Date();
-    const resetAt = user.aiCallsResetAt ? new Date(user.aiCallsResetAt) : null;
-
-    // Reset counter if an hour has passed
-    if (!resetAt || now - resetAt >= 60 * 60 * 1000) {
-      user.aiCallsThisHour = 0;
-      user.aiCallsResetAt = now;
-    }
-
-    if (user.aiCallsThisHour >= 20) {
-      const waitMins = Math.ceil((60 * 60 * 1000 - (now - user.aiCallsResetAt)) / 60000);
-      return res.status(429).json({ message: `AI rate limit reached. ${waitMins} minute(s) mein reset ho jayega.` });
-    }
-
-    user.aiCallsThisHour += 1;
-    await user.save();
-    next();
-  } catch (error) {
-    next(); // on error, allow the request (fail open)
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

@@ -32,6 +32,11 @@ const communityNoteSchema = new mongoose.Schema(
       enum: ["JEE", "NEET", "GATE", "UPSC", "CA", "Class 10", "Class 12", "Other"],
       default: "Other",
     },
+    course: {
+      type: String,
+      default: "Other",
+      trim: true,
+    },
     tags: [{ type: String, trim: true, lowercase: true }],
     fileUrl: {
       type: String,
@@ -61,6 +66,7 @@ const communityNoteSchema = new mongoose.Schema(
 communityNoteSchema.index({ title: "text", subject: "text", tags: "text" });
 communityNoteSchema.index({ uploadedBy: 1 });
 communityNoteSchema.index({ exam: 1 });
+communityNoteSchema.index({ course: 1 });
 communityNoteSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("CommunityNote", communityNoteSchema);

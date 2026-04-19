@@ -2,12 +2,13 @@ const User = require('../models/User');
 const Folder = require('../models/Folder');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const crypto = require('crypto');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
+// ✅ REGISTER
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -22,7 +23,6 @@ const register = async (req, res) => {
 
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
-
     const user = await User.create({ name, email, password: hashedPassword });
 
     const defaultFolders = [
@@ -35,13 +35,14 @@ const register = async (req, res) => {
     res.status(201).json({
       message: 'Account created successfully!',
       token: generateToken(user._id),
-      user: { id: user._id, name: user.name, email: user.email, plan: user.plan, streak: user.streak }
+      user: { id: user._id, name: user.name, email: user.email, streak: user.streak }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
+// ✅ LOGIN
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -71,14 +72,13 @@ const login = async (req, res) => {
 
     res.status(200).json({
       message: 'Login successful!',
-      token: generateToken(user._id),
-      user: { id: user._id, name: user.name, email: user.email, plan: user.plan, streak: user.streak }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
+// ✅ GET ME
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -88,6 +88,7 @@ const getMe = async (req, res) => {
   }
 };
 
+// ✅ FORGOT PASSWORD
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -96,19 +97,15 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'No account found with this email' });
 
-    // Generate reset token
-    const crypto = require('crypto');
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
 
     user.resetPasswordToken = resetTokenHash;
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    // Send email
     const sgMail = require('@sendgrid/mail');
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
     await sgMail.send({
@@ -118,24 +115,23 @@ const forgotPassword = async (req, res) => {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f9f9f8; border-radius: 12px;">
           <h2 style="color: #1a1a1a; margin-bottom: 8px;">Reset Your Password</h2>
-          <p style="color: #6b6b6b; margin-bottom: 24px;">Click the button below to reset your YourNotes password. This link expires in <strong>15 minutes</strong>.</p>
+          <p style="color: #6b6b6b; margin-bottom: 24px;">Click below to reset your YourNotes password. Link expires in <strong>15 minutes</strong>.</p>
           <a href="${resetUrl}" style="display: inline-block; background: #cc785c; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">Reset Password</a>
-          <p style="color: #9b9b9b; font-size: 12px; margin-top: 24px;">If you did not request this, ignore this email. Your password will not change.</p>
+          <p style="color: #9b9b9b; font-size: 12px; margin-top: 24px;">If you did not request this, ignore this email.</p>
         </div>
       `
     });
 
     res.status(200).json({ message: 'Password reset email sent!' });
-
   } catch (error) {
     console.error('Forgot password error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
+// ✅ RESET PASSWORD
 const resetPassword = async (req, res) => {
   try {
-    const crypto = require('crypto');
     const resetTokenHash = crypto.createHash('sha256').update(req.params.token).digest('hex');
 
     const user = await User.findOne({
@@ -144,9 +140,8 @@ const resetPassword = async (req, res) => {
     });
 
     if (!user) return res.status(400).json({ message: 'Invalid or expired reset token' });
-
-    const bcrypt = require('bcryptjs');
-    if (req.body.password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    if (!req.body.password || req.body.password.length < 6)
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
 
     const salt = await bcrypt.genSalt(12);
     user.password = await bcrypt.hash(req.body.password, salt);
@@ -155,16 +150,13 @@ const resetPassword = async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: 'Password reset successful! Please login.' });
-
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-module.exports = { register, login, getMe, forgotPassword, resetPassword, updateProfile, changePassword };
-
-
-// ✅ UPDATE PROFILE NAME
+// ✅ UPDATE PROFILE
 const updateProfile = async (req, res) => {
   try {
     const { name } = req.body;
@@ -176,7 +168,8 @@ const updateProfile = async (req, res) => {
     );
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -184,8 +177,10 @@ const updateProfile = async (req, res) => {
 const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword) return res.status(400).json({ message: 'Both passwords required' });
-    if (newPassword.length < 6) return res.status(400).json({ message: 'New password must be at least 6 characters' });
+    if (!currentPassword || !newPassword)
+      return res.status(400).json({ message: 'Both passwords required' });
+    if (newPassword.length < 6)
+      return res.status(400).json({ message: 'New password must be at least 6 characters' });
 
     const user = await User.findById(req.user.id);
     const isMatch = await bcrypt.compare(currentPassword, user.password);
@@ -197,6 +192,10 @@ const changePassword = async (req, res) => {
 
     res.status(200).json({ message: 'Password changed successfully!' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Change password error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
+// ✅ FIX: module.exports AFTER all functions are defined
+module.exports = { register, login, getMe, forgotPassword, resetPassword, updateProfile, changePassword };

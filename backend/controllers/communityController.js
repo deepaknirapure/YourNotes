@@ -38,7 +38,7 @@ exports.uploadNote = async (req, res) => {
       return res.status(400).json({ message: "File required hai" });
     }
 
-    const { title, description, subject, exam, tags } = req.body;
+    const { title, description, subject, exam, course, tags } = req.body;
     if (!title?.trim() || !subject?.trim()) {
       return res.status(400).json({ message: "Title aur subject required hain" });
     }
@@ -67,6 +67,7 @@ exports.uploadNote = async (req, res) => {
       description: description?.trim() || "",
       subject: subject.trim(),
       exam: exam || "Other",
+      course: course || "Other",
       tags: parsedTags,
       fileUrl: result.secure_url,
       filePublicId: result.public_id,
@@ -95,7 +96,7 @@ exports.uploadNote = async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 exports.getFeed = async (req, res) => {
   try {
-    const { page = 1, exam, search, sort = "latest", subject } = req.query;
+    const { page = 1, exam, search, sort = "latest", subject, course } = req.query;
     const limit = 12;
     const skip = (Number(page) - 1) * limit;
 
@@ -103,6 +104,7 @@ exports.getFeed = async (req, res) => {
     const filter = { isActive: true };
     if (exam && exam !== "All") filter.exam = exam;
     if (subject) filter.subject = new RegExp(subject, "i");
+    if (course && course !== "All Courses") filter.course = new RegExp(course, "i");
     if (search) {
       filter.$or = [
         { title: new RegExp(search, "i") },

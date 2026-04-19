@@ -39,11 +39,6 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    plan: {
-      type: String,
-      enum: ["free", "pro"],
-      default: "free",
-    },
     aiCallsThisHour: {
       type: Number,
       default: 0,

@@ -1,38 +1,29 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { protect } = require("../middleware/authMiddleware");
 const {
-  getNotes,
-  getNote,
-  createNote,
-  updateNote,
-  toggleStar,
-  togglePin,
-  trashNote,
-  restoreNote,
-  deleteNote,
-  searchNotes,
-  generateShareLink,
-  getSharedNote,
-} = require("../controllers/noteController");
+  getNotes, getNote, createNote, updateNote,
+  toggleStar, togglePin, trashNote, restoreNote,
+  deleteNote, searchNotes, generateShareLink, getSharedNote,
+} = require('../controllers/noteController');
+const { protect } = require('../middleware/authMiddleware');
+const { validateNote } = require('../middleware/validateMiddleware');
 
-// ✅ PUBLIC route — no auth needed (shared note)
-router.get("/shared/:token", getSharedNote);
+// ✅ Public
+router.get('/shared/:token', getSharedNote);
 
-// ✅ All routes below need auth
-router.use(protect);
+// ✅ Protected
+router.get('/',           protect, getNotes);
+router.get('/search',     protect, searchNotes);
+router.get('/:id',        protect, getNote);
+router.post('/',          protect, validateNote, createNote);
+router.put('/:id',        protect, validateNote, updateNote);
+router.delete('/:id',     protect, deleteNote);
 
-router.get("/search", searchNotes);
-router.get("/", getNotes);
-router.get("/:id", getNote);
-router.post("/", createNote);
-router.put("/:id", updateNote);
-router.patch("/:id", updateNote);       // ← FIX: auto-save uses PATCH, was missing
-router.patch("/:id/star", toggleStar);
-router.patch("/:id/pin", togglePin);
-router.patch("/:id/trash", trashNote);
-router.patch("/:id/restore", restoreNote);
-router.patch("/:id/share", generateShareLink);
-router.delete("/:id", deleteNote);
+router.patch('/:id/star',    protect, toggleStar);
+router.patch('/:id/pin',     protect, togglePin);
+router.patch('/:id/trash',   protect, trashNote);
+router.patch('/:id/restore', protect, restoreNote);
+router.post('/:id/share',    protect, generateShareLink);
 
-module.exports = router; 
+module.exports = router;
+

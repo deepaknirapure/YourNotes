@@ -15,7 +15,7 @@ const getNotes = async (req, res) => {
       .sort({ isPinned: -1, updatedAt: -1 });
     res.status(200).json(notes);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -29,7 +29,7 @@ const getNote = async (req, res) => {
     if (!note) return res.status(404).json({ message: "Note not found" });
     res.status(200).json(note);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -45,13 +45,18 @@ const createNote = async (req, res) => {
       tags: tags || [],
       user: req.user.id,
     });
+
+    // FIX: update user weekly count AND folder noteCount atomically
     const User = require("../models/User");
-    await User.findByIdAndUpdate(req.user.id, {
-      $inc: { notesCreatedThisWeek: 1 },
-    });
+    await User.findByIdAndUpdate(req.user.id, { $inc: { notesCreatedThisWeek: 1 } });
+
+    if (folder) {
+      await Folder.findByIdAndUpdate(folder, { $inc: { noteCount: 1 } });
+    }
+
     res.status(201).json(note);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -60,7 +65,13 @@ const updateNote = async (req, res) => {
   try {
     const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
     if (!note) return res.status(404).json({ message: "Note not found" });
+
     const { title, content, plainText, folder, tags, isStarred } = req.body;
+
+    // FIX: track folder change to keep noteCount in sync
+    const oldFolder = note.folder ? note.folder.toString() : null;
+    const newFolder = folder !== undefined ? (folder || null) : oldFolder;
+
     if (title !== undefined) note.title = title;
     if (content !== undefined) note.content = content;
     if (plainText !== undefined) note.plainText = plainText;
@@ -68,9 +79,16 @@ const updateNote = async (req, res) => {
     if (tags !== undefined) note.tags = tags;
     if (isStarred !== undefined) note.isStarred = isStarred;
     await note.save();
+
+    // Update folder counts if folder changed
+    if (oldFolder !== newFolder) {
+      if (oldFolder) await Folder.findByIdAndUpdate(oldFolder, { $inc: { noteCount: -1 } });
+      if (newFolder) await Folder.findByIdAndUpdate(newFolder, { $inc: { noteCount: 1 } });
+    }
+
     res.status(200).json(note);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -81,14 +99,9 @@ const toggleStar = async (req, res) => {
     if (!note) return res.status(404).json({ message: "Note not found" });
     note.isStarred = !note.isStarred;
     await note.save();
-    res
-      .status(200)
-      .json({
-        message: note.isStarred ? "Note starred!" : "Note unstarred!",
-        isStarred: note.isStarred,
-      });
+    res.status(200).json({ message: note.isStarred ? "Note starred!" : "Note unstarred!", isStarred: note.isStarred });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -99,14 +112,9 @@ const togglePin = async (req, res) => {
     if (!note) return res.status(404).json({ message: "Note not found" });
     note.isPinned = !note.isPinned;
     await note.save();
-    res
-      .status(200)
-      .json({
-        message: note.isPinned ? "Note pinned!" : "Note unpinned!",
-        isPinned: note.isPinned,
-      });
+    res.status(200).json({ message: note.isPinned ? "Note pinned!" : "Note unpinned!", isPinned: note.isPinned });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -118,9 +126,15 @@ const trashNote = async (req, res) => {
     note.isTrashed = true;
     note.trashedAt = new Date();
     await note.save();
+
+    // FIX: decrement folder noteCount when trashed
+    if (note.folder) {
+      await Folder.findByIdAndUpdate(note.folder, { $inc: { noteCount: -1 } });
+    }
+
     res.status(200).json({ message: "Note moved to trash" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -132,9 +146,15 @@ const restoreNote = async (req, res) => {
     note.isTrashed = false;
     note.trashedAt = null;
     await note.save();
+
+    // FIX: increment folder noteCount when restored
+    if (note.folder) {
+      await Folder.findByIdAndUpdate(note.folder, { $inc: { noteCount: 1 } });
+    }
+
     res.status(200).json({ message: "Note restored!" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -146,7 +166,7 @@ const deleteNote = async (req, res) => {
     await note.deleteOne();
     res.status(200).json({ message: "Note permanently deleted" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -156,19 +176,31 @@ const searchNotes = async (req, res) => {
     const { q } = req.query;
     if (!q) return res.status(400).json({ message: "Search query required" });
     const notes = await Note.find(
-      {
-        user: req.user.id,
-        isTrashed: false,
-        $text: { $search: q },
-      },
-      { score: { $meta: "textScore" } },
+      { user: req.user.id, isTrashed: false, $text: { $search: q } },
+      { score: { $meta: "textScore" } }
     )
       .populate("folder", "name color icon")
       .sort({ score: { $meta: "textScore" } })
       .limit(20);
     res.status(200).json(notes);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ AUTO-DELETE TRASHED NOTES OLDER THAN 30 DAYS
+const cleanupTrashedNotes = async () => {
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const result = await Note.deleteMany({
+      isTrashed: true,
+      trashedAt: { $lt: thirtyDaysAgo }
+    });
+    if (result.deletedCount > 0) {
+      console.log(`🗑️  Auto-cleanup: ${result.deletedCount} trashed notes deleted`);
+    }
+  } catch (error) {
+    console.error('Trash cleanup error:', error);
   }
 };
 
@@ -193,31 +225,19 @@ const generateShareLink = async (req, res) => {
     await note.save();
 
     const shareUrl = `${process.env.FRONTEND_URL || "http://localhost:3001"}/shared/${note.shareToken}`;
-    res
-      .status(200)
-      .json({
-        shareUrl,
-        shareToken: note.shareToken,
-        permission: note.sharePermission,
-      });
+    res.status(200).json({ shareUrl, shareToken: note.shareToken, permission: note.sharePermission });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// ✅ GET SHARED NOTE (public — no auth needed)
+// ✅ GET SHARED NOTE (public)
 const getSharedNote = async (req, res) => {
   try {
-    const note = await Note.findOne({
-      shareToken: req.params.token,
-      isTrashed: false,
-    })
+    const note = await Note.findOne({ shareToken: req.params.token, isTrashed: false })
       .populate("user", "name")
       .populate("folder", "name color icon");
-    if (!note)
-      return res
-        .status(404)
-        .json({ message: "Shared note not found or link revoked" });
+    if (!note) return res.status(404).json({ message: "Shared note not found or link revoked" });
     res.status(200).json({
       title: note.title,
       content: note.content,
@@ -230,21 +250,13 @@ const getSharedNote = async (req, res) => {
       createdAt: note.createdAt,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 module.exports = {
-  getNotes,
-  getNote,
-  createNote,
-  updateNote,
-  toggleStar,
-  togglePin,
-  trashNote,
-  restoreNote,
-  deleteNote,
-  searchNotes,
-  generateShareLink,
-  getSharedNote,
+  getNotes, getNote, createNote, updateNote,
+  toggleStar, togglePin, trashNote, restoreNote,
+  deleteNote, searchNotes, generateShareLink,
+  getSharedNote, cleanupTrashedNotes,
 };

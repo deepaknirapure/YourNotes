@@ -13,11 +13,11 @@ const app = express();
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet());
 
-// ── Compression (gzip responses) ─────────────────────────────────────────────
+// ── Compression ───────────────────────────────────────────────────────────────
 try {
   const compression = require('compression');
   app.use(compression());
-} catch (_) { /* compression not installed — skip silently */ }
+} catch (_) {}
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
@@ -48,7 +48,7 @@ app.use('/api/tags',      require('./routes/tagRoutes'));
 app.use('/api/ai',        require('./routes/aiRoutes'));
 app.use('/api/community', require('./routes/communityRoutes'));
 
-// ── Health check (frontend warmup ping for Render free tier) ──────────────────
+// ── Health check ──────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: Date.now() }));
 app.get('/', (_req, res) => res.json({ message: 'YourNotes API is running!' }));
 
@@ -58,8 +58,21 @@ app.use((_req, res) => res.status(404).json({ message: 'Route not found' }));
 // ── Global error handler ──────────────────────────────────────────────────────
 app.use((err, _req, res, _next) => {
   console.error(err.stack);
-  res.status(500).json({ message: err.message || 'Internal server error' });
+  // FIX: never leak error details in production
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Internal server error'
+    : (err.message || 'Internal server error');
+  res.status(err.status || 500).json({ message });
 });
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`✅ YourNotes API running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`✅ YourNotes API running on port ${PORT}`));
+
+// ── Auto-cleanup trashed notes (runs every 24 hours) ─────────────────────────
+const { cleanupTrashedNotes } = require('./controllers/noteController');
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+setInterval(cleanupTrashedNotes, TWENTY_FOUR_HOURS);
+// Also run once at startup
+cleanupTrashedNotes();
+
+module.exports = server;
