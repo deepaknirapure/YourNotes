@@ -18,12 +18,13 @@ const CommunityPage      = lazy(() => import("./pages/CommunityPage"));
 const AskAIPage          = lazy(() => import("./pages/AskAIPage"));
 const NotFoundPage       = lazy(() => import("./pages/NotFoundPage"));
 // ── New Pages ──────────────────────────────────────────────────────────────────
-const HomePage           = lazy(() => import("./pages/HomePage"));
-const TrashPage          = lazy(() => import("./pages/TrashPage"));
-const StarredPage        = lazy(() => import("./pages/StarredPage"));
-const FoldersPage        = lazy(() => import("./pages/FoldersPage"));
-const TagsPage           = lazy(() => import("./pages/TagsPage"));
-const AskAINewPage       = lazy(() => import("./pages/AskAINewPage"));
+const AskAINewPage       = lazy(() => import("./pages/Askainewpage"));
+const HomePage           = lazy(() => import("./pages/Homepage"));
+const TrashPage          = lazy(() => import("./pages/Trashpage"));
+const StarredPage        = lazy(() => import("./pages/Starredpage"));
+const FoldersPage        = lazy(() => import("./pages/Folderspage"));
+const TagsPage           = lazy(() => import("./pages/Tagspage"));
+
 
 // Full-screen spinner shown during lazy load
 const PageLoader = () => (
