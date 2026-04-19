@@ -38,11 +38,12 @@ const register = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, streak: user.streak }
     });
   } catch (error) {
+    console.error('Register error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// ✅ LOGIN
+// ✅ LOGIN — FIXED: was missing token + user in response
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -57,6 +58,7 @@ const login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: 'Invalid email or password' });
 
+    // Update streak on login
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const lastStudied = user.streak.lastStudied ? new Date(user.streak.lastStudied) : null;
     if (lastStudied) {
@@ -72,8 +74,11 @@ const login = async (req, res) => {
 
     res.status(200).json({
       message: 'Login successful!',
+      token: generateToken(user._id),
+      user: { id: user._id, name: user.name, email: user.email, streak: user.streak }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -197,5 +202,4 @@ const changePassword = async (req, res) => {
   }
 };
 
-// ✅ FIX: module.exports AFTER all functions are defined
 module.exports = { register, login, getMe, forgotPassword, resetPassword, updateProfile, changePassword };

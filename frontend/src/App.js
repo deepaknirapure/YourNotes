@@ -4,7 +4,6 @@ import { Suspense, lazy } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 
-// Lazy-load all pages for better performance
 const LandingPage         = lazy(() => import("./pages/LandingPage"));
 const LoginPage           = lazy(() => import("./pages/LoginPage"));
 const RegisterPage        = lazy(() => import("./pages/RegisterPage"));
@@ -17,7 +16,6 @@ const ProfilePage         = lazy(() => import("./pages/ProfilePage"));
 const CommunityPage       = lazy(() => import("./pages/CommunityPage"));
 const AskAIPage           = lazy(() => import("./pages/AskAIPage"));
 const NotFoundPage        = lazy(() => import("./pages/NotFoundPage"));
-// Renamed to consistent PascalCase
 const HomePage            = lazy(() => import("./pages/Homepage"));
 const TrashPage           = lazy(() => import("./pages/Trashpage"));
 const StarredPage         = lazy(() => import("./pages/Starredpage"));
@@ -66,17 +64,17 @@ function App() {
             <Route path="/forgot-password"       element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
             <Route path="/shared/:token"         element={<SharedNotePage />} />
-            <Route path="/dashboard"  element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+            <Route path="/dashboard"       element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
             <Route path="/flashcard-review" element={<PrivateRoute><FlashcardReviewPage /></PrivateRoute>} />
-            <Route path="/profile"    element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-            <Route path="/community"  element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
-            <Route path="/ask-ai"     element={<PrivateRoute><AskAIPage /></PrivateRoute>} />
-            <Route path="/home"       element={<PrivateRoute><HomePage /></PrivateRoute>} />
-            <Route path="/trash"      element={<PrivateRoute><TrashPage /></PrivateRoute>} />
-            <Route path="/starred"    element={<PrivateRoute><StarredPage /></PrivateRoute>} />
-            <Route path="/folders"    element={<PrivateRoute><FoldersPage /></PrivateRoute>} />
-            <Route path="/tags"       element={<PrivateRoute><TagsPage /></PrivateRoute>} />
-            <Route path="*"           element={<NotFoundPage />} />
+            <Route path="/profile"         element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+            <Route path="/community"       element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
+            <Route path="/ask-ai"          element={<PrivateRoute><AskAIPage /></PrivateRoute>} />
+            <Route path="/home"            element={<PrivateRoute><HomePage /></PrivateRoute>} />
+            <Route path="/trash"           element={<PrivateRoute><TrashPage /></PrivateRoute>} />
+            <Route path="/starred"         element={<PrivateRoute><StarredPage /></PrivateRoute>} />
+            <Route path="/folders"         element={<PrivateRoute><FoldersPage /></PrivateRoute>} />
+            <Route path="/tags"            element={<PrivateRoute><TagsPage /></PrivateRoute>} />
+            <Route path="*"                element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </Router>

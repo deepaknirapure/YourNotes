@@ -31,9 +31,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", backgroundColor: "#0a0a0a", fontFamily: "'Inter', 'DM Sans', sans-serif", overflow: "hidden" }}>
+    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#0a0a0a", fontFamily: "'Inter', 'DM Sans', sans-serif", overflow: "hidden" }}>
       <style>{`
-        
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         input:focus { outline: none; }
 
@@ -61,18 +60,34 @@ export default function RegisterPage() {
         }
         .yn-submit-btn:hover:not(:disabled) { background: #c94d23; transform: translateY(-1px); box-shadow: 0 12px 32px rgba(229,91,45,.3); }
         .yn-submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+        .yn-left-panel-reg {
+          flex: 1;
+          background: #0d0d0d;
+          border-right: 1px solid rgba(255,255,255,.06);
+          padding: 72px 8%;
+          display: flex; flex-direction: column; justify-content: space-between;
+          position: relative; overflow: hidden;
+        }
+        .yn-right-panel-reg {
+          width: 520px; padding: 72px 60px;
+          display: flex; flex-direction: column; justify-content: center;
+          background: #0a0a0a;
+          animation: ynHeroIn .9s .1s cubic-bezier(.16,1,.3,1) both;
+        }
+
+        @media (max-width: 768px) {
+          .yn-left-panel-reg { display: none !important; }
+          .yn-right-panel-reg {
+            width: 100% !important;
+            padding: 48px 28px !important;
+            min-height: 100vh;
+          }
+        }
       `}</style>
 
       {/* ── LEFT PANEL ── */}
-      <div style={{
-        flex: 1,
-        background: "#0d0d0d",
-        borderRight: "1px solid rgba(255,255,255,.06)",
-        padding: "72px 8%",
-        display: "flex", flexDirection: "column", justifyContent: "space-between",
-        position: "relative", overflow: "hidden",
-      }}>
-        {/* Diagonal lines */}
+      <div className="yn-left-panel-reg">
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
           {[...Array(5)].map((_, i) => (
             <div key={i} style={{
@@ -85,16 +100,12 @@ export default function RegisterPage() {
           <div style={{ position: "absolute", top: -80, left: -80, width: 400, height: 400, background: "radial-gradient(circle, rgba(229,91,45,.07) 0%, transparent 70%)", pointerEvents: "none" }} />
         </div>
 
-        {/* Logo */}
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18, color: "#fff" }}>
-              Your<span style={{ color: "#E55B2D" }}>Notes</span>
-            </span>
-          </div>
+          <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18, color: "#fff" }}>
+            Your<span style={{ color: "#E55B2D" }}>Notes</span>
+          </span>
         </div>
 
-        {/* Features list */}
         <div style={{ position: "relative", zIndex: 1, animation: "ynHeroIn .8s cubic-bezier(.16,1,.3,1) both" }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
@@ -104,16 +115,13 @@ export default function RegisterPage() {
             <span style={{ fontSize: 11, fontWeight: 700, color: "#E55B2D", letterSpacing: ".08em" }}>START YOUR JOURNEY</span>
           </div>
 
-          <h2 style={{
-            fontFamily: "'Syne', sans-serif", fontSize: 40, fontWeight: 800,
-            color: "#fff", letterSpacing: "-2px", lineHeight: 1.1, marginBottom: 36,
-          }}>
+          <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 40, fontWeight: 800, color: "#fff", letterSpacing: "-2px", lineHeight: 1.1, marginBottom: 36 }}>
             Join 1 Million+<br />Students Learning<br />Smarter.
           </h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             {[
-              { icon: <Sparkles size={18} color="#E55B2D" />, title: "AI Powered Summaries", desc: "Gemini AI ka use karke apne lambe notes ko seconds mein summarize karein." },
+              { icon: <Sparkles size={18} color="#E55B2D" />, title: "AI Powered Summaries", desc: "Groq AI ka use karke apne lambe notes ko seconds mein summarize karein." },
               { icon: <Layers size={18} color="#E55B2D" />, title: "Smart Flashcards", desc: "Spaced Repetition (SM-2) algorithm se complex topics ko asani se yaad karein." },
               { icon: <Globe size={18} color="#E55B2D" />, title: "Universal Access", desc: "Apne notes ko kahi bhi, kabhi bhi access karein. Students ke liye hamesha free." },
               { icon: <ShieldCheck size={18} color="#E55B2D" />, title: "Secure & Private", desc: "Aapka data encrypted hai. Aapke notes sirf aapke hain." },
@@ -129,24 +137,14 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Bottom badge */}
-        <div style={{
-          position: "relative", zIndex: 1,
-          background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)",
-          borderRadius: 10, padding: "18px 22px",
-        }}>
+        <div style={{ position: "relative", zIndex: 1, background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 10, padding: "18px 22px" }}>
           <p style={{ fontSize: 11, fontWeight: 800, color: "#E55B2D", letterSpacing: ".08em", marginBottom: 4 }}>✓ STUDENT PROJECT</p>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,.35)" }}>S.V. Polytechnic College, Bhopal · 2026</p>
         </div>
       </div>
 
       {/* ── RIGHT PANEL ── */}
-      <div style={{
-        width: 520, padding: "72px 60px",
-        display: "flex", flexDirection: "column", justifyContent: "center",
-        background: "#0a0a0a",
-        animation: "ynHeroIn .9s .1s cubic-bezier(.16,1,.3,1) both",
-      }}>
+      <div className="yn-right-panel-reg">
         <div style={{ marginBottom: 40 }}>
           <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 40, fontWeight: 800, color: "#fff", marginBottom: 12, letterSpacing: "-1.5px" }}>
             Create Account.
@@ -169,7 +167,7 @@ export default function RegisterPage() {
           <Link to="/login" style={{ color: "#E55B2D", fontWeight: 700, textDecoration: "none" }}>Sign in</Link>
         </p>
 
-        <p style={{ marginTop: "auto", textAlign: "center", fontSize: 10, color: "rgba(255,255,255,.1)", letterSpacing: "3px", fontWeight: 700 }}>
+        <p style={{ marginTop: "auto", paddingTop: 40, textAlign: "center", fontSize: 10, color: "rgba(255,255,255,.1)", letterSpacing: "3px", fontWeight: 700 }}>
           YOURNOTES · BHOPAL · 2026
         </p>
       </div>
