@@ -142,8 +142,8 @@ export default function ProfilePage() {
               <span style={{ fontSize: 12, padding: "3px 10px", background: "rgba(139,92,246,.15)", borderRadius: 20, color: "#a78bfa", fontWeight: 600 }}>
                 {uploadCount} community {uploadCount === 1 ? "upload" : "uploads"}
               </span>
-              <span style={{ fontSize: 12, padding: "3px 10px", background: user?.plan === "pro" ? "rgba(245,158,11,.15)" : "rgba(255,255,255,.06)", borderRadius: 20, color: user?.plan === "pro" ? "#f59e0b" : "rgba(255,255,255,.4)", fontWeight: 600 }}>
-                {user?.plan === "pro" ? "⭐ Pro" : "Free"}
+              <span style={{ fontSize: 12, padding: "3px 10px", background: "rgba(255,255,255,.06)", borderRadius: 20, color: "rgba(255,255,255,.4)", fontWeight: 600 }}>
+                Free
               </span>
             </div>
           </div>

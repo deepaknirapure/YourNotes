@@ -22,7 +22,7 @@ export default function RegisterPage() {
       const { data } = await API.post("/auth/register", form);
       login(data.user, data.token);
       toast.success("Account created! Welcome aboard 🎉");
-      navigate("/dashboard");
+      navigate("/home");
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");
     } finally {

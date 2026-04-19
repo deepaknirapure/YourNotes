@@ -5,28 +5,25 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 
 // Lazy-load all pages for better performance
-const LandingPage        = lazy(() => import("./pages/LandingPage"));
-const LoginPage          = lazy(() => import("./pages/LoginPage"));
-const RegisterPage       = lazy(() => import("./pages/RegisterPage"));
-const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
-const ResetPasswordPage  = lazy(() => import("./pages/ResetPasswordPage"));
-const DashboardPage      = lazy(() => import("./pages/DashboardPage"));
+const LandingPage         = lazy(() => import("./pages/LandingPage"));
+const LoginPage           = lazy(() => import("./pages/LoginPage"));
+const RegisterPage        = lazy(() => import("./pages/RegisterPage"));
+const ForgotPasswordPage  = lazy(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage   = lazy(() => import("./pages/ResetPasswordPage"));
+const DashboardPage       = lazy(() => import("./pages/DashboardPage"));
 const FlashcardReviewPage = lazy(() => import("./pages/FlashcardReviewPage"));
-const SharedNotePage     = lazy(() => import("./pages/SharedNotePage"));
-const ProfilePage        = lazy(() => import("./pages/ProfilePage"));
-const CommunityPage      = lazy(() => import("./pages/CommunityPage"));
-const AskAIPage          = lazy(() => import("./pages/AskAIPage"));
-const NotFoundPage       = lazy(() => import("./pages/NotFoundPage"));
-// ── New Pages ──────────────────────────────────────────────────────────────────
-const AskAINewPage       = lazy(() => import("./pages/Askainewpage"));
-const HomePage           = lazy(() => import("./pages/Homepage"));
-const TrashPage          = lazy(() => import("./pages/Trashpage"));
-const StarredPage        = lazy(() => import("./pages/Starredpage"));
-const FoldersPage        = lazy(() => import("./pages/Folderspage"));
-const TagsPage           = lazy(() => import("./pages/Tagspage"));
+const SharedNotePage      = lazy(() => import("./pages/SharedNotePage"));
+const ProfilePage         = lazy(() => import("./pages/ProfilePage"));
+const CommunityPage       = lazy(() => import("./pages/CommunityPage"));
+const AskAIPage           = lazy(() => import("./pages/AskAIPage"));
+const NotFoundPage        = lazy(() => import("./pages/NotFoundPage"));
+// Renamed to consistent PascalCase
+const HomePage            = lazy(() => import("./pages/Homepage"));
+const TrashPage           = lazy(() => import("./pages/Trashpage"));
+const StarredPage         = lazy(() => import("./pages/Starredpage"));
+const FoldersPage         = lazy(() => import("./pages/Folderspage"));
+const TagsPage            = lazy(() => import("./pages/Tagspage"));
 
-
-// Full-screen spinner shown during lazy load
 const PageLoader = () => (
   <div style={{
     height: "100vh", background: "#0a0a0a",
@@ -63,24 +60,23 @@ function App() {
         />
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            <Route path="/"                   element={<LandingPage />} />
-            <Route path="/login"              element={<LoginPage />} />
-            <Route path="/register"           element={<RegisterPage />} />
-            <Route path="/forgot-password"    element={<ForgotPasswordPage />} />
+            <Route path="/"                      element={<LandingPage />} />
+            <Route path="/login"                 element={<LoginPage />} />
+            <Route path="/register"              element={<RegisterPage />} />
+            <Route path="/forgot-password"       element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-            <Route path="/shared/:token"      element={<SharedNotePage />} />
-            <Route path="/dashboard"          element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-            <Route path="/flashcard-review"   element={<PrivateRoute><FlashcardReviewPage /></PrivateRoute>} />
-            <Route path="/profile"            element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-            <Route path="/community"          element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
-            <Route path="/ask-ai"             element={<PrivateRoute><AskAIPage /></PrivateRoute>} />
-            <Route path="/home"               element={<PrivateRoute><HomePage /></PrivateRoute>} />
-            <Route path="/trash"              element={<PrivateRoute><TrashPage /></PrivateRoute>} />
-            <Route path="/starred"            element={<PrivateRoute><StarredPage /></PrivateRoute>} />
-            <Route path="/folders"            element={<PrivateRoute><FoldersPage /></PrivateRoute>} />
-            <Route path="/tags"               element={<PrivateRoute><TagsPage /></PrivateRoute>} />
-            <Route path="/ask-ai-new"         element={<PrivateRoute><AskAINewPage /></PrivateRoute>} />
-            <Route path="*"                   element={<NotFoundPage />} />
+            <Route path="/shared/:token"         element={<SharedNotePage />} />
+            <Route path="/dashboard"  element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+            <Route path="/flashcard-review" element={<PrivateRoute><FlashcardReviewPage /></PrivateRoute>} />
+            <Route path="/profile"    element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+            <Route path="/community"  element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
+            <Route path="/ask-ai"     element={<PrivateRoute><AskAIPage /></PrivateRoute>} />
+            <Route path="/home"       element={<PrivateRoute><HomePage /></PrivateRoute>} />
+            <Route path="/trash"      element={<PrivateRoute><TrashPage /></PrivateRoute>} />
+            <Route path="/starred"    element={<PrivateRoute><StarredPage /></PrivateRoute>} />
+            <Route path="/folders"    element={<PrivateRoute><FoldersPage /></PrivateRoute>} />
+            <Route path="/tags"       element={<PrivateRoute><TagsPage /></PrivateRoute>} />
+            <Route path="*"           element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </Router>

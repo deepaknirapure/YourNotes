@@ -1,4 +1,5 @@
 import { Sparkles, CreditCard, Folder, Search, Share2, Lock } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -57,6 +58,12 @@ const stack = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { token } = useAuth();
+
+  // Auto-redirect logged-in users to home
+  useEffect(() => {
+    if (token) navigate("/home", { replace: true });
+  }, [token, navigate]);
   const [scrollY, setScrollY] = useState(0);
   const [openFaq, setOpenFaq] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
