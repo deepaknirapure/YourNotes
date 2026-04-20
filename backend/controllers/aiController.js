@@ -5,9 +5,9 @@ const Flashcard = require('../models/Flashcard');
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // ── AI hourly limit (free for everyone) ───────────────────────────────────────
-const AI_HOURLY_LIMIT = 10;
+const AI_HOURLY_LIMIT = 30;
 
-// ✅ RATE LIMIT MIDDLEWARE — 10 AI calls/hour per user
+// ✅ RATE LIMIT MIDDLEWARE — 30 AI calls/hour per user
 const checkAIRateLimit = async (req, res, next) => {
   try {
     const User = require('../models/User');
