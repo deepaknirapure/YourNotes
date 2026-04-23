@@ -190,4 +190,91 @@ const getDueFlashcards = async (req, res) => {
   }
 };
 
-module.exports = { summarizeNote, generateFlashcards, getFlashcards, reviewFlashcard, getDueFlashcards, checkAIRateLimit };
+// ✅ GENERATE QUIZ (MCQ) — called by NoteEditor via POST /ai/quiz/:id
+const generateQuiz = async (req, res) => {
+  try {
+    const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
+    if (!note) return res.status(404).json({ message: 'Note not found' });
+
+    const noteText = note.plainText || note.content?.replace(/<[^>]*>/g, '') || '';
+
+    if (!noteText || noteText.trim().length < 50) {
+      return res.status(400).json({ message: 'Note must have at least 50 characters to generate a quiz' });
+    }
+
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a quiz generator. Always write questions and options in the same language as the note content. Return only valid JSON, no markdown, no extra text.'
+        },
+        {
+          role: 'user',
+          content: `Generate exactly 5 multiple choice questions from the following notes.\n\nNote Title: ${note.title}\nNote Content: ${noteText}\n\nRules:\n- Each question must have exactly 4 options\n- "correct" must be the 0-based index of the correct option (0, 1, 2, or 3)\n- Include a short "explanation" for the correct answer\n- Match the language of the note content exactly\n- Return ONLY a JSON array, no extra text, no markdown\n\nFormat:\n[{"question":"...","options":["A","B","C","D"],"correct":0,"explanation":"..."}]`
+        }
+      ],
+      max_tokens: 1200,
+    });
+
+    let text = completion.choices[0].message.content;
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    const questions = JSON.parse(text);
+
+    res.status(200).json({ questions });
+  } catch (error) {
+    console.error('Groq Quiz Error:', error);
+    res.status(500).json({ message: 'AI quiz generation failed. Please try again.' });
+  }
+};
+
+
+// ✅ ASK AI — general-purpose chat with optional note context (AskAIPage)
+const askAI = async (req, res) => {
+  try {
+    const { question, messages: history, noteId } = req.body;
+    if (!question || !question.trim()) {
+      return res.status(400).json({ message: 'Question is required' });
+    }
+
+    let systemPrompt = "You are a helpful study assistant for students. Answer questions clearly and concisely. Match the language of the user's question (English or Hindi).";
+
+    // Optionally attach note content as context
+    if (noteId) {
+      const note = await Note.findOne({ _id: noteId, user: req.user.id });
+      if (note) {
+        const noteText = note.plainText || note.content?.replace(/<[^>]*>/g, '') || '';
+        if (noteText.trim().length > 0) {
+          systemPrompt += `\n\nThe user has provided the following note as context:\nTitle: ${note.title}\nContent: ${noteText.slice(0, 3000)}`;
+        }
+      }
+    }
+
+    // Build message history (last 10 turns max to avoid token overflow)
+    const chatMessages = [];
+    if (Array.isArray(history)) {
+      const recent = history.slice(-10);
+      recent.forEach(m => {
+        if ((m.role === 'user' || m.role === 'assistant') && m.content) {
+          chatMessages.push({ role: m.role, content: m.content });
+        }
+      });
+    }
+    chatMessages.push({ role: 'user', content: question });
+
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'system', content: systemPrompt }, ...chatMessages],
+      max_tokens: 1000,
+    });
+
+    const answer = completion.choices[0].message.content;
+    res.status(200).json({ answer });
+  } catch (error) {
+    console.error('AskAI Error:', error);
+    res.status(500).json({ message: 'AI service error. Please try again.' });
+  }
+};
+
+module.exports = { summarizeNote, generateFlashcards, getFlashcards, reviewFlashcard, getDueFlashcards, checkAIRateLimit, generateQuiz, askAI };

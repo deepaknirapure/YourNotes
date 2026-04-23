@@ -87,7 +87,7 @@ exports.uploadNote = async (req, res) => {
     res.status(201).json({ message: "Note upload ho gaya!", note });
   } catch (err) {
     console.error("Upload error:", err);
-    res.status(500).json({ message: err.message || "Upload failed" });
+    res.status(500).json({ message: "Upload failed. Please try again." });
   }
 };
 

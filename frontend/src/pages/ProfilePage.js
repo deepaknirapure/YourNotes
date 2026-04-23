@@ -10,7 +10,7 @@ import API from "../api/axios";
 import toast from "react-hot-toast";
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState({ totalNotes: 0, starredNotes: 0, flashcardsDue: 0, totalFolders: 0 });
   const [form, setForm] = useState({ name: user?.name || "", email: user?.email || "" });
@@ -44,7 +44,8 @@ export default function ProfilePage() {
     if (!form.name.trim()) return toast.error("Name required");
     setLoading(true);
     try {
-      await API.put("/auth/me", { name: form.name });
+      const { data: updatedUser } = await API.put("/auth/update-profile", { name: form.name });
+      updateUser(updatedUser);
       toast.success("Profile updated!");
     } catch (err) {
       toast.error(err.response?.data?.message || "Update failed");

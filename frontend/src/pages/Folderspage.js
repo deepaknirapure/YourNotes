@@ -37,7 +37,6 @@ const STYLES = `
 export default function FoldersPage() {
   const navigate = useNavigate();
   const [folders, setFolders] = useState([]);
-  const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
@@ -58,9 +57,8 @@ export default function FoldersPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [fRes, nRes] = await Promise.all([API.get("/folders"), API.get("/notes")]);
+      const fRes = await API.get("/folders");
       setFolders(fRes.data || []);
-      setNotes((nRes.data || []).filter(n => !n.isTrashed));
     } catch {
       toast.error("Data load nahi ho saka");
     } finally {
@@ -68,7 +66,7 @@ export default function FoldersPage() {
     }
   };
 
-  const getNoteCount = (folderId) => notes.filter(n => n.folder === folderId || n.folder?._id === folderId).length;
+  // noteCount is returned by the /folders API — no need for client-side calculation
 
   const createFolder = async () => {
     if (!newName.trim()) return toast.error("Folder ka naam dalo");
@@ -196,7 +194,7 @@ export default function FoldersPage() {
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 14 }}>
             {folders.map((folder, i) => {
-              const count = getNoteCount(folder._id);
+              const count = folder.noteCount ?? 0;
               const color = folder.color || COLORS[i % COLORS.length];
               return (
                 <div key={folder._id} className="fp-card" style={{ animationDelay: `${i * 0.06}s`, borderColor: editId === folder._id ? "rgba(229,91,45,.4)" : undefined }}>

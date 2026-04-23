@@ -169,8 +169,8 @@ const updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { name: name.trim() },
-      { new: true, select: '-password' }
-    );
+      { new: true }
+    ).select('-password');
     res.status(200).json(user);
   } catch (error) {
     console.error('Update profile error:', error);

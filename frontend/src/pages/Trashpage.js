@@ -38,8 +38,8 @@ export default function TrashPage() {
   const loadTrash = async () => {
     setLoading(true);
     try {
-      const { data } = await API.get("/notes");
-      setNotes((data || []).filter(n => n.isTrashed));
+      const { data } = await API.get("/notes?trashed=true");
+      setNotes(data || []);
     } catch {
       toast.error("Trash load nahi ho saka");
     } finally {

@@ -72,7 +72,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
       try {
         const res = await API.put(`/notes/${note._id}`, {
           title:     titleRef.current,
-          content:   titleRef.current,
+          content:   contentRef.current,
           plainText: contentRef.current,
           tags:      tagsRef.current,
         });

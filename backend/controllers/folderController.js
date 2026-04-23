@@ -22,7 +22,7 @@ const getFolders = async (req, res) => {
 
     res.status(200).json(foldersWithCount);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -42,7 +42,7 @@ const createFolder = async (req, res) => {
 
     res.status(201).json({ ...folder.toObject(), noteCount: 0 });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -61,7 +61,7 @@ const updateFolder = async (req, res) => {
     await folder.save();
     res.status(200).json(folder);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -76,7 +76,7 @@ const deleteFolder = async (req, res) => {
 
     res.status(200).json({ message: 'Folder deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

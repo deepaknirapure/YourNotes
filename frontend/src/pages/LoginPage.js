@@ -15,6 +15,8 @@ export default function LoginPage() {
     e?.preventDefault();
     if (!form.email || !form.password)
       return toast.error("Email aur password dono zaroori hain");
+    if (!/\S+@\S+\.\S+/.test(form.email))
+      return toast.error("Valid email address enter karein");
     setLoading(true);
     try {
       const { data } = await API.post("/auth/login", form);

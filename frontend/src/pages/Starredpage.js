@@ -52,8 +52,8 @@ export default function StarredPage() {
   const loadStarred = async () => {
     setLoading(true);
     try {
-      const { data } = await API.get("/notes");
-      setNotes((data || []).filter(n => n.isStarred && !n.isTrashed));
+      const { data } = await API.get("/notes?starred=true");
+      setNotes(data || []);
     } catch {
       toast.error("Starred notes load nahi ho sake");
     } finally {

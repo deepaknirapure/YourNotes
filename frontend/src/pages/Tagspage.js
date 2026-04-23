@@ -60,7 +60,7 @@ export default function TagsPage() {
 
   // Filter tags by search
   const filteredTags = allTags.filter(t =>
-    !searchQ.trim() || t.toLowerCase().includes(searchQ.toLowerCase())
+    !searchQ.trim() || t.tag.toLowerCase().includes(searchQ.toLowerCase())
   );
 
   const selectedNotes = selectedTag ? getNotesForTag(selectedTag) : [];
@@ -135,21 +135,20 @@ export default function TagsPage() {
                   <X size={12} /> Sab
                 </button>
               )}
-              {filteredTags.map((tag, i) => {
-                const count = getNotesForTag(tag).length;
-                const isActive = selectedTag === tag;
+              {filteredTags.map((tagObj, i) => {
+                const isActive = selectedTag === tagObj.tag;
                 const ci = i % TAG_COLORS.length;
                 return (
-                  <button key={tag} className={`tg-tag-chip${isActive ? " active" : ""}`}
+                  <button key={tagObj.tag} className={`tg-tag-chip${isActive ? " active" : ""}`}
                     style={{
                       background: isActive ? TAG_COLORS[ci].replace(".15", ".3") : TAG_COLORS[ci],
                       color: TAG_TEXT_COLORS[ci],
                       borderColor: isActive ? TAG_TEXT_COLORS[ci] : "transparent",
                       animationDelay: `${i * 0.04}s`
                     }}
-                    onClick={() => setSelectedTag(isActive ? null : tag)}>
-                    <Hash size={12} /> {tag}
-                    <span style={{ background: "rgba(255,255,255,.15)", borderRadius: 99, padding: "1px 7px", fontSize: 11 }}>{count}</span>
+                    onClick={() => setSelectedTag(isActive ? null : tagObj.tag)}>
+                    <Hash size={12} /> {tagObj.tag}
+                    <span style={{ background: "rgba(255,255,255,.15)", borderRadius: 99, padding: "1px 7px", fontSize: 11 }}>{tagObj.count}</span>
                   </button>
                 );
               })}
@@ -198,7 +197,7 @@ export default function TagsPage() {
                         {note.tags && note.tags.length > 1 && (
                           <div style={{ display: "flex", gap: 5, marginTop: 10, paddingLeft: 40, flexWrap: "wrap" }}>
                             {note.tags.filter(t => t !== selectedTag).slice(0, 4).map((t, j) => {
-                              const ci = allTags.indexOf(t) % TAG_COLORS.length;
+                              const ci = allTags.findIndex(x => x.tag === t) % TAG_COLORS.length;
                               return (
                                 <span key={j} style={{ background: TAG_COLORS[ci >= 0 ? ci : j % TAG_COLORS.length], color: TAG_TEXT_COLORS[ci >= 0 ? ci : j % TAG_COLORS.length], borderRadius: 99, padding: "2px 8px", fontSize: 11, fontWeight: 500 }}>
                                   #{t}

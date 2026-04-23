@@ -163,6 +163,7 @@ export default function DashboardPage() {
           ))}
         </aside>
         <NoteEditor
+          key={selectedNote?._id}
           note={selectedNote}
           onClose={() => { setSelectedNote(null); loadData(); }}
           onUpdate={(updated) => {

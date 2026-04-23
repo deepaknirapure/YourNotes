@@ -14,23 +14,19 @@ const {
   deleteNote,
 } = require("../controllers/communityController");
 
-// Public feed (but we still pass user info if logged in — optional auth)
-router.get("/feed", protect, getFeed);
+// ── Static / prefix routes MUST come before wildcard /:id ──────────────────
+router.get("/feed",           protect, getFeed);
+router.get("/user/:userId",   protect, getUserNotes);   // was shadowed by /:id
 
-// Upload
+// ── Upload ──────────────────────────────────────────────────────────────────
 router.post("/upload", protect, upload.single("file"), uploadNote);
 
-// Single note
-router.get("/:id", protect, getNoteById);
-
-// User's uploaded notes
-router.get("/user/:userId", protect, getUserNotes);
-
-// Actions
-router.post("/:id/like", protect, toggleLike);
-router.post("/:id/save", protect, toggleSave);
-router.post("/:id/download", protect, downloadNote);
-router.post("/:id/comment", protect, addComment);
-router.delete("/:id", protect, deleteNote);
+// ── Wildcard single-note routes (kept last to avoid shadowing above) ────────
+router.get("/:id",             protect, getNoteById);
+router.post("/:id/like",       protect, toggleLike);
+router.post("/:id/save",       protect, toggleSave);
+router.post("/:id/download",   protect, downloadNote);
+router.post("/:id/comment",    protect, addComment);
+router.delete("/:id",          protect, deleteNote);
 
 module.exports = router;

@@ -15,6 +15,10 @@ export default function RegisterPage() {
     e?.preventDefault();
     if (!form.name || !form.email || !form.password)
       return toast.error("All fields required");
+    if (form.name.trim().length < 2)
+      return toast.error("Name must be at least 2 characters");
+    if (!/\S+@\S+\.\S+/.test(form.email))
+      return toast.error("Please enter a valid email address");
     if (form.password.length < 6)
       return toast.error("Password kam se kam 6 characters ka hona chahiye");
     setLoading(true);

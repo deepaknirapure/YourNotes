@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import API from "../api/axios";
 
 export default function ForgotPasswordPage() {
@@ -10,6 +11,8 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email.trim()) return setError("Email address required");
+    if (!/\S+@\S+\.\S+/.test(email)) return setError("Please enter a valid email address");
     setLoading(true);
     setError("");
     try {
