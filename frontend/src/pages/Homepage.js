@@ -4,7 +4,7 @@ import {
   BookOpen, Star, Trash2, Folder, Tag, Bot, Users,
   CreditCard, Plus, ArrowRight, Flame, FileText,
   Search, Bell, User, ChevronRight, Zap, TrendingUp,
-  Home, Settings, LogOut, Menu, X, MoreHorizontal, GitBranch, CheckCircle2, Clock
+  Home, Settings, LogOut, Menu, X, MoreHorizontal, CheckCircle2, Clock
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
