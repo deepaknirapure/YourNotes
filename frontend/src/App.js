@@ -15,7 +15,6 @@ const SharedNotePage      = lazy(() => import("./pages/SharedNotePage"));
 const ProfilePage         = lazy(() => import("./pages/ProfilePage"));
 const CommunityPage       = lazy(() => import("./pages/CommunityPage"));
 const AskAIPage           = lazy(() => import("./pages/AskAIPage"));
-const NotFoundPage        = lazy(() => import("./pages/NotFoundPage"));
 const HomePage            = lazy(() => import("./pages/Homepage"));
 const TrashPage           = lazy(() => import("./pages/Trashpage"));
 const StarredPage         = lazy(() => import("./pages/Starredpage"));
