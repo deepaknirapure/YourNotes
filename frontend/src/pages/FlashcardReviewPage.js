@@ -62,11 +62,13 @@ export default function FlashcardReviewPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    API.get("/flashcards")
+    // FIX Bug 3: correct endpoint is /ai/flashcards-due (not /flashcards)
+    API.get("/ai/flashcards-due")
       .then(({ data }) => {
+        // FIX Bug 4: field is nextReviewDate, not nextReview
         const due = (data || []).filter(fc => {
-          if (!fc.nextReview) return true;
-          return new Date(fc.nextReview) <= new Date();
+          if (!fc.nextReviewDate) return true;
+          return new Date(fc.nextReviewDate) <= new Date();
         });
         setFlashcards(due);
       })
@@ -84,8 +86,9 @@ export default function FlashcardReviewPage() {
     setReviewed(prev => new Set([...prev, current._id]));
     setScore(s => ({ ...s, [correct ? "correct" : "wrong"]: s[correct ? "correct" : "wrong"] + 1 }));
 
-    // Update review schedule
-    API.patch(`/flashcards/${current._id}/review`, { correct }).catch(() => {});
+    // FIX Bug 5: backend expects {quality} (SM-2 scale 0-5), not {correct}.
+    // Also fix route prefix: /ai/flashcards/... not /flashcards/...
+    API.patch(`/ai/flashcards/${current._id}/review`, { quality: correct ? 5 : 1 }).catch(() => {});
 
     if (currentIdx < flashcards.length - 1) {
       setCurrentIdx(i => i + 1);

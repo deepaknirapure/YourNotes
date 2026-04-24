@@ -64,7 +64,7 @@ const S = `
   .hp-new-btn{display:flex;align-items:center;gap:6px;background:#E55B2D;color:#fff;border:none;border-radius:6px;padding:7px 13px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;}
   .hp-new-btn:hover{background:#d14e24;box-shadow:0 4px 14px rgba(229,91,45,.3);}
   .hp-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.1);border-top-color:rgba(255,255,255,.5);border-radius:50%;animation:spin .7s linear infinite;}
-  @media(max-width:900px){.hp-stats-row{grid-template-columns:repeat(2,1fr);}}.
+  @media(max-width:900px){.hp-stats-row{grid-template-columns:repeat(2,1fr);}}
   @media(max-width:768px){.hp-menu-btn{display:flex!important}.hp-search{width:160px!important}.hp-content{padding:16px;}}
 `;
 

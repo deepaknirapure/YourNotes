@@ -21,6 +21,19 @@ const StarredPage         = lazy(() => import("./pages/Starredpage"));
 const FoldersPage         = lazy(() => import("./pages/Folderspage"));
 const TagsPage            = lazy(() => import("./pages/Tagspage"));
 
+const NotFoundPage = () => (
+  <div style={{
+    height: "100vh", background: "#0a0a0a",
+    display: "flex", flexDirection: "column",
+    alignItems: "center", justifyContent: "center", gap: 12,
+    fontFamily: "'DM Sans', sans-serif", color: "#fff",
+  }}>
+    <div style={{ fontSize: 64, fontWeight: 800, color: "#E55B2D", letterSpacing: "-3px" }}>404</div>
+    <div style={{ fontSize: 18, fontWeight: 600 }}>Page not found</div>
+    <a href="/" style={{ marginTop: 8, color: "#E55B2D", fontSize: 14, fontWeight: 600 }}>← Go Home</a>
+  </div>
+);
+
 const PageLoader = () => (
   <div style={{
     height: "100vh", background: "#0a0a0a",
