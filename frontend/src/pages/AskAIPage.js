@@ -1,444 +1,188 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  ArrowLeft, Send, Bot, User, Loader, X, ChevronDown,
-  Sparkles, BookOpen, Trash2, RotateCcw, Copy, Check,
-  Lightbulb, FlaskConical, Calculator, Globe, Atom
-} from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useState, useRef, useEffect } from "react";
+import { Bot, Send, User, Sparkles, RefreshCw, Copy, Check, Menu, Paperclip, StopCircle } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+import Sidebar from "../components/Sidebar";
 
-// ── Suggested prompts by category ────────────────────────────────────────────
-const SUGGESTIONS = [
-  {
-    category: "Concept Explain",
-    icon: <Lightbulb size={14} />,
-    color: "#f59e0b",
-    prompts: [
-      "Newton ke 3 laws of motion simple bhasha mein samjhao",
-      "Photosynthesis kya hota hai? Steps ke saath batao",
-      "Ohm's Law kya hai aur kahan use hota hai?",
-      "DNA replication ka process explain karo",
-    ],
-  },
-  {
-    category: "Maths Help",
-    icon: <Calculator size={14} />,
-    color: "#8b5cf6",
-    prompts: [
-      "Quadratic equation solve karne ke 3 tarike batao",
-      "Integration aur differentiation mein kya fark hai?",
-      "Probability ke basic rules samjhao with examples",
-      "Trigonometry ke saare formulas ek jagah do",
-    ],
-  },
-  {
-    category: "Exam Prep",
-    icon: <BookOpen size={14} />,
-    color: "#E55B2D",
-    prompts: [
-      "JEE Physics ke liye sabse important topics kaunse hain?",
-      "NEET Biology mein zyada marks kaise laayein?",
-      "Last minute revision ke liye best strategy kya hai?",
-      "MCQ mein eliminate karne ka technique batao",
-    ],
-  },
-  {
-    category: "Science",
-    icon: <Atom size={14} />,
-    color: "#10b981",
-    prompts: [
-      "Periodic table ke trends explain karo",
-      "Human digestive system ka diagram se explain",
-      "Electromagnetic waves kya hoti hain?",
-      "Chemical bonding types kaunse hain?",
-    ],
-  },
+const S = `
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  body{background:#0a0a0a;color:#fff;font-family:'Geist',-apple-system,sans-serif;}
+  .ai-wrap{display:flex;height:100vh;overflow:hidden;}
+  .ai-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+  .ai-topbar{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+  .ai-menu-btn{display:none;background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;padding:4px;flex-shrink:0;}
+  .ai-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;}
+  .ai-msg{display:flex;gap:10px;align-items:flex-start;animation:fadeUp .2s both;}
+  .ai-msg.user{flex-direction:row-reverse;}
+  .ai-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+  .ai-avatar.bot{background:rgba(229,91,45,.15);border:1px solid rgba(229,91,45,.25);}
+  .ai-avatar.user{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);}
+  .ai-bubble{max-width:72%;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.65;}
+  .ai-bubble.bot{background:#161616;border:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.85);border-bottom-left-radius:3px;}
+  .ai-bubble.user{background:#E55B2D;color:#fff;border-bottom-right-radius:3px;}
+  .ai-bubble code{background:rgba(255,255,255,.08);border-radius:4px;padding:1px 5px;font-family:'Geist Mono',monospace;font-size:12px;}
+  .ai-bubble pre{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:10px;overflow-x:auto;margin:8px 0;}
+  .ai-bubble pre code{background:none;padding:0;}
+  .ai-bottom{border-top:1px solid rgba(255,255,255,.07);padding:14px 20px;flex-shrink:0;}
+  .ai-input-row{display:flex;gap:10px;align-items:flex-end;}
+  .ai-textarea{flex:1;background:#111;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;font-size:13px;font-family:inherit;color:#fff;resize:none;outline:none;max-height:140px;min-height:40px;transition:border-color .15s;line-height:1.5;}
+  .ai-textarea:focus{border-color:rgba(255,255,255,.2);}
+  .ai-textarea::placeholder{color:rgba(255,255,255,.2);}
+  .ai-send-btn{width:36px;height:36px;border-radius:8px;background:#E55B2D;border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+  .ai-send-btn:hover:not(:disabled){background:#d14e24;transform:scale(1.05);}
+  .ai-send-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .ai-copy-btn{background:none;border:none;color:rgba(255,255,255,.3);cursor:pointer;padding:3px;border-radius:4px;transition:color .12s;display:flex;margin-top:4px;}
+  .ai-copy-btn:hover{color:rgba(255,255,255,.7);}
+  .ai-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.15);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+  .ai-cursor{display:inline-block;width:2px;height:13px;background:#E55B2D;animation:blink 1s step-end infinite;vertical-align:middle;margin-left:2px;}
+  .ai-prompt-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .ai-chip{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:5px 10px;font-size:12px;color:rgba(255,255,255,.5);cursor:pointer;transition:all .12s;font-family:inherit;}
+  .ai-chip:hover{background:rgba(229,91,45,.08);border-color:rgba(229,91,45,.25);color:#E55B2D;}
+  .pg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;}
+  @media(max-width:768px){.ai-menu-btn{display:flex!important}.ai-bubble{max-width:88%!important}}
+`;
+
+const PROMPTS = [
+  "Notes summarize karo",
+  "Flashcards banao",
+  "Concept explain karo",
+  "Exam tips do",
+  "Practice questions do",
 ];
 
-// ── Single message bubble ─────────────────────────────────────────────────────
-function MessageBubble({ msg, onCopy }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(msg.content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    onCopy && onCopy();
-  };
-
-  const isAI = msg.role === "assistant";
-
-  return (
-    <div style={{
-      display: "flex",
-      gap: 10,
-      alignItems: "flex-start",
-      flexDirection: isAI ? "row" : "row-reverse",
-      marginBottom: 20,
-      animation: "ynFadeUp .3s cubic-bezier(.16,1,.3,1) both",
-    }}>
-      {/* Avatar */}
-      <div style={{
-        width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: isAI ? "linear-gradient(135deg,#4F46E5,#7C3AED)" : "linear-gradient(135deg,#E55B2D,#c94d23)",
-        marginTop: 2,
-      }}>
-        {isAI ? <Bot size={15} color="#fff" /> : <User size={15} color="#fff" />}
-      </div>
-
-      {/* Bubble */}
-      <div style={{
-        maxWidth: "72%",
-        background: isAI ? "#111" : "rgba(229,91,45,.1)",
-        border: `1px solid ${isAI ? "rgba(255,255,255,.08)" : "rgba(229,91,45,.2)"}`,
-        borderRadius: isAI ? "4px 14px 14px 14px" : "14px 4px 14px 14px",
-        padding: "12px 16px",
-        position: "relative",
-        group: true,
-      }}>
-        <div style={{
-          fontSize: 14, lineHeight: 1.75,
-          color: isAI ? "rgba(255,255,255,.88)" : "rgba(255,255,255,.9)",
-          fontFamily: "'Inter', sans-serif",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-        }}>
-          {msg.content}
-        </div>
-
-        {/* Copy button — only for AI messages */}
-        {isAI && (
-          <button onClick={handleCopy} style={{
-            position: "absolute", top: 8, right: 8,
-            background: "rgba(255,255,255,.06)", border: "none",
-            borderRadius: 6, padding: "3px 6px", cursor: "pointer",
-            color: copied ? "#10b981" : "rgba(255,255,255,.3)",
-            display: "flex", alignItems: "center", gap: 3,
-            fontSize: 11, transition: "all .2s",
-          }}
-            onMouseEnter={e => e.currentTarget.style.color = "#fff"}
-            onMouseLeave={e => e.currentTarget.style.color = copied ? "#10b981" : "rgba(255,255,255,.3)"}
-          >
-            {copied ? <Check size={11} /> : <Copy size={11} />}
-          </button>
-        )}
-
-        {/* Timestamp */}
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,.2)", marginTop: 6, textAlign: isAI ? "left" : "right" }}>
-          {new Date(msg.time).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Typing indicator ──────────────────────────────────────────────────────────
-function TypingIndicator() {
-  return (
-    <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 20 }}>
-      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <Bot size={15} color="#fff" />
-      </div>
-      <div style={{ background: "#111", border: "1px solid rgba(255,255,255,.08)", borderRadius: "4px 14px 14px 14px", padding: "14px 18px" }}>
-        <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
-          {[0, 1, 2].map(i => (
-            <div key={i} style={{
-              width: 7, height: 7, borderRadius: "50%", background: "#4F46E5",
-              animation: `ynDot 1.2s ${i * 0.2}s ease-in-out infinite`,
-            }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function AskAIPage() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [notes, setNotes] = useState([]);
-  const [selectedNote, setSelectedNote] = useState(null);
-  const [showNoteDropdown, setShowNoteDropdown] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(true);
-  const [activeSuggCategory, setActiveSuggCategory] = useState(0);
+  const [messages, setMessages] = useState([
+    { role: "assistant", content: "Haan bolo! Main YourNotes AI assistant hoon. Apne notes, subjects, ya koi bhi study-related sawaal poochho. Kya help chahiye? 🎓" }
+  ]);
+  const [input, setInput]         = useState("");
+  const [loading, setLoading]     = useState(false);
+  const [copiedIdx, setCopiedIdx] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const bottomRef                 = useRef(null);
+  const textareaRef               = useRef(null);
 
-  const bottomRef = useRef(null);
-  const inputRef = useRef(null);
-  const dropdownRef = useRef(null);
-
-  // Load user notes for context selection
-  useEffect(() => {
-    API.get("/notes").then(r => setNotes(r.data || [])).catch(() => {});
-  }, []);
-
-  // Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages]);
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowNoteDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const sendMessage = useCallback(async (questionOverride = null) => {
-    const question = (questionOverride || input).trim();
-    if (!question || loading) return;
-
+  const send = async (text) => {
+    const q = (text || input).trim();
+    if (!q || loading) return;
     setInput("");
-    setShowSuggestions(false);
+    setMessages(prev => [...prev, { role: "user", content: q }]);
     setLoading(true);
 
-    const userMsg = { role: "user", content: question, time: Date.now() };
-    setMessages(prev => [...prev, userMsg]);
+    // Add streaming placeholder
+    setMessages(prev => [...prev, { role: "assistant", content: "", streaming: true }]);
 
     try {
       const history = messages.map(m => ({ role: m.role, content: m.content }));
-      const { data } = await API.post("/ai/ask", {
-        question,
-        messages: history,
-        noteId: selectedNote?._id || null,
+      const { data } = await API.post("/ai/ask", { question: q, history });
+      const reply = data.answer || data.response || data.message || "Samajh nahi aaya, dobara try karo.";
+      setMessages(prev => {
+        const next = [...prev];
+        next[next.length - 1] = { role: "assistant", content: reply };
+        return next;
       });
-
-      const aiMsg = { role: "assistant", content: data.answer, time: Date.now() };
-      setMessages(prev => [...prev, aiMsg]);
     } catch (err) {
-      const errMsg = err.response?.data?.message || "AI jawab nahi de pa raha. Thodi der baad try karo.";
-      toast.error(errMsg);
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: errMsg,
-        time: Date.now(),
-        isError: true,
-      }]);
-    } finally {
-      setLoading(false);
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [input, loading, messages, selectedNote]);
-
-  const clearChat = () => {
-    setMessages([]);
-    setShowSuggestions(true);
-    setSelectedNote(null);
-    toast.success("Chat clear ho gaya");
+      setMessages(prev => {
+        const next = [...prev];
+        next[next.length - 1] = { role: "assistant", content: "Maafi chahta hoon, kuch error aa gayi. Dobara try karo." };
+        return next;
+      });
+    } finally { setLoading(false); }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+  const copyMsg = async (text, idx) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 1500);
+    toast.success("Copied!");
+  };
+
+  const handleKey = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  };
+
+  const clearChat = () => {
+    setMessages([{ role: "assistant", content: "Chat clear ho gaya! Naya sawaal poochho. 🎓" }]);
   };
 
   return (
-    <div style={{ height: "100vh", background: "#0a0a0a", fontFamily: "'Inter', sans-serif", color: "#fff", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        @keyframes ynFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes ynDot{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}
-        @keyframes ynSpin{to{transform:rotate(360deg)}}
-        @keyframes ynFadeIn{from{opacity:0}to{opacity:1}}
-        textarea:focus,input:focus{outline:none}
-        textarea{resize:none}
-        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
-        .yn-sugg-pill{padding:7px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:99px;font-size:13px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'Inter',sans-serif}
-        .yn-sugg-pill:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2);color:#fff}
-        .yn-cat-btn{padding:6px 14px;background:none;border:1px solid rgba(255,255,255,.08);border-radius:99px;font-size:12px;color:rgba(255,255,255,.4);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;font-weight:500}
-        .yn-cat-btn.active{color:#fff;border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.06)}
-        .yn-note-opt{padding:9px 14px;font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif}
-        .yn-note-opt:hover{background:rgba(255,255,255,.06);color:#fff}
-        .yn-send-btn{width:40px;height:40px;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-      `}</style>
-
-      {/* ── Navbar ── */}
-      <nav style={{ height: 58, background: "rgba(10,10,10,.97)", borderBottom: "1px solid rgba(255,255,255,.07)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", flexShrink: 0, backdropFilter: "blur(20px)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <button onClick={() => navigate("/dashboard")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,.45)", display: "flex", alignItems: "center", gap: 6, fontSize: 14, transition: "color .2s", padding: "6px 0" }}
-            onMouseEnter={e => e.currentTarget.style.color = "#fff"}
-            onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,.45)"}>
-            <ArrowLeft size={15} /> Dashboard
-          </button>
-          <span style={{ color: "rgba(255,255,255,.12)" }}>|</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 26, height: 26, borderRadius: 7, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Bot size={14} color="#fff" />
-            </div>
-            <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 15, color: "#fff" }}>
-              Ask <span style={{ color: "#7C3AED" }}>AI</span>
-            </span>
+    <div className="ai-wrap">
+      <style>{S}</style>
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {sidebarOpen && <div className="pg-overlay" onClick={() => setSidebarOpen(false)} />}
+      <div className="ai-main">
+        <div className="ai-topbar">
+          <button className="ai-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
+          <div style={{ width: 26, height: 26, borderRadius: "50%", background: "rgba(229,91,45,.15)", border: "1px solid rgba(229,91,45,.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Sparkles size={13} color="#E55B2D" />
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Ask AI</span>
+          <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+            <button onClick={clearChat} style={{ background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 6, color: "rgba(255,255,255,.5)", fontSize: 12, fontWeight: 600, padding: "5px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit", transition: "all .12s" }}>
+              <RefreshCw size={11} />Clear
+            </button>
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {/* Note context selector */}
-          <div ref={dropdownRef} style={{ position: "relative" }}>
-            <button onClick={() => setShowNoteDropdown(v => !v)} style={{
-              display: "flex", alignItems: "center", gap: 7, padding: "7px 12px",
-              background: selectedNote ? "rgba(79,70,229,.15)" : "rgba(255,255,255,.04)",
-              border: `1px solid ${selectedNote ? "rgba(79,70,229,.35)" : "rgba(255,255,255,.1)"}`,
-              borderRadius: 8, cursor: "pointer", color: selectedNote ? "#a78bfa" : "rgba(255,255,255,.5)",
-              fontSize: 12, fontWeight: 600, fontFamily: "'Inter',sans-serif", transition: "all .2s",
-            }}>
-              <BookOpen size={13} />
-              {selectedNote ? selectedNote.title.slice(0, 22) + (selectedNote.title.length > 22 ? "…" : "") : "Note context add karo"}
-              <ChevronDown size={12} />
-            </button>
-
-            {showNoteDropdown && (
-              <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, background: "#1a1a1a", border: "1px solid rgba(255,255,255,.1)", borderRadius: 10, minWidth: 240, maxHeight: 280, overflowY: "auto", zIndex: 200, boxShadow: "0 16px 40px rgba(0,0,0,.5)" }}>
-                <div className="yn-note-opt" onClick={() => { setSelectedNote(null); setShowNoteDropdown(false); }}
-                  style={{ color: "rgba(255,255,255,.4)", borderBottom: "1px solid rgba(255,255,255,.06)" }}>
-                  <X size={13} /> No context (general chat)
+        <div className="ai-messages">
+          {messages.map((msg, i) => (
+            <div key={i} className={`ai-msg ${msg.role === "user" ? "user" : ""}`}>
+              <div className={`ai-avatar ${msg.role === "user" ? "user" : "bot"}`}>
+                {msg.role === "user"
+                  ? <User size={13} color="rgba(255,255,255,.6)" />
+                  : <Sparkles size={13} color="#E55B2D" />}
+              </div>
+              <div>
+                <div className={`ai-bubble ${msg.role === "user" ? "user" : "bot"}`}>
+                  {msg.streaming ? (
+                    <span><span className="ai-cursor" /></span>
+                  ) : (
+                    <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
+                  )}
                 </div>
-                {notes.filter(n => !n.isTrashed).slice(0, 30).map(note => (
-                  <div key={note._id} className="yn-note-opt" onClick={() => { setSelectedNote(note); setShowNoteDropdown(false); }}>
-                    <BookOpen size={13} color="rgba(255,255,255,.35)" />
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{note.title || "Untitled"}</span>
-                  </div>
-                ))}
-                {notes.length === 0 && (
-                  <div style={{ padding: "14px 16px", fontSize: 13, color: "rgba(255,255,255,.3)", textAlign: "center" }}>Koi note nahi mila</div>
+                {msg.role === "assistant" && !msg.streaming && msg.content && (
+                  <button className="ai-copy-btn" onClick={() => copyMsg(msg.content, i)}>
+                    {copiedIdx === i ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
+                  </button>
                 )}
               </div>
-            )}
-          </div>
-
-          {messages.length > 0 && (
-            <button onClick={clearChat} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.15)", borderRadius: 8, color: "#ef4444", cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: "'Inter',sans-serif", transition: "all .2s" }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,.15)"}
-              onMouseLeave={e => e.currentTarget.style.background = "rgba(239,68,68,.08)"}>
-              <Trash2 size={13} /> Clear
-            </button>
-          )}
+            </div>
+          ))}
+          <div ref={bottomRef} />
         </div>
-      </nav>
 
-      {/* ── Chat Area ── */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "24px 20px", maxWidth: 800, width: "100%", margin: "0 auto", alignSelf: "stretch" }}>
-
-        {/* Welcome / suggestions screen */}
-        {messages.length === 0 && showSuggestions && (
-          <div style={{ animation: "ynFadeIn .5s ease" }}>
-            {/* Hero */}
-            <div style={{ textAlign: "center", padding: "40px 0 36px" }}>
-              <div style={{ width: 64, height: 64, borderRadius: 18, background: "linear-gradient(135deg,#4F46E5,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-                <Sparkles size={28} color="#fff" />
-              </div>
-              <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: 28, fontWeight: 800, color: "#fff", letterSpacing: "-0.8px", marginBottom: 10 }}>
-                Kuch bhi poochho
-              </h1>
-              <p style={{ fontSize: 15, color: "rgba(255,255,255,.4)", lineHeight: 1.6, maxWidth: 420, margin: "0 auto" }}>
-                Concept samajhna ho, exam prep chahiye, ya koi formula — AI tutor hamesha ready hai.
-                <br />Hindi, English, Hinglish — sab supported.
-              </p>
-              {selectedNote && (
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 14, padding: "6px 14px", background: "rgba(79,70,229,.12)", border: "1px solid rgba(79,70,229,.25)", borderRadius: 99, fontSize: 12, color: "#a78bfa", fontWeight: 600 }}>
-                  <BookOpen size={12} /> Context: {selectedNote.title.slice(0, 30)}
-                </div>
-              )}
-            </div>
-
-            {/* Category tabs */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", justifyContent: "center" }}>
-              {SUGGESTIONS.map((cat, i) => (
-                <button key={i} className={`yn-cat-btn ${activeSuggCategory === i ? "active" : ""}`}
-                  onClick={() => setActiveSuggCategory(i)}>
-                  {cat.icon} {cat.category}
-                </button>
-              ))}
-            </div>
-
-            {/* Suggestion pills */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 560, margin: "0 auto" }}>
-              {SUGGESTIONS[activeSuggCategory].prompts.map((p, i) => (
-                <button key={i} className="yn-sugg-pill" onClick={() => sendMessage(p)}
-                  style={{ textAlign: "left", borderRadius: 10, padding: "10px 16px" }}>
-                  {p}
-                </button>
-              ))}
-            </div>
+        <div className="ai-bottom">
+          <div className="ai-prompt-chips">
+            {PROMPTS.map((p, i) => (
+              <button key={i} className="ai-chip" onClick={() => send(p)} disabled={loading}>{p}</button>
+            ))}
           </div>
-        )}
-
-        {/* Messages */}
-        {messages.map((msg, i) => (
-          <MessageBubble key={i} msg={msg} onCopy={() => toast.success("Copied!")} />
-        ))}
-
-        {/* Typing indicator */}
-        {loading && <TypingIndicator />}
-
-        <div ref={bottomRef} />
-      </div>
-
-      {/* ── Input Bar ── */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,.07)", background: "#0d0d0d", padding: "14px 20px", flexShrink: 0 }}>
-        <div style={{ maxWidth: 800, margin: "0 auto" }}>
-
-          {/* Active note context badge */}
-          {selectedNote && (
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8, padding: "5px 10px", background: "rgba(79,70,229,.08)", border: "1px solid rgba(79,70,229,.2)", borderRadius: 8, width: "fit-content" }}>
-              <BookOpen size={12} color="#7C3AED" />
-              <span style={{ fontSize: 11, color: "#a78bfa", fontWeight: 600 }}>{selectedNote.title.slice(0, 40)}</span>
-              <button onClick={() => setSelectedNote(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(167,139,250,.5)", display: "flex", padding: 0, marginLeft: 2 }}>
-                <X size={11} />
-              </button>
-            </div>
-          )}
-
-          <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
-            <div style={{ flex: 1, background: "rgba(255,255,255,.04)", border: "1.5px solid rgba(255,255,255,.1)", borderRadius: 12, padding: "10px 14px", transition: "border-color .2s" }}
-              onFocus={() => {}} onBlur={() => {}}>
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Kuch bhi poochho... (Enter = send, Shift+Enter = new line)"
-                rows={1}
-                style={{
-                  width: "100%", background: "none", border: "none", color: "#fff",
-                  fontSize: 14, fontFamily: "'Inter',sans-serif", lineHeight: 1.6,
-                  maxHeight: 120, overflowY: "auto",
-                }}
-                onInput={e => {
-                  e.target.style.height = "auto";
-                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
-                }}
-              />
-            </div>
-
-            <button className="yn-send-btn"
-              onClick={() => sendMessage()}
-              disabled={!input.trim() || loading}
-              style={{
-                background: input.trim() && !loading ? "linear-gradient(135deg,#4F46E5,#7C3AED)" : "rgba(255,255,255,.06)",
-                color: input.trim() && !loading ? "#fff" : "rgba(255,255,255,.25)",
-                cursor: input.trim() && !loading ? "pointer" : "not-allowed",
-              }}>
-              {loading
-                ? <Loader size={16} style={{ animation: "ynSpin 1s linear infinite" }} />
-                : <Send size={16} />}
+          <div className="ai-input-row">
+            <textarea
+              ref={textareaRef}
+              className="ai-textarea"
+              placeholder="Koi bhi sawaal poochho..."
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKey}
+              rows={1}
+              style={{ height: "auto" }}
+              onInput={e => { e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px"; }}
+              disabled={loading}
+            />
+            <button className="ai-send-btn" onClick={() => send()} disabled={!input.trim() || loading}>
+              {loading ? <div className="ai-spinner" /> : <Send size={14} />}
             </button>
           </div>
-
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,.18)", marginTop: 8, textAlign: "center" }}>
-            Groq Llama 3.3 · 20 AI calls/hour · Answers may not always be accurate — verify important info
+          <p style={{ fontSize: 10, color: "rgba(255,255,255,.2)", marginTop: 8, textAlign: "center" }}>
+            AI mistakes kar sakta hai — important info verify karein
           </p>
         </div>
       </div>

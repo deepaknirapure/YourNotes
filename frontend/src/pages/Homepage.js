@@ -2,32 +2,71 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BookOpen, Star, Trash2, Folder, Tag, Bot, Users,
-  CreditCard, Plus, ArrowRight, Flame, FileText,
-  Search, Bell, User, ChevronRight, Zap, TrendingUp,
-  Home, Settings, LogOut, Menu, X, MoreHorizontal, GitBranch, CheckCircle2, Clock
+  CreditCard, Plus, Flame, FileText, Search, Menu,
+  Home, Settings, LogOut, ChevronRight, ArrowRight
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
 import toast from "react-hot-toast";
-
-const NAV_ITEMS = [
-  { icon: <Home size={16} />, label: "Overview", path: "/home" },
-  { icon: <BookOpen size={16} />, label: "Dashboard", path: "/dashboard" },
-  { icon: <Folder size={16} />, label: "Folders", path: "/folders" },
-  { icon: <Star size={16} />, label: "Starred", path: "/starred" },
-  { icon: <Tag size={16} />, label: "Tags", path: "/tags" },
-  { icon: <CreditCard size={16} />, label: "Flashcards", path: "/flashcard-review" },
-  { icon: <Bot size={16} />, label: "Ask AI", path: "/ask-ai" },
-  { icon: <Users size={16} />, label: "Community", path: "/community" },
-  { icon: <Trash2 size={16} />, label: "Trash", path: "/trash" },
-];
+import Sidebar from "../components/Sidebar";
 
 const FEATURE_CARDS = [
-  { icon: <BookOpen size={20} />, title: "Dashboard", desc: "All your notes organized in one place.", path: "/dashboard" },
-  { icon: <Star size={20} />, title: "Starred Notes", desc: "Quickly access your most important notes.", path: "/starred" },
-  { icon: <Folder size={20} />, title: "Folders", desc: "Organize subjects hierarchically.", path: "/folders" },
-  { icon: <Bot size={20} />, title: "Ask AI", desc: "Your personal AI study assistant.", path: "/ask-ai" },
+  { icon: BookOpen,  title: "Dashboard",       desc: "Create, edit, search notes.",              path: "/dashboard",        color: "#4F46E5", bg: "rgba(79,70,229,.1)" },
+  { icon: Star,      title: "Starred",          desc: "Quick access to important notes.",         path: "/starred",          color: "#f59e0b", bg: "rgba(245,158,11,.1)" },
+  { icon: Folder,    title: "Folders",          desc: "Organize by subject or topic.",            path: "/folders",          color: "#10b981", bg: "rgba(16,185,129,.1)" },
+  { icon: Tag,       title: "Tags",             desc: "Find notes by exam, topic, subject.",      path: "/tags",             color: "#8b5cf6", bg: "rgba(139,92,246,.1)" },
+  { icon: CreditCard,title: "Flashcards",       desc: "Spaced repetition review system.",         path: "/flashcard-review", color: "#E55B2D", bg: "rgba(229,91,45,.1)" },
+  { icon: Bot,       title: "Ask AI",           desc: "AI study buddy for any question.",         path: "/ask-ai",           color: "#06b6d4", bg: "rgba(6,182,212,.1)" },
+  { icon: Users,     title: "Community",        desc: "Share & download notes.",                  path: "/community",        color: "#f43f5e", bg: "rgba(244,63,94,.1)" },
+  { icon: Trash2,    title: "Trash",            desc: "Restore or permanently delete notes.",     path: "/trash",            color: "#6b7280", bg: "rgba(107,114,128,.1)" },
 ];
+
+const S = `
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  body{background:#0a0a0a;color:#fff;font-family:'Geist',-apple-system,sans-serif;}
+  .hp-wrap{display:flex;height:100vh;overflow:hidden;background:#0a0a0a;}
+  .hp-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+  .hp-topbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+  .hp-topbar-left{display:flex;align-items:center;gap:10px;}
+  .hp-menu-btn{display:none;background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;padding:4px;}
+  .hp-search{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px 12px 7px 30px;font-size:13px;font-family:inherit;color:#fff;outline:none;width:220px;transition:border-color .15s;}
+  .hp-search:focus{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.07);}
+  .hp-search::placeholder{color:rgba(255,255,255,.2);}
+  .hp-search-wrap{position:relative;display:flex;align-items:center;}
+  .hp-search-wrap svg{position:absolute;left:9px;color:rgba(255,255,255,.3);pointer-events:none;}
+  .hp-content{flex:1;overflow-y:auto;padding:24px;}
+  .hp-greeting{margin-bottom:28px;animation:fadeUp .4s both;}
+  .hp-greeting h1{font-size:22px;font-weight:700;letter-spacing:-.5px;color:#fff;margin-bottom:4px;}
+  .hp-greeting p{font-size:13px;color:rgba(255,255,255,.4);}
+  .hp-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+  .hp-stat{background:#111;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;animation:fadeUp .35s both;transition:border-color .15s;}
+  .hp-stat:hover{border-color:rgba(255,255,255,.13);}
+  .hp-stat-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .hp-stat-val{font-size:20px;font-weight:700;color:#fff;line-height:1;}
+  .hp-stat-lbl{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;font-weight:500;}
+  .hp-section-title{font-size:12px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px;}
+  .hp-feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:28px;}
+  .hp-feature-card{background:#111;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .15s,transform .12s,background .15s;animation:fadeUp .35s both;}
+  .hp-feature-card:hover{border-color:rgba(255,255,255,.14);background:#161616;transform:translateY(-1px);}
+  .hp-feature-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+  .hp-feature-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;}
+  .hp-feature-desc{font-size:12px;color:rgba(255,255,255,.35);line-height:1.5;}
+  .hp-recent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+  .hp-note-card{background:#111;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color .15s,background .15s;animation:fadeUp .35s both;}
+  .hp-note-card:hover{border-color:rgba(255,255,255,.14);background:#161616;}
+  .hp-note-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hp-note-preview{font-size:12px;color:rgba(255,255,255,.35);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;}
+  .hp-note-meta{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+  .hp-note-date{font-size:11px;color:rgba(255,255,255,.25);font-weight:500;}
+  .hp-new-btn{display:flex;align-items:center;gap:6px;background:#E55B2D;color:#fff;border:none;border-radius:6px;padding:7px 13px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;}
+  .hp-new-btn:hover{background:#d14e24;box-shadow:0 4px 14px rgba(229,91,45,.3);}
+  .hp-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.1);border-top-color:rgba(255,255,255,.5);border-radius:50%;animation:spin .7s linear infinite;}
+  @media(max-width:900px){.hp-stats-row{grid-template-columns:repeat(2,1fr);}}.
+  @media(max-width:768px){.hp-menu-btn{display:flex!important}.hp-search{width:160px!important}.hp-content{padding:16px;}}
+`;
 
 export default function HomePage() {
   const { user, logout } = useAuth();
@@ -37,207 +76,140 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      API.get("/dashboard"),
-      API.get("/notes"),
-    ]).then(([dashRes, notesRes]) => {
-      setStats(dashRes.data);
-      setRecentNotes((notesRes.data || []).filter(n => !n.isTrashed).slice(0, 8));
-    }).catch(() => toast.error("Failed to load data"))
+    Promise.all([API.get("/dashboard"), API.get("/notes")])
+      .then(([d, n]) => {
+        setStats(d.data);
+        setRecentNotes((n.data || []).filter(x => !x.isTrashed).slice(0, 8));
+      })
+      .catch(() => toast.error("Data load nahi ho saka"))
       .finally(() => setLoading(false));
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQ.trim()) navigate(`/dashboard?search=${encodeURIComponent(searchQ.trim())}`);
+  const createNote = async () => {
+    setCreating(true);
+    try {
+      await API.post("/notes", { title: "Untitled Note", content: "" });
+      navigate("/dashboard");
+    } catch { toast.error("Note create nahi ho saka"); }
+    finally { setCreating(false); }
   };
 
-  const timeAgo = (dateString) => {
-    // A simple mock time-ago function for the Vercel look
-    return "12m ago"; 
-  };
+  const filteredRecent = searchQ.trim()
+    ? recentNotes.filter(n => (n.title || "").toLowerCase().includes(searchQ.toLowerCase()))
+    : recentNotes;
+
+  const STATS = [
+    { icon: FileText, label: "Total Notes",    val: stats.totalNotes,    color: "#4F46E5", bg: "rgba(79,70,229,.12)" },
+    { icon: Star,     label: "Starred",        val: stats.starredNotes,  color: "#f59e0b", bg: "rgba(245,158,11,.12)" },
+    { icon: CreditCard,label: "Flashcards Due",val: stats.flashcardsDue, color: "#E55B2D", bg: "rgba(229,91,45,.12)" },
+    { icon: Folder,   label: "Folders",        val: stats.totalFolders,  color: "#10b981", bg: "rgba(16,185,129,.12)" },
+  ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#000", color: "#ededed", fontFamily: "'Inter', sans-serif", display: "flex" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #000; } ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        
-        .vercel-nav-item { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:6px; cursor:pointer; transition:background .15s, color .15s; color:#a1a1a1; font-size:14px; font-weight:400; text-decoration:none; margin-bottom: 2px; }
-        .vercel-nav-item:hover { background:#111; color:#ededed; }
-        .vercel-nav-item.active { background:#1a1a1a; color:#ededed; font-weight:500; }
-        
-        .vercel-card { background:#000; border:1px solid #333; border-radius:8px; padding:20px; cursor:pointer; transition:border-color .15s; }
-        .vercel-card:hover { border-color:#666; }
-        
-        .vercel-input { background:#000; border:1px solid #333; border-radius:6px; padding:8px 12px; color:#ededed; font-size:14px; font-family:inherit; outline:none; width:100%; transition:border-color .15s; }
-        .vercel-input:focus, .vercel-input:hover { border-color:#666; }
-        .vercel-input::placeholder { color:#888; }
-        
-        .vercel-row { display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid #222; transition:background .15s; cursor:pointer; }
-        .vercel-row:hover { background:#0a0a0a; }
-        
-        .vercel-btn-primary { background:#ededed; color:#000; border:1px solid #ededed; border-radius:6px; padding:8px 16px; font-size:14px; font-weight:500; cursor:pointer; transition:background .15s; display:flex; align-items:center; gap:8px; }
-        .vercel-btn-primary:hover { background:#fff; }
-        
-        .vercel-btn-secondary { background:#000; color:#ededed; border:1px solid #333; border-radius:6px; padding:8px 16px; font-size:14px; font-weight:500; cursor:pointer; transition:border-color .15s; display:flex; align-items:center; gap:8px; }
-        .vercel-btn-secondary:hover { border-color:#666; }
+    <div className="hp-wrap">
+      <style>{S}</style>
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 40 }} />
+      )}
 
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; }
-        
-        @media(max-width:768px){ .hn-sidebar { display:none !important; } .hn-main { padding:16px !important; } }
-      `}</style>
-
-      {/* Sidebar */}
-      <div className={`hn-sidebar${sidebarOpen ? " open" : ""}`} style={{
-        width: 260, background: "#000", borderRight: "1px solid #333",
-        display: "flex", flexDirection: "column", padding: "16px 8px", flexShrink: 0,
-      }}>
-        {/* Workspace Selector (Like Vercel Scope) */}
-        <div style={{ padding: "0 12px 24px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid #333", marginBottom: 16, paddingBottom: 16 }}>
-          <div style={{ width: 24, height: 24, background: "#ededed", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: "#000", fontWeight: 600, fontSize: 12 }}>{user?.name?.charAt(0) || "Y"}</span>
-          </div>
-          <span style={{ fontSize: 14, fontWeight: 500, color: "#ededed" }}>{user?.name || "YourNotes"}</span>
-          <div style={{ marginLeft: "auto", background: "#111", border: "1px solid #333", borderRadius: 4, padding: "2px 6px", fontSize: 11, color: "#a1a1a1" }}>Hobby</div>
-        </div>
-
-        {/* Search in sidebar */}
-        <div style={{ padding: "0 8px 16px" }}>
-          <div style={{ position: "relative" }}>
-            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#888" }} />
-            <input className="vercel-input" placeholder="Find..." style={{ paddingLeft: 32, paddingRight: 32, paddingBottom: 6, paddingTop: 6 }} />
-            <div style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "#222", border: "1px solid #444", borderRadius: 4, padding: "2px 4px", fontSize: 10, color: "#888" }}>F</div>
-          </div>
-        </div>
-
-        {NAV_ITEMS.map(item => (
-          <div key={item.path} className={`vercel-nav-item${window.location.pathname === item.path ? " active" : ""}`}
-            onClick={() => { navigate(item.path); setSidebarOpen(false); }}>
-            {item.icon} {item.label}
-          </div>
-        ))}
-
-        <div style={{ marginTop: "auto", borderTop: "1px solid #333", paddingTop: 16 }}>
-          <div className="vercel-nav-item" onClick={() => navigate("/profile")}>
-            <Settings size={16} /> Settings
-          </div>
-          <div className="vercel-nav-item" onClick={() => { logout(); navigate("/login"); }}>
-            <LogOut size={16} /> Logout
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="hn-main" style={{ flex: 1, padding: "0", overflowY: "auto", display: "flex", flexDirection: "column" }}>
-        
-        {/* Top Header / Breadcrumbs */}
-        <header style={{ padding: "16px 24px", borderBottom: "1px solid #333", display: "flex", alignItems: "center", justifyContent: "space-between", background: "#000", position: "sticky", top: 0, zIndex: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14, color: "#a1a1a1" }}>
-            <BookOpen size={16} color="#ededed" />
-            <span>your-notes</span>
-            <span style={{ color: "#444" }}>/</span>
-            <span style={{ color: "#ededed", fontWeight: 500 }}>Dashboard</span>
-          </div>
-          <div style={{ display: "flex", gap: 12 }}>
-            <button className="vercel-btn-secondary" onClick={() => navigate("/ask-ai")}><Bot size={14}/> Ask AI</button>
-            <button className="vercel-btn-primary" onClick={() => navigate("/dashboard")}><Plus size={16} /> New Note</button>
-          </div>
-        </header>
-
-        <div style={{ padding: "32px 24px", maxWidth: 1200, margin: "0 auto", width: "100%" }}>
-          
-          {/* Filters Bar (Like Vercel Branches/Authors/Environments) */}
-          <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
-            <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
-              <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#888" }} />
-              <input className="vercel-input" placeholder="Search notes..." value={searchQ} onChange={e => setSearchQ(e.target.value)} style={{ paddingLeft: 36 }} />
+      <div className="hp-main">
+        <div className="hp-topbar">
+          <div className="hp-topbar-left">
+            <button className="hp-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
+            <div className="hp-search-wrap">
+              <Search size={13} />
+              <input className="hp-search" placeholder="Search notes..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
             </div>
-            <select className="vercel-input" style={{ width: "auto", appearance: "none", paddingRight: 32, backgroundImage: "url('data:image/svg+xml;utf8,<svg fill=\"%23888\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>')", backgroundRepeat: "no-repeat", backgroundPosition: "right 4px center" }}>
-              <option>All Folders</option>
-              <option>Drafts</option>
-              <option>Published</option>
-            </select>
-            <select className="vercel-input" style={{ width: "auto", appearance: "none", paddingRight: 32, backgroundImage: "url('data:image/svg+xml;utf8,<svg fill=\"%23888\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>')", backgroundRepeat: "no-repeat", backgroundPosition: "right 4px center" }}>
-              <option>All Tags</option>
-              <option>Important</option>
-            </select>
+          </div>
+          <button className="hp-new-btn" onClick={createNote} disabled={creating}>
+            <Plus size={14} />
+            {creating ? "Creating..." : "New Note"}
+          </button>
+        </div>
+
+        <div className="hp-content">
+          <div className="hp-greeting">
+            <h1>Good {getGreeting()}, {user?.name?.split(" ")[0] || "Student"} 👋</h1>
+            <p>Aaj kya padhna hai?</p>
           </div>
 
-          {/* Deployments-style Notes List */}
-          <div style={{ border: "1px solid #333", borderRadius: 8, overflow: "hidden", background: "#000" }}>
-            {loading ? (
-              <div style={{ padding: 40, textAlign: "center", color: "#888" }}>Loading notes...</div>
-            ) : recentNotes.length === 0 ? (
-              <div style={{ padding: 60, textAlign: "center", color: "#888" }}>
-                <FileText size={32} style={{ marginBottom: 16, opacity: 0.5, margin: "0 auto" }} />
-                <div style={{ fontSize: 14 }}>No notes found</div>
-              </div>
-            ) : recentNotes.map((note, i) => (
-              <div key={note._id || i} className="vercel-row" onClick={() => navigate("/dashboard")}>
-                
-                {/* Col 1: Title & Environment */}
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: "#ededed", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                    {note.title || "Untitled Note"}
-                    {i === 0 && <span style={{ background: "#0070F3", color: "#fff", fontSize: 10, padding: "2px 6px", borderRadius: 12, fontWeight: 500 }}>Current</span>}
-                  </div>
-                  <div style={{ fontSize: 13, color: "#888", display: "flex", alignItems: "center", gap: 4 }}>
-                    Production <Clock size={12} />
-                  </div>
+          <div className="hp-stats-row">
+            {STATS.map(({ icon: Icon, label, val, color, bg }, i) => (
+              <div key={i} className="hp-stat" style={{ animationDelay: `${i * 0.05}s` }}>
+                <div className="hp-stat-icon" style={{ background: bg }}>
+                  <Icon size={16} color={color} />
                 </div>
-
-                {/* Col 2: Status */}
-                <div style={{ flex: 1, minWidth: 100 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#ededed", fontSize: 13, marginBottom: 4 }}>
-                    <span className="status-dot"></span> Ready
-                  </div>
-                  <div style={{ fontSize: 13, color: "#888" }}>24s</div>
+                <div>
+                  {loading ? <div style={{ width: 32, height: 20, background: "rgba(255,255,255,.06)", borderRadius: 4 }} /> : <div className="hp-stat-val">{val}</div>}
+                  <div className="hp-stat-lbl">{label}</div>
                 </div>
-
-                {/* Col 3: Branch / Folder */}
-                <div style={{ flex: 2, minWidth: 200 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#ededed", fontSize: 13, marginBottom: 4 }}>
-                    <GitBranch size={14} color="#888" /> main
-                  </div>
-                  <div style={{ fontSize: 13, color: "#888", display: "flex", alignItems: "center", gap: 6, fontFamily: "monospace" }}>
-                    -o- {(note._id || "a1b2c3d4").slice(0,7)} <span style={{ fontFamily: "'Inter', sans-serif" }}>update</span>
-                  </div>
-                </div>
-
-                {/* Col 4: Author & Actions */}
-                <div style={{ display: "flex", alignItems: "center", gap: 16, textAlign: "right" }}>
-                  <div style={{ fontSize: 13, color: "#888" }}>
-                    {timeAgo(note.updatedAt)} by {user?.name?.split(" ")[0].toLowerCase() || "user"}
-                  </div>
-                  <div style={{ width: 24, height: 24, background: "#333", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                    <User size={14} color="#ededed" />
-                  </div>
-                  <button style={{ background: "none", border: "none", cursor: "pointer", color: "#888", padding: 4 }}>
-                    <MoreHorizontal size={16} />
-                  </button>
-                </div>
-
               </div>
             ))}
           </div>
 
-          {/* Quick Metrics / Features (Optional, matching minimal style) */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginTop: 40 }}>
-            {FEATURE_CARDS.map((card, i) => (
-              <div key={i} className="vercel-card" onClick={() => navigate(card.path)}>
-                <div style={{ color: "#ededed", marginBottom: 12 }}>{card.icon}</div>
-                <div style={{ fontWeight: 500, fontSize: 14, color: "#ededed", marginBottom: 6 }}>{card.title}</div>
-                <div style={{ fontSize: 13, color: "#888", lineHeight: 1.5 }}>{card.desc}</div>
-              </div>
-            ))}
+          <div style={{ marginBottom: 28 }}>
+            <div className="hp-section-title">Quick Access</div>
+            <div className="hp-feature-grid">
+              {FEATURE_CARDS.map((f, i) => (
+                <div key={i} className="hp-feature-card" onClick={() => navigate(f.path)} style={{ animationDelay: `${0.2 + i * 0.04}s` }}>
+                  <div className="hp-feature-icon" style={{ background: f.bg }}>
+                    <f.icon size={15} color={f.color} />
+                  </div>
+                  <div className="hp-feature-title">{f.title}</div>
+                  <div className="hp-feature-desc">{f.desc}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
+          {filteredRecent.length > 0 && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <div className="hp-section-title">Recent Notes</div>
+                <button onClick={() => navigate("/dashboard")} style={{ background: "none", border: "none", color: "#E55B2D", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontFamily: "inherit" }}>
+                  View all <ChevronRight size={12} />
+                </button>
+              </div>
+              <div className="hp-recent-grid">
+                {filteredRecent.map((note, i) => (
+                  <div key={note._id} className="hp-note-card" onClick={() => navigate("/dashboard")} style={{ animationDelay: `${0.1 + i * 0.04}s` }}>
+                    <div className="hp-note-title">{note.title || "Untitled Note"}</div>
+                    <div className="hp-note-preview">{note.plainText || "No content yet..."}</div>
+                    <div className="hp-note-meta">
+                      <span className="hp-note-date">{formatDate(note.updatedAt)}</span>
+                      {note.isStarred && <Star size={11} color="#f59e0b" fill="#f59e0b" />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {loading && (
+            <div style={{ display: "flex", justifyContent: "center", padding: "48px 0" }}>
+              <div className="hp-spinner" />
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Morning";
+  if (h < 17) return "Afternoon";
+  return "Evening";
+}
+
+function formatDate(d) {
+  if (!d) return "";
+  const dt = new Date(d);
+  return dt.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }

@@ -1,51 +1,66 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trash2, RotateCcw, X, ArrowLeft, AlertTriangle, FileText, RefreshCw } from "lucide-react";
+import { Trash2, RotateCcw, X, AlertTriangle, FileText, RefreshCw, Menu } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+import Sidebar from "../components/Sidebar";
 
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
-  @keyframes shake { 0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)} }
-  .tr-card { background:#111; border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:18px 20px; animation:fadeUp .4s both; transition:border-color .2s,box-shadow .2s; }
-  .tr-card:hover { border-color:rgba(229,91,45,.2); box-shadow:0 8px 24px rgba(0,0,0,.3); }
-  .tr-btn { border:none; border-radius:9px; padding:8px 14px; font-family:inherit; font-weight:600; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .2s; }
-  .tr-btn:hover { transform:translateY(-1px); }
-  .tr-restore { background:rgba(16,185,129,.12); color:#10b981; }
-  .tr-restore:hover { background:rgba(16,185,129,.2); }
-  .tr-delete { background:rgba(239,68,68,.1); color:#ef4444; }
-  .tr-delete:hover { background:rgba(239,68,68,.18); }
-  .tr-empty-all { background:rgba(239,68,68,.1); color:#ef4444; border:1px solid rgba(239,68,68,.25); border-radius:10px; padding:10px 20px; font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .2s; }
-  .tr-empty-all:hover { background:rgba(239,68,68,.18); }
+const S = `
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  body{background:#0a0a0a;color:#fff;font-family:'Geist',-apple-system,sans-serif;}
+  .pg-wrap{display:flex;height:100vh;overflow:hidden;}
+  .pg-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+  .pg-topbar{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+  .pg-menu-btn{display:none;background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;padding:4px;flex-shrink:0;}
+  .pg-title{font-size:14px;font-weight:600;color:#fff;}
+  .pg-content{flex:1;overflow-y:auto;padding:20px;}
+  .pg-alert{display:flex;align-items:center;gap:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:12px;color:rgba(245,158,11,.8);}
+  .pg-empty-all-btn{margin-left:auto;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:5px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;}
+  .pg-empty-all-btn:hover{background:rgba(239,68,68,.18);}
+  .pg-notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;}
+  .pg-card{background:#111;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px;animation:fadeUp .3s both;transition:border-color .15s;}
+  .pg-card:hover{border-color:rgba(239,68,68,.2);}
+  .pg-card-title{font-size:13px;font-weight:600;color:rgba(255,255,255,.8);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pg-card-preview{font-size:12px;color:rgba(255,255,255,.3);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;margin-bottom:10px;}
+  .pg-card-actions{display:flex;gap:6px;margin-top:2px;}
+  .pg-btn{border:none;border-radius:6px;padding:6px 12px;font-family:inherit;font-weight:600;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .12s;}
+  .pg-btn:hover{transform:translateY(-1px);}
+  .pg-restore{background:rgba(16,185,129,.1);color:#10b981;}
+  .pg-restore:hover{background:rgba(16,185,129,.18);}
+  .pg-delete{background:rgba(239,68,68,.1);color:#ef4444;}
+  .pg-delete:hover{background:rgba(239,68,68,.18);}
+  .pg-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;gap:10px;text-align:center;}
+  .pg-empty-icon{width:44px;height:44px;background:#1a1a1a;border:1px solid rgba(255,255,255,.07);border-radius:10px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.2);margin-bottom:4px;}
+  .pg-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.1);border-top-color:rgba(255,255,255,.5);border-radius:50%;animation:spin .7s linear infinite;}
+  .pg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;}
+  .pg-confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .pg-confirm-box{background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:24px;max-width:360px;width:100%;}
+  @media(max-width:768px){.pg-menu-btn{display:flex!important}.pg-content{padding:14px;}.pg-notes-grid{grid-template-columns:1fr!important}}
 `;
 
 export default function TrashPage() {
   const navigate = useNavigate();
-  const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [confirmId, setConfirmId] = useState(null);
-  const [confirmAll, setConfirmAll] = useState(false);
+  const [notes, setNotes]             = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [confirmId, setConfirmId]     = useState(null);
+  const [confirmAll, setConfirmAll]   = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    loadTrash();
-  }, []);
-
+  // BUG FIX: use trashed=true filter
   const loadTrash = async () => {
     setLoading(true);
     try {
       const { data } = await API.get("/notes?trashed=true");
-      setNotes(data || []);
-    } catch {
-      toast.error("Trash load nahi ho saka");
-    } finally {
-      setLoading(false);
-    }
+      setNotes((data || []).filter(n => n.isTrashed));
+    } catch { toast.error("Trash load nahi ho saka"); }
+    finally { setLoading(false); }
   };
+
+  useEffect(() => { loadTrash(); }, []);
 
   const restoreNote = async (noteId) => {
     setActionLoading(noteId + "_restore");
@@ -53,11 +68,8 @@ export default function TrashPage() {
       await API.patch(`/notes/${noteId}/restore`);
       setNotes(prev => prev.filter(n => n._id !== noteId));
       toast.success("Note restore ho gaya! ✅");
-    } catch {
-      toast.error("Restore nahi ho saka");
-    } finally {
-      setActionLoading(null);
-    }
+    } catch { toast.error("Restore nahi ho saka"); }
+    finally { setActionLoading(null); }
   };
 
   const deleteNote = async (noteId) => {
@@ -67,11 +79,8 @@ export default function TrashPage() {
       setNotes(prev => prev.filter(n => n._id !== noteId));
       setConfirmId(null);
       toast.success("Note permanently delete ho gaya");
-    } catch {
-      toast.error("Delete nahi ho saka");
-    } finally {
-      setActionLoading(null);
-    }
+    } catch { toast.error("Delete nahi ho saka"); }
+    finally { setActionLoading(null); }
   };
 
   const emptyTrash = async () => {
@@ -80,168 +89,103 @@ export default function TrashPage() {
       await Promise.all(notes.map(n => API.delete(`/notes/${n._id}`)));
       setNotes([]);
       setConfirmAll(false);
-      toast.success("Trash empty ho gaya 🗑️");
-    } catch {
-      toast.error("Kuch notes delete nahi ho sake");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const formatDate = (dateStr) => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("hi-IN", { day: "numeric", month: "short", year: "numeric" });
+      toast.success("Trash empty ho gaya!");
+    } catch { toast.error("Trash empty nahi ho saka"); }
+    finally { setActionLoading(null); }
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'DM Sans', sans-serif", padding: "32px 24px" }}>
-      <style>{STYLES}</style>
+    <div className="pg-wrap">
+      <style>{S}</style>
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {sidebarOpen && <div className="pg-overlay" onClick={() => setSidebarOpen(false)} />}
 
-      {/* Header */}
-      <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        <button onClick={() => navigate("/home")} style={{
-          background: "none", border: "none", color: "rgba(255,255,255,.4)", cursor: "pointer",
-          display: "flex", alignItems: "center", gap: 8, fontSize: 14, marginBottom: 28, padding: 0,
-          fontFamily: "inherit", transition: "color .2s"
-        }}
-          onMouseOver={e => e.currentTarget.style.color = "#fff"}
-          onMouseOut={e => e.currentTarget.style.color = "rgba(255,255,255,.4)"}>
-          <ArrowLeft size={16} /> Home
-        </button>
-
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <div style={{ background: "rgba(239,68,68,.12)", borderRadius: 12, padding: 10, color: "#ef4444" }}>
-                <Trash2 size={24} />
-              </div>
-              <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 800 }}>Trash</h1>
+      {confirmId && (
+        <div className="pg-confirm-overlay">
+          <div className="pg-confirm-box">
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Permanently Delete?</h3>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,.45)", marginBottom: 20 }}>Ye action undo nahi ho sakta.</p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button className="pg-btn" onClick={() => setConfirmId(null)} style={{ background: "rgba(255,255,255,.06)", color: "rgba(255,255,255,.6)" }}>Cancel</button>
+              <button className="pg-btn pg-delete" onClick={() => deleteNote(confirmId)} disabled={actionLoading === confirmId + "_delete"}>
+                <Trash2 size={12} />Delete Forever
+              </button>
             </div>
-            <p style={{ color: "rgba(255,255,255,.4)", fontSize: 14 }}>
-              {notes.length} note{notes.length !== 1 ? "s" : ""} trash mein {notes.length > 0 ? "— restore karo ya permanently delete karo" : ""}
-            </p>
           </div>
+        </div>
+      )}
 
-          {notes.length > 0 && !confirmAll && (
-            <button className="tr-empty-all" onClick={() => setConfirmAll(true)}>
-              <Trash2 size={15} /> Trash Empty Karo
-            </button>
-          )}
-
-          {confirmAll && (
-            <div style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.25)", borderRadius: 12, padding: "14px 18px", maxWidth: 300 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, color: "#ef4444", fontSize: 14, fontWeight: 600 }}>
-                <AlertTriangle size={16} /> Pakka sure ho?
-              </div>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,.4)", marginBottom: 12 }}>Saare {notes.length} notes permanently delete ho jayenge. Wapas nahi aayenge.</p>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button className="tr-delete" onClick={emptyTrash} style={{ flex: 1, justifyContent: "center" }}
-                  disabled={actionLoading === "all"}>
-                  {actionLoading === "all" ? <RefreshCw size={13} style={{ animation: "spin 1s linear infinite" }} /> : <Trash2 size={13} />}
-                  Haan, Delete Karo
-                </button>
-                <button className="tr-btn" onClick={() => setConfirmAll(false)}
-                  style={{ background: "rgba(255,255,255,.06)", color: "rgba(255,255,255,.6)" }}>
-                  <X size={13} /> Cancel
-                </button>
-              </div>
+      {confirmAll && (
+        <div className="pg-confirm-overlay">
+          <div className="pg-confirm-box">
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 8 }}>Empty Trash?</h3>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,.45)", marginBottom: 20 }}>Saare {notes.length} notes permanently delete ho jayenge.</p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button className="pg-btn" onClick={() => setConfirmAll(false)} style={{ background: "rgba(255,255,255,.06)", color: "rgba(255,255,255,.6)" }}>Cancel</button>
+              <button className="pg-btn pg-delete" onClick={emptyTrash} disabled={actionLoading === "all"}>
+                <Trash2 size={12} />Empty Trash
+              </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      <div className="pg-main">
+        <div className="pg-topbar">
+          <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
+          <Trash2 size={15} color="rgba(255,255,255,.4)" />
+          <span className="pg-title">Trash <span style={{ color: "rgba(255,255,255,.3)", fontWeight: 500 }}>({notes.length})</span></span>
+          <button onClick={loadTrash} style={{ background: "none", border: "none", color: "rgba(255,255,255,.3)", cursor: "pointer", display: "flex", padding: "4px", marginLeft: "auto" }}>
+            <RefreshCw size={13} />
+          </button>
+          {notes.length > 0 && (
+            <button className="pg-empty-all-btn" onClick={() => setConfirmAll(true)}>
+              <Trash2 size={12} />Empty Trash
+            </button>
           )}
         </div>
 
-        {/* Notes List */}
-        {loading ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {[1, 2, 3].map(i => (
-              <div key={i} style={{ background: "#111", border: "1px solid rgba(255,255,255,.07)", borderRadius: 14, padding: "18px 20px", animation: "pulse 1.2s infinite" }}>
-                <div style={{ width: "60%", height: 16, background: "#1a1a1a", borderRadius: 6, marginBottom: 10 }} />
-                <div style={{ width: "30%", height: 12, background: "#1a1a1a", borderRadius: 6 }} />
-              </div>
-            ))}
-          </div>
-        ) : notes.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 20px" }}>
-            <div style={{ width: 80, height: 80, background: "rgba(255,255,255,.04)", borderRadius: 24, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-              <Trash2 size={36} color="rgba(255,255,255,.15)" />
+        <div className="pg-content">
+          {notes.length > 0 && (
+            <div className="pg-alert">
+              <AlertTriangle size={14} />
+              <span>Trash mein notes auto-delete nahi hote. Manually delete karein.</span>
             </div>
-            <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Trash Khali Hai</h3>
-            <p style={{ color: "rgba(255,255,255,.35)", fontSize: 14 }}>Koi bhi deleted note yahan dikhega</p>
-            <button onClick={() => navigate("/dashboard")} style={{
-              marginTop: 24, background: "#E55B2D", border: "none", borderRadius: 10,
-              padding: "10px 20px", color: "#fff", cursor: "pointer", fontSize: 14,
-              fontFamily: "inherit", fontWeight: 600
-            }}>
-              Dashboard Par Jao
-            </button>
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {notes.map((note, i) => (
-              <div key={note._id} className="tr-card" style={{ animationDelay: `${i * 0.06}s` }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                      <FileText size={16} color="rgba(255,255,255,.3)" />
-                      <span style={{ fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,.85)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {note.title || "Untitled Note"}
-                      </span>
-                    </div>
-                    {note.content && (
-                      <p style={{ fontSize: 13, color: "rgba(255,255,255,.3)", marginBottom: 8, lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-                        {note.content.replace(/<[^>]*>/g, "").slice(0, 120)}
-                      </p>
-                    )}
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,.25)" }}>
-                      {formatDate(note.updatedAt)} ko delete kiya
-                    </div>
+          )}
+          {loading ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: "64px 0" }}><div className="pg-spinner" /></div>
+          ) : notes.length === 0 ? (
+            <div className="pg-empty">
+              <div className="pg-empty-icon"><Trash2 size={20} /></div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,.4)" }}>Trash empty hai</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,.2)" }}>Delete kiye notes yahan dikhenge</div>
+            </div>
+          ) : (
+            <div className="pg-notes-grid">
+              {notes.map((note, i) => (
+                <div key={note._id} className="pg-card" style={{ animationDelay: `${i * 0.03}s` }}>
+                  <div className="pg-card-title">{note.title || "Untitled Note"}</div>
+                  <div className="pg-card-preview">{note.plainText || "No content..."}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,.22)", marginBottom: 10 }}>{formatDate(note.updatedAt)}</div>
+                  <div className="pg-card-actions">
+                    <button className="pg-btn pg-restore" onClick={() => restoreNote(note._id)} disabled={actionLoading === note._id + "_restore"}>
+                      <RotateCcw size={11} />Restore
+                    </button>
+                    <button className="pg-btn pg-delete" onClick={() => setConfirmId(note._id)}>
+                      <X size={11} />Delete
+                    </button>
                   </div>
-
-                  {confirmId !== note._id ? (
-                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                      <button className="tr-btn tr-restore" onClick={() => restoreNote(note._id)}
-                        disabled={actionLoading === note._id + "_restore"}>
-                        {actionLoading === note._id + "_restore"
-                          ? <RefreshCw size={13} style={{ animation: "spin 1s linear infinite" }} />
-                          : <RotateCcw size={13} />}
-                        Restore
-                      </button>
-                      <button className="tr-btn tr-delete" onClick={() => setConfirmId(note._id)}>
-                        <X size={13} /> Delete
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.2)", borderRadius: 10, padding: "10px 14px", animation: "shake .3s", flexShrink: 0 }}>
-                      <div style={{ fontSize: 12, color: "#ef4444", fontWeight: 600, marginBottom: 8 }}>Permanently delete karo?</div>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <button className="tr-btn tr-delete" style={{ padding: "6px 12px", fontSize: 12 }}
-                          onClick={() => deleteNote(note._id)}
-                          disabled={actionLoading === note._id + "_delete"}>
-                          Haan
-                        </button>
-                        <button className="tr-btn" style={{ background: "rgba(255,255,255,.06)", color: "rgba(255,255,255,.6)", padding: "6px 12px", fontSize: 12 }}
-                          onClick={() => setConfirmId(null)}>
-                          Nahi
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Info Banner */}
-        {notes.length > 0 && (
-          <div style={{ marginTop: 24, background: "rgba(229,91,45,.05)", border: "1px solid rgba(229,91,45,.1)", borderRadius: 12, padding: "14px 18px", display: "flex", gap: 12, alignItems: "flex-start" }}>
-            <AlertTriangle size={16} color="#E55B2D" style={{ flexShrink: 0, marginTop: 1 }} />
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,.4)", lineHeight: 1.5 }}>
-              Trashed notes permanently delete karo ya restore karo. Ek baar permanently delete hone ke baad wapas nahi aate.
-            </p>
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
+}
+
+function formatDate(d) {
+  if (!d) return "";
+  return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" });
 }

@@ -1,181 +1,215 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { CreditCard, CheckCircle2, Trophy } from "lucide-react";
+import { CreditCard, ChevronRight, ChevronLeft, RotateCcw, Check, X, Sparkles, Menu, Plus, Flame } from "lucide-react";
 import API from "../api/axios";
+import toast from "react-hot-toast";
+import Sidebar from "../components/Sidebar";
+
+const S = `
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes flipIn{from{opacity:0;transform:rotateY(90deg) scale(.95)}to{opacity:1;transform:rotateY(0deg) scale(1)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  body{background:#0a0a0a;color:#fff;font-family:'Geist',-apple-system,sans-serif;}
+  .pg-wrap{display:flex;height:100vh;overflow:hidden;}
+  .pg-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+  .pg-topbar{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+  .pg-menu-btn{display:none;background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;padding:4px;flex-shrink:0;}
+  .pg-content{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;align-items:center;}
+  .fc-progress-bar{width:100%;max-width:520px;height:3px;background:rgba(255,255,255,.07);border-radius:99px;margin-bottom:28px;overflow:hidden;}
+  .fc-progress-fill{height:100%;background:#E55B2D;border-radius:99px;transition:width .4s ease;}
+  .fc-card-wrap{width:100%;max-width:520px;perspective:1000px;cursor:pointer;margin-bottom:20px;}
+  .fc-card{background:#111;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:40px 32px;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:flipIn .3s ease;transition:border-color .15s,transform .15s;}
+  .fc-card:hover{border-color:rgba(255,255,255,.16);transform:translateY(-2px);}
+  .fc-card.flipped{border-color:rgba(229,91,45,.25);background:linear-gradient(135deg,#111 0%,rgba(229,91,45,.04) 100%);}
+  .fc-face-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;}
+  .fc-face-label.answer{color:rgba(229,91,45,.7);}
+  .fc-card-text{font-size:17px;font-weight:600;color:#fff;line-height:1.55;}
+  .fc-hint{font-size:12px;color:rgba(255,255,255,.2);margin-top:20px;}
+  .fc-actions{display:flex;gap:10px;width:100%;max-width:520px;margin-bottom:20px;}
+  .fc-action-btn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s;}
+  .fc-action-btn:hover{transform:translateY(-1px);}
+  .fc-wrong{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);}
+  .fc-wrong:hover{background:rgba(239,68,68,.18);}
+  .fc-right{background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);}
+  .fc-right:hover{background:rgba(16,185,129,.18);}
+  .fc-meta{font-size:12px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:12px;}
+  .fc-score-card{background:#111;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:32px;width:100%;max-width:520px;text-align:center;animation:fadeUp .4s both;}
+  .fc-score-num{font-size:48px;font-weight:800;color:#E55B2D;line-height:1;margin-bottom:8px;}
+  .fc-btn{border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .15s;}
+  .fc-btn-primary{background:#E55B2D;color:#fff;}
+  .fc-btn-primary:hover{background:#d14e24;box-shadow:0 4px 14px rgba(229,91,45,.3);}
+  .fc-btn-ghost{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.08);}
+  .fc-btn-ghost:hover{background:rgba(255,255,255,.1);color:#fff;}
+  .fc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;gap:12px;text-align:center;width:100%;max-width:520px;}
+  .fc-empty-icon{width:52px;height:52px;background:#1a1a1a;border:1px solid rgba(255,255,255,.07);border-radius:12px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.2);margin-bottom:4px;}
+  .fc-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.1);border-top-color:rgba(255,255,255,.5);border-radius:50%;animation:spin .7s linear infinite;}
+  .pg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;}
+  @media(max-width:768px){.pg-menu-btn{display:flex!important}.pg-content{padding:16px;}}
+`;
 
 export default function FlashcardReviewPage() {
-  const navigate  = useNavigate();
-
-  const [cards,   setCards]   = useState([]);
-  const [current, setCurrent] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [done,    setDone]    = useState(false);
-  const [stats,   setStats]   = useState({ reviewed: 0, total: 0 });
+  const navigate = useNavigate();
+  const [flashcards, setFlashcards] = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [flipped, setFlipped]       = useState(false);
+  const [score, setScore]           = useState({ correct: 0, wrong: 0 });
+  const [done, setDone]             = useState(false);
+  const [reviewed, setReviewed]     = useState(new Set());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    API.get("/ai/flashcards-due")
-      .then(({ data }) => { setCards(data); setStats({ reviewed: 0, total: data.length }); })
-      .catch(() => toast.error("Error loading flashcards"))
+    API.get("/flashcards")
+      .then(({ data }) => {
+        const due = (data || []).filter(fc => {
+          if (!fc.nextReview) return true;
+          return new Date(fc.nextReview) <= new Date();
+        });
+        setFlashcards(due);
+      })
+      .catch(() => toast.error("Flashcards load nahi ho sake"))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    const handler = (e) => { if (e.code === "Space") { e.preventDefault(); setFlipped(f => !f); } };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
+  const current = flashcards[currentIdx];
+  const progress = flashcards.length ? (reviewed.size / flashcards.length) * 100 : 0;
 
-  const handleRate = async (quality) => {
-    const card = cards[current];
-    try {
-      await API.patch(`/ai/flashcards/${card._id}/review`, { quality });
-      const labels = ["Again","Hard","Hard","Good","Good","Easy"];
-      toast.success(`Marked as ${labels[quality]}`);
-    } catch { toast.error("Error saving review"); }
-    const next = current + 1;
-    if (next >= cards.length) { setDone(true); setStats(s => ({ ...s, reviewed: s.total })); }
-    else { setCurrent(next); setFlipped(false); setStats(s => ({ ...s, reviewed: next })); }
+  const flip = () => setFlipped(f => !f);
+
+  const answer = (correct) => {
+    if (!flipped) { toast("Pehle card flip karein!"); return; }
+    setReviewed(prev => new Set([...prev, current._id]));
+    setScore(s => ({ ...s, [correct ? "correct" : "wrong"]: s[correct ? "correct" : "wrong"] + 1 }));
+
+    // Update review schedule
+    API.patch(`/flashcards/${current._id}/review`, { correct }).catch(() => {});
+
+    if (currentIdx < flashcards.length - 1) {
+      setCurrentIdx(i => i + 1);
+      setFlipped(false);
+    } else {
+      setDone(true);
+    }
   };
 
-  const progress = stats.total > 0 ? (stats.reviewed / stats.total) * 100 : 0;
-  const card = cards[current];
+  const restart = () => {
+    setCurrentIdx(0);
+    setFlipped(false);
+    setScore({ correct: 0, wrong: 0 });
+    setDone(false);
+    setReviewed(new Set());
+  };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'Inter', 'DM Sans', sans-serif", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", position: "relative", overflow: "hidden" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes ynFadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes ynSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .fc-card { background: #111; border: 1px solid rgba(255,255,255,.09); border-radius: 20px; padding: 48px 44px; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: border-color .2s, box-shadow .2s; animation: ynFadeUp .5s cubic-bezier(.16,1,.3,1) both; user-select: none; }
-        .fc-card:hover { border-color: rgba(229,91,45,.3); }
-        .fc-card.flipped { border-color: rgba(229,91,45,.4); box-shadow: 0 0 40px rgba(229,91,45,.08); }
-        .fc-rate-btn { padding: 13px 10px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; border: none; cursor: pointer; transition: all .2s; flex: 1; }
-        .fc-rate-btn:hover { transform: translateY(-2px); }
-        .fc-nav-btn { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.6); padding: 10px 20px; border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', 'DM Sans', sans-serif; transition: all .2s; }
-        .fc-nav-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
-        @media (max-width: 600px) { .fc-card { padding: 32px 20px !important; min-height: 220px !important; } .fc-top-logo { display: none !important; } }
-      `}</style>
-
-      {/* Background */}
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none" }}>
-        {[...Array(5)].map((_, i) => (
-          <div key={i} style={{ position: "absolute", width: "1px", height: "200%", background: "rgba(255,255,255,0.018)", left: `${10 + i * 20}%`, top: "-50%", transform: "rotate(15deg)" }} />
-        ))}
-        <div style={{ position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse, rgba(229,91,45,.06) 0%, transparent 70%)" }} />
-      </div>
-
-      {/* Top Nav */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 32px", zIndex: 10 }}>
-        <button className="fc-nav-btn" onClick={() => navigate("/dashboard")}>← Dashboard</button>
-        <div className="fc-top-logo" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 28, height: 28, background: "#E55B2D", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-              <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
-            </svg>
-          </div>
-          <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 16, color: "#fff" }}>
-            Your<span style={{ color: "#E55B2D" }}>Notes</span>
-            <span style={{ color: "rgba(255,255,255,.3)", fontWeight: 400 }}> · Flashcards</span>
-          </span>
+    <div className="pg-wrap">
+      <style>{S}</style>
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {sidebarOpen && <div className="pg-overlay" onClick={() => setSidebarOpen(false)} />}
+      <div className="pg-main">
+        <div className="pg-topbar">
+          <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
+          <CreditCard size={15} color="rgba(255,255,255,.5)" />
+          <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Flashcard Review</span>
+          {!done && flashcards.length > 0 && (
+            <span style={{ marginLeft: "auto", fontSize: 12, color: "rgba(255,255,255,.35)", fontWeight: 600 }}>
+              {currentIdx + 1} / {flashcards.length}
+            </span>
+          )}
         </div>
-        <div style={{ width: 120 }} />
-      </div>
 
-      {/* Loading */}
-      {loading && (
-        <div style={{ textAlign: "center", animation: "ynFadeUp .5s both", zIndex: 1 }}>
-          <div style={{ width: 36, height: 36, border: "2px solid rgba(229,91,45,.25)", borderTopColor: "#E55B2D", borderRadius: "50%", animation: "ynSpin 1s linear infinite", margin: "0 auto 16px" }} />
-          <p style={{ color: "rgba(255,255,255,.4)", fontSize: 14 }}>Loading flashcards...</p>
-        </div>
-      )}
-
-      {/* Done screen */}
-      {!loading && done && (
-        <div style={{ textAlign: "center", maxWidth: 440, animation: "ynFadeUp .6s both", zIndex: 1 }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-            <Trophy size={56} color="#E55B2D" />
-          </div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 36, color: "#fff", letterSpacing: "-1.2px", marginBottom: 12 }}>Session Complete!</h2>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,.45)", marginBottom: 8 }}>
-            Aapne <strong style={{ color: "#E55B2D" }}>{stats.total}</strong> flashcards review kiye.
-          </p>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,.3)", marginBottom: 36 }}>Kal phir review schedule hoga based on your performance.</p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-            <button className="fc-nav-btn" onClick={() => navigate("/dashboard")}>← Dashboard</button>
-            <button style={{ background: "#E55B2D", color: "#fff", border: "none", padding: "11px 24px", borderRadius: 9, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "'Inter', 'DM Sans', sans-serif" }}
-              onClick={() => { setCurrent(0); setFlipped(false); setDone(false); setStats(s => ({ ...s, reviewed: 0 })); }}>
-              Restart →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* All Clear */}
-      {!loading && !done && cards.length === 0 && (
-        <div style={{ textAlign: "center", zIndex: 1, animation: "ynFadeUp .5s both" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-            <CheckCircle2 size={52} color="#10b981" />
-          </div>
-          <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 28, color: "#fff", marginBottom: 10 }}>Sab Clear!</h2>
-          <p style={{ color: "rgba(255,255,255,.4)", marginBottom: 28 }}>Aaj ke liye koi flashcard due nahi hai.</p>
-          <button className="fc-nav-btn" onClick={() => navigate("/dashboard")}>← Dashboard</button>
-        </div>
-      )}
-
-      {/* Cards */}
-      {!loading && !done && card && (
-        <div style={{ width: "100%", maxWidth: 600, zIndex: 1 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,.4)", fontWeight: 600 }}>{stats.reviewed + 1} / {stats.total}</span>
-            <div style={{ flex: 1, height: 4, background: "rgba(255,255,255,.08)", borderRadius: 99, margin: "0 16px", overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${progress}%`, background: "#E55B2D", borderRadius: 99, transition: "width .4s cubic-bezier(.16,1,.3,1)" }} />
-            </div>
-            <span style={{ fontSize: 13, color: "rgba(255,255,255,.4)", fontWeight: 600 }}>{Math.round(progress)}%</span>
-          </div>
-
-          <div className={`fc-card ${flipped ? "flipped" : ""}`} onClick={() => setFlipped(f => !f)} key={`${current}-${flipped}`}>
-            <div style={{ marginBottom: 16 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: flipped ? "#E55B2D" : "rgba(255,255,255,.3)", letterSpacing: ".1em", textTransform: "uppercase" }}>
-                {flipped ? "ANSWER" : "QUESTION"}
-              </span>
-            </div>
-            <p style={{ fontSize: flipped ? 18 : 22, fontWeight: flipped ? 500 : 700, color: "#fff", lineHeight: 1.5, maxWidth: 460 }}>
-              {flipped ? card.answer : card.question}
-            </p>
-            {!flipped && (
-              <p style={{ marginTop: 24, fontSize: 12, color: "rgba(255,255,255,.2)", letterSpacing: ".06em" }}>
-                CLICK TO REVEAL · SPACE KEY
-              </p>
-            )}
-          </div>
-
-          {flipped && (
-            <div style={{ display: "flex", gap: 10, marginTop: 20, animation: "ynFadeUp .35s both" }}>
-              {[
-                { label: "Again", q: 0, bg: "rgba(239,68,68,.15)", bc: "rgba(239,68,68,.25)", c: "#ef4444" },
-                { label: "Hard",  q: 2, bg: "rgba(245,158,11,.12)", bc: "rgba(245,158,11,.22)", c: "#f59e0b" },
-                { label: "Good",  q: 4, bg: "rgba(16,185,129,.12)", bc: "rgba(16,185,129,.22)", c: "#10b981" },
-                { label: "Easy",  q: 5, bg: "rgba(229,91,45,.12)",  bc: "rgba(229,91,45,.22)",  c: "#E55B2D" },
-              ].map(({ label, q, bg, bc, c }) => (
-                <button key={label} className="fc-rate-btn" onClick={() => handleRate(q)}
-                  style={{ background: bg, border: `1px solid ${bc}`, color: c }}>
-                  {label}
+        <div className="pg-content">
+          {loading ? (
+            <div style={{ padding: "64px 0" }}><div className="fc-spinner" /></div>
+          ) : flashcards.length === 0 ? (
+            <div className="fc-empty">
+              <div className="fc-empty-icon"><CreditCard size={22} /></div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,.6)" }}>Koi due flashcard nahi</div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,.3)" }}>Saare flashcards review ho gaye ya abhi koi scheduled nahi!</div>
+              <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                <button className="fc-btn fc-btn-ghost" onClick={() => navigate("/dashboard")}>
+                  <Plus size={13} />Create from Notes
                 </button>
-              ))}
+              </div>
             </div>
-          )}
+          ) : done ? (
+            <div className="fc-score-card">
+              <div style={{ fontSize: 32, marginBottom: 12 }}>🎉</div>
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,.4)", marginBottom: 8 }}>Session Complete!</div>
+              <div className="fc-score-num">{Math.round((score.correct / flashcards.length) * 100)}%</div>
+              <div style={{ fontSize: 13, color: "rgba(255,255,255,.4)", marginBottom: 24 }}>
+                ✅ {score.correct} correct · ❌ {score.wrong} wrong · {flashcards.length} total
+              </div>
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+                <button className="fc-btn fc-btn-primary" onClick={restart}>
+                  <RotateCcw size={13} />Review Again
+                </button>
+                <button className="fc-btn fc-btn-ghost" onClick={() => navigate("/home")}>
+                  Go Home
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="fc-progress-bar">
+                <div className="fc-progress-fill" style={{ width: `${progress}%` }} />
+              </div>
 
-          {!flipped && (
-            <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
-              <button className="fc-nav-btn" onClick={() => setFlipped(true)}>Show Answer →</button>
-            </div>
+              <div style={{ display: "flex", gap: 16, marginBottom: 20, width: "100%", maxWidth: 520 }}>
+                <div style={{ flex: 1, background: "rgba(16,185,129,.08)", border: "1px solid rgba(16,185,129,.15)", borderRadius: 8, padding: "8px 12px", textAlign: "center" }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#10b981" }}>{score.correct}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,.3)", fontWeight: 500 }}>Correct</div>
+                </div>
+                <div style={{ flex: 1, background: "rgba(239,68,68,.08)", border: "1px solid rgba(239,68,68,.15)", borderRadius: 8, padding: "8px 12px", textAlign: "center" }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#ef4444" }}>{score.wrong}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,.3)", fontWeight: 500 }}>Wrong</div>
+                </div>
+              </div>
+
+              <div className="fc-card-wrap" onClick={flip}>
+                <div className={`fc-card${flipped ? " flipped" : ""}`}>
+                  <div className={`fc-face-label${flipped ? " answer" : ""}`}>
+                    {flipped ? "✨ Answer" : "❓ Question"}
+                  </div>
+                  <div className="fc-card-text">
+                    {flipped ? (current.back || current.answer || "No answer") : (current.front || current.question || "No question")}
+                  </div>
+                  {!flipped && <div className="fc-hint">Click to reveal answer</div>}
+                </div>
+              </div>
+
+              {flipped && (
+                <div className="fc-actions" style={{ animation: "fadeUp .2s both" }}>
+                  <button className="fc-action-btn fc-wrong" onClick={() => answer(false)}>
+                    <X size={15} />Wrong
+                  </button>
+                  <button className="fc-action-btn fc-right" onClick={() => answer(true)}>
+                    <Check size={15} />Correct
+                  </button>
+                </div>
+              )}
+
+              <div className="fc-meta">
+                {currentIdx + 1} of {flashcards.length} · {flashcards.length - reviewed.size - (flipped ? 0 : 0)} remaining
+              </div>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="fc-btn fc-btn-ghost" disabled={currentIdx === 0}
+                  onClick={() => { setCurrentIdx(i => i - 1); setFlipped(false); }}>
+                  <ChevronLeft size={13} />Prev
+                </button>
+                <button className="fc-btn fc-btn-ghost"
+                  onClick={() => { setCurrentIdx(i => i + 1); setFlipped(false); }}
+                  disabled={currentIdx >= flashcards.length - 1}>
+                  Skip <ChevronRight size={13} />
+                </button>
+              </div>
+            </>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

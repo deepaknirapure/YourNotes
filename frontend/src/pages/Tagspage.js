@@ -1,230 +1,161 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tag, ArrowLeft, FileText, X, ChevronRight, Search, Hash } from "lucide-react";
+import { Tag, FileText, Search, ChevronRight, Menu } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+import Sidebar from "../components/Sidebar";
 
-const TAG_COLORS = [
-  "rgba(229,91,45,.15)", "rgba(79,70,229,.15)", "rgba(16,185,129,.15)",
-  "rgba(245,158,11,.15)", "rgba(139,92,246,.15)", "rgba(6,182,212,.15)",
-  "rgba(244,63,94,.15)", "rgba(132,204,22,.15)",
-];
-const TAG_TEXT_COLORS = ["#E55B2D", "#6366f1", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4", "#f43f5e", "#84cc16"];
-
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: #111; } ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
-  .tg-tag-chip { display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:99px; cursor:pointer; font-size:13px; font-weight:600; transition:transform .2s,box-shadow .2s; animation:fadeUp .4s both; border:1px solid transparent; }
-  .tg-tag-chip:hover { transform:scale(1.05); box-shadow:0 4px 16px rgba(0,0,0,.3); }
-  .tg-tag-chip.active { border-color:rgba(255,255,255,.2) !important; }
-  .tg-note-card { background:#111; border:1px solid rgba(255,255,255,.07); border-radius:13px; padding:16px 18px; cursor:pointer; animation:fadeUp .35s both; transition:border-color .2s,transform .15s; }
-  .tg-note-card:hover { border-color:rgba(255,255,255,.15); transform:translateY(-2px); }
-  .tg-search { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:11px; padding:10px 16px; color:#fff; font-size:14px; font-family:inherit; outline:none; width:100%; transition:border-color .2s; }
-  .tg-search:focus { border-color:#8b5cf6; }
-  .tg-search::placeholder { color:rgba(255,255,255,.25); }
+const S = `
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  body{background:#0a0a0a;color:#fff;font-family:'Geist',-apple-system,sans-serif;}
+  .pg-wrap{display:flex;height:100vh;overflow:hidden;}
+  .pg-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+  .pg-topbar{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+  .pg-menu-btn{display:none;background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;padding:4px;flex-shrink:0;}
+  .pg-title{font-size:14px;font-weight:600;color:#fff;}
+  .pg-search-wrap{position:relative;margin-left:auto;display:flex;align-items:center;}
+  .pg-search-wrap svg{position:absolute;left:9px;color:rgba(255,255,255,.3);pointer-events:none;}
+  .pg-search{padding:7px 12px 7px 30px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:6px;font-size:13px;font-family:inherit;color:#fff;outline:none;width:200px;transition:border-color .15s;}
+  .pg-search:focus{border-color:rgba(255,255,255,.15);}
+  .pg-search::placeholder{color:rgba(255,255,255,.2);}
+  .pg-content{flex:1;overflow-y:auto;padding:20px;display:flex;gap:20px;}
+  .tp-tags-panel{width:240px;flex-shrink:0;}
+  .tp-notes-panel{flex:1;min-width:0;}
+  .tp-tag-chip{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:7px;cursor:pointer;transition:background .12s;border:1px solid transparent;}
+  .tp-tag-chip:hover{background:rgba(255,255,255,.05);}
+  .tp-tag-chip.active{background:rgba(229,91,45,.1);border-color:rgba(229,91,45,.25);}
+  .tp-tag-name{font-size:13px;font-weight:500;color:rgba(255,255,255,.7);}
+  .tp-tag-chip.active .tp-tag-name{color:#E55B2D;}
+  .tp-tag-count{font-size:11px;font-weight:600;color:rgba(255,255,255,.25);background:rgba(255,255,255,.06);border-radius:4px;padding:1px 6px;}
+  .tp-tag-chip.active .tp-tag-count{color:#E55B2D;background:rgba(229,91,45,.15);}
+  .tp-notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;}
+  .tp-card{background:#111;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px;cursor:pointer;animation:fadeUp .3s both;transition:border-color .15s,background .15s;}
+  .tp-card:hover{border-color:rgba(255,255,255,.14);background:#161616;}
+  .tp-card-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tp-card-preview{font-size:12px;color:rgba(255,255,255,.35);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;margin-bottom:10px;}
+  .tp-card-date{font-size:11px;color:rgba(255,255,255,.22);}
+  .tp-tag-pill{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.06);border-radius:4px;padding:2px 7px;font-size:10px;font-weight:500;color:rgba(255,255,255,.35);margin:0 3px 4px 0;}
+  .tp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;gap:10px;text-align:center;}
+  .tp-empty-icon{width:44px;height:44px;background:#1a1a1a;border:1px solid rgba(255,255,255,.07);border-radius:10px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.2);margin-bottom:4px;}
+  .tp-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.1);border-top-color:rgba(255,255,255,.5);border-radius:50%;animation:spin .7s linear infinite;}
+  .pg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;}
+  @media(max-width:768px){.pg-menu-btn{display:flex!important}.pg-content{flex-direction:column!important;padding:14px;}.tp-tags-panel{width:100%!important}.tp-notes-grid{grid-template-columns:1fr!important}}
 `;
 
 export default function TagsPage() {
   const navigate = useNavigate();
-  const [allTags, setAllTags] = useState([]);
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes]           = useState([]);
+  const [loading, setLoading]       = useState(true);
   const [selectedTag, setSelectedTag] = useState(null);
-  const [searchQ, setSearchQ] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [searchQ, setSearchQ]       = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    loadData();
+    API.get("/notes")
+      .then(({ data }) => setNotes((data || []).filter(n => !n.isTrashed)))
+      .catch(() => toast.error("Notes load nahi ho sake"))
+      .finally(() => setLoading(false));
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [tagsRes, notesRes] = await Promise.all([
-        API.get("/tags"),
-        API.get("/notes"),
-      ]);
-      setAllTags(tagsRes.data || []);
-      setNotes((notesRes.data || []).filter(n => !n.isTrashed));
-    } catch {
-      toast.error("Data load nahi ho saka");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Build tag map
+  const tagMap = {};
+  notes.forEach(note => {
+    (note.tags || []).forEach(tag => {
+      if (!tagMap[tag]) tagMap[tag] = [];
+      tagMap[tag].push(note);
+    });
+  });
 
-  // Get notes for selected tag
-  const getNotesForTag = (tag) => notes.filter(n => (n.tags || []).includes(tag));
-
-  // Filter tags by search
-  const filteredTags = allTags.filter(t =>
-    !searchQ.trim() || t.tag.toLowerCase().includes(searchQ.toLowerCase())
-  );
-
-  const selectedNotes = selectedTag ? getNotesForTag(selectedTag) : [];
-
-  const formatDate = (d) => new Date(d).toLocaleDateString("hi-IN", { day: "numeric", month: "short" });
+  const allTags = Object.keys(tagMap).sort();
+  const filteredTags = searchQ.trim() ? allTags.filter(t => t.toLowerCase().includes(searchQ.toLowerCase())) : allTags;
+  const displayedNotes = selectedTag ? (tagMap[selectedTag] || []) : [];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'DM Sans', sans-serif", padding: "32px 24px" }}>
-      <style>{STYLES}</style>
-
-      <div style={{ maxWidth: 900, margin: "0 auto" }}>
-        {/* Back */}
-        <button onClick={() => navigate("/home")} style={{
-          background: "none", border: "none", color: "rgba(255,255,255,.4)", cursor: "pointer",
-          display: "flex", alignItems: "center", gap: 8, fontSize: 14, marginBottom: 28,
-          fontFamily: "inherit", transition: "color .2s", padding: 0
-        }}
-          onMouseOver={e => e.currentTarget.style.color = "#fff"}
-          onMouseOut={e => e.currentTarget.style.color = "rgba(255,255,255,.4)"}>
-          <ArrowLeft size={16} /> Home
-        </button>
-
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <div style={{ background: "rgba(139,92,246,.12)", borderRadius: 12, padding: 10, color: "#8b5cf6" }}>
-            <Tag size={24} />
+    <div className="pg-wrap">
+      <style>{S}</style>
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {sidebarOpen && <div className="pg-overlay" onClick={() => setSidebarOpen(false)} />}
+      <div className="pg-main">
+        <div className="pg-topbar">
+          <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
+          <Tag size={15} color="rgba(255,255,255,.5)" />
+          <span className="pg-title">Tags <span style={{ color: "rgba(255,255,255,.3)", fontWeight: 500 }}>({allTags.length})</span></span>
+          <div className="pg-search-wrap">
+            <Search size={13} />
+            <input className="pg-search" placeholder="Search tags..." value={searchQ} onChange={e => setSearchQ(e.target.value)} />
           </div>
-          <div>
-            <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 800 }}>Tags</h1>
-            <p style={{ color: "rgba(255,255,255,.4)", fontSize: 14, marginTop: 2 }}>
-              {allTags.length} unique tag{allTags.length !== 1 ? "s" : ""} — tag select karo notes dekhne ke liye
-            </p>
-          </div>
-        </div>
-
-        {/* Search */}
-        <div style={{ position: "relative", margin: "24px 0" }}>
-          <Search size={15} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,.25)" }} />
-          <input className="tg-search" placeholder="Tag dhundho..." value={searchQ}
-            onChange={e => setSearchQ(e.target.value)} style={{ paddingLeft: 40 }} />
         </div>
 
         {loading ? (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} style={{ width: 80 + i * 12, height: 36, background: "#1a1a1a", borderRadius: 99, animation: "pulse 1.2s infinite" }} />
-            ))}
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1 }}>
+            <div className="tp-spinner" />
           </div>
         ) : allTags.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px 20px" }}>
-            <div style={{ width: 80, height: 80, background: "rgba(255,255,255,.04)", borderRadius: 24, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-              <Hash size={36} color="rgba(255,255,255,.12)" />
-            </div>
-            <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Koi Tags Nahi Hain</h3>
-            <p style={{ color: "rgba(255,255,255,.35)", fontSize: 14, marginBottom: 24 }}>
-              Dashboard mein notes banate waqt tags add karo
-            </p>
-            <button onClick={() => navigate("/dashboard")} style={{
-              background: "#E55B2D", border: "none", borderRadius: 10, padding: "10px 20px",
-              color: "#fff", cursor: "pointer", fontSize: 14, fontFamily: "inherit", fontWeight: 600
-            }}>
-              Dashboard Pe Jao
-            </button>
+          <div className="tp-empty" style={{ flex: 1 }}>
+            <div className="tp-empty-icon"><Tag size={20} /></div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,.4)" }}>Koi tag nahi hai</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,.2)" }}>Notes mein tags add karein</div>
           </div>
         ) : (
-          <>
-            {/* Tag Cloud */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 32 }}>
-              {selectedTag && (
-                <button onClick={() => setSelectedTag(null)} className="tg-tag-chip active"
-                  style={{ background: "rgba(255,255,255,.08)", color: "rgba(255,255,255,.5)", borderColor: "rgba(255,255,255,.15)" }}>
-                  <X size={12} /> Sab
-                </button>
-              )}
-              {filteredTags.map((tagObj, i) => {
-                const isActive = selectedTag === tagObj.tag;
-                const ci = i % TAG_COLORS.length;
-                return (
-                  <button key={tagObj.tag} className={`tg-tag-chip${isActive ? " active" : ""}`}
-                    style={{
-                      background: isActive ? TAG_COLORS[ci].replace(".15", ".3") : TAG_COLORS[ci],
-                      color: TAG_TEXT_COLORS[ci],
-                      borderColor: isActive ? TAG_TEXT_COLORS[ci] : "transparent",
-                      animationDelay: `${i * 0.04}s`
-                    }}
-                    onClick={() => setSelectedTag(isActive ? null : tagObj.tag)}>
-                    <Hash size={12} /> {tagObj.tag}
-                    <span style={{ background: "rgba(255,255,255,.15)", borderRadius: 99, padding: "1px 7px", fontSize: 11 }}>{tagObj.count}</span>
-                  </button>
-                );
-              })}
+          <div className="pg-content">
+            <div className="tp-tags-panel">
+              <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,.3)", letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>All Tags</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {filteredTags.map(tag => (
+                  <div key={tag} className={`tp-tag-chip${selectedTag === tag ? " active" : ""}`}
+                    onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}>
+                    <span className="tp-tag-name">#{tag}</span>
+                    <span className="tp-tag-count">{tagMap[tag].length}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Selected Tag Notes */}
-            {selectedTag && (
-              <div style={{ animation: "fadeUp .35s" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                  <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700 }}>
-                    <span style={{ color: "rgba(255,255,255,.4)", fontWeight: 400 }}>#</span>{selectedTag}
-                    <span style={{ color: "rgba(255,255,255,.3)", fontSize: 14, fontWeight: 400, marginLeft: 8 }}>({selectedNotes.length} notes)</span>
-                  </h2>
+            <div className="tp-notes-panel">
+              {!selectedTag ? (
+                <div className="tp-empty">
+                  <div className="tp-empty-icon"><Tag size={20} /></div>
+                  <div style={{ fontSize: 13, color: "rgba(255,255,255,.35)" }}>Tag select karein notes dekhne ke liye</div>
                 </div>
-
-                {selectedNotes.length === 0 ? (
-                  <div style={{ background: "#111", border: "1px solid rgba(255,255,255,.07)", borderRadius: 14, padding: 40, textAlign: "center", color: "rgba(255,255,255,.35)", fontSize: 14 }}>
-                    Is tag ke koi notes nahi hain
+              ) : displayedNotes.length === 0 ? (
+                <div className="tp-empty">
+                  <div style={{ fontSize: 13, color: "rgba(255,255,255,.35)" }}>Is tag mein koi note nahi</div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,.35)", marginBottom: 12 }}>
+                    #{selectedTag} · {displayedNotes.length} notes
                   </div>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {selectedNotes.map((note, i) => (
-                      <div key={note._id} className="tg-note-card" style={{ animationDelay: `${i * 0.05}s` }}
-                        onClick={() => navigate("/dashboard")}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <div style={{ background: "rgba(139,92,246,.12)", borderRadius: 8, padding: 8, color: "#8b5cf6", flexShrink: 0 }}>
-                            <FileText size={15} />
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 600, fontSize: 14, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {note.title || "Untitled Note"}
-                            </div>
-                            {note.content && (
-                              <div style={{ fontSize: 12, color: "rgba(255,255,255,.3)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                {note.content.replace(/<[^>]*>/g, "").slice(0, 80)}
-                              </div>
-                            )}
-                          </div>
-                          <div style={{ textAlign: "right", flexShrink: 0 }}>
-                            <div style={{ fontSize: 11, color: "rgba(255,255,255,.25)" }}>{formatDate(note.updatedAt)}</div>
-                            {note.isStarred && <div style={{ color: "#f59e0b", fontSize: 13, marginTop: 2 }}>★</div>}
-                          </div>
-                          <ChevronRight size={14} color="rgba(255,255,255,.2)" />
+                  <div className="tp-notes-grid">
+                    {displayedNotes.map((note, i) => (
+                      <div key={note._id} className="tp-card" onClick={() => navigate("/dashboard")} style={{ animationDelay: `${i * 0.03}s` }}>
+                        <div className="tp-card-title">{note.title || "Untitled Note"}</div>
+                        <div className="tp-card-preview">{note.plainText || "No content..."}</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", marginBottom: 8 }}>
+                          {(note.tags || []).map((t, ti) => (
+                            <span key={ti} className="tp-tag-pill" style={{ color: t === selectedTag ? "#E55B2D" : undefined, background: t === selectedTag ? "rgba(229,91,45,.12)" : undefined }}>
+                              #{t}
+                            </span>
+                          ))}
                         </div>
-                        {/* Other tags */}
-                        {note.tags && note.tags.length > 1 && (
-                          <div style={{ display: "flex", gap: 5, marginTop: 10, paddingLeft: 40, flexWrap: "wrap" }}>
-                            {note.tags.filter(t => t !== selectedTag).slice(0, 4).map((t, j) => {
-                              const ci = allTags.findIndex(x => x.tag === t) % TAG_COLORS.length;
-                              return (
-                                <span key={j} style={{ background: TAG_COLORS[ci >= 0 ? ci : j % TAG_COLORS.length], color: TAG_TEXT_COLORS[ci >= 0 ? ci : j % TAG_COLORS.length], borderRadius: 99, padding: "2px 8px", fontSize: 11, fontWeight: 500 }}>
-                                  #{t}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        )}
+                        <div className="tp-card-date">{formatDate(note.updatedAt)}</div>
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* All tags summary (when none selected) */}
-            {!selectedTag && (
-              <div style={{ background: "rgba(139,92,246,.05)", border: "1px solid rgba(139,92,246,.12)", borderRadius: 12, padding: "14px 18px", display: "flex", gap: 10, alignItems: "center" }}>
-                <Tag size={15} color="#8b5cf6" />
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,.4)" }}>
-                  Koi bhi tag pe click karo us tag ke saare notes dekhne ke liye
-                </p>
-              </div>
-            )}
-          </>
+                </>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
+}
+
+function formatDate(d) {
+  if (!d) return "";
+  return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" });
 }
