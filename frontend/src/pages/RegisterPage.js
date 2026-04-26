@@ -1,4 +1,4 @@
-// यह Register page hai - naya account banane ke liye
+// ye Register page hai - naya account banane ke liye
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';

@@ -1,4 +1,4 @@
--e // यह Reset Password page hai - naya password set karne ke liye
+-e // ye Reset Password page hai - naya password set karne ke liye
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { KeyRound, Eye, EyeOff, CheckCircle2 } from "lucide-react";

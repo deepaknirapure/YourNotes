@@ -1,4 +1,4 @@
--e // यह Trash page hai - deleted notes dekhne, restore karne ya permanently delete karne ke liye
+-e // ye Trash page hai - deleted notes dekhne, restore karne ya permanently delete karne ke liye
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trash2, RotateCcw, X, AlertTriangle, FileText, RefreshCw, Menu } from "lucide-react";

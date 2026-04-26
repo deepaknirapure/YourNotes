@@ -1,4 +1,4 @@
-// यह Login page hai - user apna account access karta hai
+// ye Login page hai - user apna account access karta hai
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';

@@ -1,4 +1,4 @@
--e // यह Forgot Password page hai - password reset email bhejne ke liye
+-e // ye Forgot Password page hai - password reset email bhejne ke liye
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../api/axios";

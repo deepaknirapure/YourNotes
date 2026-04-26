@@ -1,4 +1,4 @@
--e // यह Tags page hai - notes ko tags ke zariye dhundhne ke liye
+-e // ye Tags page hai - notes ko tags ke zariye dhundhne ke liye
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tag, FileText, Search, ChevronRight, Menu } from "lucide-react";

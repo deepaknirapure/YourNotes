@@ -1,4 +1,4 @@
-// यह Home page hai - user login ke baad sabse pehle yahan aata hai
+// ye Home page hai - user login ke baad sabse pehle yahan aata hai
 // Stats, quick access cards, aur recent notes dikhata hai
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';

@@ -1,4 +1,4 @@
--e // यह Flashcard Review page hai - notes se flashcards banao aur revise karo
+-e // ye Flashcard Review page hai - notes se flashcards banao aur revise karo
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreditCard, ChevronRight, ChevronLeft, RotateCcw, Check, X, Sparkles, Menu, Plus, Flame } from "lucide-react";

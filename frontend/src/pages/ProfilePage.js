@@ -1,4 +1,4 @@
--e // यह Profile page hai - user ki personal information update karne ke liye
+-e // ye Profile page hai - user ki personal information update karne ke liye
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Mail, Lock, Save, Camera, LogOut, Shield, Menu, Check } from "lucide-react";

@@ -1,4 +1,4 @@
--e // यह Dashboard page hai - notes create, search, aur manage karne ke liye
+-e // ye Dashboard page hai - notes create, search, aur manage karne ke liye
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Plus, Search, Star, Folder, Trash2,
