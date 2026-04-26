@@ -37,111 +37,110 @@ export default function Sidebar({ open, onClose }) {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800;900&display=swap');
 
-        .sidebar-container {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .nav-button {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 16px;
+          color: #64748B;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          width: 100%;
+          text-align: left;
+          font-family: inherit;
+          transition: all 0.2s ease;
         }
 
-        .nav-link-active {
-          color: #FFF !important;
-          background: #0F172A !important;
-          box-shadow: 0 8px 20px -6px rgba(15, 23, 42, 0.3);
+        .nav-button:hover { color: #000000; }
+
+        .nav-button-active {
+          color: #000000 !important;
+          font-weight: 800 !important;
         }
 
-        .nav-link-active svg {
-          color: #E55B2D !important;
-        }
-
-        @media (min-width: 769px) {
-          .sidebar-container { display: flex !important; position: static !important; }
+        .nav-button-active::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          width: 3px;
+          height: 18px;
+          background: #E55B2D;
+          border-radius: 0 4px 4px 0;
         }
 
         @media (max-width: 768px) {
-          .sidebar-container {
+          .sidebar-main {
             display: ${open ? 'flex' : 'none'} !important;
             position: fixed !important;
             z-index: 100;
-            left: 12px;
-            top: 12px;
-            bottom: 12px;
-            width: 280px !important;
-            border-radius: 24px !important;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+            box-shadow: 20px 0 50px rgba(0,0,0,0.1);
           }
         }
       `}</style>
 
-      <aside className="sidebar-container" style={{
-        width: 280,
+      <aside className="sidebar-main" style={{
+        width: 240, 
         height: '100vh',
-        background: '#FFF',
+        background: '#FFFFFF',
         borderRight: '1px solid #F1F5F9',
         display: 'flex',
         flexDirection: 'column',
-        padding: '20px 16px',
-        gap: '8px',
         flexShrink: 0,
-        fontFamily: "'Plus Jakarta Sans', sans-serif"
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        left: 0,
+        top: 0,
       }}>
-        
-        {/* --- BRAND LOGO --- */}
+
+        {/* --- High Contrast Capital Logo Area --- */}
         <div style={{
-          padding: '24px 16px',
-          marginBottom: '12px',
+          height: 50, 
+          marginTop: 24, // Upar rakha logo thoda gap ke saath
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          padding: '0 20px',
         }}>
-          <div onClick={() => goTo('/home')} style={{ cursor: 'pointer' }}>
+          <div onClick={() => goTo('/home')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
             <span style={{ 
-              fontFamily: "'Playfair Display', serif", 
-              fontSize: '28px', 
-              color: '#0F172A',
-              marginRight: '2px'
-            }}>Your</span>
+              fontSize: 24, 
+              fontWeight: 900, 
+              color: '#000000', // Black
+              letterSpacing: '-0.5px',
+              textTransform: 'uppercase' // Full Capital
+            }}>
+              Your
+            </span>
             <span style={{ 
-              fontSize: '22px', 
-              fontWeight: 800, 
-              color: '#0F172A',
-              letterSpacing: '-1.5px',
-              textTransform: 'uppercase'
-            }}>Notes</span>
-            <div style={{ width: '32px', height: '4px', background: '#E55B2D', borderRadius: '10px', marginTop: '-2px' }} />
+              fontSize: 24, 
+              fontWeight: 900, 
+              color: '#E55B2D', // Orange
+              letterSpacing: '-0.5px',
+              textTransform: 'uppercase' // Full Capital
+            }}>
+              Notes
+            </span>
           </div>
-          
-          <button onClick={onClose} className="hide-desktop" style={{ display: 'none', background: '#F8FAFC', border: 'none', borderRadius: '50%', padding: '8px', cursor: 'pointer' }}>
-             <X size={18} color="#64748B" />
+
+          <button onClick={onClose} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer' }} className="sidebar-close-btn">
+            <X size={18} color="#64748B" />
           </button>
         </div>
 
-        {/* --- NAV MENU --- */}
-        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', overflowY: 'auto', paddingRight: '4px' }}>
+        {/* --- Navigation --- */}
+        <nav style={{ flex: 1, padding: '24px 0 10px', display: 'flex', flexDirection: 'column', gap: '2px', overflowY: 'auto', scrollbarWidth: 'none' }}>
           {NAV_ITEMS.map(({ icon: Icon, label, path }) => {
             const isActive = location.pathname === path;
             return (
               <button
                 key={path}
                 onClick={() => goTo(path)}
-                className={isActive ? 'nav-link-active' : ''}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px 16px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  color: '#64748B',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  transition: '0.2s',
-                  textAlign: 'left',
-                  fontFamily: 'inherit'
-                }}
-                onMouseEnter={(e) => { if(!isActive) e.currentTarget.style.background = '#F8FAFC'; }}
-                onMouseLeave={(e) => { if(!isActive) e.currentTarget.style.background = 'transparent'; }}
+                className={`nav-button ${isActive ? 'nav-button-active' : ''}`}
               >
                 <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                 {label}
@@ -150,54 +149,51 @@ export default function Sidebar({ open, onClose }) {
           })}
         </nav>
 
-        {/* --- USER PROFILE SECTION --- */}
+        {/* --- Minimal Footer --- */}
         <div style={{
-          marginTop: 'auto',
-          padding: '16px',
-          background: '#F8FAFC',
-          borderRadius: '20px',
+          padding: '20px',
+          borderTop: '1px solid #F1F5F9',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px'
+          gap: '16px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          
+          <div 
+            onClick={() => goTo('/profile')}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+          >
             <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '12px',
-              background: '#0F172A',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#FFF',
-              fontWeight: 800,
-              fontSize: '14px',
+              width: 34, height: 34, borderRadius: '50%',
+              background: '#F8FAFC', border: '1px solid #E2E8F0',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 13, fontWeight: 800, color: '#E55B2D', flexShrink: 0,
               overflow: 'hidden'
             }}>
-              {user?.profilePic ? <img src={user.profilePic} style={{width:'100%', height:'100%', objectFit:'cover'}} alt="P" /> : avatarLetter}
+              {user?.profilePic ? <img src={user.profilePic} style={{width:'100%', height:'100%', objectFit:'cover'}} alt="U" /> : avatarLetter}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {user?.name || 'Pro Student'}
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#000000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {user?.name || 'Pro User'}
               </span>
-              <span style={{ fontSize: '11px', color: '#E55B2D', fontWeight: 700, letterSpacing: '0.5px' }}>PREMIUM</span>
+              <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>Settings</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button 
-              onClick={() => goTo('/profile')}
-              style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFF', fontSize: '12px', fontWeight: 600, color: '#64748B', cursor: 'pointer' }}
-            >
-              Profile
-            </button>
-            <button 
-              onClick={handleLogout}
-              style={{ padding: '8px', borderRadius: '8px', border: 'none', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'none', border: 'none', padding: 0,
+              fontSize: 13, fontWeight: 600, color: '#94A3B8',
+              cursor: 'pointer', transition: 'color 0.2s'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
+          >
+            <LogOut size={14} /> <span>Sign out</span>
+          </button>
         </div>
       </aside>
     </>

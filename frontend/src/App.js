@@ -110,7 +110,7 @@ function App() {
             <Route path="/community"       element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
             <Route path="/trash"           element={<PrivateRoute><TrashPage /></PrivateRoute>} />
             <Route path="/profile"         element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-            <Route path="/TagsPage"         element={<PrivateRoute><TagsPage /></PrivateRoute>} />
+            <Route path="/tags"            element={<PrivateRoute><TagsPage /></PrivateRoute>} />
 
 
             {/* 404 - koi route match na ho to */}
