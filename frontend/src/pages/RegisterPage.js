@@ -1,39 +1,162 @@
-// ye Register page hai - naya account banane ke liye
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowRight, User, Mail, Lock } from 'lucide-react';
+import { ArrowRight, User, Mail, Lock, Loader2, Sparkles, CheckCircle2, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
-import { FieldGroup, AUTH_STYLES } from '../components/AuthLayout';
+
+const STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  body { background: #FFF; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; margin: 0; }
+
+  .register-root { display: flex; min-height: 100vh; overflow: hidden; }
+
+  /* ── LEFT PANEL (Marketing) ── */
+  .register-left {
+    flex: 1; background: #F8FAFC; border-right: 1px solid #E2E8F0;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 60px; position: relative; overflow: hidden;
+  }
+  
+  .bg-dots {
+    position: absolute; inset: 0; z-index: 0; opacity: 0.5; pointer-events: none;
+    background-image: radial-gradient(#CBD5E1 1px, transparent 1px); background-size: 24px 24px;
+  }
+
+  .brand-logo {
+    font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;
+    position: relative; z-index: 1;
+  }
+
+  .left-content { position: relative; z-index: 1; max-width: 480px; }
+  
+  .saas-badge {
+    display: inline-flex; align-items: center; gap: 8px; background: #FFF5F2;
+    border: 1px solid #FFE4DB; border-radius: 100px; padding: 6px 14px;
+    font-size: 11px; font-weight: 700; color: #E55B2D; letter-spacing: 0.5px;
+    margin-bottom: 24px; text-transform: uppercase;
+  }
+
+  .left-title {
+    font-size: 48px; font-weight: 800; color: #0F172A;
+    line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px;
+  }
+
+  .left-desc { font-size: 16px; color: #64748B; line-height: 1.6; margin-bottom: 40px; font-weight: 500; }
+
+  .feature-list { display: flex; flex-direction: column; gap: 20px; }
+  .feature-item { display: flex; gap: 16px; align-items: flex-start; }
+  .feature-icon-wrap {
+    width: 36px; height: 36px; border-radius: 10px; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .feature-title { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 2px; }
+  .feature-desc { font-size: 13px; color: #64748B; font-weight: 500; line-height: 1.5; }
+
+  .left-footer {
+    position: relative; z-index: 1; background: #FFF; border: 1px solid #E2E8F0;
+    border-radius: 12px; padding: 20px; display: inline-flex; flex-direction: column; gap: 4px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+  }
+
+  /* ── RIGHT PANEL (Form) ── */
+  .register-right {
+    flex: 1; background: #FFF; display: flex; flex-direction: column;
+    justify-content: center; padding: 60px 8%; position: relative;
+  }
+
+  .form-container {
+    width: 100%; max-width: 400px; margin: 0 auto;
+    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .form-header { margin-bottom: 40px; }
+  .form-title { font-size: 32px; font-weight: 800; color: #0F172A; letter-spacing: -1px; margin-bottom: 8px; }
+  .form-subtitle { font-size: 15px; color: #64748B; font-weight: 500; }
+
+  .input-group { margin-bottom: 20px; }
+  .input-label {
+    display: block; font-size: 12px; font-weight: 700; color: #475569;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+  
+  .input-wrapper { position: relative; display: flex; align-items: center; }
+  .input-icon { position: absolute; left: 16px; color: #94A3B8; pointer-events: none; }
+  
+  .form-input {
+    width: 100%; padding: 14px 16px 14px 44px; background: #FFF;
+    border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; font-weight: 500;
+    color: #0F172A; font-family: inherit; transition: 0.2s; outline: none;
+  }
+  .form-input::placeholder { color: #94A3B8; font-weight: 400; }
+  .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
+
+  .btn-submit {
+    width: 100%; padding: 14px; background: #0F172A; color: #FFF;
+    border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 12px;
+  }
+  .btn-submit:hover:not(:disabled) { background: #E55B2D; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229, 91, 45, 0.2); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .login-prompt { text-align: center; margin-top: 32px; font-size: 14px; color: #64748B; font-weight: 500; }
+  .login-link { color: #E55B2D; font-weight: 700; text-decoration: none; transition: 0.2s; }
+  .login-link:hover { color: #0F172A; }
+
+  /* Mobile Footer */
+  .mobile-footer {
+    display: none;
+    text-align: center;
+    margin-top: 40px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94A3B8;
+    letter-spacing: 1px;
+  }
+
+  @media(max-width: 960px) {
+    .register-left { display: none; }
+    .register-right { padding: 40px 24px; }
+    .mobile-footer { display: block; }
+  }
+`;
+
+const FEATURES = [
+  { icon: CheckCircle2, color: '#4F46E5', bg: '#EEF2FF', label: 'Smart Organization', desc: 'Create folders, add tags, and keep your subjects perfectly separated.' },
+  { icon: Sparkles, color: '#E55B2D', bg: '#FFF5F2', label: 'AI Summaries & Flashcards', desc: 'Auto-generate study materials from your notes in a single click.' },
+  { icon: Globe, color: '#10B981', bg: '#ECFDF5', label: 'Community Learning', desc: 'Share your knowledge and access notes from top students.' },
+];
 
 export default function RegisterPage() {
-  // Form state - teen fields: naam, email, password
-  const [form, setForm]       = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
-  const { login }  = useAuth();
-  const navigate   = useNavigate();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  // Form submit karne par account banao
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
     if (!form.name || !form.email || !form.password) {
       return toast.error('All fields are required');
     }
     if (form.password.length < 6) {
-      return toast.error('Password must be at least 6 characters');
+      return toast.error('Password must be at least 6 characters long');
     }
 
     setLoading(true);
     try {
-      // Register API call
       const { data } = await API.post('/auth/register', form);
-      login(data.user, data.token); // auto login after register
-      toast.success('Account created! Welcome aboard 🎉');
-      navigate('/home');
+      login(data.user, data.token);
+      toast.success('Account created successfully! 🎉');
+      navigate('/dashboard'); // Match routing logic with login
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
@@ -41,170 +164,131 @@ export default function RegisterPage() {
     }
   };
 
-  // Field update helper
-  const updateField = (key) => (val) => setForm({ ...form, [key]: val });
-
-  // Features list for left panel
-  const FEATURES = [
-    { color: '#4F46E5', bg: 'rgba(79,70,229,0.12)',   label: 'Smart Notes',  desc: 'Rich text editor with auto-save' },
-    { color: '#E55B2D', bg: 'rgba(229,91,45,0.12)',   label: 'AI Powered',   desc: 'Summaries & flashcards in seconds' },
-    { color: '#10b981', bg: 'rgba(16,185,129,0.12)',  label: 'Community',    desc: 'Share notes with other students' },
-  ];
+  const updateField = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
   return (
-    <div className="auth-wrap">
-      <style>{AUTH_STYLES}</style>
+    <div className="register-root">
+      <style>{STYLES}</style>
 
-      {/* Left decorative panel */}
-      <div className="auth-left">
-        {/* Diagonal grid lines */}
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="auth-grid-line" style={{ left: `${8 + i * 21}%` }} />
-        ))}
-
-        {/* Glow effect */}
-        <div style={{
-          position: 'absolute', top: '30%', right: -80,
-          width: 280, height: 280,
-          background: 'radial-gradient(circle, rgba(229,91,45,0.07) 0%, transparent 70%)',
-        }} />
-
-        {/* Logo */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 24, height: 24, background: '#E55B2D',
-              borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
-              </svg>
-            </div>
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
-              Your<span style={{ color: '#E55B2D' }}>Notes</span>
-            </span>
-          </div>
+      {/* ── LEFT PANEL (Marketing) ── */}
+      <div className="register-left">
+        <div className="bg-dots" />
+        
+        <div className="brand-logo">
+          Your<span style={{ color: "#E55B2D" }}>Notes</span>.
         </div>
 
-        {/* Main content */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="auth-badge">
-            <span className="auth-dot" />
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#E55B2D', letterSpacing: '0.08em' }}>
-              FREE FOREVER
-            </span>
+        <div className="left-content">
+          <div className="saas-badge">
+            <Sparkles size={14} /> Free Forever
           </div>
-          <h2 style={{
-            fontSize: 42, fontWeight: 800, color: '#fff',
-            letterSpacing: '-2px', lineHeight: 1.06, marginBottom: 16,
-          }}>
-            Start your<br />learning journey.
+          <h2 className="left-title">
+            Start your learning journey.
           </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.4)', fontSize: 15,
-            lineHeight: 1.65, maxWidth: 300, marginBottom: 32,
-          }}>
-            Notes, AI summaries, flashcards and community — all free.
+          <p className="left-desc">
+            Join thousands of students who are organizing their notes, memorizing faster, and acing their exams.
           </p>
 
-          {/* Feature list */}
-          {FEATURES.map((f, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: 6, background: f.bg,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
-                {/* Checkmark icon */}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                  stroke={f.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
+          <div className="feature-list">
+            {FEATURES.map((f, i) => (
+              <div key={i} className="feature-item">
+                <div className="feature-icon-wrap" style={{ background: f.bg, color: f.color }}>
+                  <f.icon size={18} />
+                </div>
+                <div>
+                  <div className="feature-title">{f.label}</div>
+                  <div className="feature-desc">{f.desc}</div>
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 2 }}>{f.label}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{f.desc}</div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Footer card */}
-        <div style={{
-          position: 'relative', zIndex: 1,
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 10, padding: '16px 18px',
-        }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: '#E55B2D', letterSpacing: '0.08em', marginBottom: 3 }}>
-            ✓ STUDENT PROJECT
-          </p>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
+        <div className="left-footer">
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#0F172A', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+            Built for Students
+          </div>
+          <div style={{ fontSize: 13, color: '#64748B', fontWeight: 500 }}>
             S.V. Polytechnic College, Bhopal · 2026
-          </p>
+          </div>
         </div>
       </div>
 
-      {/* Right side: Register form */}
-      <div className="auth-right">
-        <div style={{ marginBottom: 36 }}>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: '#fff', letterSpacing: '-1.2px', marginBottom: 6 }}>
-            Create Account
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 14 }}>
-            Create your free account and get started.
+      {/* ── RIGHT PANEL (Auth Form) ── */}
+      <div className="register-right">
+        <div className="form-container">
+          <div className="form-header">
+            <h2 className="form-title">Create Account</h2>
+            <p className="form-subtitle">Set up your free student workspace today.</p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label className="input-label">Full Name</label>
+              <div className="input-wrapper">
+                <User size={18} className="input-icon" />
+                <input
+                  type="text"
+                  placeholder="Your full name"
+                  value={form.name}
+                  onChange={updateField('name')}
+                  className="form-input"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label className="input-label">Email Address</label>
+              <div className="input-wrapper">
+                <Mail size={18} className="input-icon" />
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  value={form.email}
+                  onChange={updateField('email')}
+                  className="form-input"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label className="input-label">Password</label>
+              <div className="input-wrapper">
+                <Lock size={18} className="input-icon" />
+                <input
+                  type="password"
+                  placeholder="Min. 6 characters"
+                  value={form.password}
+                  onChange={updateField('password')}
+                  className="form-input"
+                  required
+                  minLength={6}
+                />
+              </div>
+            </div>
+
+            <button type="submit" disabled={loading} className="btn-submit">
+              {loading ? (
+                <>
+                  <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                  Creating account...
+                </>
+              ) : (
+                <>Create Account <ArrowRight size={18} /></>
+              )}
+            </button>
+          </form>
+
+          <p className="login-prompt">
+            Already have an account? <Link to="/login" className="login-link">Sign in here</Link>
           </p>
+
+          <div className="mobile-footer">
+            YOURNOTES · BHOPAL · 2026
+          </div>
         </div>
-
-        {/* Register form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <FieldGroup
-            label="Full Name"
-            icon={<User size={14} />}
-            type="text"
-            placeholder="Your full name"
-            value={form.name}
-            onChange={updateField('name')}
-          />
-          <FieldGroup
-            label="Email Address"
-            icon={<Mail size={14} />}
-            type="email"
-            placeholder="name@example.com"
-            value={form.email}
-            onChange={updateField('email')}
-          />
-          <FieldGroup
-            label="Password"
-            icon={<Lock size={14} />}
-            type="password"
-            placeholder="Min. 6 characters"
-            value={form.password}
-            onChange={updateField('password')}
-          />
-
-          {/* Submit button */}
-          <button type="submit" disabled={loading} className="auth-btn" style={{ marginTop: 8 }}>
-            {loading ? 'Creating account...' : (
-              <><span>Create Account</span><ArrowRight size={15} /></>
-            )}
-          </button>
-        </form>
-
-        {/* Login link */}
-        <p style={{ textAlign: 'center', marginTop: 28, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: '#E55B2D', fontWeight: 700 }}>Sign in here</Link>
-        </p>
-
-        <p style={{
-          marginTop: 'auto', paddingTop: 36,
-          textAlign: 'center', fontSize: 10,
-          color: 'rgba(255,255,255,0.1)', letterSpacing: '3px', fontWeight: 700,
-        }}>
-          YOURNOTES · BHOPAL · 2026
-        </p>
       </div>
     </div>
   );

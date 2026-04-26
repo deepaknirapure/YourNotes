@@ -1,9 +1,112 @@
--e // ye Reset Password page hai - naya password set karne ke liye
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { KeyRound, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { KeyRound, Eye, EyeOff, CheckCircle2, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+
+const STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  body { background: #FAFAFA; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; margin: 0; }
+
+  .reset-root {
+    min-height: 100vh; display: flex; flex-direction: column; 
+    align-items: center; justify-content: center; padding: 24px;
+    background: #FAFAFA; position: relative;
+  }
+
+  /* Subtle Background Pattern */
+  .bg-pattern {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+    background-size: 32px 32px; opacity: 0.4;
+  }
+
+  .brand-logo {
+    font-size: 24px; font-weight: 800; color: #0F172A; 
+    letter-spacing: -0.5px; margin-bottom: 32px; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .auth-card {
+    background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px;
+    padding: 48px 40px; width: 100%; max-width: 440px; z-index: 1;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
+    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .icon-wrap {
+    width: 56px; height: 56px; background: #FFF5F2; border: 1px solid #FFE4DB;
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px; color: #E55B2D;
+  }
+
+  .icon-wrap.success {
+    background: #ECFDF5; border-color: #D1FAE5; color: #10B981;
+  }
+
+  .auth-title {
+    font-size: 24px; font-weight: 800; color: #0F172A; 
+    letter-spacing: -0.5px; text-align: center; margin-bottom: 12px;
+  }
+
+  .auth-subtitle {
+    font-size: 14px; color: #64748B; text-align: center; 
+    line-height: 1.6; margin-bottom: 32px; font-weight: 500;
+  }
+
+  .form-group { margin-bottom: 20px; }
+  
+  .form-label {
+    display: block; font-size: 12px; font-weight: 700; color: #475569;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+
+  .input-wrapper { position: relative; display: flex; align-items: center; }
+  .input-icon { position: absolute; left: 16px; color: #94A3B8; pointer-events: none; }
+  
+  .form-input {
+    width: 100%; padding: 14px 44px; background: #FFF; 
+    border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; font-weight: 500;
+    color: #0F172A; font-family: inherit; transition: 0.2s; outline: none;
+  }
+  .form-input::placeholder { color: #94A3B8; font-weight: 400; }
+  .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
+
+  .pw-toggle-btn {
+    position: absolute; right: 12px; background: transparent; border: none;
+    color: #94A3B8; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; padding: 4px; border-radius: 6px; transition: 0.2s;
+  }
+  .pw-toggle-btn:hover { color: #0F172A; background: #F1F5F9; }
+
+  .btn-primary {
+    width: 100%; padding: 14px; background: #0F172A; color: #FFF;
+    border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 12px;
+  }
+  .btn-primary:hover:not(:disabled) { background: #E55B2D; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229, 91, 45, 0.2); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .back-link {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: #64748B; font-size: 14px; font-weight: 600; text-decoration: none;
+    transition: 0.2s; margin-top: 32px;
+  }
+  .back-link:hover { color: #0F172A; }
+
+  .footer-text {
+    font-size: 11px; font-weight: 700; color: #94A3B8; letter-spacing: 2px;
+    text-transform: uppercase; position: absolute; bottom: 32px;
+  }
+`;
 
 export default function ResetPasswordPage() {
   const { token } = useParams();
@@ -18,12 +121,13 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     if (password.length < 6) return toast.error("Password must be at least 6 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
+    
     setLoading(true);
     try {
       await API.post(`/auth/reset-password/${token}`, { password });
       setDone(true);
-      toast.success("Password reset successful!");
-      setTimeout(() => navigate("/login"), 2500);
+      toast.success("Password reset successfully! 🔐");
+      setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
       toast.error(err.response?.data?.message || "Reset link is expired or invalid");
     } finally {
@@ -32,96 +136,93 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "'Inter', 'DM Sans', sans-serif", position: "relative", overflow: "hidden" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap');
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        input:focus{outline:none}
-        @keyframes ynFadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes ynSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        .yn-rp-input{width:100%;padding:14px 14px 14px 48px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;font-size:15px;color:#fff;font-family:'Inter','DM Sans',sans-serif;transition:border-color .2s,background .2s}
-        .yn-rp-input::placeholder{color:rgba(255,255,255,.25)}
-        .yn-rp-input:focus{border-color:#E55B2D;background:rgba(229,91,45,.05)}
-        .yn-rp-btn{width:100%;padding:15px;background:#E55B2D;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;font-family:'Inter','DM Sans',sans-serif;cursor:pointer;transition:all .2s}
-        .yn-rp-btn:hover:not(:disabled){background:#c94d23;transform:translateY(-1px);box-shadow:0 12px 32px rgba(229,91,45,.3)}
-        .yn-rp-btn:disabled{opacity:.6;cursor:not-allowed}
-      `}</style>
+    <div className="reset-root">
+      <style>{STYLES}</style>
+      <div className="bg-pattern" />
 
-      {/* Background lines */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} style={{ position: "absolute", width: "1px", height: "200%", background: "rgba(255,255,255,0.02)", left: `${8 + i * 16}%`, top: "-50%", transform: "rotate(15deg)" }} />
-        ))}
-        <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: 500, height: 300, background: "radial-gradient(ellipse, rgba(229,91,45,.06) 0%, transparent 70%)" }} />
+      {/* Brand Logo */}
+      <div className="brand-logo">
+        Your<span style={{ color: "#E55B2D" }}>Notes</span>.
       </div>
 
-      {/* Logo */}
-      <div style={{ position: "absolute", top: 32, left: 40, display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 17, color: "#fff" }}>
-          Your<span style={{ color: "#E55B2D" }}>Notes</span>
-        </span>
-      </div>
-
-      <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1, animation: "ynFadeUp .7s cubic-bezier(.16,1,.3,1) both" }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <div style={{ width: 64, height: 64, borderRadius: 14, background: done ? "rgba(16,185,129,.1)" : "rgba(229,91,45,.1)", border: done ? "1px solid rgba(16,185,129,.3)" : "1px solid rgba(229,91,45,.25)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", color: done ? "#10b981" : "#E55B2D" }}>
-            {done ? <CheckCircle2 size={28} /> : <KeyRound size={28} />}
-          </div>
-          <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: 30, fontWeight: 800, color: "#fff", letterSpacing: "-1px", marginBottom: 8 }}>
-            {done ? "Password Reset!" : "Set New Password"}
-          </h1>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,.4)" }}>
-            {done ? "Login page pe ja rahe hain..." : "Apna naya password set karo"}
-          </p>
+      <div className="auth-card">
+        <div className={`icon-wrap ${done ? "success" : ""}`}>
+          {done ? <CheckCircle2 size={28} strokeWidth={2} /> : <KeyRound size={28} strokeWidth={2} />}
         </div>
 
-        <div style={{ background: "#111", border: "1px solid rgba(255,255,255,.08)", borderRadius: 16, padding: "32px" }}>
-          {done ? (
-            <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,.5)", marginBottom: 24, lineHeight: 1.8 }}>
-                Password successfully change ho gaya. Aap ab login kar sakte ho.
-              </p>
-              <Link to="/login" style={{ display: "block", padding: "14px", background: "#E55B2D", color: "#fff", borderRadius: 10, textDecoration: "none", fontWeight: 700, fontSize: 15, textAlign: "center" }}>
-                Go to Login →
-              </Link>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>New Password</label>
-                <div style={{ position: "relative" }}>
-                  <div style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,.3)" }}>
-                    <KeyRound size={16} />
-                  </div>
-                  <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Minimum 6 characters" required className="yn-rp-input" />
-                  <button type="button" onClick={() => setShowPw(!showPw)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,.3)", display: "flex" }}>
-                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>Confirm Password</label>
-                <div style={{ position: "relative" }}>
-                  <div style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,.3)" }}>
-                    <KeyRound size={16} />
-                  </div>
-                  <input type={showPw ? "text" : "password"} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Password dobara likhein" required className="yn-rp-input" />
-                </div>
-              </div>
-              <button type="submit" disabled={loading} className="yn-rp-btn">
-                {loading ? (
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                    <span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "ynSpin 1s linear infinite", display: "inline-block" }} />
-                    Resetting...
-                  </span>
-                ) : "Reset Password →"}
+        <h1 className="auth-title">
+          {done ? "Password Reset Complete!" : "Set New Password"}
+        </h1>
+        <p className="auth-subtitle">
+          {done 
+            ? "Your password has been successfully updated. Redirecting you to login..." 
+            : "Create a new, strong password for your account."}
+        </p>
+
+        {done ? (
+          <div>
+            <Link to="/login" style={{ textDecoration: "none" }}>
+              <button className="btn-primary">
+                Return to Login
               </button>
-            </form>
-          )}
-          <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "rgba(255,255,255,.25)" }}>
-            <Link to="/login" style={{ color: "#E55B2D", textDecoration: "none", fontWeight: 600 }}>← Back to login</Link>
-          </p>
-        </div>
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label">New Password</label>
+              <div className="input-wrapper">
+                <Lock size={18} className="input-icon" />
+                <input 
+                  type={showPw ? "text" : "password"} 
+                  value={password} 
+                  onChange={e => setPassword(e.target.value)} 
+                  placeholder="Minimum 6 characters" 
+                  required 
+                  className="form-input" 
+                />
+                <button type="button" className="pw-toggle-btn" onClick={() => setShowPw(!showPw)}>
+                  {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Confirm Password</label>
+              <div className="input-wrapper">
+                <Lock size={18} className="input-icon" />
+                <input 
+                  type={showPw ? "text" : "password"} 
+                  value={confirm} 
+                  onChange={e => setConfirm(e.target.value)} 
+                  placeholder="Re-type new password" 
+                  required 
+                  className="form-input" 
+                />
+              </div>
+            </div>
+
+            <button type="submit" disabled={loading} className="btn-primary">
+              {loading ? (
+                <>
+                  <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                  Updating...
+                </>
+              ) : "Reset Password"}
+            </button>
+          </form>
+        )}
+
+        {/* Back Link */}
+        {!done && (
+          <Link to="/login" className="back-link">
+            <ArrowLeft size={16} /> Back to login
+          </Link>
+        )}
+      </div>
+
+      <div className="footer-text">
+        YOURNOTES · BHOPAL · 2026
       </div>
     </div>
   );

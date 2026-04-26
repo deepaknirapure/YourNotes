@@ -1,190 +1,223 @@
-// ye Login page hai - user apna account access karta hai
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowRight, Mail, Lock } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Loader2, Sparkles, ShieldCheck, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
-import { FieldGroup, AUTH_STYLES } from '../components/AuthLayout';
+
+const STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  body { background: #FFF; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; margin: 0; }
+
+  .login-root { display: flex; min-height: 100vh; overflow: hidden; }
+
+  /* ── LEFT PANEL ── */
+  .login-left {
+    flex: 1; background: #F8FAFC; border-right: 1px solid #E2E8F0;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 60px; position: relative; overflow: hidden;
+  }
+  
+  .bg-dots {
+    position: absolute; inset: 0; z-index: 0; opacity: 0.5; pointer-events: none;
+    background-image: radial-gradient(#CBD5E1 1px, transparent 1px); background-size: 24px 24px;
+  }
+
+  .brand-logo {
+    font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;
+    position: relative; z-index: 1;
+  }
+
+  .left-content { position: relative; z-index: 1; max-width: 480px; }
+  
+  .saas-badge {
+    display: inline-flex; align-items: center; gap: 8px; background: #FFF5F2;
+    border: 1px solid #FFE4DB; border-radius: 100px; padding: 6px 14px;
+    font-size: 11px; font-weight: 700; color: #E55B2D; letter-spacing: 0.5px;
+    margin-bottom: 24px; text-transform: uppercase;
+  }
+
+  .left-title {
+    font-size: 48px; font-weight: 800; color: #0F172A;
+    line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px;
+  }
+
+  .features-stack { display: flex; flex-direction: column; gap: 24px; margin-top: 40px; }
+  .feat-item { display: flex; gap: 16px; align-items: flex-start; }
+  .feat-icon { 
+    width: 32px; height: 32px; border-radius: 8px; background: #FFF; 
+    border: 1px solid #E2E8F0; display: flex; align-items: center; 
+    justify-content: center; color: #E55B2D; flex-shrink: 0;
+  }
+  .feat-text h4 { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
+  .feat-text p { font-size: 13px; color: #64748B; line-height: 1.5; font-weight: 500; }
+
+  .left-footer {
+    position: relative; z-index: 1; background: #FFF; border: 1px solid #E2E8F0;
+    border-radius: 12px; padding: 20px; display: inline-flex; flex-direction: column; gap: 4px;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .login-right {
+    flex: 1; background: #FFF; display: flex; flex-direction: column;
+    justify-content: center; padding: 60px 8%; position: relative;
+  }
+
+  .form-container {
+    width: 100%; max-width: 400px; margin: 0 auto;
+    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .form-header { margin-bottom: 40px; }
+  .form-title { font-size: 32px; font-weight: 800; color: #0F172A; letter-spacing: -1px; margin-bottom: 8px; }
+  .form-subtitle { font-size: 15px; color: #64748B; font-weight: 500; }
+
+  .input-group { margin-bottom: 20px; }
+  .input-label {
+    display: block; font-size: 12px; font-weight: 700; color: #475569;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+  
+  .input-wrapper { position: relative; display: flex; align-items: center; }
+  .input-icon { position: absolute; left: 16px; color: #94A3B8; pointer-events: none; }
+  
+  .form-input {
+    width: 100%; padding: 14px 16px 14px 44px; background: #FFF;
+    border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; font-weight: 500;
+    color: #0F172A; font-family: inherit; transition: 0.2s; outline: none;
+  }
+  .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
+
+  .forgot-link {
+    display: block; text-align: right; font-size: 13px; font-weight: 600;
+    color: #E55B2D; text-decoration: none; margin-top: -8px; margin-bottom: 24px;
+  }
+
+  .btn-submit {
+    width: 100%; padding: 14px; background: #0F172A; color: #FFF;
+    border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-submit:hover:not(:disabled) { background: #E55B2D; transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .register-prompt { text-align: center; margin-top: 32px; font-size: 14px; color: #64748B; font-weight: 500; }
+  .register-link { color: #E55B2D; font-weight: 700; text-decoration: none; }
+
+  .mobile-footer { display: none; text-align: center; margin-top: 40px; font-size: 11px; font-weight: 700; color: #94A3B8; letter-spacing: 1px; }
+
+  @media(max-width: 960px) {
+    .login-left { display: none; }
+    .login-right { padding: 40px 24px; }
+    .mobile-footer { display: block; }
+  }
+`;
 
 export default function LoginPage() {
-  // Form data state
-  const [form, setForm]     = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const { login }  = useAuth();
-  const navigate   = useNavigate();
-
-  // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validation
-    if (!form.email || !form.password) {
-      return toast.error('Please enter email and password');
-    }
-
+    if (!form.email || !form.password) return toast.error('Please enter your email and password.');
     setLoading(true);
     try {
-      // API call karo login ke liye
       const { data } = await API.post('/auth/login', form);
-      login(data.user, data.token); // auth context update karo
-      toast.success('Welcome back!');
-      navigate('/home');
+      login(data.user, data.token);
+      toast.success('Welcome back! 🚀');
+      navigate('/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed. Check your credentials.');
+      toast.error(err.response?.data?.message || 'Login failed. Please check credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Form field update helper
-  const updateField = (key) => (val) => setForm({ ...form, [key]: val });
+  const updateField = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
   return (
-    <div className="auth-wrap">
-      <style>{AUTH_STYLES}</style>
+    <div className="login-root">
+      <style>{STYLES}</style>
 
-      {/* Left decorative panel - desktop par dikhta hai */}
-      <div className="auth-left">
-        {/* Diagonal grid lines */}
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="auth-grid-line" style={{ left: `${8 + i * 21}%` }} />
-        ))}
+      {/* ── LEFT PANEL ── */}
+      <div className="login-left">
+        <div className="bg-dots" />
+        <div className="brand-logo">Your<span style={{ color: "#E55B2D" }}>Notes</span>.</div>
 
-        {/* Glow effect */}
-        <div style={{
-          position: 'absolute', bottom: -60, right: -60,
-          width: 320, height: 320,
-          background: 'radial-gradient(circle, rgba(229,91,45,0.07) 0%, transparent 70%)',
-        }} />
-
-        {/* Logo - top left */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 24, height: 24, background: '#E55B2D',
-              borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
-              </svg>
-            </div>
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
-              Your<span style={{ color: '#E55B2D' }}>Notes</span>
-            </span>
-          </div>
-        </div>
-
-        {/* Main marketing text */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="auth-badge">
-            <span className="auth-dot" />
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#E55B2D', letterSpacing: '0.08em' }}>
-              STUDENT NOTES PLATFORM
-            </span>
-          </div>
-          <h2 style={{
-            fontSize: 42, fontWeight: 800, color: '#fff',
-            letterSpacing: '-2px', lineHeight: 1.06, marginBottom: 16,
-          }}>
-            Welcome back<br />to your workspace.
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, lineHeight: 1.65, maxWidth: 300 }}>
-            Notes, AI summaries and flashcards — all in one place.
-          </p>
-
-          {/* Stats row */}
-          <div style={{ display: 'flex', gap: 28, marginTop: 40 }}>
-            {[
-              { v: '1M+',  l: 'Students' },
-              { v: '662k', l: 'Notes'    },
-              { v: 'Free', l: 'Always'   },
-            ].map((s, i) => (
-              <div key={i}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: '#E55B2D', letterSpacing: '-1px' }}>{s.v}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2, fontWeight: 500 }}>{s.l}</div>
+        <div className="left-content">
+          <div className="saas-badge"><Zap size={12} /> Workspace Ready</div>
+          <h2 className="left-title">Focus on what matters most.</h2>
+          
+          <div className="features-stack">
+            <div className="feat-item">
+              <div className="feat-icon"><Sparkles size={16} /></div>
+              <div className="feat-text">
+                <h4>AI-Powered Review</h4>
+                <p>Turn complex notes into structured summaries and smart flashcards instantly.</p>
               </div>
-            ))}
+            </div>
+            <div className="feat-item">
+              <div className="feat-icon"><ShieldCheck size={16} /></div>
+              <div className="feat-text">
+                <h4>Private & Secure</h4>
+                <p>Your data is encrypted and accessible only to you. Always private by design.</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Footer card */}
-        <div style={{
-          position: 'relative', zIndex: 1,
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 10, padding: '16px 18px',
-        }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: '#E55B2D', letterSpacing: '0.08em', marginBottom: 3 }}>
-            ✓ STUDENT PROJECT
-          </p>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
-            S.V. Polytechnic College, Bhopal · 2026
-          </p>
+        <div className="left-footer">
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#0F172A', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Built for Students</div>
+          <div style={{ fontSize: 13, color: '#64748B', fontWeight: 500 }}>S.V. Polytechnic College, Bhopal · 2026</div>
         </div>
       </div>
 
-      {/* Right side: Login form */}
-      <div className="auth-right">
-        <div style={{ marginBottom: 36 }}>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: '#fff', letterSpacing: '-1.2px', marginBottom: 6 }}>
-            Sign In
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 14 }}>
-            Log in to your account to continue.
-          </p>
-        </div>
-
-        {/* Login form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <FieldGroup
-            label="Email Address"
-            icon={<Mail size={14} />}
-            type="email"
-            placeholder="name@example.com"
-            value={form.email}
-            onChange={updateField('email')}
-          />
-          <FieldGroup
-            label="Password"
-            icon={<Lock size={14} />}
-            type="password"
-            placeholder="••••••••"
-            value={form.password}
-            onChange={updateField('password')}
-          />
-
-          {/* Forgot password link */}
-          <div style={{ textAlign: 'right', marginTop: -6 }}>
-            <Link to="/forgot-password" style={{ fontSize: 12, color: '#E55B2D', fontWeight: 600 }}>
-              Forgot password?
-            </Link>
+      {/* ── RIGHT PANEL ── */}
+      <div className="login-right">
+        <div className="form-container">
+          <div className="form-header">
+            <h2 className="form-title">Sign In</h2>
+            <p className="form-subtitle">Enter your details to access your dashboard.</p>
           </div>
 
-          {/* Submit button */}
-          <button type="submit" disabled={loading} className="auth-btn" style={{ marginTop: 4 }}>
-            {loading ? 'Signing in...' : (
-              <><span>Sign In</span><ArrowRight size={15} /></>
-            )}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label className="input-label">Email Address</label>
+              <div className="input-wrapper">
+                <Mail size={18} className="input-icon" />
+                <input type="email" placeholder="name@example.com" value={form.email} onChange={updateField('email')} className="form-input" required />
+              </div>
+            </div>
 
-        {/* Register link */}
-        <p style={{ textAlign: 'center', marginTop: 28, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-          Don&apos;t have an account?{' '}
-          <Link to="/register" style={{ color: '#E55B2D', fontWeight: 700 }}>Register here</Link>
-        </p>
+            <div className="input-group">
+              <label className="input-label">Password</label>
+              <div className="input-wrapper">
+                <Lock size={18} className="input-icon" />
+                <input type="password" placeholder="••••••••" value={form.password} onChange={updateField('password')} className="form-input" required />
+              </div>
+            </div>
 
-        <p style={{
-          marginTop: 'auto', paddingTop: 36,
-          textAlign: 'center', fontSize: 10,
-          color: 'rgba(255,255,255,0.1)', letterSpacing: '3px', fontWeight: 700,
-        }}>
-          YOURNOTES · BHOPAL · 2026
-        </p>
+            <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+
+            <button type="submit" disabled={loading} className="btn-submit">
+              {loading ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : <>Sign In <ArrowRight size={18} /></>}
+            </button>
+          </form>
+
+          <p className="register-prompt">
+            Don&apos;t have an account? <Link to="/register" className="register-link">Register for free</Link>
+          </p>
+          
+          <div className="mobile-footer">YOURNOTES · BHOPAL · 2026</div>
+        </div>
       </div>
     </div>
   );

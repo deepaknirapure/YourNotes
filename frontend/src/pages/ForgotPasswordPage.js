@@ -1,7 +1,106 @@
--e // ye Forgot Password page hai - password reset email bhejne ke liye
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Key, MailCheck, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
 import API from "../api/axios";
+
+const STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  body { background: #FAFAFA; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+
+  .auth-root {
+    min-height: 100vh; display: flex; flex-direction: column; 
+    align-items: center; justify-content: center; padding: 24px;
+    background: #FAFAFA; position: relative;
+  }
+
+  /* Subtle Background Pattern */
+  .bg-pattern {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
+    background-size: 32px 32px; opacity: 0.4;
+  }
+
+  .brand-logo {
+    font-size: 24px; font-weight: 800; color: #0F172A; 
+    letter-spacing: -0.5px; margin-bottom: 32px; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .auth-card {
+    background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px;
+    padding: 48px 40px; width: 100%; max-width: 440px; z-index: 1;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
+    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .icon-wrap {
+    width: 56px; height: 56px; background: #F8FAFC; border: 1px solid #E2E8F0;
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px; color: #0F172A;
+  }
+
+  .icon-wrap.success {
+    background: #ECFDF5; border-color: #D1FAE5; color: #10B981;
+  }
+
+  .auth-title {
+    font-size: 24px; font-weight: 800; color: #0F172A; 
+    letter-spacing: -0.5px; text-align: center; margin-bottom: 12px;
+  }
+
+  .auth-subtitle {
+    font-size: 14px; color: #64748B; text-align: center; 
+    line-height: 1.6; margin-bottom: 32px;
+  }
+
+  .form-group { margin-bottom: 24px; }
+  
+  .form-label {
+    display: block; font-size: 12px; font-weight: 700; color: #475569;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+
+  .form-input {
+    width: 100%; padding: 14px 16px; background: #FFF; 
+    border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; 
+    color: #0F172A; font-family: inherit; transition: 0.2s; outline: none;
+  }
+  .form-input::placeholder { color: #94A3B8; }
+  .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
+
+  .btn-primary {
+    width: 100%; padding: 14px; background: #0F172A; color: #FFF;
+    border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer; transition: 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary:hover:not(:disabled) { background: #E55B2D; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229, 91, 45, 0.2); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .error-alert {
+    background: #FEF2F2; border: 1px solid #FEE2E2; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 10px;
+  }
+  .error-text { font-size: 13px; color: #EF4444; font-weight: 500; line-height: 1.5; }
+
+  .back-link {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: #64748B; font-size: 14px; font-weight: 600; text-decoration: none;
+    transition: 0.2s; margin-top: 32px;
+  }
+  .back-link:hover { color: #0F172A; }
+
+  .footer-text {
+    font-size: 11px; font-weight: 700; color: #94A3B8; letter-spacing: 2px;
+    text-transform: uppercase; position: absolute; bottom: 32px;
+  }
+`;
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -17,171 +116,96 @@ export default function ForgotPasswordPage() {
       await API.post("/auth/forgot-password", { email });
       setSent(true);
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+      setError(err.response?.data?.message || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#0a0a0a",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "24px", fontFamily: "'Inter', 'DM Sans', sans-serif",
-      position: "relative", overflow: "hidden",
-    }}>
-      <style>{`
+    <div className="auth-root">
+      <style>{STYLES}</style>
+      <div className="bg-pattern" />
+
+      {/* Brand Logo */}
+      <div className="brand-logo">
+        Your<span style={{ color: "#E55B2D" }}>Notes</span>.
+      </div>
+
+      <div className="auth-card">
+        {/* Dynamic Header Icon */}
+        <div className={`icon-wrap ${sent ? "success" : ""}`}>
+          {sent ? <MailCheck size={28} strokeWidth={2} /> : <Key size={28} strokeWidth={2} />}
+        </div>
+
+        <h1 className="auth-title">
+          {sent ? "Check your inbox" : "Forgot your password?"}
+        </h1>
         
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        input:focus { outline: none; }
-
-        @keyframes ynFadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes ynPulse { 0%,100% { opacity:1; } 50% { opacity:.3; } }
-        @keyframes ynSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        .yn-fp-input {
-          width: 100%; padding: 14px 16px;
-          background: rgba(255,255,255,.04);
-          border: 1.5px solid rgba(255,255,255,.1);
-          border-radius: 10px; font-size: 15px; color: #fff;
-          font-family: 'Inter', 'DM Sans', sans-serif;
-          transition: border-color .2s, background .2s;
-        }
-        .yn-fp-input::placeholder { color: rgba(255,255,255,.25); }
-        .yn-fp-input:focus { border-color: #E55B2D; background: rgba(229,91,45,.05); }
-
-        .yn-fp-btn {
-          width: 100%; padding: 15px;
-          background: #E55B2D; color: #fff; border: none;
-          border-radius: 10px; font-weight: 700; font-size: 15px;
-          font-family: 'Inter', 'DM Sans', sans-serif;
-          cursor: pointer; transition: all .2s;
-        }
-        .yn-fp-btn:hover:not(:disabled) { background: #c94d23; transform: translateY(-1px); box-shadow: 0 12px 32px rgba(229,91,45,.3); }
-        .yn-fp-btn:disabled { opacity: .6; cursor: not-allowed; }
-      `}</style>
-
-      {/* Background decorative lines */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} style={{
-            position: "absolute", width: "1px", height: "200%",
-            background: "rgba(255,255,255,0.02)",
-            left: `${8 + i * 16}%`, top: "-50%",
-            transform: "rotate(15deg)",
-          }} />
-        ))}
-        <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: 500, height: 300, background: "radial-gradient(ellipse, rgba(229,91,45,.06) 0%, transparent 70%)", pointerEvents: "none" }} />
-      </div>
-
-      {/* Logo top */}
-      <div style={{ position: "absolute", top: 32, left: 40, display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 30, height: 30, background: "#E55B2D", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-            <path d="M18.375 2.625a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>
-          </svg>
-        </div>
-        <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 17, color: "#fff" }}>
-          Your<span style={{ color: "#E55B2D" }}>Notes</span>
-        </span>
-      </div>
-
-      {/* Card */}
-      <div style={{
-        width: "100%", maxWidth: 420, position: "relative", zIndex: 1,
-        animation: "ynFadeUp .7s cubic-bezier(.16,1,.3,1) both",
-      }}>
-        {/* Icon */}
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <div style={{
-            width: 64, height: 64, borderRadius: 14, background: "rgba(229,91,45,.1)",
-            border: "1px solid rgba(229,91,45,.25)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 20px", fontSize: 28,
-          }}>
-            {sent ? "✅" : "🔑"}
-          </div>
-          <h1 style={{
-            fontFamily: "'Syne', sans-serif", fontSize: 32, fontWeight: 800,
-            color: "#fff", letterSpacing: "-1.2px", marginBottom: 8,
-          }}>
-            {sent ? "Check Your Inbox" : "Forgot Password?"}
-          </h1>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,.4)" }}>
-            {sent ? "Reset link bhej diya gaya hai" : "Hum aapko reset link bhejenge"}
-          </p>
-        </div>
-
-        {/* Card body */}
-        <div style={{
-          background: "#111", border: "1px solid rgba(255,255,255,.08)",
-          borderRadius: 16, padding: "32px",
-        }}>
-          {sent ? (
-            <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,.5)", lineHeight: 1.8, marginBottom: 28 }}>
-                <strong style={{ color: "#E55B2D" }}>{email}</strong> pe ek reset link bheja gaya hai.<br />
-                Apna inbox check karein aur link par click karein.
-              </p>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,.25)", marginBottom: 24 }}>
-                Email nahi mili? Spam folder check karein.
-              </p>
-              <Link to="/login" style={{
-                display: "block", padding: "14px", background: "#E55B2D",
-                color: "#fff", borderRadius: 10, textDecoration: "none",
-                fontWeight: 700, fontSize: 15, textAlign: "center",
-              }}>
-                Back to Login →
-              </Link>
-            </div>
-          ) : (
-            <>
-              {error && (
-                <div style={{
-                  background: "rgba(239,68,68,.1)", border: "1px solid rgba(239,68,68,.2)",
-                  borderRadius: 8, padding: "12px 16px", marginBottom: 20,
-                }}>
-                  <p style={{ fontSize: 13, color: "#ef4444" }}>{error}</p>
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 8 }}>
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@example.com"
-                    required
-                    className="yn-fp-input"
-                  />
-                </div>
-
-                <button type="submit" disabled={loading} className="yn-fp-btn">
-                  {loading ? (
-                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                      <span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "ynSpin 1s linear infinite", display: "inline-block" }} />
-                      Sending...
-                    </span>
-                  ) : "Send Reset Link →"}
-                </button>
-              </form>
-            </>
-          )}
-
-          <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "rgba(255,255,255,.25)" }}>
-            <Link to="/login" style={{ color: "#E55B2D", textDecoration: "none", fontWeight: 600 }}>← Back to login</Link>
-          </p>
-        </div>
-
-        <p style={{ textAlign: "center", marginTop: 24, fontSize: 10, color: "rgba(255,255,255,.1)", letterSpacing: "3px", fontWeight: 700 }}>
-          YOURNOTES · BHOPAL · 2026
+        <p className="auth-subtitle">
+          {sent 
+            ? "We have sent a password recovery link to your email address." 
+            : "Enter the email address associated with your account and we'll send you a link to reset your password."}
         </p>
+
+        {sent ? (
+          <div>
+            <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "16px", borderRadius: "12px", marginBottom: "32px", textAlign: "center" }}>
+              <span style={{ fontSize: "14px", fontWeight: 600, color: "#0F172A" }}>{email}</span>
+            </div>
+            <p style={{ fontSize: "13px", color: "#64748B", textAlign: "center", marginBottom: "24px" }}>
+              Didn't receive the email? Check your spam folder.
+            </p>
+            <Link to="/login" style={{ textDecoration: "none" }}>
+              <button className="btn-primary">
+                Return to Login
+              </button>
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            {error && (
+              <div className="error-alert">
+                <AlertCircle size={16} color="#EF4444" style={{ flexShrink: 0, marginTop: "2px" }} />
+                <span className="error-text">{error}</span>
+              </div>
+            )}
+
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                required
+                className="form-input"
+              />
+            </div>
+
+            <button type="submit" disabled={loading} className="btn-primary">
+              {loading ? (
+                <>
+                  <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                  Sending link...
+                </>
+              ) : (
+                "Send Reset Link"
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* Back Link */}
+        {!sent && (
+          <Link to="/login" className="back-link">
+            <ArrowLeft size={16} /> Back to login
+          </Link>
+        )}
+      </div>
+
+      <div className="footer-text">
+        YOURNOTES · BHOPAL · 2026
       </div>
     </div>
   );
