@@ -1,34 +1,41 @@
+// yaha file authentication (login/logout) ka state manage karti hai
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+// Context banao jo poori app mein use hoga
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // User ki information store karne ke liye state
+  const [user, setUser]       = useState(null);
+  const [token, setToken]     = useState(null);
+  const [loading, setLoading] = useState(true); // pehle load ho raha hai
 
-  // Warm up backend on app start (handles Render free tier cold start)
+  // App open hone par backend ko warm-up karo (free hosting ke liye)
   useEffect(() => {
-    const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-    fetch(`${apiBase}/health`).catch(() => {}); // silent ping
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+    fetch(`${apiUrl}/health`).catch(() => {}); // error ignore karo
   }, []);
 
-  // Hydrate auth state from localStorage — single source of truth, no race condition
+  // App start hone par localStorage se saved login check karo
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
+    const savedUser  = localStorage.getItem('user');
     const savedToken = localStorage.getItem('token');
+
     if (savedUser && savedToken) {
       try {
         setUser(JSON.parse(savedUser));
         setToken(savedToken);
-      } catch (_) {
+      } catch {
+        // Agar data corrupt hai to clear kar do
         localStorage.removeItem('user');
         localStorage.removeItem('token');
       }
     }
-    setLoading(false);
+
+    setLoading(false); // loading khatam
   }, []);
 
+  // Login karne par user aur token save karo
   const login = (userData, tokenData) => {
     setUser(userData);
     setToken(tokenData);
@@ -36,6 +43,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
+  // Logout karne par sab clear karo
   const logout = useCallback(() => {
     setUser(null);
     setToken(null);
@@ -43,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   }, []);
 
-  // Update user in state + localStorage (used after profile edits)
+  // Profile update hone par user info update karo
   const updateUser = useCallback((updatedUser) => {
     setUser(updatedUser);
     localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -56,4 +64,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Custom hook - easily auth data use karne ke liye
 export const useAuth = () => useContext(AuthContext);

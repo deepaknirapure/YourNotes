@@ -1,3 +1,4 @@
+-e // यह Dashboard page hai - notes create, search, aur manage karne ke liye
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Plus, Search, Star, Folder, Trash2,
@@ -88,7 +89,7 @@ export default function DashboardPage() {
       setNotes(notesRes.data);
       setFolders(foldersRes.data);
       setStats(dashRes.data);
-    } catch { toast.error("Data load nahi ho saka. Refresh karein."); }
+    } catch { toast.error("Could not load data. Please refresh."); }
     finally { setLoading(false); }
   }, []);
 
@@ -105,7 +106,7 @@ export default function DashboardPage() {
       const { data } = await API.post("/notes", { title: "Untitled Note", content: "" });
       setNotes(prev => [data, ...prev]);
       setSelectedNote(data);
-    } catch { toast.error("Note create nahi ho saka"); }
+    } catch { toast.error("Could not create note"); }
   };
 
   const toggleStar = async (note, e) => {
@@ -113,7 +114,7 @@ export default function DashboardPage() {
     try {
       await API.patch(`/notes/${note._id}/star`);
       setNotes(prev => prev.map(n => n._id === note._id ? { ...n, isStarred: !n.isStarred } : n));
-    } catch { toast.error("Star update nahi ho saka"); }
+    } catch { toast.error("Could not update star"); }
   };
 
   const trashNote = async (noteId) => {
@@ -121,28 +122,28 @@ export default function DashboardPage() {
       await API.patch(`/notes/${noteId}/trash`);
       setNotes(prev => prev.map(n => n._id === noteId ? { ...n, isTrashed: true } : n));
       if (selectedNote?._id === noteId) setSelectedNote(null);
-      toast.success("Note trash mein move ho gaya");
+      toast.success("Note moved to trash");
       setOpenMenuId(null);
-    } catch { toast.error("Trash nahi ho saka"); }
+    } catch { toast.error("Could not move to trash"); }
   };
 
   const deleteNote = async (noteId) => {
-    if (!window.confirm("Note permanently delete ho jayega. Sure ho?")) return;
+    if (!window.confirm("Are you sure you want to permanently delete this note??")) return;
     try {
       await API.delete(`/notes/${noteId}`);
       setNotes(prev => prev.filter(n => n._id !== noteId));
       if (selectedNote?._id === noteId) setSelectedNote(null);
-      toast.success("Note delete ho gaya");
+      toast.success("Note deleted permanently");
       setOpenMenuId(null);
-    } catch { toast.error("Delete nahi ho saka"); }
+    } catch { toast.error("Could not delete note"); }
   };
 
   const restoreNote = async (noteId) => {
     try {
       await API.patch(`/notes/${noteId}/restore`);
       setNotes(prev => prev.map(n => n._id === noteId ? { ...n, isTrashed: false } : n));
-      toast.success("Note restore ho gaya!");
-    } catch { toast.error("Restore nahi ho saka"); }
+      toast.success("Note restored!");
+    } catch { toast.error("Could not restore note"); }
   };
 
   const shareNote = async (note, e) => {
@@ -151,8 +152,8 @@ export default function DashboardPage() {
       const { data } = await API.post(`/notes/${note._id}/share`);
       const link = `${window.location.origin}/shared/${data.shareToken}`;
       await navigator.clipboard.writeText(link);
-      toast.success("Share link copy ho gaya!");
-    } catch { toast.error("Share link generate nahi ho saka"); }
+      toast.success("Share link copied!");
+    } catch { toast.error("Could not generate share link"); }
   };
 
   const createFolder = async () => {
@@ -162,7 +163,7 @@ export default function DashboardPage() {
       const { data } = await API.post("/folders", { name: newFolderName.trim(), color: "#E55B2D", icon: "📁" });
       setFolders(prev => [...prev, data]);
       setNewFolderName(""); setShowNewFolder(false);
-      toast.success("Folder create ho gaya!");
+      toast.success("Folder created!");
     } catch (err) {
       toast.error(err.response?.data?.message || "Folder create nahi ho saka");
     } finally { setCreatingFolder(false); }
@@ -240,10 +241,10 @@ export default function DashboardPage() {
             <div className="db-empty">
               <div className="db-empty-icon"><FileText size={20} /></div>
               <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(255,255,255,.5)" }}>
-                {searchQuery ? "Koi note nahi mila" : "Koi note nahi hai"}
+                {searchQuery ? "No notes found" : "No notes yet"}
               </div>
               <div style={{ fontSize: 12, color: "rgba(255,255,255,.25)" }}>
-                {searchQuery ? "Try a different search" : "New Note button se start karein"}
+                {searchQuery ? "Try a different search" : "Click New Note to get started"}
               </div>
             </div>
           ) : (

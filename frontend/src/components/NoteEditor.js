@@ -1,3 +1,5 @@
+// यह Note Editor component hai - notes likhne, edit karne aur AI features use karne ke liye
+// Features: Auto-save, Rich text, AI summary, Flashcards, Quiz, Voice input, Tags
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Bot, CreditCard, PenLine, FileText, ArrowLeft, Save, Check, Loader2,

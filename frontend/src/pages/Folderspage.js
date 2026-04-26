@@ -1,3 +1,4 @@
+-e // यह Folders page hai - notes ko folders mein organize karne ke liye
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Folder, FolderPlus, MoreHorizontal, Edit2, Trash2, FileText, X, Check, RefreshCw, Menu } from "lucide-react";

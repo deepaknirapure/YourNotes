@@ -1,3 +1,4 @@
+-e // यह Reset Password page hai - naya password set karne ke liye
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { KeyRound, Eye, EyeOff, CheckCircle2 } from "lucide-react";
@@ -15,16 +16,16 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password.length < 6) return toast.error("Password kam se kam 6 characters ka hona chahiye");
-    if (password !== confirm) return toast.error("Passwords match nahi kar rahe");
+    if (password.length < 6) return toast.error("Password must be at least 6 characters");
+    if (password !== confirm) return toast.error("Passwords do not match");
     setLoading(true);
     try {
       await API.post(`/auth/reset-password/${token}`, { password });
       setDone(true);
-      toast.success("Password reset ho gaya!");
+      toast.success("Password reset successful!");
       setTimeout(() => navigate("/login"), 2500);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Reset link expired ya invalid hai");
+      toast.error(err.response?.data?.message || "Reset link is expired or invalid");
     } finally {
       setLoading(false);
     }

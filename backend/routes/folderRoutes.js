@@ -1,3 +1,4 @@
+// Folder routes — folders ke CRUD endpoints
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
@@ -5,14 +6,15 @@ const {
   getFolders,
   createFolder,
   updateFolder,
-  deleteFolder
+  deleteFolder,
 } = require('../controllers/folderController');
 
-router.use(protect); // Saare routes protected hain
+// Saare routes protected hain — login zaroori hai
+router.use(protect);
 
-router.get('/', getFolders);
-router.post('/', createFolder);
-router.put('/:id', updateFolder);
+router.get('/',      getFolders);
+router.post('/',     createFolder);
+router.put('/:id',   updateFolder);
 router.delete('/:id', deleteFolder);
 
 module.exports = router;

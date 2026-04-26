@@ -1,3 +1,4 @@
+-e // यह Landing page hai - app ka main marketing page, bina login ke dikhta hai
 import { Sparkles, CreditCard, Folder, Search, Share2, Lock } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState, useRef } from "react";

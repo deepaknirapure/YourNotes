@@ -1,3 +1,4 @@
+-e // यह Flashcard Review page hai - notes se flashcards banao aur revise karo
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreditCard, ChevronRight, ChevronLeft, RotateCcw, Check, X, Sparkles, Menu, Plus, Flame } from "lucide-react";
@@ -72,7 +73,7 @@ export default function FlashcardReviewPage() {
         });
         setFlashcards(due);
       })
-      .catch(() => toast.error("Flashcards load nahi ho sake"))
+      .catch(() => toast.error("Could not load flashcards"))
       .finally(() => setLoading(false));
   }, []);
 

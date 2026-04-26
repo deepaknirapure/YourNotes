@@ -1,3 +1,4 @@
+-e // यह Trash page hai - deleted notes dekhne, restore karne ya permanently delete karne ke liye
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Trash2, RotateCcw, X, AlertTriangle, FileText, RefreshCw, Menu } from "lucide-react";
@@ -68,7 +69,7 @@ export default function TrashPage() {
       await API.patch(`/notes/${noteId}/restore`);
       setNotes(prev => prev.filter(n => n._id !== noteId));
       toast.success("Note restore ho gaya! ✅");
-    } catch { toast.error("Restore nahi ho saka"); }
+    } catch { toast.error("Could not restore"); }
     finally { setActionLoading(null); }
   };
 
@@ -78,8 +79,8 @@ export default function TrashPage() {
       await API.delete(`/notes/${noteId}`);
       setNotes(prev => prev.filter(n => n._id !== noteId));
       setConfirmId(null);
-      toast.success("Note permanently delete ho gaya");
-    } catch { toast.error("Delete nahi ho saka"); }
+      toast.success("Note permanently deleted");
+    } catch { toast.error("Could not delete"); }
     finally { setActionLoading(null); }
   };
 

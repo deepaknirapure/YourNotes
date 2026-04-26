@@ -1,3 +1,4 @@
+-e // यह Starred page hai - starred/important notes dekhne ke liye
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star, FileText, Search, RefreshCw, Menu } from "lucide-react";

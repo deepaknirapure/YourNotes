@@ -1,7 +1,8 @@
-const express = require("express");
+// Community routes — shared notes community ke endpoints
+const express = require('express');
 const router = express.Router();
-const { protect } = require("../middleware/authMiddleware");
-const upload = require("../middleware/uploadMiddleware");
+const { protect } = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 const {
   uploadNote,
   getFeed,
@@ -12,21 +13,22 @@ const {
   getNoteById,
   getUserNotes,
   deleteNote,
-} = require("../controllers/communityController");
+} = require('../controllers/communityController');
 
-// ── Static / prefix routes MUST come before wildcard /:id ──────────────────
-router.get("/feed",           protect, getFeed);
-router.get("/user/:userId",   protect, getUserNotes);   // was shadowed by /:id
+// IMPORTANT: Static/prefix routes pehle aani chahiye — /:id se pehle
+// Warna "/feed" ko /:id samjh lega Express
+router.get('/feed',         protect, getFeed);
+router.get('/user/:userId', protect, getUserNotes);
 
-// ── Upload ──────────────────────────────────────────────────────────────────
-router.post("/upload", protect, upload.single("file"), uploadNote);
+// File upload route
+router.post('/upload', protect, upload.single('file'), uploadNote);
 
-// ── Wildcard single-note routes (kept last to avoid shadowing above) ────────
-router.get("/:id",             protect, getNoteById);
-router.post("/:id/like",       protect, toggleLike);
-router.post("/:id/save",       protect, toggleSave);
-router.post("/:id/download",   protect, downloadNote);
-router.post("/:id/comment",    protect, addComment);
-router.delete("/:id",          protect, deleteNote);
+// Single note routes — yeh baad mein (shadowing avoid karne ke liye)
+router.get('/:id',            protect, getNoteById);
+router.post('/:id/like',      protect, toggleLike);
+router.post('/:id/save',      protect, toggleSave);
+router.post('/:id/download',  protect, downloadNote);
+router.post('/:id/comment',   protect, addComment);
+router.delete('/:id',         protect, deleteNote);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+-e // यह Ask AI page hai - AI chatbot se questions poochne ke liye
 import { useState, useRef, useEffect } from "react";
 import { Bot, Send, User, Sparkles, RefreshCw, Copy, Check, Menu, Paperclip, StopCircle } from "lucide-react";
 import API from "../api/axios";

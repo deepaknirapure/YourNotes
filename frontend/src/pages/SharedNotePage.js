@@ -1,3 +1,4 @@
+-e // यह Shared Note page hai - publicly shared notes dikhata hai (bina login ke)
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import API from "../api/axios";

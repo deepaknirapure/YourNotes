@@ -1,38 +1,46 @@
-import axios from "axios";
+// यह file backend se baat karne ka setup karti hai
+import axios from 'axios';
 
+// Axios instance banao - base URL aur timeout ke saath
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000/api",
-  timeout: 20000, // 20s — accounts for Render free tier cold start
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
+  timeout: 20000, // 20 seconds wait karo (free hosting slow hota hai)
 });
 
-// ── Request: attach token ─────────────────────────────────────────────────────
+// Request interceptor: har request ke saath token attach karo
 API.interceptors.request.use(
   (req) => {
-    const token = localStorage.getItem("token");
-    if (token) req.headers.Authorization = `Bearer ${token}`;
+    const token = localStorage.getItem('token');
+    if (token) {
+      req.headers.Authorization = `Bearer ${token}`;
+    }
     return req;
   },
   (error) => Promise.reject(error)
 );
 
-// ── Response: auto-logout on 401, retry on network error ─────────────────────
+// Response interceptor: errors handle karo
 API.interceptors.response.use(
-  (res) => res,
+  (res) => res, // success: waise hi return karo
+
   async (error) => {
     const config = error.config;
-    // Auto-logout on 401
+
+    // 401 = token expire ho gaya, logout karo
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
       return Promise.reject(error);
     }
-    // Retry once on network error or 5xx (handles Render cold start)
+
+    // Network error ya server error par ek baar retry karo
     if (!config._retry && (!error.response || error.response.status >= 500)) {
       config._retry = true;
-      await new Promise((r) => setTimeout(r, 2000)); // wait 2s then retry
+      await new Promise((r) => setTimeout(r, 2000)); // 2 second wait
       return API(config);
     }
+
     return Promise.reject(error);
   }
 );

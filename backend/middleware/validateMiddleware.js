@@ -1,15 +1,17 @@
+// Input validation middleware — user ke data ko check karta hai
 const { body, validationResult } = require('express-validator');
 
-// ✅ Handle validation errors
+// Validation errors ko handle karne ka function
 const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // Pehla error message return karo
     return res.status(400).json({ message: errors.array()[0].msg });
   }
   next();
 };
 
-// ✅ Register validation rules
+// Register ke liye validation rules
 const validateRegister = [
   body('name')
     .trim()
@@ -25,16 +27,23 @@ const validateRegister = [
   handleValidation,
 ];
 
-// ✅ Login validation rules
+// Login ke liye validation rules
 const validateLogin = [
-  body('email').trim().notEmpty().withMessage('Email is required').isEmail().withMessage('Valid email required'),
-  body('password').notEmpty().withMessage('Password is required'),
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Valid email required'),
+  body('password')
+    .notEmpty().withMessage('Password is required'),
   handleValidation,
 ];
 
-// ✅ Note validation rules
+// Note create/update ke liye validation rules
 const validateNote = [
-  body('title').optional().trim().isLength({ max: 200 }).withMessage('Title too long'),
+  body('title')
+    .optional()
+    .trim()
+    .isLength({ max: 200 }).withMessage('Title too long (max 200 characters)'),
   handleValidation,
 ];
 
