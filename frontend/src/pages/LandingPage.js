@@ -1,4 +1,4 @@
-import { Sparkles, CreditCard, Folder, Search, Share2, Lock, ChevronDown, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
+import { Sparkles, Bot, CreditCard, Folder, Search, Share2, Lock, ChevronDown, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 // Updated Features Array
 const features = [
   { icon: Sparkles, title: "AI Note Summaries", desc: "One click to get a structured summary and key points from any note, powered by Groq AI." },
+  { icon: Bot, title: "AI Assistant", desc: "Get instant help with your studies using our AI-powered assistant." },
   { icon: CreditCard, title: "Smart Flashcards", desc: "Auto-generate question-answer pairs with SM-2 spaced repetition scheduling for better recall." },
   { icon: Folder, title: "Folders & Tags", desc: "Color-coded folders with tags. Organize all your subjects perfectly and find notes instantly." },
   { icon: Search, title: "Full-Text Search", desc: "Instant search across all your notes, including content, tags, and titles." },
