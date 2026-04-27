@@ -1,25 +1,23 @@
-import { Sparkles, Bot, CreditCard, Folder, Search, Share2, Lock, ChevronDown, CheckCircle2, XCircle, ArrowRight, MessageSquare, Zap, Brain } from "lucide-react";
+import { Sparkles, Bot, CreditCard, Folder, Search, Share2, Lock, ChevronDown, CheckCircle2, XCircle, ArrowRight, MessageSquare, Zap, Brain, Users, Globe } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Updated Features Array
+// Updated Features Array (Included Community)
 const features = [
+  { icon: Bot, title: "Ask AI Assistant", desc: "Instantly chat with your notes. Ask questions and get explanations like a personal tutor." },
+  { icon: Users, title: "Student Community", desc: "Browse, discover, and learn from public notes shared by other students in the community." },
   { icon: Sparkles, title: "AI Note Summaries", desc: "One click to get a structured summary and key points from any note, powered by Groq AI." },
-  { icon: Bot, title: "Ask AI Assistant", desc: "Instantly chat with your notes. Ask questions, clarify doubts, and get explanations like a personal tutor." },
-  { icon: CreditCard, title: "Smart Flashcards", desc: "Auto-generate question-answer pairs with SM-2 spaced repetition scheduling for better recall." },
-  { icon: Folder, title: "Folders & Tags", desc: "Color-coded folders with tags. Organize all your subjects perfectly and find notes instantly." },
-  { icon: Search, title: "Full-Text Search", desc: "Instant search across all your notes, including content, tags, and titles." },
-  { icon: Share2, title: "Share Notes", desc: "Generate a public link to share any note with classmates. No login needed to read." },
-  { icon: Lock, title: "Secure & Private", desc: "JWT authentication, bcrypt-hashed passwords. Your notes are only yours — always." },
+  { icon: CreditCard, title: "Smart Flashcards", desc: "Auto-generate QA pairs with spaced repetition scheduling for better recall." },
+  { icon: Share2, title: "Public Sharing", desc: "Share your notes with a link. No login needed for others to read your insights." },
+  { icon: Lock, title: "Secure & Private", desc: "JWT auth and hashed passwords. Your personal notes are only yours — always." },
 ];
 
 const faqs = [
-  { q: "Is YourNotes completely free?", a: "Yes! YourNotes is free for all students. No credit card, no hidden fees, no limits. Just sign up and start studying." },
-  { q: "How does the Ask AI feature work?", a: "Ask AI is your personal study assistant. It uses Groq AI to read your specific notes and answer any questions you have about them, making complex topics easy to understand." },
-  { q: "What is spaced repetition (SM-2)?", a: "SM-2 is a scientifically proven algorithm that schedules flashcard reviews based on how well you remember each card, so you study more efficiently over time." },
-  { q: "Can I share notes with classmates?", a: "Yes. Any note can be shared via a unique public link in view-only mode. Recipients don't need an account to read shared notes." },
-  { q: "Is my data secure?", a: "All data is stored in MongoDB Atlas with JWT authentication. Passwords are hashed with bcrypt. We never share your data with third parties." },
+  { q: "What is the Community feature?", a: "The Community page is a hub where students can discover public notes shared by others. You can learn from their summaries and expand your knowledge base." },
+  { q: "Is YourNotes completely free?", a: "Yes! YourNotes is free for all students. No credit card, no hidden fees, no limits." },
+  { q: "How does the Ask AI feature work?", a: "Ask AI uses Groq Llama 3.3 to read your notes and answer questions about them, making complex topics easy to understand." },
+  { q: "Can I choose not to share my notes?", a: "Absolutely. All notes are private by default. They only appear in the community if you explicitly choose to make them public." },
 ];
 
 export default function LandingPage() {
@@ -49,100 +47,99 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#FAFAFA", minHeight: "100vh", overflowX: "hidden", color: "#0F172A" }}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#FFFFFF", minHeight: "100vh", overflowX: "hidden", color: "#0F172A" }}>
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        .saas-anim { opacity: 0; transform: translateY(24px); transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1); }
+        .saas-anim { opacity: 0; transform: translateY(20px); transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1); }
         .saas-anim.saas-visible { opacity: 1; transform: translateY(0); }
-        .bg-dots { background-image: radial-gradient(#CBD5E1 1px, transparent 1px); background-size: 24px 24px; }
-        .btn-primary { background: #0F172A; color: #FFF; border: none; padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary:hover { background: #E55B2D; transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(229, 91, 45, 0.4); }
-        .btn-secondary { background: #FFF; color: #0F172A; border: 1px solid #E2E8F0; padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .feature-card { background: #FFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 32px; transition: 0.2s; }
-        .feature-card:hover { border-color: #CBD5E1; transform: translateY(-4px); }
-        @media(max-width: 768px) { .mobile-stack { flex-direction: column !important; } .hero-title { font-size: 40px !important; } }
+        
+        .bg-grid { background-image: radial-gradient(#E2E8F0 1px, transparent 1px); background-size: 32px 32px; }
+        
+        .btn-minimal { background: #0F172A; color: #FFF; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-minimal:hover { background: #E55B2D; transform: translateY(-1px); }
+        
+        .btn-outline { background: transparent; color: #0F172A; border: 1px solid #E2E8F0; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-outline:hover { background: #F8FAFC; border-color: #CBD5E1; }
+
+        .f-card { border: 1px solid #F1F5F9; border-radius: 12px; padding: 32px; transition: 0.3s; background: #FFF; }
+        .f-card:hover { border-color: #E2E8F0; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
+
+        @media(max-width: 768px) { .mobile-stack { flex-direction: column !important; } .hero-title { font-size: 38px !important; } }
       `}</style>
 
       {/* NAVBAR */}
-      <nav style={{ position: "fixed", top: 0, width: "100%", zIndex: 200, background: scrollY > 10 ? "rgba(255, 255, 255, 0.85)" : "transparent", backdropFilter: scrollY > 10 ? "blur(12px)" : "none", borderBottom: scrollY > 10 ? "1px solid #E2E8F0" : "1px solid transparent", padding: "0 5%", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between", transition: "all 0.3s" }}>
-        <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.5px" }}>YOUR<span style={{ color: "#E55B2D" }}>NOTES</span ><span style={{color:"#5bb447"}}>.</span></div>
+      <nav style={{ position: "fixed", top: 0, width: "100%", zIndex: 200, background: scrollY > 10 ? "rgba(255, 255, 255, 0.9)" : "transparent", backdropFilter: "blur(10px)", borderBottom: scrollY > 10 ? "1px solid #F1F5F9" : "1px solid transparent", padding: "0 6%", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between", transition: "0.3s" }}>
+        <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.5px", display: 'flex', alignItems: 'center', gap: '4px' }}>
+          YOUR<span style={{ color: "#E55B2D" }}>NOTES</span><span style={{ color: "#E2E8F0" }}>|</span><span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600 }}>STUDENT OS</span>
+        </div>
         <div className="hide-mobile" style={{ display: "flex", gap: 32 }}>
-          <a href="#features" style={{ color: "#64748B", textDecoration: "none", fontSize: "14px", fontWeight: 600 }}>Features</a>
-          <a href="#how-it-works" style={{ color: "#64748B", textDecoration: "none", fontSize: "14px", fontWeight: 600 }}>How it works</a>
-          <a href="#faq" style={{ color: "#64748B", textDecoration: "none", fontSize: "14px", fontWeight: 600 }}>FAQ</a>
+          <a href="#features" style={{ color: "#64748B", textDecoration: "none", fontSize: "13px", fontWeight: 600 }}>Features</a>
+          <a href="#community" style={{ color: "#64748B", textDecoration: "none", fontSize: "13px", fontWeight: 600 }}>Community</a>
+          <a href="#faq" style={{ color: "#64748B", textDecoration: "none", fontSize: "13px", fontWeight: 600 }}>FAQ</a>
         </div>
         <div style={{ display: "flex", gap: 12 }}>
-          <button className="btn-secondary hide-mobile" onClick={() => navigate("/login")}>Sign in</button>
-          <button className="btn-primary" onClick={() => navigate("/register")}>Get Started</button>
+          <button className="btn-outline hide-mobile" onClick={() => navigate("/login")}>Login</button>
+          <button className="btn-minimal" onClick={() => navigate("/register")}>Sign Up</button>
         </div>
       </nav>
 
       {/* HERO SECTION */}
-      <section style={{ paddingTop: 160, paddingBottom: 100, paddingLeft: "5%", paddingRight: "5%", position: "relative", textAlign: "center" }}>
-        <div className="bg-dots" style={{ position: "absolute", inset: 0, zIndex: -1, opacity: 0.6 }} />
-        <div style={{ maxWidth: 840, margin: "0 auto" }}>
-          <h1 className="hero-title" style={{ fontSize: 68, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-2px", marginBottom: 24 }}>Your Notes,<br /><span style={{ color: "#E55B2D" }}>Supercharged by AI.</span></h1>
-          <p style={{ fontSize: 18, color: "#64748B", lineHeight: 1.6, maxWidth: 600, margin: "0 auto 40px", fontWeight: 500 }}>The all-in-one workspace where you can write notes, generate flashcards, and chat with an AI assistant to clear your doubts instantly.</p>
-          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <button className="btn-primary" onClick={() => navigate("/register")}>Start Learning Free <ArrowRight size={18} /></button>
-            <button className="btn-secondary" onClick={() => navigate("/login")}>View Demo</button>
+      <section style={{ paddingTop: 180, paddingBottom: 120, paddingLeft: "6%", paddingRight: "6%", position: "relative", textAlign: "center" }}>
+        <div className="bg-grid" style={{ position: "absolute", inset: 0, zIndex: -1, opacity: 0.5 }} />
+        <div style={{ maxWidth: 800, margin: "0 auto" }}>
+          <div className="saas-anim" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#F1F5F9', padding: '6px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: 700, color: '#475569', marginBottom: '24px' }}>
+            <Sparkles size={14} color="#E55B2D" /> Built for Modern Students
+          </div>
+          <h1 className="hero-title" style={{ fontSize: 62, fontWeight: 900, lineHeight: 1.1, letterSpacing: "-2.5px", marginBottom: 28, color: '#0F172A' }}>
+            Elevate your learning with <br /><span style={{ color: "#E55B2D" }}>Artificial Intelligence.</span>
+          </h1>
+          <p style={{ fontSize: 18, color: "#64748B", lineHeight: 1.6, maxWidth: 580, margin: "0 auto 40px" }}>
+            The minimalist workspace to capture notes, automate study cards, and collaborate with a global student community.
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <button className="btn-minimal" onClick={() => navigate("/register")}>Get Started for Free</button>
+            <button className="btn-outline" onClick={() => navigate("/login")}>View Community</button>
           </div>
         </div>
       </section>
 
-      {/* HOW IT WORKS SECTION (Ask AI Spotlight) */}
-      <section id="how-it-works" style={{ padding: "100px 5%", background: "#FFF", borderTop: "1px solid #E2E8F0" }}>
+      {/* COMMUNITY SPOTLIGHT */}
+      <section id="community" style={{ padding: "100px 6%", background: "#F8FAFC", borderTop: "1px solid #F1F5F9" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="saas-anim" style={{ textAlign: "center", marginBottom: 80 }}>
-            <h2 style={{ fontSize: 42, fontWeight: 800, marginBottom: 16 }}>Simplify Your Workflow</h2>
-            <p style={{ color: "#64748B", fontSize: 18 }}>From messy lectures to organized intelligence in 3 steps.</p>
-          </div>
-
-          <div className="mobile-stack" style={{ display: "flex", gap: "40px", alignItems: "center" }}>
+          <div className="mobile-stack" style={{ display: "flex", gap: "60px", alignItems: "center" }}>
             <div style={{ flex: 1 }} className="saas-anim">
-              <div style={{ marginBottom: "40px" }}>
-                <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
-                  <div style={{ width: "40px", height: "40px", background: "#F1F5F9", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", color: "#0F172A" }}>1</div>
-                  <div>
-                    <h3 style={{ fontSize: "20px", fontWeight: "700", marginBottom: "8px" }}>Write or Import</h3>
-                    <p style={{ color: "#64748B" }}>Create rich-text notes or paste your lecture content into our clean editor.</p>
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
-                  <div style={{ width: "40px", height: "40px", background: "#FFF5F2", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", color: "#E55B2D" }}>2</div>
-                  <div>
-                    <h3 style={{ fontSize: "20px", fontWeight: "700", marginBottom: "8px" }}>Ask AI & Summarize</h3>
-                    <p style={{ color: "#64748B" }}>Use <b>Ask AI</b> to explain tough concepts or get a structured summary in seconds.</p>
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: "16px" }}>
-                  <div style={{ width: "40px", height: "40px", background: "#F1F5F9", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", color: "#0F172A" }}>3</div>
-                  <div>
-                    <h3 style={{ fontSize: "20px", fontWeight: "700", marginBottom: "8px" }}>Master with Flashcards</h3>
-                    <p style={{ color: "#64748B" }}>Let AI generate flashcards from your notes for active recall and better exam prep.</p>
-                  </div>
-                </div>
-              </div>
+              <h2 style={{ fontSize: 36, fontWeight: 800, marginBottom: 20, letterSpacing: '-1px' }}>Learn together in the <span style={{ color: '#E55B2D' }}>Community</span>.</h2>
+              <p style={{ color: "#64748B", fontSize: 16, lineHeight: 1.7, marginBottom: 24 }}>
+                Education is better when shared. Our Community page allows you to explore public notes from students worldwide. Find summaries on complex topics, discover new study techniques, and get inspired by others.
+              </p>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: 600, color: '#475569' }}>
+                  <CheckCircle2 size={18} color="#E55B2D" /> Discover high-quality public notes
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: 600, color: '#475569' }}>
+                  <CheckCircle2 size={18} color="#E55B2D" /> Share your insights with the world
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: 600, color: '#475569' }}>
+                  <CheckCircle2 size={18} color="#E55B2D" /> Grow the global student knowledge base
+                </li>
+              </ul>
             </div>
-
-            {/* ASK AI FEATURE SPOTLIGHT */}
-            <div style={{ flex: 1, background: "#F8FAFC", borderRadius: "24px", padding: "32px", border: "1px solid #E2E8F0" }} className="saas-anim">
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-                <div style={{ width: "32px", height: "32px", background: "#0F172A", borderRadius: "80px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Bot size={18} color="#FFF" />
-                </div>
-                <span style={{ fontWeight: "700", fontSize: "14px" }}>Your AI Assistant</span>
+            
+            {/* Visual Minimal Mockup */}
+            <div style={{ flex: 1, background: "#FFF", borderRadius: "16px", padding: "24px", border: "1px solid #E2E8F0", boxShadow: '0 20px 40px -15px rgba(0,0,0,0.05)' }} className="saas-anim">
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid #F1F5F9', paddingBottom: '12px' }}>
+                <span style={{ fontWeight: 800, fontSize: '14px' }}>Global Feed</span>
+                <Globe size={16} color="#94A3B8" />
               </div>
-              
-              <div style={{ background: "#FFF", padding: "16px", borderRadius: "12px", border: "1px solid #E2E8F0", marginBottom: "16px", fontSize: "14px", color: "#64748B", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
-                "Explain the laws of Thermodynamics in simple terms from my Physics note."
+              <div style={{ padding: '12px', background: '#FAFAFA', borderRadius: '8px', marginBottom: '12px', border: '1px solid #F1F5F9' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#E55B2D', marginBottom: '4px' }}>#COMPUTER_SCIENCE</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>Data Structures & Algorithms</div>
+                <div style={{ fontSize: '12px', color: '#64748B' }}>By Nandkishor B. • 4 min ago</div>
               </div>
-              <div style={{ background: "#FFF5F2", padding: "16px", borderRadius: "12px", border: "1px solid #FFE4DB", fontSize: "14px", color: "#0F172A", lineHeight: "1.6" }}>
-                <Zap size={14} color="#E55B2D" style={{ marginBottom: "8px" }} />
-                Based on your notes: Thermodynamics is like a game where Energy is the score. The 1st Law says you can't win (energy is conserved), and the 2nd says you can't even break even...
-              </div>
-              <div style={{ marginTop: "24px", textAlign: "center" }}>
-                <span style={{ fontSize: "12px", color: "#94A3B8", fontWeight: "600", textTransform: "uppercase" }}>Powered by Groq Llama 3.3</span>
+              <div style={{ padding: '12px', background: '#FAFAFA', borderRadius: '8px', border: '1px solid #F1F5F9', opacity: 0.6 }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#E55B2D', marginBottom: '4px' }}>#ELECTRICAL</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>Power Systems Basics</div>
+                <div style={{ fontSize: '12px', color: '#64748B' }}>By Rahul S. • 1 hour ago</div>
               </div>
             </div>
           </div>
@@ -150,15 +147,16 @@ export default function LandingPage() {
       </section>
 
       {/* FEATURES GRID */}
-      <section id="features" style={{ padding: "100px 5%", background: "#FAFAFA", borderTop: "1px solid #E2E8F0" }}>
+      <section id="features" style={{ padding: "100px 6%", background: "#FFF" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+          <div style={{ textAlign: 'center', marginBottom: '60px' }} className="saas-anim">
+            <h2 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-1px' }}>Everything you need to succeed.</h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 32 }}>
             {features.map((f, i) => (
-              <div key={i} className="feature-card saas-anim">
-                <div style={{ width: 48, height: 48, background: "#FFF5F2", border: "1px solid #FFE4DB", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", color: "#E55B2D", marginBottom: 20 }}>
-                  <f.icon size={22} />
-                </div>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", marginBottom: 10 }}>{f.title}</h3>
+              <div key={i} className="f-card saas-anim">
+                <div style={{ color: "#E55B2D", marginBottom: 20 }}><f.icon size={24} /></div>
+                <h3 style={{ fontSize: 17, fontWeight: 800, color: "#0F172A", marginBottom: 12 }}>{f.title}</h3>
                 <p style={{ fontSize: 14, color: "#64748B", lineHeight: 1.6 }}>{f.desc}</p>
               </div>
             ))}
@@ -167,29 +165,31 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ SECTION */}
-      <section id="faq" style={{ padding: "100px 5%", background: "#FFF", borderTop: "1px solid #E2E8F0" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto" }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, textAlign: "center", marginBottom: 48 }}>Frequently Asked Questions</h2>
+      <section id="faq" style={{ padding: "100px 6%", background: "#F8FAFC", borderTop: "1px solid #F1F5F9" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto" }}>
+          <h2 style={{ fontSize: 32, fontWeight: 800, textAlign: "center", marginBottom: 40, letterSpacing: '-1px' }}>Common Questions</h2>
           {faqs.map((f, i) => (
             <div key={i} className="saas-anim" style={{ borderBottom: "1px solid #E2E8F0" }}>
               <div onClick={() => setOpenFaq(openFaq === i ? null : i)} style={{ padding: "24px 0", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 16, fontWeight: 700, color: "#0F172A" }}>{f.q}</span>
-                <ChevronDown size={20} style={{ transform: openFaq === i ? "rotate(180deg)" : "none", transition: "0.2s" }} />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#0F172A" }}>{f.q}</span>
+                <ChevronDown size={18} style={{ transform: openFaq === i ? "rotate(180deg)" : "none", transition: "0.2s", color: "#94A3B8" }} />
               </div>
-              {openFaq === i && <p style={{ paddingBottom: 24, color: "#64748B", fontSize: 15, lineHeight: 1.6 }}>{f.a}</p>}
+              {openFaq === i && <p style={{ paddingBottom: 24, color: "#64748B", fontSize: 14, lineHeight: 1.6 }}>{f.a}</p>}
             </div>
           ))}
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: "#FFF", borderTop: "1px solid #E2E8F0", padding: "60px 5% 40px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 40 }}>
+      <footer style={{ background: "#FFF", borderTop: "1px solid #F1F5F9", padding: "60px 6% 40px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 40, alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", marginBottom: 16 }}>YourNotes.</div>
-            <p style={{ fontSize: 14, color: "#64748B", maxWidth: 280 }}>Diploma Final Year Project<br />S.V. Polytechnic College, Bhopal</p>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", marginBottom: 8 }}>YOURNOTES.</div>
+            <p style={{ fontSize: 13, color: "#94A3B8" }}>Built with purpose at S.V. Polytechnic College, Bhopal.</p>
           </div>
-          <div style={{ display: "flex", gap: 16, fontSize: 13, color: "#94A3B8" }}>© 2026 YourNotes Team. All rights reserved.</div>
+          <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600 }}>
+            © 2026 YourNotes Team. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>
