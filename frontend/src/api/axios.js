@@ -34,10 +34,13 @@ API.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Network error ya server error par ek baar retry karo
-    if (!config._retry && (!error.response || error.response.status >= 500)) {
+   const isSafeMethod = ['get', 'head', 'options']
+      .includes(config.method?.toLowerCase());
+
+    if (!config._retry && isSafeMethod &&
+        (!error.response || error.response.status >= 500)) {
       config._retry = true;
-      await new Promise((r) => setTimeout(r, 2000)); // 2 second wait
+      await new Promise((r) => setTimeout(r, 2000));
       return API(config);
     }
 

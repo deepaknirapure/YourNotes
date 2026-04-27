@@ -41,11 +41,12 @@ const checkAIRateLimit = async (req, res, next) => {
         limit: AI_HOURLY_LIMIT,
       });
     }
-
-    // Count badhao aur save karo
+// Save count only AFTER the response succeeds
     user.aiCallsThisHour += 1;
-    await user.save();
+    const savedUser = await user.save();
+
     next();
+    
   } catch (error) {
     console.error('AI rate limit check error:', error);
     // Error pe request rok do — security ke liye

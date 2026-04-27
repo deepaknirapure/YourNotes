@@ -285,7 +285,37 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+   const upload = require('../middleware/uploadMiddleware');
 
+// Add this new route:
+router.put('/profile-picture', protect, upload.single('profilePic'), uploadProfilePicture);
+const uploadProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file provided' });
+
+    const cloudinary = require('cloudinary').v2;
+    const streamifier = require('streamifier');
+
+    // Upload to Cloudinary
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: 'yournotes/avatars', resource_type: 'image' },
+        (err, res) => err ? reject(err) : resolve(res)
+      );
+      streamifier.createReadStream(req.file.buffer).pipe(stream);
+    });
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatar: result.secure_url },
+      { new: true }
+    ).select('-password');
+
+    res.json({ user, profilePicUrl: result.secure_url });
+  } catch (error) {
+    res.status(500).json({ message: 'Upload failed' });
+  }
+};
 module.exports = {
   register,
   login,
@@ -294,4 +324,5 @@ module.exports = {
   resetPassword,
   updateProfile,
   changePassword,
+  uploadProfilePicture
 };

@@ -200,11 +200,9 @@ export default function DashboardPage() {
                     <span className="note-date">{new Date(note.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                     
                     <div className="ai-actions-mini" onClick={(e) => e.stopPropagation()}>
-                      <button className="ai-btn-mini" title="Summarize with AI">
-                        <Sparkles size={14} />
-                      </button>
-                      <button className="ai-btn-mini" title="Generate Flashcards">
-                        <Brain size={14} />
+                      <button className="ai-btn-mini" title="Summarize with AI"
+                       onClick={(e) => handleSummarize(e, note._id)}>
+                       <Sparkles size={14} />
                       </button>
                     </div>
                   </div>

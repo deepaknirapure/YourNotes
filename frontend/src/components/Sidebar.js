@@ -160,6 +160,7 @@ export default function Sidebar({ open, onClose }) {
           
           <div 
             onClick={() => goTo('/profile')}
+            
             style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
           >
             <div style={{

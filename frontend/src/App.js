@@ -18,11 +18,11 @@ const SharedNotePage      = lazy(() => import('./pages/SharedNotePage'));
 const ProfilePage         = lazy(() => import('./pages/ProfilePage'));
 const CommunityPage       = lazy(() => import('./pages/CommunityPage'));
 const AskAIPage           = lazy(() => import('./pages/AskAIPage'));
-const HomePage            = lazy(() => import('./pages/HomePage'));
-const TrashPage           = lazy(() => import('./pages/TrashPage'));
-const StarredPage         = lazy(() => import('./pages/StarredPage'));
-const FoldersPage         = lazy(() => import('./pages/FoldersPage'));
-const TagsPage            = lazy(() => import('./pages/TagsPage'));
+const HomePage    = lazy(() => import('./pages/Homepage'));
+const TrashPage   = lazy(() => import('./pages/Trashpage'));
+const StarredPage = lazy(() => import('./pages/Starredpage'));
+const FoldersPage = lazy(() => import('./pages/Folderspage'));
+const TagsPage    = lazy(() => import('./pages/Tagspage'));
 
 // 404 page - jab koi route na mile
 function NotFoundPage() {

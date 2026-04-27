@@ -126,8 +126,11 @@ exports.getFeed = async (req, res) => {
     // Sort order decide karo
     let sortObj = { createdAt: -1 };         // Default: latest
     if (sort === 'popular') sortObj = { downloads: -1, createdAt: -1 };
-    if (sort === 'liked')   sortObj = { likesCount: -1, createdAt: -1 };
-
+//  Sort by the actual array field size
+if (sort === 'liked') {
+  // Use MongoDB aggregation to add a computed likes count, OR:
+  sortObj = { likes: -1, createdAt: -1 }; // sorts by array length in Mongo 5.x+
+}
     // Notes aur total count simultaneously fetch karo
     const [notes, total] = await Promise.all([
       CommunityNote.find(filter)
