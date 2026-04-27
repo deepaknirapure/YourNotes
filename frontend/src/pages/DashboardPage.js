@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Plus, Search, Star, Folder, Trash2,
-  Menu, FileText, LayoutGrid, FilePlus, Sparkles, Brain
+  Plus, Search, Star, Trash2,
+  Menu, LayoutGrid, FilePlus, Sparkles, Brain
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -11,7 +11,7 @@ import NoteEditor from "../components/NoteEditor";
 import Sidebar from "../components/Sidebar";
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
@@ -65,7 +65,6 @@ const STYLES = `
   .note-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 16px; }
   .note-date { font-size: 12px; font-weight: 600; color: #94A3B8; }
   
-  /* AI Buttons Minimal */
   .ai-actions-mini { display: flex; gap: 8px; }
   .ai-btn-mini {
     padding: 6px; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFF;
@@ -73,7 +72,6 @@ const STYLES = `
   }
   .ai-btn-mini:hover { border-color: #E55B2D; color: #E55B2D; background: #FFF5F2; }
 
-  /* Delete Button Overlay */
   .btn-trash {
     position: absolute; top: 12px; right: 12px; padding: 6px; border-radius: 8px;
     color: #94A3B8; background: transparent; border: none; opacity: 0; transition: 0.2s;
@@ -92,7 +90,6 @@ const STYLES = `
 `;
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -120,7 +117,7 @@ export default function DashboardPage() {
   };
 
   const deleteNote = async (e, id) => {
-    e.stopPropagation(); // Card click na trigger ho
+    e.stopPropagation();
     if (!window.confirm("Move this note to trash?")) return;
     try {
       await API.patch(`/notes/${id}/trash`);
@@ -136,7 +133,13 @@ export default function DashboardPage() {
   );
 
   if (selectedNote) {
-    return <NoteEditor note={selectedNote} onClose={() => setSelectedNote(null)} onUpdate={(u) => setNotes(prev => prev.map(n => n._id === u._id ? u : n))} />;
+    return (
+      <NoteEditor 
+        note={selectedNote} 
+        onClose={() => setSelectedNote(null)} 
+        onUpdate={(u) => setNotes(prev => prev.map(n => n._id === u._id ? u : n))} 
+      />
+    );
   }
 
   return (
@@ -169,16 +172,16 @@ export default function DashboardPage() {
         <div className="pg-content">
           <div className="section-header">
             <h2 className="section-title">All Documents</h2>
-            {!loading && <span className="tag-badge" style={{background: '#F1F5F9', color: '#64748B', border: 'none'}}>{filteredNotes.length} Items</span>}
+            {!loading && <span style={{fontSize: '12px', fontWeight: 700, background: '#F1F5F9', color: '#64748B', padding: '4px 10px', borderRadius: '100px'}}>{filteredNotes.length} Items</span>}
           </div>
 
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}><div className="spinner" /></div>
           ) : filteredNotes.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon"><FilePlus size={28} /></div>
+            <div className="empty-state" style={{textAlign: 'center', padding: '80px 0'}}>
+              <div style={{marginBottom: '16px', color: '#CBD5E1'}}><FilePlus size={48} style={{margin: '0 auto'}}/></div>
               <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{searchQuery ? "No matching notes" : "Workspace empty"}</h3>
-              <button className="btn-create" onClick={createNote} style={{marginTop: 16}}><Plus size={16} /> Create Note</button>
+              <button className="btn-create" onClick={createNote} style={{marginTop: 16, marginInline: 'auto'}}><Plus size={16} /> Create Note</button>
             </div>
           ) : (
             <div className="notes-grid">
@@ -199,10 +202,13 @@ export default function DashboardPage() {
                   <div className="note-footer">
                     <span className="note-date">{new Date(note.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                     
-                    <div className="ai-actions-mini" onClick={(e) => e.stopPropagation()}>
-                      <button className="ai-btn-mini" title="Summarize with AI"
-                       onClick={(e) => handleSummarize(e, note._id)}>
-                       <Sparkles size={14} />
+                    <div className="ai-actions-mini">
+                      {/* AI Buttons now just open the note, functions are handled inside NoteEditor */}
+                      <button className="ai-btn-mini" title="AI Summary">
+                        <Sparkles size={14} />
+                      </button>
+                      <button className="ai-btn-mini" title="AI Flashcards">
+                        <Brain size={14} />
                       </button>
                     </div>
                   </div>
