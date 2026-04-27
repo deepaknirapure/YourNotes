@@ -284,7 +284,7 @@ export default function AskAIPage() {
           <div style={{ width: 32, height: 32, borderRadius: "8px", background: "#FFF5F2", border: "1px solid #FFE4DB", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Bot size={18} color="#E55B2D" />
           </div>
-          <span style={{ fontSize: 16, fontWeight: 700, color: "#0F172A", letterSpacing: "-0.5px" }}>Ask AI</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: "#0F172A", letterSpacing: "-0.5px" }}>YOURNOTES AI</span>
           <div style={{ marginLeft: "auto", display: "flex" }}>
             <button 
               onClick={clearChat} 
