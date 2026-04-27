@@ -65,7 +65,7 @@ export default function LandingPage() {
 
       {/* NAVBAR */}
       <nav style={{ position: "fixed", top: 0, width: "100%", zIndex: 200, background: scrollY > 10 ? "rgba(255, 255, 255, 0.85)" : "transparent", backdropFilter: scrollY > 10 ? "blur(12px)" : "none", borderBottom: scrollY > 10 ? "1px solid #E2E8F0" : "1px solid transparent", padding: "0 5%", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between", transition: "all 0.3s" }}>
-        <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.5px" }}>Your<span style={{ color: "#E55B2D" }}>Notes</span>.</div>
+        <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.5px" }}>YOUR<span style={{ color: "#E55B2D" }}>NOTES</span>.</div>
         <div className="hide-mobile" style={{ display: "flex", gap: 32 }}>
           <a href="#features" style={{ color: "#64748B", textDecoration: "none", fontSize: "14px", fontWeight: 600 }}>Features</a>
           <a href="#how-it-works" style={{ color: "#64748B", textDecoration: "none", fontSize: "14px", fontWeight: 600 }}>How it works</a>
