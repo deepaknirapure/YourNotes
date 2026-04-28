@@ -23,7 +23,6 @@ const TrashPage   = lazy(() => import('./pages/TrashPage'));
 const StarredPage = lazy(() => import('./pages/StarredPage'));
 const FoldersPage = lazy(() => import('./pages/FoldersPage'));
 const TagsPage    = lazy(() => import('./pages/TagsPage'));
-
 // 404 page - jab koi route na mile
 function NotFoundPage() {
   return (
