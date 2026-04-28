@@ -120,9 +120,14 @@ const STYLES = `
   .pg-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 40; }
   
   @media(max-width:768px) { 
-    .pg-menu-btn { display: flex !important; } 
-    .pg-content { padding: 24px 16px; } 
+    .pg-menu-btn { display: flex !important; background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; border-radius: 10px !important; padding: 8px !important; min-width: 38px; min-height: 38px; }
+    .pg-topbar { padding: 0 14px !important; height: 56px !important; }
+    .pg-content { padding: 16px !important; } 
     .fc-score-header { flex-direction: column; gap: 12px; }
+    .fc-card-wrap { padding: 16px !important; }
+    .fc-card { min-height: 200px !important; font-size: 18px !important; padding: 24px !important; border-radius: 16px !important; }
+    .fc-action-row { gap: 10px !important; }
+    .fc-action-row button { flex: 1; padding: 12px !important; font-size: 14px !important; }
   }
 `;
 

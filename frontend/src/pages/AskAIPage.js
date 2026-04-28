@@ -137,10 +137,14 @@ const STYLES = `
   .pg-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 40; }
   
   @media(max-width:768px) { 
-    .ai-menu-btn { display: flex !important; } 
-    .ai-bubble { max-width: 90% !important; } 
-    .ai-messages { padding: 24px 16px; } 
-    .ai-bottom { padding: 16px; }
+    .ai-menu-btn { display: flex !important; background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; border-radius: 10px !important; padding: 8px !important; min-width: 38px; min-height: 38px; }
+    .ai-topbar { padding: 0 14px !important; height: 56px !important; }
+    .ai-bubble { max-width: 88% !important; } 
+    .ai-messages { padding: 16px !important; } 
+    .ai-bottom { padding: 12px 14px !important; }
+    .ai-prompts { gap: 8px !important; padding: 0 14px 10px !important; }
+    .ai-prompt-btn { font-size: 12px !important; padding: 6px 12px !important; }
+    .ai-input { font-size: 14px !important; }
   }
 `;
 

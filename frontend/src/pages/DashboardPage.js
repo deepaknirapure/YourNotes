@@ -23,69 +23,84 @@ const STYLES = `
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; }
   
   .pg-topbar { 
-    height: 64px; display: flex; align-items: center; justify-content: space-between; 
+    height: 60px; display: flex; align-items: center; justify-content: space-between; 
     padding: 0 24px; background: #FFF; border-bottom: 1px solid #E2E8F0; flex-shrink: 0; 
   }
   
-  .topbar-left { display: flex; align-items: center; gap: 16px; }
-  .pg-menu-btn { display: none; background: none; border: none; color: #64748B; cursor: pointer; padding: 4px; }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .pg-menu-btn { 
+    display: none; background: #F8FAFC; border: 1px solid #E2E8F0;
+    border-radius: 10px; cursor: pointer; padding: 8px;
+    color: #64748B; align-items: center; justify-content: center;
+    transition: 0.15s; min-width: 38px; min-height: 38px;
+  }
+  .pg-menu-btn:hover { background: #FFF5F2; color: #E55B2D; border-color: #FFE4DB; }
   
   .search-wrapper {
     display: flex; align-items: center; gap: 10px; background: #F8FAFC; 
-    border: 1px solid #E2E8F0; border-radius: 10px; padding: 8px 16px; 
-    width: 320px; transition: 0.2s;
+    border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 9px 16px; 
+    width: 300px; transition: 0.2s;
   }
   .search-wrapper:focus-within { border-color: #E55B2D; background: #FFF; box-shadow: 0 0 0 3px rgba(229,91,45,0.1); }
-  .search-wrapper input { border: none; outline: none; background: transparent; width: 100%; font-size: 14px; font-weight: 500; color: #0F172A; }
+  .search-wrapper input { border: none; outline: none; background: transparent; width: 100%; font-size: 14px; font-weight: 500; color: #0F172A; font-family: inherit; }
 
   .btn-create {
     display: flex; align-items: center; gap: 8px; background: #0F172A; color: #FFF; 
-    border: none; border-radius: 10px; padding: 10px 20px; font-size: 14px; 
-    font-weight: 600; cursor: pointer; transition: 0.2s;
+    border: none; border-radius: 10px; padding: 10px 18px; font-size: 14px; 
+    font-weight: 600; cursor: pointer; transition: 0.2s; font-family: inherit;
+    white-space: nowrap;
   }
   .btn-create:hover { background: #E55B2D; transform: translateY(-1px); }
 
-  .pg-content { flex: 1; overflow-y: auto; padding: 32px 5vw; scrollbar-width: none; }
+  .pg-content { flex: 1; overflow-y: auto; padding: 28px 5vw; scrollbar-width: none; }
   
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-  .section-title { font-size: 18px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .section-title { font-size: 17px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px; }
   
-  .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
   
   .note-card {
-    background: #FFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; 
+    background: #FFF; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 22px; 
     display: flex; flex-direction: column; cursor: pointer; transition: all 0.2s ease;
     animation: fadeUp 0.3s both; position: relative;
   }
-  .note-card:hover { border-color: #CBD5E1; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04); transform: translateY(-2px); }
+  .note-card:hover { border-color: #CBD5E1; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); transform: translateY(-2px); }
   
-  .note-title { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 8px; }
-  .note-excerpt { font-size: 14px; color: #64748B; line-height: 1.6; margin-bottom: 24px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .note-title { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 8px; }
+  .note-excerpt { font-size: 13px; color: #64748B; line-height: 1.6; margin-bottom: 20px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   
-  .note-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 16px; }
-  .note-date { font-size: 12px; font-weight: 600; color: #94A3B8; }
+  .note-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 14px; }
+  .note-date { font-size: 11px; font-weight: 600; color: #94A3B8; }
   
-  .ai-actions-mini { display: flex; gap: 8px; }
+  .ai-actions-mini { display: flex; gap: 6px; }
   .ai-btn-mini {
     padding: 6px; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFF;
-    color: #64748B; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+    color: #64748B; transition: 0.2s; display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
   .ai-btn-mini:hover { border-color: #E55B2D; color: #E55B2D; background: #FFF5F2; }
 
   .btn-trash {
-    position: absolute; top: 12px; right: 12px; padding: 6px; border-radius: 8px;
-    color: #94A3B8; background: transparent; border: none; opacity: 0; transition: 0.2s;
+    position: absolute; top: 10px; right: 10px; padding: 6px; border-radius: 8px;
+    color: #94A3B8; background: transparent; border: none; opacity: 0; transition: 0.2s; cursor: pointer;
   }
   .note-card:hover .btn-trash { opacity: 1; }
   .btn-trash:hover { color: #EF4444; background: #FEF2F2; }
 
   .spinner { width: 24px; height: 24px; border: 3px solid #E2E8F0; border-top-color: #0F172A; border-radius: 50%; animation: spin .7s linear infinite; }
   .pg-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 40; }
-  
-  @media(max-width:768px) { 
+
+  /* ===== MOBILE ===== */
+  @media(max-width: 768px) { 
     .pg-menu-btn { display: flex !important; } 
-    .search-wrapper { display: none; } 
-    .note-card .btn-trash { opacity: 1; }
+    .search-wrapper { display: none; }
+    .note-card .btn-trash { opacity: 1 !important; }
+    .pg-topbar { padding: 0 14px !important; height: 56px !important; }
+    .pg-content { padding: 16px !important; }
+    .notes-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .note-card { padding: 16px !important; border-radius: 12px !important; }
+    .section-header { margin-bottom: 14px !important; }
+    .btn-create { padding: 10px 14px !important; font-size: 13px !important; }
+    .topbar-right-mobile { display: flex !important; gap: 10px; align-items: center; }
   }
 `;
 
@@ -146,70 +161,64 @@ export default function DashboardPage() {
     <div className="pg-wrap">
       <style>{STYLES}</style>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      {sidebarOpen && <div className="pg-overlay" onClick={() => setSidebarOpen(false)} />}
 
       <main className="pg-main">
         <header className="pg-topbar">
           <div className="topbar-left">
-            <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={20} /></button>
+            <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}>
+              <Menu size={20} />
+            </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: 28, height: 28, borderRadius: "8px", background: "#F1F5F9", border: "1px solid #E2E8F0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <LayoutGrid size={14} color="#64748B" />
               </div>
-              <span style={{ fontSize: 16, fontWeight: 700, color: "#0F172A" }}>Workspace</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "#0F172A" }}>Workspace</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div className="search-wrapper">
-              <Search size={16} color="#94A3B8" />
+              <Search size={15} color="#94A3B8" />
               <input placeholder="Search documents..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
             </div>
-            <button className="btn-create" onClick={createNote}><Plus size={16} /> New Note</button>
+            <button className="btn-create" onClick={createNote}>
+              <Plus size={15} /> 
+              <span>New Note</span>
+            </button>
           </div>
         </header>
 
         <div className="pg-content">
           <div className="section-header">
             <h2 className="section-title">All Documents</h2>
-            {!loading && <span style={{fontSize: '12px', fontWeight: 700, background: '#F1F5F9', color: '#64748B', padding: '4px 10px', borderRadius: '100px'}}>{filteredNotes.length} Items</span>}
+            {!loading && <span style={{fontSize: '12px', fontWeight: 700, background: '#F1F5F9', color: '#64748B', padding: '3px 10px', borderRadius: '100px'}}>{filteredNotes.length} Items</span>}
           </div>
 
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}><div className="spinner" /></div>
           ) : filteredNotes.length === 0 ? (
-            <div className="empty-state" style={{textAlign: 'center', padding: '80px 0'}}>
-              <div style={{marginBottom: '16px', color: '#CBD5E1'}}><FilePlus size={48} style={{margin: '0 auto'}}/></div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{searchQuery ? "No matching notes" : "Workspace empty"}</h3>
-              <button className="btn-create" onClick={createNote} style={{marginTop: 16, marginInline: 'auto'}}><Plus size={16} /> Create Note</button>
+            <div style={{textAlign: 'center', padding: '60px 0'}}>
+              <div style={{marginBottom: '16px', color: '#CBD5E1'}}><FilePlus size={44} style={{margin: '0 auto'}}/></div>
+              <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{searchQuery ? "No matching notes" : "Workspace empty"}</h3>
+              <button className="btn-create" onClick={createNote} style={{marginTop: 16, marginInline: 'auto'}}><Plus size={15} /> Create Note</button>
             </div>
           ) : (
             <div className="notes-grid">
               {filteredNotes.map((note, i) => (
                 <div key={note._id} className="note-card" style={{ animationDelay: `${i * 0.03}s` }} onClick={() => setSelectedNote(note)}>
-                  
                   <button className="btn-trash" onClick={(e) => deleteNote(e, note._id)} title="Delete Note">
-                    <Trash2 size={16} />
+                    <Trash2 size={15} />
                   </button>
-
-                  <div className="note-header">
-                    <h3 className="note-title">{note.title || "Untitled Document"}</h3>
-                    {note.isStarred && <Star size={16} fill="#E55B2D" color="#E55B2D" />}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <h3 className="note-title" style={{ paddingRight: 24 }}>{note.title || "Untitled Document"}</h3>
+                    {note.isStarred && <Star size={15} fill="#E55B2D" color="#E55B2D" style={{ flexShrink: 0 }} />}
                   </div>
-                  
                   <p className="note-excerpt">{note.plainText || "No content available..."}</p>
-                  
                   <div className="note-footer">
                     <span className="note-date">{new Date(note.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                    
                     <div className="ai-actions-mini">
-                      {/* AI Buttons now just open the note, functions are handled inside NoteEditor */}
-                      <button className="ai-btn-mini" title="AI Summary">
-                        <Sparkles size={14} />
-                      </button>
-                      <button className="ai-btn-mini" title="AI Flashcards">
-                        <Brain size={14} />
-                      </button>
+                      <button className="ai-btn-mini" title="AI Summary"><Sparkles size={13} /></button>
+                      <button className="ai-btn-mini" title="AI Flashcards"><Brain size={13} /></button>
                     </div>
                   </div>
                 </div>

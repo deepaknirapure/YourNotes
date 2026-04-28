@@ -94,11 +94,12 @@ const STYLES = `
   .pg-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 40; }
   
   @media(max-width:768px) { 
-    .pg-menu-btn { display: flex !important; } 
+    .pg-menu-btn { display: flex !important; background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; border-radius: 10px !important; padding: 8px !important; min-width: 38px; min-height: 38px; }
+    .pg-topbar { padding: 0 14px !important; height: 56px !important; }
     .pg-content { flex-direction: column !important; }
-    .tp-tags-panel { width: 100% !important; height: auto; max-height: 200px; border-right: none; border-bottom: 1px solid #E2E8F0; }
-    .tp-notes-panel { padding: 24px 16px; }
-    .tp-notes-grid { grid-template-columns: 1fr !important; }
+    .tp-tags-panel { width: 100% !important; height: auto; max-height: 180px; border-right: none; border-bottom: 1px solid #E2E8F0; overflow-x: auto; }
+    .tp-notes-panel { padding: 16px; }
+    .tp-notes-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
   }
 `;
 

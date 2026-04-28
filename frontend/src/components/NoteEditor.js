@@ -150,6 +150,16 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
         .note-title-in{padding:24px 32px 8px; font-size:28px; font-weight:800; border:none; outline:none; color:#0F172A; width:100%;}
         .note-text-in{flex:1; padding:16px 32px; font-size:16px; line-height:1.8; border:none; outline:none; resize:none; color:#334155; width:100%;}
         @keyframes spin { to { transform: rotate(360deg); } }
+        @media(max-width:768px) {
+          .note-title-in { padding: 16px 16px 8px !important; font-size: 20px !important; }
+          .note-text-in { padding: 8px 16px 16px !important; font-size: 15px !important; line-height: 1.7 !important; }
+          .editor-tab { padding: 10px 14px !important; font-size: 13px !important; }
+          .action-btn span { display: none; }
+          .action-btn { padding: 8px !important; }
+          .note-editor-header { padding: 0 12px !important; height: 52px !important; }
+          .note-editor-toolbar { padding: 6px 12px !important; }
+          .note-editor-toolbar button { padding: 8px !important; min-width: 34px; min-height: 34px; }
+        }
       `}</style>
 
       {/* Top Header */}
