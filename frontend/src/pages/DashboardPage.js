@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
 import NoteEditor from "../components/NoteEditor";
 import Sidebar from "../components/Sidebar";
+import MobileNav from "../components/MobileNav";
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
@@ -188,6 +189,18 @@ export default function DashboardPage() {
           </div>
         </header>
 
+        {/* Mobile Search Bar - visible only on mobile */}
+        <div className="mobile-search-bar" style={{display:'none'}}>
+          <div className="search-inner">
+            <Search size={16} color="#94A3B8" />
+            <input 
+              placeholder="Search notes..." 
+              value={searchQuery} 
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+
         <div className="pg-content">
           <div className="section-header">
             <h2 className="section-title">All Documents</h2>
@@ -227,6 +240,14 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
+
+      {/* Mobile FAB - New Note */}
+      <button className="mobile-fab" onClick={createNote} title="New Note">
+        <Plus size={22} strokeWidth={2.5} />
+      </button>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileNav />
     </div>
   );
 }

@@ -1,15 +1,56 @@
 /* =============================================
    YourNotes - Mobile Responsive Global Styles
+   FIXED: Freeze issue, iOS/Android compatibility
    ============================================= */
 
-/* ---- Sidebar Mobile Drawer ---- */
+/* ── Critical: Prevent mobile freeze ── */
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+/* Fix iOS bounce/freeze on fixed layouts */
+body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+/* ── Mobile Bottom Nav ── */
+.mobile-bottom-nav {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  /* ===== ROOT FIX: 100vh freezes on mobile, use dvh or fallback ===== */
+  .pg-wrap,
+  .ai-wrap,
+  .saas-root {
+    height: 100dvh !important; /* dynamic viewport height - works on modern mobile */
+    height: -webkit-fill-available !important; /* Safari fallback */
+    overflow: hidden !important;
+  }
+
+  /* Scrollable areas must use -webkit-overflow-scrolling */
+  .pg-content,
+  .saas-main,
+  .ai-messages,
+  nav {
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+
+  /* ===== SIDEBAR: Mobile Drawer ===== */
   .sidebar-main {
     position: fixed !important;
-    z-index: 200;
-    box-shadow: 4px 0 32px rgba(0,0,0,0.15);
-    transform: translateX(-100%);
-    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    z-index: 300 !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100dvh !important;
+    height: -webkit-fill-available !important;
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.18) !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    will-change: transform !important;
   }
   .sidebar-main.sidebar-open {
     transform: translateX(0) !important;
@@ -19,79 +60,98 @@
   }
   .sidebar-overlay {
     display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 299 !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(2px) !important;
+    -webkit-backdrop-filter: blur(2px) !important;
   }
 
-  /* ---- Common Page Layout ---- */
-  .pg-wrap, .saas-root {
-    flex-direction: column;
+  /* ===== COMMON PAGE LAYOUT ===== */
+  .pg-wrap,
+  .saas-root {
+    flex-direction: column !important;
   }
-  .pg-main, .saas-main {
+  .pg-main,
+  .saas-main,
+  .ai-main {
     width: 100% !important;
-    padding: 0 !important;
-  }
-  .pg-content {
-    padding: 16px !important;
+    min-width: 0 !important;
+    flex: 1 !important;
   }
   .saas-main {
     padding: 16px !important;
-    overflow-y: auto;
+    padding-bottom: 80px !important; /* space for bottom nav */
+  }
+  .pg-content {
+    padding: 16px !important;
+    padding-bottom: 80px !important; /* space for bottom nav */
   }
 
-  /* ---- Topbar ---- */
-  .pg-topbar {
+  /* ===== TOPBAR ===== */
+  .pg-topbar,
+  .ai-topbar,
+  .home-topbar {
     height: 56px !important;
-    padding: 0 16px !important;
+    padding: 0 14px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
   }
-  .pg-menu-btn {
+  .pg-menu-btn,
+  .ai-menu-btn,
+  .home-menu-btn {
     display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: #F8FAFC !important;
-    border: 1px solid #E2E8F0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
   }
 
-  /* ---- Search ---- */
+  /* Hide search in topbar on mobile (use dedicated search) */
   .search-wrapper {
-    width: 100% !important;
-    max-width: 100% !important;
+    display: none !important;
   }
 
-  /* ---- Buttons ---- */
-  .btn-create, .btn-primary {
-    padding: 10px 16px !important;
-    font-size: 13px !important;
-    border-radius: 10px !important;
+  /* ===== BUTTONS ===== */
+  .btn-create,
+  .btn-primary {
+    padding: 11px 16px !important;
+    font-size: 14px !important;
+    border-radius: 12px !important;
+    min-height: 44px !important;
   }
 
-  /* ---- Notes Grid ---- */
+  /* ===== NOTES GRID ===== */
   .notes-grid {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
   .note-card {
     padding: 16px !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
+    /* Touch: always show action buttons */
+    -webkit-tap-highlight-color: transparent !important;
   }
   .note-card .btn-trash {
     opacity: 1 !important;
   }
 
-  /* ---- Section Headers ---- */
+  /* ===== SECTION HEADERS ===== */
   .section-header {
-    margin-bottom: 16px !important;
+    margin-bottom: 14px !important;
   }
   .section-title {
-    font-size: 15px !important;
+    font-size: 16px !important;
   }
 
-  /* ---- HomePage Grid ---- */
+  /* ===== HOMEPAGE GRID ===== */
   .saas-grid {
     grid-template-columns: 1fr !important;
-    gap: 16px !important;
-    margin-top: 20px !important;
+    gap: 14px !important;
+    margin-top: 16px !important;
   }
   .hero-span {
     grid-column: span 1 !important;
@@ -106,101 +166,157 @@
   }
   .clean-card {
     padding: 16px !important;
-    border-radius: 12px !important;
+    border-radius: 14px !important;
   }
   .hero-title {
-    font-size: 26px !important;
-    letter-spacing: -1px !important;
-    margin: 12px 0 16px !important;
+    font-size: 24px !important;
+    letter-spacing: -0.5px !important;
+    margin: 10px 0 14px !important;
   }
   .badge-ai {
     font-size: 11px !important;
     padding: 4px 10px !important;
   }
 
-  /* ---- Stats Row (4-col → 2-col) ---- */
+  /* ===== STATS ROW ===== */
+  .stats-mini-row,
   .stats-row-4 {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
+    gap: 10px !important;
   }
 
-  /* ---- Tag chips ---- */
+  /* ===== TAG CHIPS ===== */
   .tag-chip {
-    padding: 8px 14px !important;
+    padding: 9px 14px !important;
     font-size: 13px !important;
+    min-height: 40px !important;
   }
 
-  /* ---- Folder cards ---- */
+  /* ===== FOLDER CARDS ===== */
   .folders-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px !important;
   }
 
-  /* ---- Modals ---- */
+  /* ===== MODALS ===== */
   .modal-box {
-    width: calc(100vw - 32px) !important;
+    width: calc(100vw - 24px) !important;
     max-width: 100% !important;
-    margin: 0 16px !important;
+    margin: 0 12px !important;
     padding: 20px !important;
-    border-radius: 16px !important;
+    border-radius: 20px !important;
+    max-height: 85dvh !important;
+    overflow-y: auto !important;
+  }
+  /* Modal backdrop - prevent scroll behind */
+  .pg-overlay {
+    touch-action: none !important;
   }
 
-  /* ---- Community cards ---- */
+  /* ===== COMMUNITY CARDS ===== */
   .community-grid {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
 
-  /* ---- Flashcards ---- */
+  /* ===== FLASHCARDS ===== */
   .flashcard-wrap {
     padding: 16px !important;
+    padding-bottom: 80px !important;
   }
   .flashcard-box {
-    min-height: 180px !important;
-    padding: 20px !important;
+    min-height: 200px !important;
+    padding: 24px !important;
     font-size: 18px !important;
+    cursor: pointer !important;
   }
 
-  /* ---- List items ---- */
+  /* ===== LIST ITEMS ===== */
   .list-item {
     padding: 14px 16px !important;
+    min-height: 56px !important;
   }
 
-  /* ---- NoteEditor full screen on mobile ---- */
-  .note-editor-wrap {
+  /* ===== NOTE EDITOR - Full Screen on Mobile ===== */
+  .note-editor-wrap,
+  [style*="height:100vh"][style*="flex-direction:column"],
+  [style*="height: 100vh"][style*="flex-direction: column"] {
     position: fixed !important;
     inset: 0 !important;
-    z-index: 100 !important;
+    z-index: 200 !important;
     border-radius: 0 !important;
+    height: 100dvh !important;
+    height: -webkit-fill-available !important;
   }
   .editor-toolbar {
-    flex-wrap: wrap;
+    flex-wrap: wrap !important;
     gap: 4px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   .editor-toolbar button {
-    min-width: 32px !important;
-    height: 32px !important;
-    font-size: 12px !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    flex-shrink: 0 !important;
+  }
+  /* Note title input on mobile */
+  .note-title-in {
+    padding: 16px 16px 8px !important;
+    font-size: 22px !important;
+  }
+  /* Note content textarea */
+  textarea.note-body-ta {
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+    /* CRITICAL: prevents freeze on iOS when keyboard opens */
+    position: relative !important;
   }
 
-  /* ---- Profile page ---- */
+  /* ===== PROFILE PAGE ===== */
   .profile-grid {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
 
-  /* ---- AskAI page ---- */
-  .ai-chat-wrap {
+  /* ===== ASK AI PAGE ===== */
+  .ai-wrap {
     flex-direction: column !important;
+    position: relative !important;
   }
   .ai-sidebar {
-    width: 100% !important;
-    height: auto !important;
-    border-right: none !important;
-    border-bottom: 1px solid #E2E8F0 !important;
+    display: none !important; /* hidden on mobile, use bottom nav */
+  }
+  .ai-main {
+    height: 100dvh !important;
+    height: -webkit-fill-available !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+  .ai-messages {
+    flex: 1 !important;
+    padding: 16px 14px !important;
+    padding-bottom: 16px !important;
+  }
+  .ai-bubble {
+    max-width: 90% !important;
+    font-size: 14px !important;
+    padding: 12px 16px !important;
+  }
+  /* CRITICAL: AI input stays above keyboard */
+  .ai-bottom {
+    padding: 12px 14px !important;
+    padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 10 !important;
+  }
+  .ai-input-box {
+    font-size: 16px !important; /* prevents iOS zoom on focus */
   }
 
-  /* ---- Dashboard topbar actions ---- */
+  /* ===== TOPBAR ACTIONS ===== */
   .topbar-actions {
     gap: 8px !important;
   }
@@ -208,13 +324,138 @@
     display: none !important;
   }
 
-  /* ---- Touch target minimum 44px ---- */
-  button, a, [role="button"] {
-    min-height: 36px;
+  /* ===== TOUCH TARGETS: minimum 44px ===== */
+  button,
+  a,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(.note-title-in):not(.editor-area) {
+    min-height: 38px;
+  }
+
+  /* ===== MOBILE BOTTOM NAVIGATION ===== */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 64px !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    z-index: 100 !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+    padding: 0 4px !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+  }
+  .mobile-bottom-nav .mb-nav-btn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    flex: 1 !important;
+    padding: 8px 4px !important;
+    background: none !important;
+    border: none !important;
+    cursor: pointer !important;
+    color: #94a3b8 !important;
+    transition: color 0.2s !important;
+    -webkit-tap-highlight-color: transparent !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    min-height: 44px !important;
+  }
+  .mobile-bottom-nav .mb-nav-btn.active {
+    color: #e55b2d !important;
+  }
+  .mobile-bottom-nav .mb-nav-btn span {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+  }
+
+  /* ===== MOBILE FAB BUTTON (Floating Action) ===== */
+  .mobile-fab {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 76px !important;
+    right: 20px !important;
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 16px !important;
+    background: #e55b2d !important;
+    color: #fff !important;
+    border: none !important;
+    cursor: pointer !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 20px rgba(229, 91, 45, 0.35) !important;
+    z-index: 99 !important;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  .mobile-fab:active {
+    transform: scale(0.94) !important;
+    box-shadow: 0 2px 10px rgba(229, 91, 45, 0.25) !important;
+  }
+
+  /* ===== MOBILE SEARCH BAR (full width, under topbar) ===== */
+  .mobile-search-bar {
+    display: flex !important;
+    padding: 10px 14px !important;
+    background: #fff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+  .mobile-search-bar .search-inner {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: #f8fafc !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+    transition: 0.2s !important;
+  }
+  .mobile-search-bar .search-inner:focus-within {
+    border-color: #e55b2d !important;
+    box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1) !important;
+  }
+  .mobile-search-bar input {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    width: 100% !important;
+    font-size: 15px !important; /* 16px prevents iOS zoom */
+    font-weight: 500 !important;
+    color: #0f172a !important;
+    font-family: inherit !important;
+  }
+
+  /* ===== PULL TO REFRESH INDICATOR ===== */
+  .ptr-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.2s;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    gap: 8px;
   }
 }
 
-/* ---- Very small screens (< 380px) ---- */
+/* ── Very small screens (< 380px) ── */
 @media (max-width: 380px) {
   .stat-span {
     flex-direction: column !important;
@@ -222,10 +463,25 @@
   .folders-grid {
     grid-template-columns: 1fr !important;
   }
-  .btn-create span, .btn-primary span {
-    display: none;
+  .hero-title {
+    font-size: 21px !important;
   }
-  .pg-topbar {
-    padding: 0 12px !important;
+  .pg-topbar,
+  .ai-topbar {
+    padding: 0 10px !important;
+  }
+  .mobile-bottom-nav {
+    height: 58px !important;
+  }
+}
+
+/* ── Safe area for notched phones ── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  .pg-content,
+  .saas-main {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
   }
 }

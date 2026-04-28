@@ -136,8 +136,8 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
   };
 
   return (
-    <div style={{
-      display:'flex', flexDirection:'column', height:'100vh', background:'#fff', flex:1, 
+    <div className="editor-root" style={{
+      display:'flex', flexDirection:'column', height:'100dvh', background:'#fff', flex:1, 
       fontFamily:"'Plus Jakarta Sans', sans-serif", overflow:'hidden',
       ...(focusMode ? { position:'fixed', inset:0, zIndex:1000 } : {})
     }}>
@@ -146,6 +146,46 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
         .editor-tab.active{color:#E55B2D; border-bottom-color:#E55B2D;}
         .action-btn{background:#FFF; border:1px solid #E2E8F0; border-radius:8px; padding:6px 12px; display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#475569; cursor:pointer; transition:0.2s;}
         .action-btn.ai{background:#0F172A; color:#FFF; border:none;}
+
+        /* === MOBILE NOTE EDITOR FIX === */
+        @media(max-width: 768px) {
+          .editor-root {
+            height: 100dvh !important;
+            height: -webkit-fill-available !important;
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 200 !important;
+            overflow: hidden !important;
+          }
+          .note-title-in {
+            padding: 14px 16px 6px !important;
+            font-size: 20px !important;
+            min-height: 44px !important;
+          }
+          .editor-tab { 
+            padding: 10px 14px !important; 
+            font-size: 13px !important;
+            min-height: 44px !important;
+          }
+          .action-btn {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+            min-height: 38px !important;
+          }
+          /* CRITICAL: font-size 16px prevents iOS keyboard zoom freeze */
+          textarea {
+            font-size: 16px !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+          /* Toolbar scrollable on mobile */
+          .editor-toolbar-wrap {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            flex-wrap: nowrap !important;
+            scrollbar-width: none !important;
+          }
+        }
+
         .tag-pill{background:#F1F5F9; color:#475569; padding:4px 10px; border-radius:100px; font-size:12px; font-weight:600; display:flex; gap:4px; align-items:center; cursor:pointer;}
         .note-title-in{padding:24px 32px 8px; font-size:28px; font-weight:800; border:none; outline:none; color:#0F172A; width:100%;}
         .note-text-in{flex:1; padding:16px 32px; font-size:16px; line-height:1.8; border:none; outline:none; resize:none; color:#334155; width:100%;}

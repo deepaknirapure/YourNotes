@@ -3,6 +3,7 @@ import { Send, User, Bot, RefreshCw, Copy, Check, Menu, Paperclip, X, File } fro
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";
+import MobileNav from "../components/MobileNav";
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');

@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import Sidebar from '../components/Sidebar';
+import MobileNav from '../components/MobileNav';
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -27,7 +28,7 @@ const STYLES = `
   }
 
   .home-menu-btn {
-    display: none; background: #F8FAFC; border: 1px solid #E2E8F0;
+    display: none; /* shown via CSS on mobile */ background: #F8FAFC; border: 1px solid #E2E8F0;
     border-radius: 10px; cursor: pointer; padding: 8px;
     color: #64748B; align-items: center; justify-content: center;
     transition: 0.15s;
@@ -270,6 +271,7 @@ export default function HomePage() {
           </div>
         </div>
       </main>
+      <MobileNav />
     </div>
   );
 }

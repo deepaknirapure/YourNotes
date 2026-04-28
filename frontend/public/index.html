@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#E55B2D" />
     <meta name="description" content="YourNotes — AI-powered notes app for students. Organize subjects, generate flashcards, and get AI summaries instantly. Free forever." />
     <meta name="keywords" content="notes app, student notes, AI summary, flashcards, spaced repetition, free notes app India" />
@@ -15,6 +15,16 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!-- Mobile optimization -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+    <style>
+      /* Prevent flash of unstyled content on mobile */
+      html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }
+      body { overscroll-behavior: none; }
+    </style>
     <title>YourNotes — Smart Notes for Students</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   </head>

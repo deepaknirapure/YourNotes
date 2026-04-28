@@ -32,7 +32,6 @@ export default function Sidebar({ open, onClose }) {
     navigate('/login');
   };
 
-  // FIX: use user.avatar (consistent with User model field name)
   const avatarLetter = user?.name ? user.name[0].toUpperCase() : 'U';
 
   return (
@@ -45,7 +44,7 @@ export default function Sidebar({ open, onClose }) {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 10px 16px;
+          padding: 11px 16px;
           color: #64748B;
           background: transparent;
           border: none;
@@ -56,43 +55,22 @@ export default function Sidebar({ open, onClose }) {
           text-align: left;
           font-family: inherit;
           transition: all 0.2s ease;
+          min-height: 44px;
+          -webkit-tap-highlight-color: transparent;
         }
-
-        .nav-button:hover { color: #000000; }
-
+        .nav-button:hover { color: #000000; background: #F8FAFC; border-radius: 10px; }
         .nav-button-active {
           color: #000000 !important;
           font-weight: 800 !important;
         }
-
         .nav-button-active::before {
           content: '';
           position: absolute;
           left: 0;
           width: 3px;
-          height: 18px;
+          height: 20px;
           background: #E55B2D;
           border-radius: 0 4px 4px 0;
-        }
-
-        /* Mobile: sidebar overlays as a drawer */
-        @media (max-width: 768px) {
-          .sidebar-main {
-            position: fixed !important;
-            z-index: 200;
-            box-shadow: 4px 0 24px rgba(0,0,0,0.12);
-            transform: translateX(-100%);
-            transition: transform 0.25s ease;
-          }
-          .sidebar-main.sidebar-open {
-            transform: translateX(0);
-          }
-          .sidebar-close-btn {
-            display: flex !important;
-          }
-          .sidebar-overlay {
-            display: block !important;
-          }
         }
       `}</style>
 
@@ -104,8 +82,9 @@ export default function Sidebar({ open, onClose }) {
           display: 'none',
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0,0,0,0.35)',
-          zIndex: 199,
+          background: 'rgba(0,0,0,0.4)',
+          zIndex: 299,
+          WebkitTapHighlightColor: 'transparent',
         }}
       />
 
@@ -126,42 +105,55 @@ export default function Sidebar({ open, onClose }) {
       >
         {/* Logo + Close button */}
         <div style={{
-          height: 50,
-          marginTop: 24,
+          height: 56,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 20px',
+          borderBottom: '1px solid #F8FAFC',
         }}>
           <div onClick={() => goTo('/home')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 24, fontWeight: 900, color: '#000000', letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: 22, fontWeight: 900, color: '#000000', letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
               Your
             </span>
-            <span style={{ fontSize: 24, fontWeight: 900, color: '#E55B2D', letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: 22, fontWeight: 900, color: '#E55B2D', letterSpacing: '-0.5px', textTransform: 'uppercase' }}>
               Notes
             </span>
           </div>
 
-          {/* FIX: close button is now visible and functional on mobile */}
           <button
             className="sidebar-close-btn"
             onClick={onClose}
             style={{
-              display: 'none', // shown via CSS on mobile
-              background: 'none',
-              border: 'none',
+              display: 'none',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               cursor: 'pointer',
-              padding: 4,
-              borderRadius: 6,
+              padding: '6px',
+              borderRadius: '10px',
               color: '#64748B',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: '36px',
+              height: '36px',
+              WebkitTapHighlightColor: 'transparent',
             }}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav style={{ flex: 1, padding: '24px 0 10px', display: 'flex', flexDirection: 'column', gap: '2px', overflowY: 'auto', scrollbarWidth: 'none' }}>
+        <nav style={{
+          flex: 1,
+          padding: '12px 8px 10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '2px',
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
+        }}>
           {NAV_ITEMS.map(({ icon: Icon, label, path }) => {
             const isActive = location.pathname === path;
             return (
@@ -178,16 +170,15 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         {/* Footer: avatar + signout */}
-        <div style={{ padding: '20px', borderTop: '1px solid #F1F5F9', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div onClick={() => goTo('/profile')} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+        <div style={{ padding: '16px 20px', borderTop: '1px solid #F1F5F9', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div onClick={() => goTo('/profile')} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}>
             <div style={{
-              width: 34, height: 34, borderRadius: '50%',
+              width: 36, height: 36, borderRadius: '50%',
               background: '#F8FAFC', border: '1px solid #E2E8F0',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 13, fontWeight: 800, color: '#E55B2D', flexShrink: 0,
               overflow: 'hidden',
             }}>
-              {/* FIX: use user.avatar (matches User model) */}
               {user?.avatar
                 ? <img src={user.avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="avatar" />
                 : avatarLetter}
@@ -202,7 +193,7 @@ export default function Sidebar({ open, onClose }) {
 
           <button
             onClick={handleLogout}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', padding: 0, fontSize: 13, fontWeight: 600, color: '#94A3B8', cursor: 'pointer', transition: 'color 0.2s' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', padding: '8px 0', fontSize: 13, fontWeight: 600, color: '#94A3B8', cursor: 'pointer', transition: 'color 0.2s', WebkitTapHighlightColor: 'transparent' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444'; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8'; }}
           >
