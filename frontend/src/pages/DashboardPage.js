@@ -20,7 +20,7 @@ const STYLES = `
   
   body { background: #FAFAFA; color: #0F172A; font-family: 'Plus Jakarta Sans', sans-serif; }
   
-  .pg-wrap { display: flex; height: 100vh; overflow: hidden; background: #FAFAFA; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #FAFAFA; }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; }
   
   .pg-topbar { 
@@ -190,7 +190,7 @@ export default function DashboardPage() {
         </header>
 
         {/* Mobile Search Bar - visible only on mobile */}
-        <div className="mobile-search-bar" style={{display:'none'}}>
+        <div className="mobile-search-bar">
           <div className="search-inner">
             <Search size={16} color="#94A3B8" />
             <input 

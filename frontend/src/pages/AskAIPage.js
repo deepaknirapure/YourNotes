@@ -15,7 +15,7 @@ const STYLES = `
   
   body { background: #FAFAFA; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
   
-  .ai-wrap { display: flex; height: 100vh; overflow: hidden; background: #FAFAFA; }
+  .ai-wrap { display: flex; height: 100dvh; overflow: hidden; background: #FAFAFA; }
   .ai-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
   
   /* Top Navigation */
@@ -23,7 +23,7 @@ const STYLES = `
     height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 24px; 
     background: #FFF; border-bottom: 1px solid #E2E8F0; flex-shrink: 0; 
   }
-  .ai-menu-btn { display: none; background: none; border: none; color: #64748B; cursor: pointer; padding: 4px; flex-shrink: 0; }
+  .ai-menu-btn { display: none; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; cursor: pointer; padding: 8px; color: #64748B; align-items: center; justify-content: center; min-width: 38px; height: 38px; transition: 0.15s; flex-shrink: 0; }
   
   /* Chat Area */
   .ai-messages { 
@@ -410,6 +410,8 @@ export default function AskAIPage() {
           </div>
         </div>
       </div>
+      {/* Mobile navigation */}
+      <MobileNav />
     </div>
   );
 }

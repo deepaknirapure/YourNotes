@@ -14,7 +14,7 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
   .saas-root { 
-    display: flex; height: 100vh; background: #FAFAFA; 
+    display: flex; height: 100dvh; background: #FAFAFA; 
     font-family: 'Plus Jakarta Sans', sans-serif; color: #0F172A; overflow: hidden;
   }
 

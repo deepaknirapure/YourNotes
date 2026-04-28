@@ -1,252 +1,430 @@
-/* ── Google Fonts import ── */
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap');
+/* ================================================================
+   YourNotes - Global CSS
+   सभी pages का shared CSS यहाँ है
+   ================================================================ */
 
-/* ── Global Reset ── */
+/* ── Google Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+/* ── Box Sizing Reset ── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* ── Root HTML/Body ── */
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
 }
 
 body {
-  font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: #0a0a0a;
-  color: #fff;
+  background: #FAFAFA;
+  color: #0F172A;
   line-height: 1.6;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
 }
 
-/* ── Scrollbar styling ── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* ── Scrollbar Styling ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 99px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(229, 91, 45, 0.4);
+::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+/* ── Text Selection ── */
+::selection { background: rgba(229, 91, 45, 0.15); }
+
+/* ── Focus Ring ── */
+:focus-visible { outline: 2px solid #E55B2D; outline-offset: 2px; }
+
+/* ── Touch highlight hatao mobile pe ── */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Text selection color ── */
-::selection {
-  background: rgba(229, 91, 45, 0.25);
-  color: inherit;
-}
-
-/* ── Focus ring for accessibility ── */
-:focus-visible {
-  outline: 2px solid #880a0a;
-  outline-offset: 2px;
-}
-
-/* ── Page load animation ── */
+/* ── Animations ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* ── Common layout classes used across all pages ── */
-.page-wrap {
+/* ================================================================
+   SHARED PAGE LAYOUT CLASSES
+   Ye classes sab pages use karte hain
+   ================================================================ */
+
+/* Main page wrapper - sidebar + content side by side */
+.pg-wrap {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
-  background: #0a0a0a;
+  background: #FAFAFA;
 }
 
-.page-main {
+/* Right side content area */
+.pg-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   min-width: 0;
+  position: relative;
 }
 
-.page-topbar {
-  height: 52px;
+/* Top bar across all pages */
+.pg-topbar {
+  height: 60px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  gap: 12px;
+  padding: 0 24px;
+  background: #FFF;
+  border-bottom: 1px solid #E2E8F0;
   flex-shrink: 0;
 }
 
-.page-content {
+/* Scrollable content area */
+.pg-content {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 28px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* ── Mobile hamburger menu button ── */
-.menu-btn {
+.pg-content::-webkit-scrollbar { display: none; }
+
+/* ── Hamburger Menu Button (mobile mein dikhta hai) ── */
+.pg-menu-btn {
   display: none;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.5);
+  align-items: center;
+  justify-content: center;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
+  color: #64748B;
+  min-width: 38px;
+  height: 38px;
+  transition: all 0.15s;
   flex-shrink: 0;
 }
 
-/* ── Primary action button ── */
+.pg-menu-btn:hover {
+  background: #FFF5F2;
+  color: #E55B2D;
+  border-color: #FFE4DB;
+}
+
+/* ── Modal Overlay ── */
+.pg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 40;
+}
+
+/* ── Primary Button ── */
 .btn-primary {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: #E55B2D;
-  color: #fff;
+  gap: 8px;
+  background: #0F172A;
+  color: #FFF;
   border: none;
-  border-radius: 6px;
-  padding: 7px 13px;
-  font-size: 13px;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 14px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
   white-space: nowrap;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #d14e24;
-  box-shadow: 0 4px 14px rgba(229, 91, 45, 0.3);
+  background: #E55B2D;
+  transform: translateY(-1px);
 }
 
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* ── Notes grid layout ── */
+/* ── Notes Grid ── */
 .notes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
 }
 
-/* ── Note card ── */
+/* ── Note Card ── */
 .note-card {
-  background: #111;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 10px;
-  padding: 14px;
+  background: #FFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 22px;
   cursor: pointer;
+  transition: all 0.2s ease;
   animation: fadeUp 0.3s both;
-  transition: border-color 0.15s, background 0.15s;
+  position: relative;
 }
 
 .note-card:hover {
-  border-color: rgba(255, 255, 255, 0.14);
-  background: #161616;
-}
-
-.note-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.note-preview {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.35);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
-
-.note-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.25);
+  border-color: #CBD5E1;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
 }
 
 /* ── Spinner ── */
 .spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-top-color: rgba(255, 255, 255, 0.5);
+  width: 24px;
+  height: 24px;
+  border: 3px solid #E2E8F0;
+  border-top-color: #0F172A;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
-/* ── Empty state ── */
+/* ── Empty State ── */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 64px 24px;
-  gap: 10px;
+  padding: 80px 24px;
+  gap: 12px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 14px;
-  font-weight: 500;
+  color: #94A3B8;
 }
 
-/* ── Search input wrapper ── */
-.search-wrap {
-  position: relative;
+/* ── Section Header ── */
+.section-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
-.search-wrap svg {
-  position: absolute;
-  left: 9px;
-  color: rgba(255, 255, 255, 0.3);
-  pointer-events: none;
+.section-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.5px;
 }
 
-.search-input {
-  padding: 7px 12px 7px 30px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  font-size: 13px;
-  font-family: inherit;
-  color: #fff;
+/* ── Search Input ── */
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 9px 16px;
+  transition: all 0.2s;
+}
+
+.search-wrapper:focus-within {
+  border-color: #E55B2D;
+  background: #FFF;
+  box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1);
+}
+
+.search-wrapper input {
+  border: none;
   outline: none;
-  transition: border-color 0.15s;
-  width: 200px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0F172A;
+  font-family: inherit;
+  width: 100%;
 }
 
-.search-input:focus {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.07);
+.search-wrapper input::placeholder { color: #94A3B8; }
+
+/* ================================================================
+   MOBILE BOTTOM NAVIGATION
+   Mobile screens pe neeche fixed navigation bar
+   ================================================================ */
+
+/* Default: hidden on desktop */
+.mobile-bottom-nav {
+  display: none;
 }
 
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+/* ================================================================
+   MOBILE FAB (Floating Action Button)
+   Mobile pe notes create karne ka button
+   ================================================================ */
+
+/* Default: hidden on desktop */
+.mobile-fab {
+  display: none;
 }
 
-/* ── Overlay (mobile sidebar backdrop) ── */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 40;
-}
+/* ================================================================
+   RESPONSIVE BREAKPOINTS
+   ================================================================ */
 
-/* ── Mobile responsive ── */
+/* ── Tablet & Mobile (max 768px) ── */
 @media (max-width: 768px) {
-  .menu-btn { display: flex !important; }
-  .notes-grid { grid-template-columns: 1fr !important; }
+
+  /* Hamburger button dikhao */
+  .pg-menu-btn {
+    display: flex !important;
+  }
+
+  /* Topbar adjust karo */
+  .pg-topbar {
+    height: 56px !important;
+    padding: 0 14px !important;
+  }
+
+  /* Content mein bottom padding (bottom nav ke liye jagah) */
+  .pg-content {
+    padding: 16px !important;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Notes grid - 1 column */
+  .notes-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Note cards */
+  .note-card {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Note card pe delete button hamesha visible */
+  .note-card .btn-trash {
+    opacity: 1 !important;
+  }
+
+  /* ── Mobile Bottom Nav ── */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: #FFF;
+    border-top: 1px solid #E2E8F0;
+    z-index: 100;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 4px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Bottom nav buttons */
+  .mb-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    padding: 8px 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94A3B8;
+    transition: color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px;
+    font-family: inherit;
+  }
+
+  .mb-nav-btn span {
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* Active nav item orange color */
+  .mb-nav-btn.active {
+    color: #E55B2D;
+  }
+
+  /* ── Mobile FAB ── */
+  .mobile-fab {
+    display: flex !important;
+    position: fixed;
+    bottom: 76px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: #E55B2D;
+    color: #FFF;
+    border: none;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(229, 91, 45, 0.35);
+    z-index: 99;
+    transition: transform 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-fab:active {
+    transform: scale(0.94);
+    box-shadow: 0 2px 10px rgba(229, 91, 45, 0.25);
+  }
+
+  /* ── Search hide on mobile ── */
+  .search-wrapper,
+  .search-hide-mobile {
+    display: none !important;
+  }
+}
+
+/* ── Very small screens (< 380px) ── */
+@media (max-width: 380px) {
+  .pg-topbar {
+    padding: 0 10px !important;
+  }
+
+  .pg-content {
+    padding: 12px !important;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .mobile-bottom-nav {
+    height: 60px !important;
+  }
+}
+
+/* ── Safe area for notch phones (iPhone X+) ── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
 }

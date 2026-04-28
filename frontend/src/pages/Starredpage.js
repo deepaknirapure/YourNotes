@@ -4,6 +4,7 @@ import { Star, FileText, Search, RefreshCw, Menu, Hash, Clock, ArrowUpDown } fro
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";
+import MobileNav from "../components/MobileNav";
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -14,7 +15,7 @@ const STYLES = `
   
   body { background: #FAFAFA; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
   
-  .pg-wrap { display: flex; height: 100vh; overflow: hidden; background: #FAFAFA; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #FAFAFA; }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; }
   
   /* Sleek Topbar */
@@ -93,7 +94,10 @@ const STYLES = `
   .pg-spinner { width: 24px; height: 24px; border: 3px solid #E2E8F0; border-top-color: #0F172A; border-radius: 50%; animation: spin .7s linear infinite; }
   .pg-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 40; }
   
-  @media(max-width:768px) { 
+  @media(max-width:768px) {
+    .pg-menu-btn { display: flex !important; background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; border-radius: 10px !important; min-width: 38px; height: 38px; align-items: center !important; justify-content: center !important; }
+    .pg-topbar { padding: 0 14px !important; height: 56px !important; }
+    .pg-content, .saas-main, .flashcard-wrap { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important; padding-left: 16px !important; padding-right: 16px !important; } 
     .pg-menu-btn { display: flex !important; background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; border-radius: 10px !important; padding: 8px !important; min-width: 38px; min-height: 38px; }
     .pg-topbar { padding: 0 14px !important; height: 56px !important; gap: 8px !important; }
     .pg-search { width: 110px !important; font-size: 13px !important; }
@@ -223,6 +227,8 @@ export default function StarredPage() {
           )}
         </div>
       </div>
+      {/* Mobile bottom navigation - sab pages pe consistent */}
+      <MobileNav />
     </div>
   );
 }
