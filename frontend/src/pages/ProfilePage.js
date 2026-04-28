@@ -129,7 +129,7 @@ export default function ProfilePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Profile Picture State & Ref
-  const [profilePic, setProfilePic] = useState(user?.profilePic || null);
+  const [profilePic, setProfilePic] = useState(user?.avatar || null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function ProfilePage() {
 
   // Sync profile pic if context updates
   useEffect(() => {
-    if (user?.profilePic) setProfilePic(user.profilePic);
+    if (user?.avatar) setProfilePic(user.profilePic);
   }, [user]);
 
   // Handle Image Upload
@@ -166,12 +166,12 @@ export default function ProfilePage() {
       });
 
       // Update global context
-      updateUser?.(data.user || { ...user, profilePic: data.profilePicUrl });
+      updateUser?.(data.user || { ...user, avatar: data.avatarUrl });
       toast.success("Profile picture updated! 📸");
     } catch (err) {
       toast.error(err.response?.data?.message || "Image upload failed");
       // Revert to old pic on failure
-      setProfilePic(user?.profilePic || null);
+      setProfilePic(user?.avatar || null);
     } finally {
       setUploadingImage(false);
     }

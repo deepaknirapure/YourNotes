@@ -1,4 +1,4 @@
-// यह main server file hai — sabse pehle yahi run hota hai
+// Main server file
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -6,59 +6,51 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
-// .env file se environment variables load karo
 dotenv.config();
 
-// MongoDB se connect karo
+// ── Required env var check — startup pe hi fail karo agar missing ho
+const REQUIRED_ENV = ['MONGO_URI', 'JWT_SECRET'];
+const missing = REQUIRED_ENV.filter((k) => !process.env[k]);
+if (missing.length > 0) {
+  console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+  console.error('   Copy .env.example to .env and fill in all values.');
+  process.exit(1);
+}
+
 connectDB();
 
 const app = express();
 
-// ── Security middleware 
-// Helmet HTTP headers ko secure karta hai
 app.use(helmet());
 
-// ── Compression middleware 
-// Response size compress karna — bandwidth bachata hai
 try {
   const compression = require('compression');
   app.use(compression());
-} catch (_) {
-  // Agar compression package nahi hai toh silently ignore karo
-}
+} catch (_) {}
 
-// ── CORS setup
-// Sirf allowed origins se requests accept karo
+// CORS
 const allowedOrigins = [
   'https://your-notes-webapp.vercel.app',
   process.env.FRONTEND_URL,
   'http://localhost:3000',
   'http://localhost:3001',
-].filter(Boolean); // null/undefined values hata do
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Agar origin nahi hai (Postman etc.) ya allowed list mein hai — allow karo
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
 }));
 
-// ── Logging 
-// Production mein logs nahi dikhate — sirf development mein
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// ── Body parser
-// JSON body parse karo — max 10MB tak
 app.use(express.json({ limit: '10mb' }));
 
-// ── Routes 
-// Har feature ke liye alag route file hai
+// Routes
 app.use('/api/auth',      require('./routes/authRoutes'));
 app.use('/api/notes',     require('./routes/noteRoutes'));
 app.use('/api/folders',   require('./routes/folderRoutes'));
@@ -67,8 +59,7 @@ app.use('/api/tags',      require('./routes/tagRoutes'));
 app.use('/api/ai',        require('./routes/aiRoutes'));
 app.use('/api/community', require('./routes/communityRoutes'));
 
-// ── Health check 
-// Server chal raha hai ya nahi check karne ke liye
+// Health check
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() });
 });
@@ -77,35 +68,56 @@ app.get('/', (_req, res) => {
   res.json({ message: 'YourNotes API is running!' });
 });
 
-// ── 404 handler
-// Agar koi route nahi mila toh yeh chalega
+// 404 handler
 app.use((_req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// ── Global error handler 
-// Kisi bhi unexpected error ko yahan pakda jayega
+// Global error handler
 app.use((err, _req, res, _next) => {
   console.error(err.stack);
-  // Production mein error details nahi bhejte — security ke liye
   const message = process.env.NODE_ENV === 'production'
     ? 'Internal server error'
     : (err.message || 'Internal server error');
   res.status(err.status || 500).json({ message });
 });
 
-// ── Server start karo 
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () => {
   console.log(`✅ YourNotes API running on port ${PORT}`);
 });
 
-// ── Auto-cleanup: purani trashed notes delete karo 
+// ── Auto-cleanup: trash mein 30+ din se padi notes delete karo
 const { cleanupTrashedNotes } = require('./controllers/noteController');
-const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+const { resetWeeklyGoals } = require('./controllers/authController');
 
-// Startup pe ek baar aur phir har 24 ghante mein chalao
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+// Startup pe ek baar chalao
 cleanupTrashedNotes();
+
+// Har 24 ghante mein trash cleanup
 setInterval(cleanupTrashedNotes, TWENTY_FOUR_HOURS);
+
+// ── Weekly goal reset: har Monday 00:00 UTC pe reset karo
+const scheduleWeeklyReset = () => {
+  const now = new Date();
+  // Agla Monday 00:00 UTC calculate karo
+  const nextMonday = new Date(now);
+  const daysUntilMonday = (8 - now.getUTCDay()) % 7 || 7; // 0=Sun,1=Mon...
+  nextMonday.setUTCDate(now.getUTCDate() + daysUntilMonday);
+  nextMonday.setUTCHours(0, 0, 0, 0);
+
+  const msUntilMonday = nextMonday - now;
+  console.log(`📅 Weekly goal reset scheduled in ${Math.round(msUntilMonday / 3600000)}h`);
+
+  setTimeout(() => {
+    resetWeeklyGoals();
+    setInterval(resetWeeklyGoals, ONE_WEEK_MS); // Phir har 7 din
+  }, msUntilMonday);
+};
+
+scheduleWeeklyReset();
 
 module.exports = server;

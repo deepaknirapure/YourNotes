@@ -15,20 +15,15 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // Token se user ID nikal ke DB se user fetch karo (password chhod ke)
-     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
       req.user = await User.findById(decoded.id).select('-password');
 
-      // Add this check: if user was deleted, reject the request
+      // Agar user delete ho gaya ho
       if (!req.user) {
         return res.status(401).json({ message: 'User not found, please login again' });
       }
 
-      next();
-3
-
       // Agle middleware/controller pe jao
-      next();
+      return next();
     } catch (error) {
       return res.status(401).json({ message: 'Not authorized, invalid token' });
     }

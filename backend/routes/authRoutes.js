@@ -9,20 +9,24 @@ const {
   resetPassword,
   updateProfile,
   changePassword,
+  uploadProfilePicture,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const { authLimiter } = require('../middleware/rateLimitMiddleware');
 const { validateRegister, validateLogin } = require('../middleware/validateMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
-// Public routes — koi bhi access kar sakta hai (rate limited)
-router.post('/register',             authLimiter, validateRegister, register);
-router.post('/login',                authLimiter, validateLogin,    login);
-router.post('/forgot-password',      authLimiter, forgotPassword);
+// Public routes
+router.post('/register',              authLimiter, validateRegister, register);
+router.post('/login',                 authLimiter, validateLogin,    login);
+router.post('/forgot-password',       authLimiter, forgotPassword);
 router.post('/reset-password/:token', authLimiter, resetPassword);
 
-// Protected routes — sirf logged-in user access kar sakta hai
-router.get('/me',              protect, getMe);
-router.put('/update-profile',  protect, updateProfile);
-router.put('/change-password', protect, changePassword);
+// Protected routes
+router.get('/me',                protect, getMe);
+router.put('/update-profile',    protect, updateProfile);
+router.put('/change-password',   protect, changePassword);
+// Profile picture upload — multer single file
+router.put('/profile-picture',   protect, upload.single('profilePic'), uploadProfilePicture);
 
 module.exports = router;

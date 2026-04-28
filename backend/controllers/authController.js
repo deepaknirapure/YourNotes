@@ -4,6 +4,7 @@ const Folder = require('../models/Folder');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const upload = require('../middleware/uploadMiddleware');
 
 // JWT token generate karne ka helper function
 const generateToken = (userId) => {
@@ -17,20 +18,16 @@ const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Pehle check karo ki email already registered toh nahi
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    // Password hash karo (plain text kabhi save mat karo)
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // User create karo
     const user = await User.create({ name, email, password: hashedPassword });
 
-    // Naye user ke liye default folders banao
     const defaultFolders = [
       { name: 'Mathematics', icon: '📐', color: '#4F46E5', user: user._id },
       { name: 'Science',     icon: '🔬', color: '#059669', user: user._id },
@@ -38,7 +35,6 @@ const register = async (req, res) => {
     ];
     await Folder.insertMany(defaultFolders);
 
-    // Token ke saath response bhejo
     res.status(201).json({
       message: 'Account created successfully!',
       token: generateToken(user._id),
@@ -46,6 +42,7 @@ const register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        avatar: user.avatar,
         streak: user.streak,
       },
     });
@@ -62,39 +59,29 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Email se user dhundho
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // Password match karo
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // Streak update karo — aaj login kiya toh count badhao
+    // Streak update karo
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    const lastStudied = user.streak.lastStudied
-      ? new Date(user.streak.lastStudied)
-      : null;
+    const lastStudied = user.streak.lastStudied ? new Date(user.streak.lastStudied) : null;
 
     if (lastStudied) {
       lastStudied.setHours(0, 0, 0, 0);
       const diffDays = Math.floor((today - lastStudied) / (1000 * 60 * 60 * 24));
-      if (diffDays === 1) {
-        user.streak.count += 1; // Consecutive day — streak badhao
-      } else if (diffDays > 1) {
-        user.streak.count = 1; // Gap aaya — streak reset
-      }
-      // diffDays === 0 mane aaj phir login kiya — kuch change nahi
+      if (diffDays === 1)      user.streak.count += 1;
+      else if (diffDays > 1)  user.streak.count = 1;
     } else {
-      user.streak.count = 1; // Pehli baar login
+      user.streak.count = 1;
     }
-
     user.streak.lastStudied = new Date();
     await user.save();
 
@@ -105,6 +92,7 @@ const login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        avatar: user.avatar,
         streak: user.streak,
       },
     });
@@ -119,7 +107,6 @@ const login = async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const getMe = async (req, res) => {
   try {
-    // req.user authMiddleware ne set kiya hai
     const user = await User.findById(req.user.id).select('-password');
     res.status(200).json(user);
   } catch (error) {
@@ -129,7 +116,7 @@ const getMe = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FORGOT PASSWORD — password reset email bhejo
+// FORGOT PASSWORD
 // ─────────────────────────────────────────────────────────────────────────────
 const forgotPassword = async (req, res) => {
   try {
@@ -138,22 +125,18 @@ const forgotPassword = async (req, res) => {
       return res.status(400).json({ message: 'Email required' });
     }
 
-    // Email se user dhundho
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'No account found with this email' });
     }
 
-    // Random reset token banao
     const resetToken = crypto.randomBytes(32).toString('hex');
-    // Token ko hash kar ke DB mein store karo (plain text nahi)
     const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
 
     user.resetPasswordToken = resetTokenHash;
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minute validity
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    // Email bhejo (SendGrid use karo)
     const sgMail = require('@sendgrid/mail');
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -189,17 +172,15 @@ const forgotPassword = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// RESET PASSWORD — token verify karke password badlo
+// RESET PASSWORD
 // ─────────────────────────────────────────────────────────────────────────────
 const resetPassword = async (req, res) => {
   try {
-    // URL se aaya token hash karo aur DB se match karo
     const resetTokenHash = crypto
       .createHash('sha256')
       .update(req.params.token)
       .digest('hex');
 
-    // Token valid aur expire nahi hua hona chahiye
     const user = await User.findOne({
       resetPasswordToken: resetTokenHash,
       resetPasswordExpire: { $gt: Date.now() },
@@ -214,11 +195,8 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
-    // Naya password hash kar ke save karo
     const salt = await bcrypt.genSalt(12);
     user.password = await bcrypt.hash(password, salt);
-
-    // Reset token hata do
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
@@ -243,7 +221,7 @@ const updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { name: name.trim() },
-      { new: true } // Updated document return karo
+      { new: true }
     ).select('-password');
 
     res.status(200).json(user);
@@ -254,7 +232,7 @@ const updateProfile = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CHANGE PASSWORD — current password verify karke naya set karo
+// CHANGE PASSWORD
 // ─────────────────────────────────────────────────────────────────────────────
 const changePassword = async (req, res) => {
   try {
@@ -267,14 +245,12 @@ const changePassword = async (req, res) => {
       return res.status(400).json({ message: 'New password must be at least 6 characters' });
     }
 
-    // Current password verify karo
     const user = await User.findById(req.user.id);
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Current password is incorrect' });
     }
 
-    // Naya password hash karke save karo
     const salt = await bcrypt.genSalt(12);
     user.password = await bcrypt.hash(newPassword, salt);
     await user.save();
@@ -285,10 +261,10 @@ const changePassword = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-   const upload = require('../middleware/uploadMiddleware');
 
-// Add this new route:
-router.put('/profile-picture', protect, upload.single('profilePic'), uploadProfilePicture);
+// ─────────────────────────────────────────────────────────────────────────────
+// UPLOAD PROFILE PICTURE — avatar Cloudinary pe upload karo
+// ─────────────────────────────────────────────────────────────────────────────
 const uploadProfilePicture = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file provided' });
@@ -296,26 +272,55 @@ const uploadProfilePicture = async (req, res) => {
     const cloudinary = require('cloudinary').v2;
     const streamifier = require('streamifier');
 
-    // Upload to Cloudinary
+    // Cloudinary configure karo
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key:    process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
+    // Buffer ko Cloudinary pe stream karo
     const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: 'yournotes/avatars', resource_type: 'image' },
-        (err, res) => err ? reject(err) : resolve(res)
+        {
+          folder: 'yournotes/avatars',
+          resource_type: 'image',
+          transformation: [{ width: 200, height: 200, crop: 'fill', gravity: 'face' }],
+        },
+        (err, res) => (err ? reject(err) : resolve(res))
       );
       streamifier.createReadStream(req.file.buffer).pipe(stream);
     });
 
+    // avatar field update karo (user.avatar — consistent naming)
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { avatar: result.secure_url },
       { new: true }
     ).select('-password');
 
-    res.json({ user, profilePicUrl: result.secure_url });
+    res.json({ user, avatarUrl: result.secure_url });
   } catch (error) {
+    console.error('Upload profile picture error:', error);
     res.status(500).json({ message: 'Upload failed' });
   }
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WEEKLY GOAL RESET — every Monday midnight notesCreatedThisWeek reset karo
+// server.js se setInterval ke through call hota hai
+// ─────────────────────────────────────────────────────────────────────────────
+const resetWeeklyGoals = async () => {
+  try {
+    const result = await User.updateMany({}, { $set: { notesCreatedThisWeek: 0 } });
+    if (result.modifiedCount > 0) {
+      console.log(`✅ Weekly goals reset for ${result.modifiedCount} users`);
+    }
+  } catch (error) {
+    console.error('Weekly goal reset error:', error);
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -324,5 +329,6 @@ module.exports = {
   resetPassword,
   updateProfile,
   changePassword,
-  uploadProfilePicture
+  uploadProfilePicture,
+  resetWeeklyGoals,
 };
