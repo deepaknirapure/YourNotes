@@ -1,142 +1,235 @@
 const Note = require('../models/Note');
-const Folder = require('../models/Folder');
-const fs = require('fs');
+const User = require('../models/User');
+const Flashcard = require('../models/Flashcard');
 
-/**
- * Hindi Comment:
- * Ye controller "YOURNOTES" ka engine hai. 
- * Isme notes create karne se lekar, unhe folders mein daalne aur 
- * community privacy set karne tak ka saara logic functional hai.
- */
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 1. CREATE NOTE (With Folder & Privacy Logic)
-// ─────────────────────────────────────────────────────────────────────────────
-exports.createNote = async (req, res) => {
+const splitSentences = (text = '') =>
+  text
+    .replace(/\s+/g, ' ')
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+const generateSimpleSummary = (text) => {
+  const lines = splitSentences(text).slice(0, 5);
+  if (!lines.length) return 'No enough content available for summary.';
+  return lines.map((line, idx) => `${idx + 1}. ${line}`).join('\n');
+};
+
+exports.checkAIRateLimit = async (req, res, next) => {
   try {
-    const { title, content, plainText, folderId, isPublic, tags, subject } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const newNote = new Note({
-      title,
-      content,
-      plainText,
-      user: req.user.id,
-      folder: folderId || null,
-      isPublic: isPublic || false,
-      tags: tags || [],
-      subject: subject || 'General'
-    });
-
-    const savedNote = await newNote.save();
-
-    // Agar folderId hai, toh folder ka noteCount badhao
-    if (folderId) {
-      await Folder.findByIdAndUpdate(folderId, { $inc: { noteCount: 1 } });
+    const now = Date.now();
+    if (!user.aiCallsResetAt || now - new Date(user.aiCallsResetAt).getTime() >= 60 * 60 * 1000) {
+      user.aiCallsThisHour = 0;
+      user.aiCallsResetAt = new Date(now);
     }
 
-    res.status(201).json(savedNote);
+    if (user.aiCallsThisHour >= 60) {
+      return res.status(429).json({ message: 'AI request limit reached for this hour' });
+    }
+
+    user.aiCallsThisHour += 1;
+    await user.save();
+    next();
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create note' });
+    res.status(500).json({ message: 'Rate limit validation failed' });
   }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 2. GET ALL USER NOTES (Grid/Row Display ke liye)
-// ─────────────────────────────────────────────────────────────────────────────
-exports.getUserNotes = async (req, res) => {
-  try {
-    // Hindi: Trashed notes ko hata kar baaki saari notes fetch karna
-    const notes = await Note.find({ user: req.user.id, isTrashed: false })
-      .sort({ updatedAt: -1 })
-      .populate('folder', 'name color');
-    
-    res.status(200).json(notes);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching notes' });
-  }
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 3. TOGGLE STAR/BOOKMARK
-// ─────────────────────────────────────────────────────────────────────────────
-exports.toggleStar = async (req, res) => {
+exports.summarizeNote = async (req, res) => {
   try {
     const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
     if (!note) return res.status(404).json({ message: 'Note not found' });
 
-    note.isStarred = !note.isStarred;
+    const source = note.plainText || note.content || '';
+    const summary = generateSimpleSummary(source);
+    note.aiSummary = summary;
+    note.summaryGeneratedAt = new Date();
     await note.save();
 
-    res.status(200).json({ message: note.isStarred ? 'Added to Starred' : 'Removed from Starred', isStarred: note.isStarred });
+    res.status(200).json({ summary });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to star note' });
+    res.status(500).json({ message: 'Summary generation failed' });
   }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 4. PRIVACY CONTROL (Toggle Public/Private)
-// ─────────────────────────────────────────────────────────────────────────────
-exports.togglePrivacy = async (req, res) => {
+exports.generateFlashcards = async (req, res) => {
   try {
     const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
-    note.isPublic = !note.isPublic;
-    await note.save();
+    if (!note) return res.status(404).json({ message: 'Note not found' });
 
-    res.status(200).json({ message: `Note is now ${note.isPublic ? 'Public' : 'Private'}`, isPublic: note.isPublic });
-  } catch (error) {
-    res.status(500).json({ message: 'Privacy update failed' });
-  }
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 5. IMPORT NOTES (From JSON/File)
-// ─────────────────────────────────────────────────────────────────────────────
-exports.importNotes = async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-
-    const fileData = fs.readFileSync(req.file.path, 'utf-8');
-    const importedData = JSON.parse(fileData); // Hindi: File JSON format mein honi chahiye
-
-    // Multiple notes insert karna
-    const notesToImport = importedData.map(note => ({
-      ...note,
+    const chunks = splitSentences(note.plainText || note.content).slice(0, 8);
+    const cards = chunks.map((line, idx) => ({
+      question: `Key point ${idx + 1}: Explain this idea`,
+      answer: line,
       user: req.user.id,
-      isPublic: false // Safety: Imported notes default private rahengi
+      note: note._id,
+      subject: note.subject || 'General',
     }));
 
-    const result = await Note.insertMany(notesToImport);
-    
-    // Temp file delete karo
-    fs.unlinkSync(req.file.path);
+    if (!cards.length) {
+      return res.status(200).json({ flashcards: [] });
+    }
 
-    res.status(200).json({ message: `${result.length} notes imported successfully` });
+    await Flashcard.deleteMany({ user: req.user.id, note: note._id });
+    const inserted = await Flashcard.insertMany(cards);
+    res.status(200).json({ flashcards: inserted });
   } catch (error) {
-    res.status(500).json({ message: 'Import failed. Check file format.' });
+    res.status(500).json({ message: 'Flashcard generation failed' });
+  }
+};
+
+exports.generateQuiz = async (req, res) => {
+  try {
+    const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
+    if (!note) return res.status(404).json({ message: 'Note not found' });
+
+    const lines = splitSentences(note.plainText || note.content).slice(0, 5);
+    const questions = lines.map((line) => ({
+      question: `Which statement best matches this note point?`,
+      options: [line, 'This is unrelated', 'No idea', 'Need more context'],
+      correct: 0,
+      explanation: 'Option 1 is copied from your note content.',
+    }));
+
+    res.status(200).json({ questions });
+  } catch (error) {
+    res.status(500).json({ message: 'Quiz generation failed' });
+  }
+};
+
+exports.getFlashcards = async (req, res) => {
+  try {
+    const cards = await Flashcard.find({ note: req.params.id, user: req.user.id }).sort({ createdAt: -1 });
+    res.status(200).json(cards);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load flashcards' });
+  }
+};
+
+exports.getDueFlashcards = async (req, res) => {
+  try {
+    const cards = await Flashcard.find({
+      user: req.user.id,
+      nextReviewDate: { $lte: new Date() },
+    }).sort({ nextReviewDate: 1 });
+    res.status(200).json(cards);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load due flashcards' });
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 6. DELETE/TRASH NOTE
+// NEW: Flashcard notes list
+// - User ki sabhi notes jinke paas flashcards hain
+// - Aur due count bhi (nextReviewDate <= now)
 // ─────────────────────────────────────────────────────────────────────────────
-exports.deleteNote = async (req, res) => {
+exports.getFlashcardNotes = async (req, res) => {
   try {
-    const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
-    
-    if (note.isTrashed) {
-      // Permanent delete
-      await Note.findByIdAndDelete(req.params.id);
-      // Folder count kam karo
-      if (note.folder) await Folder.findByIdAndUpdate(note.folder, { $inc: { noteCount: -1 } });
+    const now = new Date();
+    const pipeline = [
+      { $match: { user: req.user.id } },
+      {
+        $group: {
+          _id: '$note',
+          totalCount: { $sum: 1 },
+          dueCount: {
+            $sum: {
+              $cond: [{ $lte: ['$nextReviewDate', now] }, 1, 0],
+            },
+          },
+        },
+      },
+      { $lookup: { from: 'notes', localField: '_id', foreignField: '_id', as: 'noteDoc' } },
+      { $unwind: { path: '$noteDoc', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 0,
+          noteId: '$_id',
+          totalCount: 1,
+          dueCount: 1,
+          title: '$noteDoc.title',
+          subject: '$noteDoc.subject',
+          updatedAt: '$noteDoc.updatedAt',
+        },
+      },
+      { $sort: { dueCount: -1, updatedAt: -1 } },
+    ];
+
+    const notes = await Flashcard.aggregate(pipeline);
+    res.status(200).json(notes);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load flashcard notes' });
+  }
+};
+
+exports.reviewFlashcard = async (req, res) => {
+  try {
+    const { quality = 3 } = req.body;
+    const card = await Flashcard.findOne({ _id: req.params.id, user: req.user.id });
+    if (!card) return res.status(404).json({ message: 'Flashcard not found' });
+
+    const q = clamp(Number(quality), 0, 5);
+    if (q < 3) {
+      card.repetitions = 0;
+      card.interval = 1;
     } else {
-      // Soft delete (Move to Trash)
-      note.isTrashed = true;
-      note.trashedAt = new Date();
-      await note.save();
+      card.repetitions += 1;
+      if (card.repetitions === 1) card.interval = 1;
+      else if (card.repetitions === 2) card.interval = 3;
+      else card.interval = Math.round(card.interval * card.easeFactor);
+      card.easeFactor = Math.max(1.3, card.easeFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
     }
 
-    res.status(200).json({ message: 'Note deleted successfully' });
+    card.lastQuality = q;
+    card.nextReviewDate = new Date(Date.now() + card.interval * 24 * 60 * 60 * 1000);
+    card.isMastered = card.repetitions >= 5 && card.easeFactor >= 2.2;
+    await card.save();
+    res.status(200).json(card);
   } catch (error) {
-    res.status(500).json({ message: 'Delete failed' });
+    res.status(500).json({ message: 'Failed to review flashcard' });
+  }
+};
+
+exports.askAI = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if (!prompt?.trim()) return res.status(400).json({ message: 'Prompt is required' });
+    res.status(200).json({
+      answer: `I understood your question: "${prompt.trim()}". AI provider is not configured, so this is a local fallback response.`,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'AI query failed' });
+  }
+};
+
+exports.importNotes = async (req, res) => {
+  try {
+    if (!req.file?.buffer) return res.status(400).json({ message: 'No file uploaded' });
+    const fileData = req.file.buffer.toString('utf-8');
+    const importedData = JSON.parse(fileData);
+    const notesArray = Array.isArray(importedData) ? importedData : [importedData];
+
+    const notesToImport = notesArray
+      .filter((note) => typeof note === 'object' && note)
+      .map((note) => ({
+        title: note.title || 'Imported Note',
+        content: note.content || '',
+        plainText: note.plainText || note.content || '',
+        tags: Array.isArray(note.tags) ? note.tags : [],
+        subject: note.subject || 'General',
+        isPublic: false,
+        user: req.user.id,
+      }));
+
+    if (!notesToImport.length) return res.status(400).json({ message: 'No valid notes found in file' });
+    const result = await Note.insertMany(notesToImport);
+    res.status(200).json({ message: `${result.length} notes imported successfully`, notes: result });
+  } catch (error) {
+    res.status(500).json({ message: 'Import failed. Use valid JSON format.' });
   }
 };

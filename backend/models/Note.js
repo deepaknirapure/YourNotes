@@ -74,6 +74,11 @@ const noteSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'User' 
     }],
+    // NEW: Bookmark/Save (Community)
+    saves: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
     comments: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -81,6 +86,11 @@ const noteSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now }
       }
     ],
+    // NEW: Download tracking (Community)
+    downloads: {
+      type: Number,
+      default: 0
+    },
     // NEW: Subject for Community Section (Subject-wise display)
     subject: {
       type: String,

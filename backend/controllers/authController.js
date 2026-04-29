@@ -175,10 +175,83 @@ const uploadProfilePicture = async (req, res) => {
   }
 };
 
+// 6. GET PROFILE — Logged in user details
+const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch profile' });
+  }
+};
+
+// 7. UPDATE PROFILE — Name/email update
+const updateProfile = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (email && email !== user.email) {
+      const exists = await User.findOne({ email });
+      if (exists) return res.status(400).json({ message: 'Email already in use' });
+      user.email = email;
+    }
+    if (name) user.name = name;
+
+    await user.save();
+    res.status(200).json({
+      message: 'Profile updated',
+      user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar, streak: user.streak },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Profile update failed' });
+  }
+};
+
+// 8. CHANGE PASSWORD — Old password verify karke change
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current and new password are required' });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
+
+    const salt = await bcrypt.genSalt(12);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Password change failed' });
+  }
+};
+
+// 9. WEEKLY RESET JOB — Monday ko notesCreatedThisWeek reset
+const resetWeeklyGoals = async () => {
+  try {
+    await User.updateMany({}, { $set: { notesCreatedThisWeek: 0 } });
+    console.log('Weekly goals reset complete');
+  } catch (error) {
+    console.error('Weekly reset failed:', error.message);
+  }
+};
+
 module.exports = {
   register,
   login,
+  getMe,
   forgotPassword,
   resetPassword,
-  uploadProfilePicture
+  updateProfile,
+  changePassword,
+  uploadProfilePicture,
+  resetWeeklyGoals,
 };

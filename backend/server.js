@@ -17,7 +17,7 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-connectDB();
+const dbPromise = connectDB();
 
 const app = express();
 
@@ -94,12 +94,6 @@ const { resetWeeklyGoals } = require('./controllers/authController');
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-// Startup pe ek baar chalao
-cleanupTrashedNotes();
-
-// Har 24 ghante mein trash cleanup
-setInterval(cleanupTrashedNotes, TWENTY_FOUR_HOURS);
-
 // ── Weekly goal reset: har Monday 00:00 UTC pe reset karo
 const scheduleWeeklyReset = () => {
   const now = new Date();
@@ -118,6 +112,17 @@ const scheduleWeeklyReset = () => {
   }, msUntilMonday);
 };
 
-scheduleWeeklyReset();
+dbPromise
+  .then(() => {
+    // Startup pe ek baar chalao
+    cleanupTrashedNotes();
+    // Har 24 ghante mein trash cleanup
+    setInterval(cleanupTrashedNotes, TWENTY_FOUR_HOURS);
+    // ── Weekly goal reset schedule karo
+    scheduleWeeklyReset();
+  })
+  .catch((err) => {
+    console.error('DB init failed, cleanup jobs not scheduled:', err?.message || err);
+  });
 
 module.exports = server;

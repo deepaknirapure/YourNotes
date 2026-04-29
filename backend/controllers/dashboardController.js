@@ -54,6 +54,11 @@ exports.getDashboard = async (req, res) => {
     // Response structure (Production-ready)
     res.status(200).json({
       success: true,
+      totalNotes,
+      publicNotes,
+      starredNotes,
+      totalFolders,
+      flashcardsDue,
       indicators: {
         total: totalNotes,
         public: publicNotes,
