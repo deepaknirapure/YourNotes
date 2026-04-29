@@ -1,12 +1,10 @@
-//sidebar.js - Desktop sidebar + Mobile drawer (hamburger se khulta hai)
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Star, Folder, Tag,
-  CreditCard, Bot, Users, Trash2, LogOut, X,
+  CreditCard, Bot, Users, Trash2, LogOut, X, Settings
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-// Sidebar ke navigation links
 const NAV_ITEMS = [
   { icon: Home,       label: 'Home',       path: '/home' },
   { icon: BookOpen,   label: 'Notes',      path: '/notes' },
@@ -24,7 +22,6 @@ export default function Sidebar({ open, onClose }) {
   const location  = useLocation();
   const { user, logout } = useAuth();
 
-  // Page navigate karo aur mobile mein sidebar band karo
   const goTo = (path) => {
     navigate(path);
     if (onClose) onClose();
@@ -35,89 +32,53 @@ export default function Sidebar({ open, onClose }) {
     navigate('/login');
   };
 
-  // User ka pehla letter avatar ke liye
-  const avatarLetter = user?.name ? user.name[0].toUpperCase() : 'U';
+  const initials = user?.name ? user.name[0].toUpperCase() : 'U';
 
   return (
     <>
-      {/* Mobile backdrop - bahar click karne pe sidebar band ho */}
-      {open && (
-        <div
-          className="sidebar-overlay"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
+      {open && <div className="sidebar-overlay" onClick={onClose} />}
 
-      <aside
-        className={`sidebar-main${open ? ' sidebar-open' : ''}`}
-        aria-label="Main Navigation"
-      >
-        {/* Logo + Close button (mobile mein dikhta hai) */}
+      <aside className={`sidebar-main${open ? ' sidebar-open' : ''}`}>
         <div className="sidebar-header">
-          <div
-            onClick={() => goTo('/home')}
-            className="sidebar-logo"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && goTo('/home')}
-            aria-label="Go to Home"
-          >
-            <span className="logo-your">Your</span>
-            <span className="logo-notes">Notes</span>
+          <div className="sidebar-logo" onClick={() => goTo('/home')}>
+            <span className="logo-txt">YOUR</span>
+            <span className="logo-highlight">NOTES</span>
           </div>
-
-          {/* Mobile mein sirf close button dikhta hai */}
-          <button
-            className="sidebar-close-btn"
-            onClick={onClose}
-            aria-label="Close sidebar"
-          >
-            <X size={16} />
+          <button className="sidebar-close-btn" onClick={onClose}>
+            <X size={18} />
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="sidebar-nav" aria-label="Page Navigation">
+        <nav className="sidebar-nav">
           {NAV_ITEMS.map(({ icon: Icon, label, path }) => {
             const isActive = location.pathname === path;
             return (
               <button
                 key={path}
                 onClick={() => goTo(path)}
-                className={`nav-btn${isActive ? ' nav-btn--active' : ''}`}
-                aria-current={isActive ? 'page' : undefined}
+                className={`nav-btn ${isActive ? 'active' : ''}`}
               >
-                <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                 <span>{label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Footer: Profile + Logout */}
         <div className="sidebar-footer">
-          <div
-            onClick={() => goTo('/profile')}
-            className="sidebar-profile"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && goTo('/profile')}
-            aria-label="Go to Profile"
-          >
-            <div className="sidebar-avatar">
-              {user?.avatar
-                ? <img src={user.avatar} alt={user.name || 'User'} className="sidebar-avatar-img" />
-                : avatarLetter}
+          <div className="profile-section" onClick={() => goTo('/profile')}>
+            <div className="avatar-box">
+              {user?.avatar ? <img src={user.avatar} alt="User" /> : initials}
             </div>
-            <div className="sidebar-user-info">
-              <span className="sidebar-username">{user?.name || 'User'}</span>
-              <span className="sidebar-settings-label">Settings</span>
+            <div className="user-details">
+              <span className="username">{user?.name || 'Developer'}</span>
+              <span className="subtext">Account Settings</span>
             </div>
+            <Settings size={14} className="settings-icon" />
           </div>
 
-          <button onClick={handleLogout} className="sidebar-logout-btn">
-            <LogOut size={14} />
+          <button onClick={handleLogout} className="logout-action">
+            <LogOut size={16} />
             <span>Sign out</span>
           </button>
         </div>
@@ -126,271 +87,180 @@ export default function Sidebar({ open, onClose }) {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
-        /* ── Sidebar Overlay (mobile backdrop) ── */
         .sidebar-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.45);
-          backdrop-filter: blur(3px);
-          -webkit-backdrop-filter: blur(3px);
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(4px);
           z-index: 299;
-          display: none;
         }
 
-        /* ── Main Sidebar ── */
         .sidebar-main {
-          width: 240px;
+          width: 260px;
           height: 100vh;
-          background: #FFFFFF;
-          border-right: 1px solid #F1F5F9;
+          background: #000000;
+          border-right: 1px solid #1A1A1A;
           display: flex;
           flex-direction: column;
-          flex-shrink: 0;
           font-family: 'Plus Jakarta Sans', sans-serif;
           position: relative;
           z-index: 300;
-          transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-          will-change: transform;
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ── Sidebar Header ── */
         .sidebar-header {
-          height: 56px;
+          height: 80px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 20px;
-          border-bottom: 1px solid #F8FAFC;
-          flex-shrink: 0;
+          padding: 0 24px;
+          border-bottom: 1px solid #1A1A1A;
         }
 
         .sidebar-logo {
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          user-select: none;
-        }
-
-        .logo-your {
           font-size: 20px;
           font-weight: 900;
-          color: #000;
-          letter-spacing: -0.5px;
-          text-transform: uppercase;
+          letter-spacing: -1px;
         }
 
-        .logo-notes {
-          font-size: 20px;
-          font-weight: 900;
-          color: #E55B2D;
-          letter-spacing: -0.5px;
-          text-transform: uppercase;
-        }
+        .logo-txt { color: #FFFFFF; }
+        .logo-highlight { color: #ccff00; margin-left: 2px; }
 
-        /* Close button - sirf mobile mein dikhta hai */
         .sidebar-close-btn {
           display: none;
-          background: #F8FAFC;
-          border: 1px solid #E2E8F0;
-          cursor: pointer;
+          background: #1A1A1A;
+          border: 1px solid #333;
+          color: #FFF;
           padding: 6px;
-          border-radius: 10px;
-          color: #64748B;
-          align-items: center;
-          justify-content: center;
-          min-width: 36px;
-          height: 36px;
-          transition: all 0.15s;
-          -webkit-tap-highlight-color: transparent;
+          border-radius: 8px;
+          cursor: pointer;
         }
 
-        .sidebar-close-btn:hover {
-          background: #FFF5F2;
-          color: #E55B2D;
-          border-color: #FFE4DB;
-        }
-
-        /* ── Navigation Area ── */
         .sidebar-nav {
           flex: 1;
-          padding: 12px 8px 10px;
+          padding: 24px 12px;
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 6px;
           overflow-y: auto;
-          scrollbar-width: none;
-          -webkit-overflow-scrolling: touch;
         }
 
-        .sidebar-nav::-webkit-scrollbar { display: none; }
-
-        /* Nav Buttons */
         .nav-btn {
-          position: relative;
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 11px 16px;
-          color: #64748B;
+          gap: 14px;
+          padding: 12px 16px;
+          color: #888;
           background: transparent;
           border: none;
           cursor: pointer;
           font-size: 14px;
-          font-weight: 500;
-          width: 100%;
-          text-align: left;
-          font-family: inherit;
-          transition: all 0.15s ease;
-          min-height: 44px;
-          border-radius: 10px;
-          -webkit-tap-highlight-color: transparent;
+          font-weight: 600;
+          border-radius: 12px;
+          transition: 0.2s;
         }
 
         .nav-btn:hover {
-          color: #000;
-          background: #F8FAFC;
+          color: #FFF;
+          background: #111;
         }
 
-        /* Active nav item */
-        .nav-btn--active {
+        .nav-btn.active {
           color: #000 !important;
-          font-weight: 700 !important;
-          background: #FFF5F2 !important;
+          background: #ccff00 !important;
+          box-shadow: 0 4px 15px rgba(204, 255, 0, 0.2);
         }
 
-        /* Active indicator bar (left side) */
-        .nav-btn--active::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 3px;
-          height: 20px;
-          background: #E55B2D;
-          border-radius: 0 4px 4px 0;
-        }
-
-        /* ── Footer Section ── */
         .sidebar-footer {
-          padding: 16px 20px;
-          border-top: 1px solid #F1F5F9;
+          padding: 20px;
+          background: #050505;
+          border-top: 1px solid #1A1A1A;
           display: flex;
           flex-direction: column;
-          gap: 14px;
-          flex-shrink: 0;
+          gap: 16px;
         }
 
-        /* Profile section */
-        .sidebar-profile {
+        .profile-section {
           display: flex;
           align-items: center;
           gap: 12px;
           cursor: pointer;
-          border-radius: 10px;
-          padding: 6px 0;
-          transition: all 0.15s;
-          -webkit-tap-highlight-color: transparent;
+          padding: 10px;
+          border-radius: 12px;
+          transition: 0.2s;
+          border: 1px solid transparent;
         }
 
-        .sidebar-profile:hover { opacity: 0.8; }
+        .profile-section:hover {
+          background: #111;
+          border-color: #222;
+        }
 
-        /* Avatar circle */
-        .sidebar-avatar {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: #F8FAFC;
-          border: 1px solid #E2E8F0;
+        .avatar-box {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: #ccff00;
+          color: #000;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 13px;
           font-weight: 800;
-          color: #E55B2D;
-          flex-shrink: 0;
           overflow: hidden;
+          flex-shrink: 0;
         }
 
-        .sidebar-avatar-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        .sidebar-user-info {
+        .user-details {
           display: flex;
           flex-direction: column;
-          overflow: hidden;
+          flex: 1;
           min-width: 0;
         }
 
-        .sidebar-username {
+        .username {
           font-size: 13px;
-          font-weight: 700;
-          color: #000;
+          font-weight: 800;
+          color: #FFF;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
-        .sidebar-settings-label {
+        .subtext {
           font-size: 11px;
-          color: #94A3B8;
-          font-weight: 600;
+          color: #555;
+          font-weight: 700;
+          text-transform: uppercase;
         }
 
-        /* Logout button */
-        .sidebar-logout-btn {
+        .settings-icon { color: #333; }
+
+        .logout-action {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           background: none;
           border: none;
-          padding: 8px 0;
+          padding: 8px 10px;
           font-size: 13px;
-          font-weight: 600;
-          color: #94A3B8;
+          font-weight: 700;
+          color: #555;
           cursor: pointer;
-          transition: color 0.2s;
-          font-family: inherit;
-          -webkit-tap-highlight-color: transparent;
+          transition: 0.2s;
         }
 
-        .sidebar-logout-btn:hover { color: #EF4444; }
+        .logout-action:hover { color: #FF4444; }
 
-        /* ══════════════════════════════
-           MOBILE RESPONSIVE STYLES
-           (768px se chhote screens ke liye)
-           ══════════════════════════════ */
         @media (max-width: 768px) {
-          /* Mobile mein sidebar fixed drawer ban jaata hai */
           .sidebar-main {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            height: 100dvh !important;
-            height: -webkit-fill-available !important;
-            z-index: 300 !important;
-            box-shadow: 4px 0 32px rgba(0, 0, 0, 0.15) !important;
-            /* Shuru mein hidden hoga */
-            transform: translateX(-100%) !important;
+            position: fixed;
+            transform: translateX(-100%);
           }
-
-          /* Jab open ho to dikhao */
-          .sidebar-main.sidebar-open {
-            transform: translateX(0) !important;
-          }
-
-          /* Mobile mein overlay dikhao */
-          .sidebar-overlay {
-            display: block !important;
-          }
-
-          /* Close button mobile mein dikhao */
-          .sidebar-close-btn {
-            display: flex !important;
-          }
+          .sidebar-main.sidebar-open { transform: translateX(0); }
+          .sidebar-close-btn { display: flex; }
         }
       `}</style>
     </>
