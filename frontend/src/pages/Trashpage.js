@@ -192,7 +192,7 @@ export default function TrashPage() {
 
       <div className="pg-main">
         {/* TOPBAR */}
-        <div className="pg-topbar">
+        <div className="pg-topbar" m-b-4>
           <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={22} /></button>
           <div className="pg-title-section">
             <h1 className="pg-title">Trash Hub</h1>
