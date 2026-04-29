@@ -132,7 +132,6 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
 
       {/* Header */}
       <header className="ed-header">
-        /* --- Header Actions (Updated) --- */
 <div style={{ display: 'flex', gap: 8 }}>
   {/* Dedicated Flashcards Button */}
   <button className="ai-btn" style={{ background: '#000', color: '#ccff00' }} onClick={() => handleAI('flashcards')}>
