@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, FileText, Search, RefreshCw, Menu, Hash, Clock, ArrowUpDown } from "lucide-react";
+import { Star, Search, RefreshCw, Menu, Clock } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";

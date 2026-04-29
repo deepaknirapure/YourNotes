@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowRight, Mail, Lock, Loader2, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Loader2, Sparkles, ShieldCheck, Zap, Terminal } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
@@ -12,110 +12,113 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  body { background: #FFF; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; margin: 0; }
+  body { background: #000; color: #FFF; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
 
-  .login-root { display: flex; min-height: 100vh; overflow: hidden; }
+  .login-root { display: flex; min-height: 100vh; overflow: hidden; background: #000; }
 
   /* ── LEFT PANEL ── */
   .login-left {
-    flex: 1; background: #F8FAFC; border-right: 1px solid #E2E8F0;
-    display: flex; flex-direction: column; justify-content: space-between;
-    padding: 60px; position: relative; overflow: hidden;
+    flex: 1.2; background: radial-gradient(circle at top left, #0a0a0a, #000); 
+    border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; 
+    justify-content: space-between; padding: 60px; position: relative; overflow: hidden;
   }
   
-  .bg-dots {
-    position: absolute; inset: 0; z-index: 0; opacity: 0.5; pointer-events: none;
-    background-image: radial-gradient(#CBD5E1 1px, transparent 1px); background-size: 24px 24px;
+  .bg-grid {
+    position: absolute; inset: 0; z-index: 0; opacity: 0.1;
+    background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 
   .brand-logo {
-    font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;
-    position: relative; z-index: 1;
+    font-size: 26px; font-weight: 900; color: #FFF; letter-spacing: -1px;
+    position: relative; z-index: 1; display: flex; align-items: center; gap: 10px;
   }
 
-  .left-content { position: relative; z-index: 1; max-width: 480px; }
+  .left-content { position: relative; z-index: 1; max-width: 520px; margin-top: 40px; }
   
-  .saas-badge {
-    display: inline-flex; align-items: center; gap: 8px; background: #FFF5F2;
-    border: 1px solid #FFE4DB; border-radius: 100px; padding: 6px 14px;
-    font-size: 11px; font-weight: 700; color: #E55B2D; letter-spacing: 0.5px;
-    margin-bottom: 24px; text-transform: uppercase;
+  .neon-badge {
+    display: inline-flex; align-items: center; gap: 8px; background: rgba(204, 255, 0, 0.1);
+    border: 1px solid #ccff00; border-radius: 100px; padding: 6px 16px;
+    font-size: 11px; font-weight: 800; color: #ccff00; text-transform: uppercase;
+    margin-bottom: 32px; letter-spacing: 1px;
   }
 
   .left-title {
-    font-size: 48px; font-weight: 800; color: #0F172A;
-    line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px;
+    font-size: 56px; font-weight: 800; color: #FFF; line-height: 1;
+    letter-spacing: -2px; margin-bottom: 24px;
   }
 
-  .features-stack { display: flex; flex-direction: column; gap: 24px; margin-top: 40px; }
-  .feat-item { display: flex; gap: 16px; align-items: flex-start; }
+  .features-stack { display: flex; flex-direction: column; gap: 30px; margin-top: 50px; }
+  .feat-item { display: flex; gap: 20px; align-items: center; }
   .feat-icon { 
-    width: 32px; height: 32px; border-radius: 8px; background: #FFF; 
-    border: 1px solid #E2E8F0; display: flex; align-items: center; 
-    justify-content: center; color: #E55B2D; flex-shrink: 0;
+    width: 44px; height: 44px; border-radius: 12px; background: #111; 
+    border: 1px solid #222; display: flex; align-items: center; 
+    justify-content: center; color: #ccff00; flex-shrink: 0;
   }
-  .feat-text h4 { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
-  .feat-text p { font-size: 13px; color: #64748B; line-height: 1.5; font-weight: 500; }
+  .feat-text h4 { font-size: 16px; font-weight: 800; color: #FFF; margin-bottom: 4px; }
+  .feat-text p { font-size: 14px; color: #888; line-height: 1.5; font-weight: 500; }
 
   .left-footer {
-    position: relative; z-index: 1; background: #FFF; border: 1px solid #E2E8F0;
-    border-radius: 12px; padding: 20px; display: inline-flex; flex-direction: column; gap: 4px;
+    position: relative; z-index: 1; border-top: 1px solid #1a1a1a;
+    padding-top: 30px; display: flex; align-items: center; gap: 20px;
   }
 
   /* ── RIGHT PANEL ── */
   .login-right {
-    flex: 1; background: #FFF; display: flex; flex-direction: column;
+    flex: 1; background: #000; display: flex; flex-direction: column;
     justify-content: center; padding: 60px 8%; position: relative;
   }
 
   .form-container {
     width: 100%; max-width: 400px; margin: 0 auto;
-    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .form-header { margin-bottom: 40px; }
-  .form-title { font-size: 32px; font-weight: 800; color: #0F172A; letter-spacing: -1px; margin-bottom: 8px; }
-  .form-subtitle { font-size: 15px; color: #64748B; font-weight: 500; }
+  .form-title { font-size: 36px; font-weight: 800; color: #FFF; letter-spacing: -1.5px; margin-bottom: 12px; }
+  .form-subtitle { font-size: 15px; color: #888; font-weight: 500; }
 
-  .input-group { margin-bottom: 20px; }
+  .input-group { margin-bottom: 24px; }
   .input-label {
-    display: block; font-size: 12px; font-weight: 700; color: #475569;
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+    display: block; font-size: 12px; font-weight: 800; color: #555;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
   }
   
-  .input-wrapper { position: relative; display: flex; align-items: center; }
-  .input-icon { position: absolute; left: 16px; color: #94A3B8; pointer-events: none; }
+  .input-wrapper { position: relative; }
+  .input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #444; transition: 0.3s; }
   
   .form-input {
-    width: 100%; padding: 14px 16px 14px 44px; background: #FFF;
-    border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; font-weight: 500;
-    color: #0F172A; font-family: inherit; transition: 0.2s; outline: none;
+    width: 100%; padding: 16px 16px 16px 48px; background: #0a0a0a;
+    border: 1px solid #222; border-radius: 12px; font-size: 15px; font-weight: 600;
+    color: #FFF; font-family: inherit; transition: 0.3s; outline: none;
   }
-  .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
+  .form-input:focus { 
+    border-color: #ccff00; background: #000;
+    box-shadow: 0 0 20px rgba(204, 255, 0, 0.05); 
+  }
+  .form-input:focus + .input-icon { color: #ccff00; }
 
   .forgot-link {
-    display: block; text-align: right; font-size: 13px; font-weight: 600;
-    color: #E55B2D; text-decoration: none; margin-top: -8px; margin-bottom: 24px;
+    display: block; text-align: right; font-size: 13px; font-weight: 700;
+    color: #ccff00; text-decoration: none; margin-top: -12px; margin-bottom: 30px;
   }
 
   .btn-submit {
-    width: 100%; padding: 14px; background: #0F172A; color: #FFF;
-    border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
-    font-family: inherit; cursor: pointer; transition: 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 16px; background: #ccff00; color: #000;
+    border: none; border-radius: 12px; font-size: 16px; font-weight: 900;
+    cursor: pointer; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    text-transform: uppercase; letter-spacing: 0.5px;
   }
-  .btn-submit:hover:not(:disabled) { background: #E55B2D; transform: translateY(-1px); }
-  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(204, 255, 0, 0.3); }
+  .btn-submit:disabled { opacity: 0.5; filter: grayscale(1); }
 
-  .register-prompt { text-align: center; margin-top: 32px; font-size: 14px; color: #64748B; font-weight: 500; }
-  .register-link { color: #E55B2D; font-weight: 700; text-decoration: none; }
+  .register-prompt { text-align: center; margin-top: 32px; font-size: 14px; color: #555; font-weight: 600; }
+  .register-link { color: #FFF; font-weight: 800; text-decoration: none; border-bottom: 2px solid #ccff00; padding-bottom: 2px; }
 
-  .mobile-footer { display: none; text-align: center; margin-top: 40px; font-size: 11px; font-weight: 700; color: #94A3B8; letter-spacing: 1px; }
-
-  @media(max-width: 960px) {
+  @media(max-width: 1024px) {
     .login-left { display: none; }
     .login-right { padding: 40px 24px; }
-    .mobile-footer { display: block; }
   }
 `;
 
@@ -127,15 +130,15 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.email || !form.password) return toast.error('Please enter your email and password.');
+    if (!form.email || !form.password) return toast.error('Check your inputs!');
     setLoading(true);
     try {
       const { data } = await API.post('/auth/login', form);
       login(data.user, data.token);
-      toast.success('Welcome back! 🚀');
+      toast.success('Access Granted ⚡');
       navigate('/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed. Please check credentials.');
+      toast.error(err.response?.data?.message || 'Unauthorized Access.');
     } finally {
       setLoading(false);
     }
@@ -149,34 +152,43 @@ export default function LoginPage() {
 
       {/* ── LEFT PANEL ── */}
       <div className="login-left">
-        <div className="bg-dots" />
-        <div className="brand-logo">Your<span style={{ color: "#E55B2D" }}>Notes</span>.</div>
+        <div className="bg-grid" />
+        <div className="brand-logo">
+           <div style={{ background: '#ccff00', padding: '6px', borderRadius: '8px' }}>
+             <Terminal size={20} color="#000" />
+           </div>
+           Your<span style={{ color: "#ccff00" }}>Notes</span>.
+        </div>
 
         <div className="left-content">
-          <div className="saas-badge"><Zap size={12} /> Workspace Ready</div>
-          <h2 className="left-title">Focus on what matters most.</h2>
+          <div className="neon-badge"><Zap size={12} fill="#ccff00" /> v2.0 Live Now</div>
+          <h2 className="left-title">Master your <br/> Knowledge.</h2>
           
           <div className="features-stack">
             <div className="feat-item">
-              <div className="feat-icon"><Sparkles size={16} /></div>
+              <div className="feat-icon"><Sparkles size={20} /></div>
               <div className="feat-text">
-                <h4>AI-Powered Review</h4>
-                <p>Turn complex notes into structured summaries and smart flashcards instantly.</p>
+                <h4>Quantum Summaries</h4>
+                <p>AI that understands your lecture depth and creates pixel-perfect flashcards.</p>
               </div>
             </div>
             <div className="feat-item">
-              <div className="feat-icon"><ShieldCheck size={16} /></div>
+              <div className="feat-icon"><ShieldCheck size={20} /></div>
               <div className="feat-text">
-                <h4>Private & Secure</h4>
-                <p>Your data is encrypted and accessible only to you. Always private by design.</p>
+                <h4>End-to-End Privacy</h4>
+                <p>Your intellectual property stays yours. Encrypted, secure, and decentralized nodes.</p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="left-footer">
-          <div style={{ fontSize: 11, fontWeight: 800, color: '#0F172A', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Built for Students</div>
-          <div style={{ fontSize: 13, color: '#64748B', fontWeight: 500 }}>S.V. Polytechnic College, Bhopal · 2026</div>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#444', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>Deployment</div>
+            <div style={{ fontSize: 13, color: '#FFF', fontWeight: 700 }}>S.V. Polytechnic College, Bhopal</div>
+          </div>
+          <div style={{ width: '1px', height: '30px', background: '#1a1a1a' }} />
+          <div style={{ fontSize: 13, color: '#888', fontWeight: 600 }}>Est. 2026</div>
         </div>
       </div>
 
@@ -184,39 +196,37 @@ export default function LoginPage() {
       <div className="login-right">
         <div className="form-container">
           <div className="form-header">
-            <h2 className="form-title">Sign In</h2>
-            <p className="form-subtitle">Enter your details to access your dashboard.</p>
+            <h2 className="form-title">Login</h2>
+            <p className="form-subtitle">Welcome back, Scholar. Authenticate to continue.</p>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="input-group">
-              <label className="input-label">Email Address</label>
+              <label className="input-label">Identity / Email</label>
               <div className="input-wrapper">
+                <input type="email" placeholder="name@svpoly.edu" value={form.email} onChange={updateField('email')} className="form-input" required />
                 <Mail size={18} className="input-icon" />
-                <input type="email" placeholder="name@example.com" value={form.email} onChange={updateField('email')} className="form-input" required />
               </div>
             </div>
 
             <div className="input-group">
-              <label className="input-label">Password</label>
+              <label className="input-label">Security Key</label>
               <div className="input-wrapper">
-                <Lock size={18} className="input-icon" />
                 <input type="password" placeholder="••••••••" value={form.password} onChange={updateField('password')} className="form-input" required />
+                <Lock size={18} className="input-icon" />
               </div>
             </div>
 
-            <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+            <Link to="/forgot-password" className="forgot-link">Recover Key?</Link>
 
             <button type="submit" disabled={loading} className="btn-submit">
-              {loading ? <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> : <>Sign In <ArrowRight size={18} /></>}
+              {loading ? <Loader2 size={20} style={{ animation: "spin 1s linear infinite" }} /> : <>Enter Dashboard <ArrowRight size={20} strokeWidth={3} /></>}
             </button>
           </form>
 
           <p className="register-prompt">
-            Don&apos;t have an account? <Link to="/register" className="register-link">Register for free</Link>
+            New to the hub? <Link to="/register" className="register-link">Create Account</Link>
           </p>
-          
-          <div className="mobile-footer">YOURNOTES · BHOPAL · 2026</div>
         </div>
       </div>
     </div>

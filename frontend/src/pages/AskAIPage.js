@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, User, Bot, RefreshCw, Copy, Check, Menu, Paperclip, X, File } from "lucide-react";
+import { Send, User, Bot, RefreshCw, Copy, Check, Menu, Paperclip, X, File, Plus, Trash2 } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";
@@ -17,6 +17,15 @@ const STYLES = `
   
   .ai-wrap { display: flex; height: 100dvh; overflow: hidden; background: #FAFAFA; }
   .ai-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .ai-shell { flex: 1; display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 0; }
+  .ai-history { background: #FFF; border-right: 1px solid #E2E8F0; overflow-y: auto; padding: 14px; }
+  .ai-history-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .ai-history-title { font-size: 12px; font-weight: 800; color: #64748B; text-transform: uppercase; }
+  .ai-history-item { width: 100%; text-align: left; border: 1px solid #E2E8F0; background: #FFF; border-radius: 10px; padding: 10px; margin-bottom: 8px; cursor: pointer; }
+  .ai-history-item.active { border-color: #FFE4DB; background: #FFF5F2; }
+  .ai-history-name { font-size: 13px; font-weight: 700; color: #0F172A; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .ai-history-date { font-size: 11px; font-weight: 600; color: #94A3B8; margin-top: 4px; }
+  .ai-chat-panel { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
   
   /* Top Navigation */
   .ai-topbar { 
@@ -154,22 +163,30 @@ const STYLES = `
     .ai-prompts { gap: 8px !important; padding: 0 14px 10px !important; }
     .ai-prompt-btn { font-size: 12px !important; padding: 6px 12px !important; }
     .ai-input { font-size: 14px !important; }
+    .ai-shell { grid-template-columns: 1fr !important; }
+    .ai-history { display: none !important; }
+    .ai-bottom { padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important; }
   }
 `;
 
 const PROMPTS = [
-  "Notes summarize karo",
-  "Flashcards banao",
-  "Concept explain karo",
-  "Exam tips do",
-  "Practice questions do",
+  "Summarize my notes",
+  "Create flashcards",
+  "Explain this concept",
+  "Give exam tips",
+  "Create practice questions",
 ];
+
+const STARTER_MESSAGE = {
+  role: "assistant",
+  content: "Hi! I am your YourNotes AI assistant. Ask me about your notes, subjects, or study plan.",
+};
 
 export default function AskAIPage() {
   const HISTORY_KEY = "yournotes_ai_history_v1";
-  const [messages, setMessages] = useState([
-    { role: "assistant", content: "Haan bolo! Main YourNotes AI assistant hoon. Apne notes, subjects, ya koi bhi study-related sawaal poochho. Kya help chahiye? 🎓" }
-  ]);
+  const [messages, setMessages] = useState([STARTER_MESSAGE]);
+  const [chatId, setChatId] = useState(null);
+  const [chatSessions, setChatSessions] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState(null);
@@ -180,27 +197,55 @@ export default function AskAIPage() {
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null); 
+  const saveTimerRef = useRef(null);
 
   useEffect(() => {
-    // Chat history load (localStorage)
-    try {
-      const raw = localStorage.getItem(HISTORY_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length) setMessages(parsed);
+    // Hindi: Pehle database se history lao, localStorage fallback ke liye rakha hai.
+    const loadChats = async () => {
+      try {
+        const { data } = await API.get("/ai/chats");
+        const sessions = data || [];
+        setChatSessions(sessions);
+        if (sessions[0]) {
+          setChatId(sessions[0]._id);
+          setMessages(sessions[0].messages?.length ? sessions[0].messages : [STARTER_MESSAGE]);
+          return;
+        }
+      } catch (_) {
+        try {
+          const raw = localStorage.getItem(HISTORY_KEY);
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (Array.isArray(parsed) && parsed.length) setMessages(parsed);
+        } catch (_) {}
       }
-    } catch (_) {}
-
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+    loadChats();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    // Chat history persist
+    // Hindi: DB save ke saath local fallback bhi maintain karo.
     try {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(messages));
     } catch (_) {}
-  }, [messages]);
+
+    if (messages.length <= 1) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        const title = messages.find((m) => m.role === "user")?.content?.slice(0, 60) || "New Chat";
+        const { data } = await API.post("/ai/chats", { id: chatId, title, messages });
+        setChatId(data._id);
+        setChatSessions((prev) => {
+          const without = prev.filter((c) => c._id !== data._id);
+          return [data, ...without].slice(0, 30);
+        });
+      } catch (_) {}
+    }, 500);
+
+    return () => saveTimerRef.current && clearTimeout(saveTimerRef.current);
+  }, [messages, chatId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -266,7 +311,7 @@ export default function AskAIPage() {
         responseData = data;
       }
 
-      const reply = responseData.answer || responseData.response || responseData.message || "Samajh nahi aaya, dobara try karo.";
+      const reply = responseData.answer || responseData.response || responseData.message || "I could not understand that. Please try again.";
       setMessages(prev => {
         const next = [...prev];
         next[next.length - 1] = { role: "assistant", content: reply };
@@ -275,7 +320,7 @@ export default function AskAIPage() {
     } catch (err) {
       setMessages(prev => {
         const next = [...prev];
-        next[next.length - 1] = { role: "assistant", content: "Maafi chahta hoon, kuch error aa gayi. Dobara try karo." };
+        next[next.length - 1] = { role: "assistant", content: "Sorry, something went wrong. Please try again." };
         return next;
       });
     } finally { 
@@ -298,14 +343,43 @@ export default function AskAIPage() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
   };
 
+  const sendDisabled = ((!input.trim() && !selectedFile) || loading);
+
   const clearChat = () => {
     try {
       localStorage.removeItem(HISTORY_KEY);
     } catch (_) {}
-    setMessages([{ role: "assistant", content: "Chat cleared! Ask a new question. 🎓" }]);
+    setChatId(null);
+    setMessages([{ role: "assistant", content: "Chat cleared. Ask a new question." }]);
     setSelectedFile(null);
     setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
+  };
+
+  const startNewChat = () => {
+    setChatId(null);
+    setMessages([STARTER_MESSAGE]);
+    setInput("");
+    setSelectedFile(null);
+  };
+
+  const openChat = (chat) => {
+    setChatId(chat._id);
+    setMessages(chat.messages?.length ? chat.messages : [STARTER_MESSAGE]);
+    setInput("");
+    setSelectedFile(null);
+  };
+
+  const deleteChat = async (e, id) => {
+    e.stopPropagation();
+    try {
+      await API.delete(`/ai/chats/${id}`);
+      setChatSessions((prev) => prev.filter((c) => c._id !== id));
+      if (chatId === id) startNewChat();
+      toast.success("Chat deleted");
+    } catch {
+      toast.error("Could not delete chat");
+    }
   };
 
   return (
@@ -335,6 +409,32 @@ export default function AskAIPage() {
           </div>
         </div>
 
+        <div className="ai-shell">
+          <aside className="ai-history">
+            <div className="ai-history-head">
+              <span className="ai-history-title">Chat History</span>
+              <button className="ai-copy-btn" onClick={startNewChat} title="New chat">
+                <Plus size={15} />
+              </button>
+            </div>
+            {chatSessions.length === 0 ? (
+              <div style={{ fontSize: 13, color: "#94A3B8", fontWeight: 600, padding: 10 }}>No saved chats yet.</div>
+            ) : chatSessions.map((chat) => (
+              <button key={chat._id} className={`ai-history-item ${chatId === chat._id ? "active" : ""}`} onClick={() => openChat(chat)}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div className="ai-history-name">{chat.title || "New Chat"}</div>
+                    <div className="ai-history-date">{new Date(chat.updatedAt).toLocaleDateString()}</div>
+                  </div>
+                  <span onClick={(e) => deleteChat(e, chat._id)} title="Delete chat" style={{ color: "#94A3B8", display: "flex", padding: 4 }}>
+                    <Trash2 size={14} />
+                  </span>
+                </div>
+              </button>
+            ))}
+          </aside>
+
+          <section className="ai-chat-panel">
         <div className="ai-messages">
           {messages.map((msg, i) => (
             <div key={i} className={`ai-msg ${msg.role === "user" ? "user" : ""}`}>
@@ -430,9 +530,9 @@ export default function AskAIPage() {
               />
               
               <button 
-                className={`ai-send-btn ${(!input.trim() && !selectedFile || loading) ? 'disabled' : 'active'}`} 
+                className={`ai-send-btn ${sendDisabled ? 'disabled' : 'active'}`} 
                 onClick={() => send()} 
-                disabled={(!input.trim() && !selectedFile) || loading}
+                disabled={sendDisabled}
               >
                 {loading ? <div className="ai-spinner" /> : <Send size={16} />}
               </button>
@@ -441,6 +541,8 @@ export default function AskAIPage() {
               AI can make mistakes. Always verify important information.
             </p>
           </div>
+        </div>
+          </section>
         </div>
       </div>
       {/* Mobile navigation */}

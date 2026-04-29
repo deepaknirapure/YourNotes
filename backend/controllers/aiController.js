@@ -1,6 +1,8 @@
 const Note = require('../models/Note');
 const User = require('../models/User');
 const Flashcard = require('../models/Flashcard');
+const ChatHistory = require('../models/ChatHistory');
+const mongoose = require('mongoose');
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -131,8 +133,9 @@ exports.getDueFlashcards = async (req, res) => {
 exports.getFlashcardNotes = async (req, res) => {
   try {
     const now = new Date();
+    const userId = new mongoose.Types.ObjectId(req.user.id);
     const pipeline = [
-      { $match: { user: req.user.id } },
+      { $match: { user: userId } },
       {
         $group: {
           _id: '$note',
@@ -197,13 +200,88 @@ exports.reviewFlashcard = async (req, res) => {
 
 exports.askAI = async (req, res) => {
   try {
-    const { prompt } = req.body;
-    if (!prompt?.trim()) return res.status(400).json({ message: 'Prompt is required' });
+    const prompt = req.body.prompt || req.body.question;
+    if (!prompt?.trim()) return res.status(400).json({ message: 'Question is required' });
     res.status(200).json({
       answer: `I understood your question: "${prompt.trim()}". AI provider is not configured, so this is a local fallback response.`,
     });
   } catch (error) {
     res.status(500).json({ message: 'AI query failed' });
+  }
+};
+
+exports.askAIWithFile = async (req, res) => {
+  try {
+    const prompt = req.body.question || req.body.prompt || '';
+    if (!prompt.trim() && !req.file) {
+      return res.status(400).json({ message: 'Question or file is required' });
+    }
+
+    const fileNote = req.file?.originalname ? ` I also received your file "${req.file.originalname}".` : '';
+    res.status(200).json({
+      answer: `I understood your question: "${prompt.trim() || 'Please review this file'}".${fileNote} AI provider is not configured, so this is a local fallback response.`,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'File AI query failed' });
+  }
+};
+
+exports.getChatHistory = async (req, res) => {
+  try {
+    const chats = await ChatHistory.find({ user: req.user.id })
+      .sort({ updatedAt: -1 })
+      .limit(30)
+      .lean();
+    res.status(200).json(chats);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to load chat history' });
+  }
+};
+
+exports.saveChatHistory = async (req, res) => {
+  try {
+    const { id, title, messages = [] } = req.body;
+    const safeMessages = Array.isArray(messages)
+      ? messages
+          .filter((m) => ['user', 'assistant'].includes(m.role))
+          .map((m) => ({
+            role: m.role,
+            content: String(m.content || '').slice(0, 8000),
+            fileName: String(m.fileName || '').slice(0, 180),
+          }))
+      : [];
+
+    const fallbackTitle = safeMessages.find((m) => m.role === 'user')?.content?.slice(0, 60) || 'New Chat';
+    const payload = {
+      title: (title || fallbackTitle).trim() || 'New Chat',
+      messages: safeMessages,
+    };
+
+    // Hindi: Existing chat update karo, warna nayi chat create karo.
+    const chat = id
+      ? await ChatHistory.findOneAndUpdate({ _id: id, user: req.user.id }, payload, { new: true, upsert: false })
+      : await ChatHistory.create({ ...payload, user: req.user.id });
+
+    if (!chat) return res.status(404).json({ message: 'Chat not found' });
+    res.status(200).json(chat);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to save chat history' });
+  }
+};
+
+exports.deleteChatHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (id === 'all') {
+      await ChatHistory.deleteMany({ user: req.user.id });
+      return res.status(200).json({ message: 'All chat history deleted' });
+    }
+
+    const chat = await ChatHistory.findOneAndDelete({ _id: id, user: req.user.id });
+    if (!chat) return res.status(404).json({ message: 'Chat not found' });
+    res.status(200).json({ message: 'Chat deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete chat history' });
   }
 };
 

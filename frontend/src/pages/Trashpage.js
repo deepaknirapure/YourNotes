@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Trash2, RotateCcw, X, AlertTriangle, FileText, RefreshCw, Menu, Clock, Inbox } from "lucide-react";
+import { Trash2, RotateCcw, X, AlertTriangle, RefreshCw, Menu, Clock, Inbox } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";
@@ -113,7 +112,6 @@ const STYLES = `
 `;
 
 export default function TrashPage() {
-  const navigate = useNavigate();
   const [notes, setNotes]             = useState([]);
   const [loading, setLoading]         = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -334,9 +332,4 @@ export default function TrashPage() {
       <MobileNav />
     </div>
   );
-}
-
-function formatDate(d) {
-  if (!d) return "";
-  return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" });
 }

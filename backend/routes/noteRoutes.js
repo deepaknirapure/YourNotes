@@ -26,7 +26,8 @@ router.get('/',       protect, getNotes);
 router.get('/search', protect, searchNotes);
 router.get('/:id',    protect, getNote);
 router.post('/',      protect, validateNote, createNote);
-router.put('/:id',    protect, validateNote, updateNote);
+// Hindi: Update partial hota hai, isliye title/content validation yahan force nahi karni.
+router.put('/:id',    protect, updateNote);
 router.delete('/:id', protect, deleteNote);
 
 // Toggle actions — PATCH use karo (partial update)

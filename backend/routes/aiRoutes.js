@@ -11,8 +11,12 @@ const {
   checkAIRateLimit,
   generateQuiz,
   askAI,
+  askAIWithFile,
   importNotes,
   getFlashcardNotes,
+  getChatHistory,
+  saveChatHistory,
+  deleteChatHistory,
 } = require('../controllers/aiController');
 const upload = require('../middleware/uploadMiddleware');
 
@@ -25,11 +29,17 @@ router.get('/flashcards/:id',           getFlashcards);
 router.get('/flashcard-notes',         getFlashcardNotes);
 router.patch('/flashcards/:id/review',  reviewFlashcard);
 
+// Chat history routes
+router.get('/chats',                    getChatHistory);
+router.post('/chats',                   saveChatHistory);
+router.delete('/chats/:id',             deleteChatHistory);
+
 // AI generation routes — rate limit check bhi hoga
 router.post('/summarize/:id',   checkAIRateLimit, summarizeNote);
 router.post('/flashcards/:id',  checkAIRateLimit, generateFlashcards);
 router.post('/quiz/:id',        checkAIRateLimit, generateQuiz);
 router.post('/ask',             checkAIRateLimit, askAI);
+router.post('/ask-with-file',   checkAIRateLimit, upload.single('file'), askAIWithFile);
 router.post('/import',          upload.single('file'), importNotes);
 
 module.exports = router;

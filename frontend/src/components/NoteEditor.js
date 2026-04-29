@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Bot, CreditCard, PenLine, FileText, ArrowLeft, Save, Check, Loader2,
-  Tag, Mic, MicOff, Maximize2, Minimize2, X, Brain,
+  CreditCard, PenLine, FileText, ArrowLeft, Check, Loader2,
+  Mic, MicOff, Maximize2, Minimize2, X, Brain,
   Bold, Italic, List, ListOrdered, Heading1, Heading2, Code, Quote, Minus, Sparkles
 } from 'lucide-react';
 import API from '../api/axios';
@@ -38,7 +38,6 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
   const [title, setTitle]         = useState(note?.title || '');
   const [content, setContent]     = useState(note?.plainText || note?.content || '');
   const [saving, setSaving]       = useState(false);
-  const [saved, setSaved]         = useState(false);
   const [aiSummary, setAiSummary] = useState(note?.aiSummary || '');
   const [loadingAI, setLoadingAI] = useState(false);
   const [flashcards, setFlashcards] = useState([]);
@@ -70,8 +69,6 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
         tags: latestData.current.tags
       });
       if (onUpdate) onUpdate(data);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error("Save failed");
     } finally {
@@ -107,7 +104,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
 
   const toggleVoice = () => {
     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Speech) return toast.error('Chrome browser use karein');
+    if (!Speech) return toast.error('Voice input is available in supported Chrome browsers');
     if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
     const rec = new Speech();
     rec.continuous = true; rec.lang = 'hi-IN';
@@ -218,6 +215,9 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
           </button>
           <button className="action-btn" onClick={() => setFocusMode(!focusMode)}>
             {focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />} {focusMode ? 'Exit' : 'Focus'}
+          </button>
+          <button className="action-btn" onClick={() => setRichMode(v => !v)}>
+            <Bold size={14} /> {richMode ? 'Plain' : 'Format'}
           </button>
           <div style={{ width: 1, height: 24, background: '#E2E8F0' }} />
           <button className="action-btn ai" onClick={() => handleAI('summarize')}><Sparkles size={14} /> Summarize</button>

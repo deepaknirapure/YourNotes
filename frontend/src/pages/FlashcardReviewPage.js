@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, ChevronRight, ChevronLeft, RotateCcw, Check, X, Sparkles, Menu, Plus, Brain, Target } from "lucide-react";
+import { ChevronRight, ChevronLeft, RotateCcw, Check, X, Sparkles, Menu, Plus, Brain, Target } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";

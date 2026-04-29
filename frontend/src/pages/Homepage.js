@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, Search, FileText, Star, Globe, 
-  ChevronRight, Brain, Folder, Zap, Clock,
+  ChevronRight, Brain, Folder, Zap,
   MoreVertical, Command, Menu
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
