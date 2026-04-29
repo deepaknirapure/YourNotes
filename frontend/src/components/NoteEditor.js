@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   CreditCard, PenLine, FileText, ArrowLeft, Check, Loader2,
-  Mic, MicOff, Maximize2, Minimize2, X, Brain,
-  Bold, Italic, List, ListOrdered, Heading1, Heading2, Code, Quote, Minus, Sparkles, Hash
+  X, Brain, Bold, Italic, List, ListOrdered, Heading1, Heading2, 
+  Code, Quote, Sparkles, Hash
 } from 'lucide-react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
@@ -40,12 +40,8 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
   const [activeTab, setActiveTab] = useState('write');
   const [tagInput, setTagInput]   = useState('');
   const [tags, setTags]           = useState(note?.tags || []);
-  const [focusMode, setFocusMode] = useState(false);
-  const [listening, setListening] = useState(false);
-  const [richMode, setRichMode]   = useState(true);
 
   const textareaRef = useRef(null);
-  const recognitionRef = useRef(null);
   const saveTimer = useRef(null);
   const latestData = useRef({ title, content, tags });
 
@@ -84,97 +80,107 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
     finally { setLoadingAI(false); }
   };
 
-  const handleFormat = (cmd) => { /* original logic */ };
-  const toggleVoice = () => { /* original logic */ };
+  const handleFormat = (cmd) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const sel = content.slice(start, end);
+    const before = content.slice(0, start);
+    const after = content.slice(end);
+    let insert = '';
+    switch(cmd) {
+      case 'bold': insert = `**${sel || 'text'}**`; break;
+      case 'italic': insert = `_${sel || 'text'}_`; break;
+      case 'h1': insert = `\n# ${sel || 'Heading'}\n`; break;
+      case 'ul': insert = `\n- ${sel || 'item'}\n`; break;
+      default: return;
+    }
+    setContent(before + insert + after);
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(before.length + insert.length, before.length + insert.length); }, 0);
+  };
 
   return (
-    <div className={`editor-root ${focusMode ? 'focus-mode' : ''}`}>
+    <div className="editor-root">
       <style>{`
         .editor-root { display: flex; flex-direction: column; height: 100vh; background: #fff; z-index: 100; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .focus-mode { position: fixed; inset: 0; background: #fff; }
-
-        /* Header */
-        .ed-header { height: 60px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #fff; }
+        
+        .ed-header { height: 64px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #fff; }
         .ed-header-left { display: flex; align-items: center; gap: 12px; }
-        .back-btn { padding: 8px; border-radius: 50%; border: none; background: #f8fafc; cursor: pointer; color: #64748b; }
-        .save-status { font-size: 12px; font-weight: 600; color: #94a3b8; display: flex; align-items: center; gap: 4px; }
+        .back-btn { padding: 8px; border-radius: 10px; border: none; background: #f8fafc; cursor: pointer; color: #64748b; transition: 0.2s; }
+        .back-btn:hover { background: #f1f5f9; color: #000; }
+        .save-status { font-size: 12px; font-weight: 700; color: #94a3b8; display: flex; align-items: center; gap: 6px; }
 
-        /* Tabs */
-        .ed-tabs { display: flex; gap: 4px; background: #f8fafc; padding: 4px; border-radius: 12px; margin: 10px 20px; width: fit-content; }
-        .ed-tab { padding: 8px 16px; border: none; background: none; border-radius: 8px; font-size: 13px; font-weight: 700; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .ed-tabs { display: flex; gap: 4px; background: #f8fafc; padding: 4px; border-radius: 12px; margin: 12px 20px; width: fit-content; }
+        .ed-tab { padding: 8px 18px; border: none; background: none; border-radius: 8px; font-size: 13px; font-weight: 700; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .ed-tab.active { background: #000; color: #fff; }
 
-        /* Tools & Inputs */
-        .rich-toolbar { display: flex; gap: 4px; padding: 8px 20px; border-bottom: 1px solid #f1f5f9; background: #fff; overflow-x: auto; }
-        .tool-btn { padding: 6px; border-radius: 6px; border: none; background: transparent; color: #64748b; cursor: pointer; }
+        .rich-toolbar { display: flex; gap: 6px; padding: 10px 20px; border-bottom: 1px solid #f1f5f9; background: #fff; overflow-x: auto; scrollbar-width: none; }
+        .tool-btn { padding: 8px; border-radius: 8px; border: none; background: transparent; color: #64748b; cursor: pointer; transition: 0.2s; }
         .tool-btn:hover { background: #f1f5f9; color: #000; }
         
-        .title-input { width: 100%; padding: 20px 24px 10px; border: none; font-size: 28px; font-weight: 800; outline: none; color: #000; }
-        .title-input::placeholder { color: #cbd5e1; }
-        
-        .content-area { flex: 1; width: 100%; padding: 0 24px 20px; border: none; outline: none; font-size: 16px; line-height: 1.6; resize: none; color: #334155; }
+        .title-input { width: 100%; padding: 24px 24px 10px; border: none; font-size: 30px; font-weight: 800; outline: none; color: #000; letter-spacing: -0.5px; }
+        .content-area { flex: 1; width: 100%; padding: 0 24px 20px; border: none; outline: none; font-size: 16px; line-height: 1.7; resize: none; color: #334155; }
 
-        /* Tag UI */
-        .tag-container { display: flex; gap: 8px; padding: 0 24px 10px; flex-wrap: wrap; }
-        .tag-badge { background: #f1f5f9; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 4px; }
+        .tag-container { display: flex; gap: 8px; padding: 0 24px 12px; flex-wrap: wrap; }
+        .tag-badge { background: #f1f5f9; padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 6px; }
 
-        /* AI Action Buttons */
-        .ai-btn { background: #ccff00; color: #000; border: none; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-        .ai-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(204, 255, 0, 0.2); }
+        .ai-btn-group { display: flex; gap: 8px; }
+        .ai-btn { border: none; padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .ai-btn.primary { background: #ccff00; color: #000; }
+        .ai-btn.secondary { background: #000; color: #ccff00; }
+        .ai-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
         @media(max-width: 768px) {
-          .title-input { font-size: 22px; padding: 15px 20px 5px; }
+          .title-input { font-size: 24px; padding: 20px 20px 5px; }
           .content-area { font-size: 16px; padding: 0 20px 15px; }
           .ai-btn span { display: none; }
-          .ed-tabs { margin: 10px; }
+          .ai-btn { padding: 10px; }
         }
       `}</style>
 
       {/* Header */}
       <header className="ed-header">
-<div style={{ display: 'flex', gap: 8 }}>
-  {/* Dedicated Flashcards Button */}
-  <button className="ai-btn" style={{ background: '#000', color: '#ccff00' }} onClick={() => handleAI('flashcards')}>
-    <CreditCard size={16} /> <span>Cards</span>
-  </button>
-  
-  {/* Smart AI / Summarize Button */}
-  <button className="ai-btn" onClick={() => handleAI('summarize')}>
-    <Sparkles size={16} /> <span>Smart AI</span>
-  </button>
+        <div className="ed-header-left">
+          <button onClick={onClose} className="back-btn"><ArrowLeft size={20} /></button>
+          <div className="save-status">
+            {saving ? <Loader2 size={14} style={{animation: 'spin 1s linear infinite'}} /> : <Check size={14} />}
+            {saving ? "Syncing..." : "Saved to Cloud"}
+          </div>
+        </div>
 
-  <button className="back-btn" onClick={() => setFocusMode(!focusMode)}>
-    {focusMode ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-  </button>
-  
-  <button className="back-btn" onClick={toggleVoice} style={listening ? {color: '#ccff00', background: '#000'} : {}}>
-    {listening ? <MicOff size={18} /> : <Mic size={18} />}
-  </button>
-</div>
+        <div className="ai-btn-group">
+          <button className="ai-btn secondary" onClick={() => handleAI('flashcards')}>
+            <CreditCard size={16} /> <span>Cards</span>
+          </button>
+          <button className="ai-btn primary" onClick={() => handleAI('summarize')}>
+            <Sparkles size={16} /> <span>Smart AI</span>
+          </button>
+        </div>
       </header>
 
-      {/* Tabs */}
+      {/* View Tabs */}
       <div className="ed-tabs">
-        <button className={`ed-tab ${activeTab === 'write' ? 'active' : ''}`} onClick={() => setActiveTab('write')}><PenLine size={14}/> Write</button>
-        <button className={`ed-tab ${activeTab === 'summary' ? 'active' : ''}`} onClick={() => setActiveTab('summary')}><FileText size={14}/> Summary</button>
-        <button className={`ed-tab ${activeTab === 'flashcards' ? 'active' : ''}`} onClick={() => setActiveTab('flashcards')}><CreditCard size={14}/> Cards</button>
-        <button className={`ed-tab ${activeTab === 'quiz' ? 'active' : ''}`} onClick={() => handleAI('quiz')}><Brain size={14}/> Quiz</button>
+        <button className={`ed-tab ${activeTab === 'write' ? 'active' : ''}`} onClick={() => setActiveTab('write')}><PenLine size={16}/> Write</button>
+        <button className={`ed-tab ${activeTab === 'summary' ? 'active' : ''}`} onClick={() => setActiveTab('summary')}><FileText size={16}/> Summary</button>
+        <button className={`ed-tab ${activeTab === 'flashcards' ? 'active' : ''}`} onClick={() => setActiveTab('flashcards')}><CreditCard size={16}/> Flashcards</button>
+        <button className={`ed-tab ${activeTab === 'quiz' ? 'active' : ''}`} onClick={() => handleAI('quiz')}><Brain size={16}/> Quiz</button>
       </div>
 
       {activeTab === 'write' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
           <RichToolbar onFormat={handleFormat} />
-          <input className="title-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Topic Title..." />
+          <input className="title-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter document title..." />
           
           <div className="tag-container">
             {tags.map(t => (
-              <span key={t} className="tag-badge">#{t} <X size={12} onClick={() => setTags(tags.filter(x => x !== t))} /></span>
+              <span key={t} className="tag-badge">#{t} <X size={14} onClick={() => setTags(tags.filter(x => x !== t))} style={{cursor:'pointer'}}/></span>
             ))}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#94a3b8', paddingLeft: 4 }}>
               <Hash size={14} />
               <input 
-                style={{ border: 'none', outline: 'none', fontSize: 13, fontWeight: 600, width: 80 }} 
-                placeholder="Tag" value={tagInput} onChange={e => setTagInput(e.target.value)} 
+                style={{ border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, width: 100, background: 'transparent' }} 
+                placeholder="Add Tag" value={tagInput} onChange={e => setTagInput(e.target.value)} 
                 onKeyDown={(e) => { if(e.key === 'Enter' && tagInput.trim()) { setTags([...tags, tagInput.trim()]); setTagInput(''); } }} 
               />
             </div>
@@ -185,43 +191,45 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
             className="content-area" 
             value={content} 
             onChange={e => setContent(e.target.value)} 
-            placeholder="Write your notes here..." 
+            placeholder="Start typing your knowledge here..." 
           />
         </div>
       ) : (
-        <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#f8fafc' }}>
-          <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <div style={{ flex: 1, padding: '24px', overflowY: 'auto', background: '#f8fafc' }}>
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             {loadingAI ? (
-              <div style={{ textAlign: 'center', padding: '100px 0' }}>
-                <Loader2 size={32} className="spin" style={{ color: '#000', margin: '0 auto 16px' }} />
-                <p style={{ fontWeight: 700, color: '#64748b' }}>AI is thinking...</p>
+              <div style={{ textAlign: 'center', padding: '120px 0' }}>
+                <Loader2 size={40} style={{ animation: 'spin 1s linear infinite', color: '#000', margin: '0 auto 20px' }} />
+                <p style={{ fontWeight: 800, color: '#64748b', letterSpacing: '1px' }}>AI IS ANALYZING...</p>
               </div>
             ) : (
-              <div style={{ animation: 'fadeUp 0.4s ease' }}>
+              <div style={{ animation: 'fadeUp 0.4s ease-out' }}>
                 {activeTab === 'summary' && (
-                  <div style={{ background: '#fff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', color: '#334155', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-                    <h4 style={{ color: '#000', marginBottom: '16px', fontWeight: 800 }}>AI Generated Summary</h4>
-                    {aiSummary || "Add some notes to see a summary."}
+                  <div style={{ background: '#fff', padding: '40px', borderRadius: '24px', border: '1px solid #e2e8f0', color: '#334155', lineHeight: 1.8, whiteSpace: 'pre-wrap', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+                    <h3 style={{ color: '#000', marginBottom: '20px', fontWeight: 900, textTransform: 'uppercase', fontSize: 16, letterSpacing: '1px' }}>Deep Summary</h3>
+                    {aiSummary || "Add more content to generate an AI summary."}
                   </div>
                 )}
                 {activeTab === 'flashcards' && (
-                  <div style={{ display: 'grid', gap: 12 }}>
-                    {flashcards.map((fc, i) => (
-                      <div key={i} style={{ background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                        <p style={{ fontSize: 12, fontWeight: 800, color: '#ccff00', background: '#000', width: 'fit-content', padding: '2px 8px', borderRadius: '4px', marginBottom: '10px' }}>CARD {i+1}</p>
-                        <p style={{ fontWeight: 700, color: '#000', marginBottom: '8px' }}>{fc.question}</p>
-                        <p style={{ color: '#64748b', fontSize: 14, borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>{fc.answer}</p>
+                  <div style={{ display: 'grid', gap: 16 }}>
+                    {flashcards.length > 0 ? flashcards.map((fc, i) => (
+                      <div key={i} style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display:'flex', justifyContent:'space-between', marginBottom: 12 }}>
+                          <span style={{ fontSize: 10, fontWeight: 900, color: '#ccff00', background: '#000', padding: '3px 10px', borderRadius: '6px' }}>UNIT {i+1}</span>
+                        </div>
+                        <p style={{ fontWeight: 800, color: '#000', fontSize: 17, marginBottom: 12 }}>{fc.question}</p>
+                        <p style={{ color: '#64748b', fontSize: 15, borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>{fc.answer}</p>
                       </div>
-                    ))}
+                    )) : <p style={{textAlign:'center', color:'#94a3b8', padding: '40px'}}>No flashcards generated. Click 'Cards' to start.</p>}
                   </div>
                 )}
                 {activeTab === 'quiz' && (
-                  <div style={{ display: 'grid', gap: 16 }}>
+                  <div style={{ display: 'grid', gap: 20 }}>
                     {quizQuestions.map((q, i) => (
-                      <div key={i} style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                        <p style={{ fontWeight: 800, marginBottom: '16px' }}>{i+1}. {q.question}</p>
+                      <div key={i} style={{ background: '#fff', padding: '28px', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
+                        <p style={{ fontWeight: 800, fontSize: 18, marginBottom: 20 }}>{i+1}. {q.question}</p>
                         {q.options.map((opt, oi) => (
-                          <div key={oi} style={{ padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', marginBottom: '8px', fontSize: 14, fontWeight: 600 }}>{opt}</div>
+                          <div key={oi} style={{ padding: '14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', marginBottom: 10, fontSize: 15, fontWeight: 600 }}>{opt}</div>
                         ))}
                       </div>
                     ))}
