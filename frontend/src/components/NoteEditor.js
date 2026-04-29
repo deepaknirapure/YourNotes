@@ -132,25 +132,26 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
 
       {/* Header */}
       <header className="ed-header">
-        <div className="ed-header-left">
-          <button onClick={onClose} className="back-btn"><ArrowLeft size={18} /></button>
-          <div className="save-status">
-            {saving ? <Loader2 size={14} className="spin" /> : <Check size={14} />}
-            {saving ? "Saving" : "Saved"}
-          </div>
-        </div>
+        /* --- Header Actions (Updated) --- */
+<div style={{ display: 'flex', gap: 8 }}>
+  {/* Dedicated Flashcards Button */}
+  <button className="ai-btn" style={{ background: '#000', color: '#ccff00' }} onClick={() => handleAI('flashcards')}>
+    <CreditCard size={16} /> <span>Cards</span>
+  </button>
+  
+  {/* Smart AI / Summarize Button */}
+  <button className="ai-btn" onClick={() => handleAI('summarize')}>
+    <Sparkles size={16} /> <span>Smart AI</span>
+  </button>
 
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="ai-btn" onClick={() => handleAI('summarize')}>
-            <Sparkles size={16} /> <span>Smart AI</span>
-          </button>
-          <button className="back-btn" onClick={() => setFocusMode(!focusMode)}>
-            {focusMode ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-          </button>
-          <button className="back-btn" onClick={toggleVoice} style={listening ? {color: '#ccff00', background: '#000'} : {}}>
-            {listening ? <MicOff size={18} /> : <Mic size={18} />}
-          </button>
-        </div>
+  <button className="back-btn" onClick={() => setFocusMode(!focusMode)}>
+    {focusMode ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+  </button>
+  
+  <button className="back-btn" onClick={toggleVoice} style={listening ? {color: '#ccff00', background: '#000'} : {}}>
+    {listening ? <MicOff size={18} /> : <Mic size={18} />}
+  </button>
+</div>
       </header>
 
       {/* Tabs */}
