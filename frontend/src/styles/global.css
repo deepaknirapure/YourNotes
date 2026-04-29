@@ -41,7 +41,7 @@ body {
 ::selection { background: rgba(229, 91, 45, 0.15); }
 
 /* ── Focus Ring ── */
-:focus-visible { outline: 2px solid #E55B2D; outline-offset: 2px; }
+:focus-visible { outline: 2px solid #ccff00; outline-offset: 2px; }
 
 /* ── Touch highlight hatao mobile pe ── */
 button, a, [role="button"] {
@@ -129,7 +129,7 @@ button, a, [role="button"] {
 
 .pg-menu-btn:hover {
   background: #FFF5F2;
-  color: #E55B2D;
+  color: #ccff00;
   border-color: #FFE4DB;
 }
 
@@ -162,7 +162,7 @@ button, a, [role="button"] {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #E55B2D;
+  background: #ccff00;
   transform: translateY(-1px);
 }
 
@@ -247,7 +247,7 @@ button, a, [role="button"] {
 }
 
 .search-wrapper:focus-within {
-  border-color: #E55B2D;
+  border-color: #ccff00;
   background: #FFF;
   box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1);
 }
@@ -370,7 +370,7 @@ button, a, [role="button"] {
 
   /* Active nav item orange color */
   .mb-nav-btn.active {
-    color: #E55B2D;
+    color: #ccff00;
   }
 
   /* ── Mobile FAB ── */
@@ -382,7 +382,7 @@ button, a, [role="button"] {
     width: 52px;
     height: 52px;
     border-radius: 16px;
-    background: #E55B2D;
+    background: #ccff00;
     color: #FFF;
     border: none;
     cursor: pointer;
