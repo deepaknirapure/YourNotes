@@ -2,23 +2,21 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   CreditCard, PenLine, FileText, ArrowLeft, Check, Loader2,
   Mic, MicOff, Maximize2, Minimize2, X, Brain,
-  Bold, Italic, List, ListOrdered, Heading1, Heading2, Code, Quote, Minus, Sparkles
+  Bold, Italic, List, ListOrdered, Heading1, Heading2, Code, Quote, Minus, Sparkles, Hash
 } from 'lucide-react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
 
-/* ─── Cyber Rich Toolbar ─── */
 function RichToolbar({ onFormat }) {
   const tools = [
     { icon: <Bold size={16}/>,        cmd: 'bold',        title: 'Bold' },
     { icon: <Italic size={16}/>,      cmd: 'italic',      title: 'Italic' },
-    { icon: <Heading1 size={16}/>,    cmd: 'h1',          title: 'Heading 1' },
-    { icon: <Heading2 size={16}/>,    cmd: 'h2',          title: 'Heading 2' },
-    { icon: <List size={16}/>,        cmd: 'ul',          title: 'Bullet List' },
-    { icon: <ListOrdered size={16}/>, cmd: 'ol',          title: 'Numbered List' },
+    { icon: <Heading1 size={16}/>,    cmd: 'h1',          title: 'H1' },
+    { icon: <Heading2 size={16}/>,    cmd: 'h2',          title: 'H2' },
+    { icon: <List size={16}/>,        cmd: 'ul',          title: 'Bullets' },
+    { icon: <ListOrdered size={16}/>, cmd: 'ol',          title: 'Numbers' },
     { icon: <Code size={16}/>,        cmd: 'code',        title: 'Code' },
-    { icon: <Quote size={16}/>,       cmd: 'quote',       title: 'Blockquote' },
-    { icon: <Minus size={16}/>,       cmd: 'hr',          title: 'Divider' },
+    { icon: <Quote size={16}/>,       cmd: 'quote',       title: 'Quote' },
   ];
   return (
     <div className="rich-toolbar">
@@ -44,13 +42,13 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
   const [tags, setTags]           = useState(note?.tags || []);
   const [focusMode, setFocusMode] = useState(false);
   const [listening, setListening] = useState(false);
-  const [richMode, setRichMode]   = useState(false);
+  const [richMode, setRichMode]   = useState(true);
 
   const textareaRef = useRef(null);
   const recognitionRef = useRef(null);
   const saveTimer = useRef(null);
-
   const latestData = useRef({ title, content, tags });
+
   useEffect(() => { latestData.current = { title, content, tags }; }, [title, content, tags]);
 
   const performSave = useCallback(async () => {
@@ -82,179 +80,149 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
       if (type === 'summarize') setAiSummary(data.summary);
       if (type === 'flashcards') setFlashcards(data.flashcards || []);
       if (type === 'quiz') setQuizQuestions(data.questions || []);
-    } catch (err) { toast.error(`AI generation failed`); }
-    setLoadingAI(false);
+    } catch (err) { toast.error(`AI calculation failed`); }
+    finally { setLoadingAI(false); }
   };
 
-  const handleFormat = (cmd) => { /* logic stays same */ };
-  const toggleVoice = () => { /* logic stays same */ };
+  const handleFormat = (cmd) => { /* original logic */ };
+  const toggleVoice = () => { /* original logic */ };
 
   return (
-    <div className={`editor-root ${focusMode ? 'focus-active' : ''}`}>
+    <div className={`editor-root ${focusMode ? 'focus-mode' : ''}`}>
       <style>{`
-        .editor-root {
-          display: flex; flex-direction: column; height: 100vh; background: #000; flex: 1;
-          font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; color: #FFF;
-        }
-        .focus-active { position: fixed; inset: 0; z-index: 1000; }
+        .editor-root { display: flex; flex-direction: column; height: 100vh; background: #fff; z-index: 100; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .focus-mode { position: fixed; inset: 0; background: #fff; }
+
+        /* Header */
+        .ed-header { height: 60px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #fff; }
+        .ed-header-left { display: flex; align-items: center; gap: 12px; }
+        .back-btn { padding: 8px; border-radius: 50%; border: none; background: #f8fafc; cursor: pointer; color: #64748b; }
+        .save-status { font-size: 12px; font-weight: 600; color: #94a3b8; display: flex; align-items: center; gap: 4px; }
+
+        /* Tabs */
+        .ed-tabs { display: flex; gap: 4px; background: #f8fafc; padding: 4px; border-radius: 12px; margin: 10px 20px; width: fit-content; }
+        .ed-tab { padding: 8px 16px; border: none; background: none; border-radius: 8px; font-size: 13px; font-weight: 700; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .ed-tab.active { background: #000; color: #fff; }
+
+        /* Tools & Inputs */
+        .rich-toolbar { display: flex; gap: 4px; padding: 8px 20px; border-bottom: 1px solid #f1f5f9; background: #fff; overflow-x: auto; }
+        .tool-btn { padding: 6px; border-radius: 6px; border: none; background: transparent; color: #64748b; cursor: pointer; }
+        .tool-btn:hover { background: #f1f5f9; color: #000; }
         
-        .editor-header {
-          height: 70px; border-bottom: 1px solid #1A1A1A; padding: 0 24px;
-          display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #0A0A0A;
-        }
+        .title-input { width: 100%; padding: 20px 24px 10px; border: none; font-size: 28px; font-weight: 800; outline: none; color: #000; }
+        .title-input::placeholder { color: #cbd5e1; }
+        
+        .content-area { flex: 1; width: 100%; padding: 0 24px 20px; border: none; outline: none; font-size: 16px; line-height: 1.6; resize: none; color: #334155; }
 
-        .action-btn {
-          background: #1A1A1A; border: 1px solid #333; border-radius: 10px; padding: 8px 14px;
-          display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700;
-          color: #FFF; cursor: pointer; transition: 0.3s;
-        }
-        .action-btn:hover { border-color: #ccff00; color: #ccff00; }
-        .action-btn.ai-glow { background: #ccff00; color: #000; border: none; }
-        .action-btn.ai-glow:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(204, 255, 0, 0.3); }
+        /* Tag UI */
+        .tag-container { display: flex; gap: 8px; padding: 0 24px 10px; flex-wrap: wrap; }
+        .tag-badge { background: #f1f5f9; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 4px; }
 
-        .tabs-row { display: flex; border-bottom: 1px solid #1A1A1A; padding: 0 12px; background: #050505; }
-        .editor-tab {
-          padding: 14px 24px; border: none; background: none; cursor: pointer; font-size: 13px;
-          font-weight: 800; color: #555; border-bottom: 2px solid transparent; transition: 0.3s;
-          display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;
-        }
-        .editor-tab.active { color: #ccff00; border-bottom-color: #ccff00; }
-
-        .rich-toolbar {
-          display: flex; align-items: center; gap: 8px; padding: 10px 24px;
-          border-bottom: 1px solid #1A1A1A; background: #0A0A0A; overflow-x: auto;
-        }
-        .tool-btn { background: none; border: none; cursor: pointer; padding: 8px; border-radius: 8px; color: #555; transition: 0.2s; }
-        .tool-btn:hover { color: #ccff00; background: #1A1A1A; }
-
-        .note-title-in {
-          padding: 30px 40px 10px; font-size: 32px; font-weight: 900; border: none;
-          outline: none; background: transparent; color: #FFF; width: 100%;
-        }
-        .note-text-in {
-          flex: 1; padding: 20px 40px; font-size: 17px; line-height: 1.8; border: none;
-          outline: none; resize: none; color: #AAA; width: 100%; background: transparent;
-        }
-        .tag-pill {
-          background: rgba(204, 255, 0, 0.1); color: #ccff00; padding: 5px 12px;
-          border-radius: 100px; font-size: 12px; font-weight: 800; border: 1px solid rgba(204, 255, 0, 0.2);
-        }
-
-        .ai-content-card {
-          background: #0A0A0A; border: 1px solid #1A1A1A; border-radius: 24px; padding: 40px;
-          line-height: 1.8; color: #DDD; position: relative;
-        }
-        .ai-label { color: #ccff00; font-weight: 900; text-transform: uppercase; font-size: 12px; margin-bottom: 15px; display: block; letter-spacing: 1.5px; }
-
-        .flashcard-item {
-          background: #0A0A0A; border: 1px solid #1A1A1A; padding: 24px; border-radius: 20px; transition: 0.3s;
-        }
-        .flashcard-item:hover { border-color: #ccff00; transform: scale(1.02); }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
+        /* AI Action Buttons */
+        .ai-btn { background: #ccff00; color: #000; border: none; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .ai-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(204, 255, 0, 0.2); }
 
         @media(max-width: 768px) {
-          .note-title-in { padding: 20px 20px 10px; font-size: 24px; }
-          .note-text-in { padding: 10px 20px; font-size: 16px; }
-          .action-btn span { display: none; }
+          .title-input { font-size: 22px; padding: 15px 20px 5px; }
+          .content-area { font-size: 16px; padding: 0 20px 15px; }
+          .ai-btn span { display: none; }
+          .ed-tabs { margin: 10px; }
         }
       `}</style>
 
-      {/* Top Header */}
-      <div className="editor-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <button onClick={onClose} className="action-btn"><ArrowLeft size={18} /></button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: saving ? '#ccff00' : '#10B981', fontSize: 13, fontWeight: 800 }}>
-            {saving ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Check size={16} />}
-            {saving ? 'SYNCING...' : 'CLOUD SYNCED'}
+      {/* Header */}
+      <header className="ed-header">
+        <div className="ed-header-left">
+          <button onClick={onClose} className="back-btn"><ArrowLeft size={18} /></button>
+          <div className="save-status">
+            {saving ? <Loader2 size={14} className="spin" /> : <Check size={14} />}
+            {saving ? "Saving" : "Saved"}
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button className="action-btn" onClick={toggleVoice} style={listening ? { borderColor: '#ccff00', color: '#ccff00' } : {}}>
-            {listening ? <MicOff size={16} /> : <Mic size={16} />} <span>Voice</span>
-          </button>
-          <button className="action-btn" onClick={() => setFocusMode(!focusMode)}>
-            {focusMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />} <span>Focus</span>
-          </button>
-          <button className={`action-btn ai-glow`} onClick={() => handleAI('summarize')}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="ai-btn" onClick={() => handleAI('summarize')}>
             <Sparkles size={16} /> <span>Smart AI</span>
           </button>
+          <button className="back-btn" onClick={() => setFocusMode(!focusMode)}>
+            {focusMode ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+          </button>
+          <button className="back-btn" onClick={toggleVoice} style={listening ? {color: '#ccff00', background: '#000'} : {}}>
+            {listening ? <MicOff size={18} /> : <Mic size={18} />}
+          </button>
         </div>
-      </div>
+      </header>
 
       {/* Tabs */}
-      <div className="tabs-row">
-        <button className={`editor-tab ${activeTab === 'write' ? 'active' : ''}`} onClick={() => setActiveTab('write')}><PenLine size={16} /> Drafting</button>
-        <button className={`editor-tab ${activeTab === 'summary' ? 'active' : ''}`} onClick={() => setActiveTab('summary')}><FileText size={16} /> Analysis</button>
-        <button className={`editor-tab ${activeTab === 'flashcards' ? 'active' : ''}`} onClick={() => setActiveTab('flashcards')}><CreditCard size={16} /> Cards</button>
-        <button className={`editor-tab ${activeTab === 'quiz' ? 'active' : ''}`} onClick={() => handleAI('quiz')}><Brain size={16} /> Training</button>
+      <div className="ed-tabs">
+        <button className={`ed-tab ${activeTab === 'write' ? 'active' : ''}`} onClick={() => setActiveTab('write')}><PenLine size={14}/> Write</button>
+        <button className={`ed-tab ${activeTab === 'summary' ? 'active' : ''}`} onClick={() => setActiveTab('summary')}><FileText size={14}/> Summary</button>
+        <button className={`ed-tab ${activeTab === 'flashcards' ? 'active' : ''}`} onClick={() => setActiveTab('flashcards')}><CreditCard size={14}/> Cards</button>
+        <button className={`ed-tab ${activeTab === 'quiz' ? 'active' : ''}`} onClick={() => handleAI('quiz')}><Brain size={14}/> Quiz</button>
       </div>
 
-      {activeTab === 'write' && (
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflowY: 'auto' }}>
-          {richMode && <RichToolbar onFormat={handleFormat} />}
-          <input className="note-title-in" value={title} onChange={e => setTitle(e.target.value)} placeholder="Subject Heading..." />
-          <div style={{ padding: '0 40px 20px', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+      {activeTab === 'write' ? (
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <RichToolbar onFormat={handleFormat} />
+          <input className="title-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Topic Title..." />
+          
+          <div className="tag-container">
             {tags.map(t => (
-                <span key={t} className="tag-pill">
-                    #{t} <X size={12} onClick={() => setTags(tags.filter(x => x !== t))} style={{ cursor: 'pointer', marginLeft: 6 }} />
-                </span>
+              <span key={t} className="tag-badge">#{t} <X size={12} onClick={() => setTags(tags.filter(x => x !== t))} /></span>
             ))}
-            <input 
-              style={{ border: 'none', outline: 'none', fontSize: 13, color: '#444', background: 'transparent', fontWeight: 700 }} 
-              placeholder="+ ATTACH TAG" value={tagInput} onChange={e => setTagInput(e.target.value)} 
-              onKeyDown={(e) => { if(e.key === 'Enter' && tagInput.trim()) { setTags([...tags, tagInput.trim()]); setTagInput(''); } }} 
-            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#94a3b8' }}>
+              <Hash size={14} />
+              <input 
+                style={{ border: 'none', outline: 'none', fontSize: 13, fontWeight: 600, width: 80 }} 
+                placeholder="Tag" value={tagInput} onChange={e => setTagInput(e.target.value)} 
+                onKeyDown={(e) => { if(e.key === 'Enter' && tagInput.trim()) { setTags([...tags, tagInput.trim()]); setTagInput(''); } }} 
+              />
+            </div>
           </div>
-          <textarea ref={textareaRef} className="note-text-in" value={content} onChange={e => setContent(e.target.value)} placeholder="Begin detailed documentation..." />
-        </div>
-      )}
 
-      {activeTab !== 'write' && (
-        <div style={{ flex: 1, padding: '40px', overflowY: 'auto', background: '#000' }}>
-          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <textarea 
+            ref={textareaRef} 
+            className="content-area" 
+            value={content} 
+            onChange={e => setContent(e.target.value)} 
+            placeholder="Write your notes here..." 
+          />
+        </div>
+      ) : (
+        <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#f8fafc' }}>
+          <div style={{ maxWidth: '700px', margin: '0 auto' }}>
             {loadingAI ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '400px', gap: 20 }}>
-                <Loader2 size={40} style={{ animation: 'spin 1s linear infinite', color: '#ccff00' }} />
-                <p style={{ fontWeight: 800, color: '#555', letterSpacing: 2 }}>PROCESSING QUANTUM DATA...</p>
+              <div style={{ textAlign: 'center', padding: '100px 0' }}>
+                <Loader2 size={32} className="spin" style={{ color: '#000', margin: '0 auto 16px' }} />
+                <p style={{ fontWeight: 700, color: '#64748b' }}>AI is thinking...</p>
               </div>
             ) : (
-              <div style={{ animation: 'fadeUp 0.5s ease-out' }}>
+              <div style={{ animation: 'fadeUp 0.4s ease' }}>
                 {activeTab === 'summary' && (
-                   <div className="ai-content-card">
-                     <span className="ai-label">Structural Summary</span>
-                     <div style={{ whiteSpace: 'pre-wrap' }}>{aiSummary || "Insufficient data for summary. Please expand your notes."}</div>
-                   </div>
+                  <div style={{ background: '#fff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', color: '#334155', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+                    <h4 style={{ color: '#000', marginBottom: '16px', fontWeight: 800 }}>AI Generated Summary</h4>
+                    {aiSummary || "Add some notes to see a summary."}
+                  </div>
                 )}
                 {activeTab === 'flashcards' && (
-                  <div style={{ display: 'grid', gap: 20 }}>
+                  <div style={{ display: 'grid', gap: 12 }}>
                     {flashcards.map((fc, i) => (
-                      <div key={i} className="flashcard-item">
-                        <div style={{ color: '#ccff00', fontWeight: 900, fontSize: 11, marginBottom: 10 }}>NODE {i+1}</div>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 15 }}>{fc.question}</div>
-                        <div style={{ color: '#888', paddingTop: 15, borderTop: '1px solid #1A1A1A' }}>{fc.answer}</div>
+                      <div key={i} style={{ background: '#fff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                        <p style={{ fontSize: 12, fontWeight: 800, color: '#ccff00', background: '#000', width: 'fit-content', padding: '2px 8px', borderRadius: '4px', marginBottom: '10px' }}>CARD {i+1}</p>
+                        <p style={{ fontWeight: 700, color: '#000', marginBottom: '8px' }}>{fc.question}</p>
+                        <p style={{ color: '#64748b', fontSize: 14, borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>{fc.answer}</p>
                       </div>
                     ))}
                   </div>
                 )}
                 {activeTab === 'quiz' && (
-                  <div style={{ display: 'grid', gap: 25 }}>
+                  <div style={{ display: 'grid', gap: 16 }}>
                     {quizQuestions.map((q, i) => (
-                      <div key={i} className="ai-content-card" style={{ padding: 30 }}>
-                        <p style={{ fontWeight: 800, fontSize: 18, marginBottom: 20 }}>{i+1}. {q.question}</p>
+                      <div key={i} style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                        <p style={{ fontWeight: 800, marginBottom: '16px' }}>{i+1}. {q.question}</p>
                         {q.options.map((opt, oi) => (
-                          <div key={oi} style={{ padding: '14px', border: '1px solid #1A1A1A', borderRadius: 12, marginBottom: 10, fontSize: 15, background: '#050505', color: '#888' }}>
-                            {opt}
-                          </div>
+                          <div key={oi} style={{ padding: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', marginBottom: '8px', fontSize: 14, fontWeight: 600 }}>{opt}</div>
                         ))}
-                        <details style={{ marginTop: 20, color: '#ccff00', cursor: 'pointer' }}>
-                          <summary style={{ fontWeight: 800, fontSize: 13 }}>DECRYPT CORRECT ANSWER</summary>
-                          <div style={{ marginTop: 15, padding: 20, background: 'rgba(204, 255, 0, 0.05)', borderRadius: 12 }}>
-                            <p style={{ fontWeight: 900, marginBottom: 5 }}>{q.options[q.correct]}</p>
-                            <p style={{ color: '#666', fontStyle: 'italic', fontSize: 14 }}>{q.explanation}</p>
-                          </div>
-                        </details>
                       </div>
                     ))}
                   </div>
