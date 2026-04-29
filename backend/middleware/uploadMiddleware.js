@@ -1,33 +1,40 @@
-// File upload middleware — multer use karta hai
-// Files directly memory mein store hoti hain, disk pe nahi
 const multer = require('multer');
 
-// Memory storage use karo — buffer seedha Cloudinary ko jayega
+/**
+ * Hindi Comment:
+ * Ye middleware files (PDFs/Images) handle karta hai.
+ * Hum memoryStorage use kar rahe hain taaki file temporary RAM mein rahe 
+ * aur wahan se seedha Cloudinary pe chali jaye. Disk pe kachra jama nahi hoga.
+ */
+
+// Memory storage setup
 const storage = multer.memoryStorage();
 
-// File type filter — sirf allowed formats ko accept karo
-const fileFilter = (_req, file, cb) => {
-  const allowedTypes = [
+// File filter logic
+const fileFilter = (req, file, cb) => {
+  const allowedMimetypes = [
     'application/pdf',
     'image/jpeg',
     'image/jpg',
     'image/png',
-    'image/webp',
+    'image/webp'
   ];
 
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true); // File accept karo
+  if (allowedMimetypes.includes(file.mimetype)) {
+    cb(null, true);
   } else {
-    cb(new Error('Only PDF and images (JPG, PNG, WEBP) are allowed'), false);
+    // Hindi: Agar format galat hai toh error message bhej do
+    cb(new Error('Invalid file type. Only PDFs and Images (JPG, PNG, WEBP) are allowed!'), false);
   }
 };
 
-// Multer instance banao
+// Multer Instance
 const upload = multer({
-  storage,
-  fileFilter,
+  storage: storage,
+  fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // Max 10 MB
+    // Hindi: 10MB limit (Students ki badi files ke liye kafi hai)
+    fileSize: 10 * 1024 * 1024, 
   },
 });
 

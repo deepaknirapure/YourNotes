@@ -1,37 +1,58 @@
-// Yeh middleware check karta hai ki user logged in hai ya nahi
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+
+/**
+ * Hindi Comment:
+ * Ye middleware har secure route (Private Routes) ki raksha karta hai.
+ * Bina valid JWT token ke koi bhi user notes access nahi kar payega.
+ */
 
 const protect = async (req, res, next) => {
   let token;
 
-  // Authorization header mein Bearer token dhundho
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  // 1. Check if token exists in headers
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
     try {
-      // "Bearer <token>" se sirf token part nikalo
+      // Token nikalo
       token = req.headers.authorization.split(' ')[1];
 
-      // Token verify karo — agar galat hai toh error aayega
+      // 2. Token Verify karo
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Token se user ID nikal ke DB se user fetch karo (password chhod ke)
+      // 3. User ko DB mein find karo (Exclude password)
+      // Hindi: req.user mein user ka saara data save ho jata hai jo controllers mein kaam aata hai
       req.user = await User.findById(decoded.id).select('-password');
 
-      // Agar user delete ho gaya ho
       if (!req.user) {
-        return res.status(401).json({ message: 'User not found, please login again' });
+        return res.status(401).json({ message: 'User account not found' });
       }
 
-      // Agle middleware/controller pe jao
-      return next();
+      /**
+       * Optional: Account Verification Check
+       * Agar tumne email verification rakha hai, toh ye check enable kar sakte ho.
+       */
+      // if (!req.user.isVerified) {
+      //   return res.status(403).json({ message: 'Please verify your email first' });
+      // }
+
+      next(); // Success: Agle controller par jao
     } catch (error) {
+      console.error('Auth Error:', error.message);
+      
+      // Hindi: Specific error messages dena professional hota hai
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({ message: 'Session expired, please login again' });
+      }
       return res.status(401).json({ message: 'Not authorized, invalid token' });
     }
   }
 
-  // Agar token bilkul nahi diya
+  // 4. Agar token hi nahi mila
   if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+    return res.status(401).json({ message: 'Not authorized, token missing' });
   }
 };
 

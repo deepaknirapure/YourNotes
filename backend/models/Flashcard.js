@@ -1,59 +1,89 @@
-// Flashcard model — AI generated flashcards store karta hai
-// SM-2 spaced repetition algorithm use karta hai
 const mongoose = require('mongoose');
+
+/**
+ * Hindi Comment:
+ * Ye final Flashcard Model hai jo SM-2 Spaced Repetition algorithm par based hai.
+ * Iska use karke system khud decide karega ki agla revision kab hona chahiye.
+ */
 
 const flashcardSchema = new mongoose.Schema(
   {
-    // Flashcard ka question
+    // Flashcard ka Question (Front side)
     question: {
       type: String,
-      required: true,
+      required: [true, "Question is required"],
+      trim: true,
     },
-    // Flashcard ka answer
+    // Flashcard ka Answer (Back side)
     answer: {
       type: String,
-      required: true,
+      required: [true, "Answer is required"],
+      trim: true,
     },
-    // Yeh flashcard kis user ka hai
+    // Relationship: Ye card kis user ka hai
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    // Yeh flashcard kis note se generate hua hai
+    // Relationship: Kis note se ye card generate hua (Context ke liye)
     note: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Note',
       required: true,
     },
-    // SM-2 Algorithm ke fields —————————————————
-    // Kitne din baad dobara review karna hai
+    // NEW: Subject/Folder linkage taaki specific category ki practice ho sake
+    subject: {
+      type: String,
+      default: 'General',
+    },
+
+    /**
+     * SM-2 Algorithm Fields:
+     * In fields ka use karke Spaced Repetition calculate hota hai.
+     */
+    
+    // Interval: Kitne din baad dobara card dikhana hai
     interval: {
       type: Number,
-      default: 1,
+      default: 0, // 0 matlab naya card hai
     },
-    // Kitna aasaan lagta hai (2.5 = average)
+    // Ease Factor: Card kitna easy hai (2.5 default value hai algorithm ki)
     easeFactor: {
       type: Number,
       default: 2.5,
     },
-    // Kitni baar successfully review kiya
+    // Repetitions: Lagatar kitni baar sahi answer diya
     repetitions: {
       type: Number,
       default: 0,
     },
-    // Agla review kab hona chahiye
+    // Agla revision kab hona chahiye (Calculation ke baad set hoga)
     nextReviewDate: {
       type: Date,
       default: Date.now,
+    },
+    // Last quality score (0 to 5) jo user ne pichli baar diya tha
+    lastQuality: {
+      type: Number,
+      default: 0,
+    },
+    // Mastery: Kya user ne ye card master kar liya hai?
+    isMastered: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
 );
 
-// Index: ek note ke saare flashcards fast dhundne ke liye
+/**
+ * Hindi Comment: 
+ * Database performance ke liye indexes. 
+ * 'nextReviewDate' par index isliye hai kyunki hum aksar 'Due' cards search karenge.
+ */
 flashcardSchema.index({ note: 1, user: 1 });
-// Index: due flashcards dhundne ke liye
 flashcardSchema.index({ user: 1, nextReviewDate: 1 });
+flashcardSchema.index({ subject: 1 });
 
 module.exports = mongoose.model('Flashcard', flashcardSchema);

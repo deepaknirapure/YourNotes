@@ -1,54 +1,62 @@
-// User model — users ka data store karta hai
 const mongoose = require('mongoose');
+
+/**
+ * Hindi Comment:
+ * Ye final User Model hai. Isme authentication, forgot password logic, 
+ * gamification (streaks), aur community features (saved notes) sab integrated hain.
+ */
 
 const userSchema = new mongoose.Schema(
   {
-    // User ka naam
+    // User ka pura naam
     name: {
       type: String,
-      required: true,
+      required: [true, "Name is required"],
       trim: true,
     },
-    // User ka email — unique hona chahiye
+    // Login ke liye unique email
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
     },
-    // Hashed password
+    // Hashed password (min 6 characters)
     password: {
       type: String,
-      required: true,
+      required: [true, "Password is required"],
       minlength: 6,
     },
-    // Profile picture URL
+    // Profile image URL
     avatar: {
       type: String,
-      default: '',
+      default: 'https://cdn-icons-png.flaticon.com/512/149/149071.png', // Default profile icon
     },
-    // Study streak — kitne consecutive din study ki
+    /**
+     * Gamification Section:
+     * Study streaks aur weekly goals students ko engage rakhte hain.
+     */
     streak: {
       count: { type: Number, default: 0 },
       lastStudied: { type: Date, default: null },
     },
-    // Is week kitni notes banani hain ka goal
     weeklyGoal: {
       type: Number,
       default: 5,
     },
-    // Is week kitni notes bani hain
     notesCreatedThisWeek: {
       type: Number,
       default: 0,
     },
-    // Account verify hua hai ya nahi
+    /**
+     * AI & Security:
+     * AI rate limiting taaki API costs control mein rahein.
+     */
     isVerified: {
       type: Boolean,
       default: true,
     },
-    // AI hourly rate limit track karne ke liye
     aiCallsThisHour: {
       type: Number,
       default: 0,
@@ -57,20 +65,34 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    // Community mein kitni files upload ki hain
+    /**
+     * Community Integration:
+     * User ne kitni notes public ki hain aur doosron ki kaunsi notes save ki hain.
+     */
     totalPublicUploads: {
       type: Number,
       default: 0,
     },
-    // User ne community mein kaun si notes save ki hain
     savedCommunityNotes: [
-      { type: mongoose.Schema.Types.ObjectId, ref: 'CommunityNote' }
+      { type: mongoose.Schema.Types.ObjectId, ref: 'Note' } // 'Note' model se hi link kiya hai
     ],
-    // Password reset ke liye temporary token
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
+    /**
+     * NEW: Forgot Password Security
+     * In fields ka use token-based password reset ke liye hoga.
+     */
+    resetPasswordToken: {
+      type: String,
+      default: undefined
+    },
+    resetPasswordExpire: {
+      type: Date,
+      default: undefined
+    }
   },
-  { timestamps: true } // createdAt aur updatedAt auto-set hoga
+  { timestamps: true } // createdAt aur updatedAt fields auto-manage hongi
 );
+
+// Search Index: Email par search fast karne ke liye
+userSchema.index({ email: 1 });
 
 module.exports = mongoose.model('User', userSchema);

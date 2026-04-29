@@ -1,42 +1,29 @@
-// Folder controller — folders ke CRUD operations
 const Folder = require('../models/Folder');
 const Note = require('../models/Note');
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET ALL FOLDERS — user ke saare folders fetch karo (note count ke saath)
-// ─────────────────────────────────────────────────────────────────────────────
-const getFolders = async (req, res) => {
-  try {
-    // Saare folders fetch karo
-    const folders = await Folder.find({ user: req.user.id })
-      .sort({ createdAt: -1 })
-      .lean(); // lean() se plain JS object milta hai — faster
+/**
+ * Hindi Comment:
+ * Ye controller Folder management handle karta hai. 
+ * Isme "Open Folder" feature (getFolderNotes) bhi add kiya gaya hai 
+ * taaki users folder ke andar notes organize kar sakein.
+ */
 
-    // Ek aggregate query se saare folders ka note count lo
-    // Yeh N+1 problem se bachata hai (har folder ke liye alag query nahi)
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. GET ALL FOLDERS (With Live Note Counts)
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getFolders = async (req, res) => {
+  try {
+    const folders = await Folder.find({ user: req.user.id }).sort({ createdAt: -1 }).lean();
+
+    // Hindi: Ek hi query mein saare folders ke counts nikalna (Aggregation Pipeline)
     const counts = await Note.aggregate([
-      {
-        $match: {
-          user: req.user.id,
-          isTrashed: false,
-          folder: { $ne: null },
-        },
-      },
-      {
-        $group: {
-          _id: '$folder',
-          count: { $sum: 1 },
-        },
-      },
+      { $match: { user: req.user.id, isTrashed: false, folder: { $ne: null } } },
+      { $group: { _id: '$folder', count: { $sum: 1 } } }
     ]);
 
-    // Counts ko map mein convert karo — O(1) lookup ke liye
     const countMap = {};
-    counts.forEach((c) => {
-      countMap[c._id.toString()] = c.count;
-    });
+    counts.forEach((c) => { countMap[c._id.toString()] = c.count; });
 
-    // Har folder mein actual note count add karo
     const foldersWithCount = folders.map((f) => ({
       ...f,
       noteCount: countMap[f._id.toString()] || 0,
@@ -44,86 +31,84 @@ const getFolders = async (req, res) => {
 
     res.status(200).json(foldersWithCount);
   } catch (error) {
-    console.error('GetFolders error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error fetching folders' });
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CREATE FOLDER — naya folder banao
+// 2. CREATE FOLDER
 // ─────────────────────────────────────────────────────────────────────────────
-const createFolder = async (req, res) => {
+exports.createFolder = async (req, res) => {
   try {
     const { name, color, icon, description } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ message: 'Folder name required' });
-    }
+    if (!name) return res.status(400).json({ message: 'Name is required' });
 
     const folder = await Folder.create({
       name,
-      color: color || '#E55B2D',
+      color: color || '#4F46E5',
       icon: icon || '📁',
       description: description || '',
       user: req.user.id,
     });
 
-    // noteCount: 0 ke saath return karo (abhi naya folder hai)
     res.status(201).json({ ...folder.toObject(), noteCount: 0 });
   } catch (error) {
-    console.error('CreateFolder error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Folder creation failed' });
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UPDATE FOLDER — folder ki details update karo
+// 3. GET FOLDER NOTES (Open Folder Feature)
 // ─────────────────────────────────────────────────────────────────────────────
-const updateFolder = async (req, res) => {
+exports.getFolderNotes = async (req, res) => {
   try {
-    // Pehle check karo ki folder user ka hi hai
-    const folder = await Folder.findOne({ _id: req.params.id, user: req.user.id });
-    if (!folder) {
-      return res.status(404).json({ message: 'Folder not found' });
-    }
+    const { id } = req.params;
+    
+    // Check if folder exists and belongs to user
+    const folder = await Folder.findOne({ _id: id, user: req.user.id });
+    if (!folder) return res.status(404).json({ message: 'Folder not found' });
 
-    const { name, color, icon, description } = req.body;
+    // Hindi: Is folder ke andar ki saari notes fetch karna
+    const notes = await Note.find({ folder: id, user: req.user.id, isTrashed: false })
+      .sort({ updatedAt: -1 });
 
-    // Sirf provided fields update karo
-    if (name)                    folder.name = name;
-    if (color)                   folder.color = color;
-    if (icon)                    folder.icon = icon;
-    if (description !== undefined) folder.description = description;
+    res.status(200).json({ folder, notes });
+  } catch (error) {
+    res.status(500).json({ message: 'Error opening folder' });
+  }
+};
 
-    await folder.save();
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. UPDATE FOLDER
+// ─────────────────────────────────────────────────────────────────────────────
+exports.updateFolder = async (req, res) => {
+  try {
+    const folder = await Folder.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      req.body,
+      { new: true }
+    );
+    if (!folder) return res.status(404).json({ message: 'Folder not found' });
     res.status(200).json(folder);
   } catch (error) {
-    console.error('UpdateFolder error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Update failed' });
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DELETE FOLDER — folder delete karo (notes unassigned ho jayenge)
+// 5. DELETE FOLDER
 // ─────────────────────────────────────────────────────────────────────────────
-const deleteFolder = async (req, res) => {
+exports.deleteFolder = async (req, res) => {
   try {
     const folder = await Folder.findOne({ _id: req.params.id, user: req.user.id });
-    if (!folder) {
-      return res.status(404).json({ message: 'Folder not found' });
-    }
+    if (!folder) return res.status(404).json({ message: 'Folder not found' });
 
-    // Is folder ki saari notes ko unassign karo (folder null set karo)
+    // Hindi: Folder delete karne par notes ko "Unassigned" (null) kar dena
     await Note.updateMany({ folder: req.params.id }, { folder: null });
-
-    // Folder delete karo
     await folder.deleteOne();
 
-    res.status(200).json({ message: 'Folder deleted successfully' });
+    res.status(200).json({ message: 'Folder deleted, notes moved to general' });
   } catch (error) {
-    console.error('DeleteFolder error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Delete failed' });
   }
 };
-
-module.exports = { getFolders, createFolder, updateFolder, deleteFolder };

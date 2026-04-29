@@ -1,35 +1,49 @@
-// Tag controller — user ke saare tags aur unka count return karta hai
 const Note = require('../models/Note');
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET TAGS — user ki saari notes se tags collect karo
-// ─────────────────────────────────────────────────────────────────────────────
-const getTags = async (req, res) => {
+/**
+ * Hindi Comment:
+ * Ye controller user ke saare unique tags aur unke counts fetch karta hai.
+ * Humne yahan Aggregation Pipeline use ki hai taaki performance fast rahe 
+ * chahe user ki kitni bhi notes ho.
+ */
+
+exports.getTags = async (req, res) => {
   try {
-    // Sirf tags field fetch karo — poori note nahi chahiye
-    const notes = await Note.find({
-      user: req.user.id,
-      isTrashed: false,
-    }).select('tags');
+    const userId = req.user.id;
 
-    // Har tag ka count calculate karo
-    const tagMap = {};
-    notes.forEach((note) => {
-      note.tags.forEach((tag) => {
-        tagMap[tag] = (tagMap[tag] || 0) + 1;
-      });
-    });
+    // Hindi: Database level par hi tags ko 'unwind' karke count kar rahe hain
+    const tagsWithCounts = await Note.aggregate([
+      // 1. Sirf is user ki active notes pakdo
+      { 
+        $match: { 
+          user: new require('mongoose').Types.ObjectId(userId), 
+          isTrashed: false 
+        } 
+      },
+      // 2. Tags array ko tod kar individual words mein convert karo
+      { $unwind: "$tags" },
+      // 3. Har unique tag ka group banao aur count increment karo
+      { 
+        $group: { 
+          _id: "$tags", 
+          count: { $sum: 1 } 
+        } 
+      },
+      // 4. Sabse zyada use hone wale tags ko upar rakho
+      { $sort: { count: -1 } },
+      // 5. Output format set karo (id ko 'tag' mein badlo)
+      { 
+        $project: { 
+          _id: 0, 
+          tag: "$_id", 
+          count: 1 
+        } 
+      }
+    ]);
 
-    // Map ko array mein convert karo aur count ke hisaab se sort karo
-    const tags = Object.entries(tagMap)
-      .map(([tag, count]) => ({ tag, count }))
-      .sort((a, b) => b.count - a.count); // Sabse zyada use hue tag pehle
-
-    res.status(200).json(tags);
+    res.status(200).json(tagsWithCounts);
   } catch (error) {
-    console.error('GetTags error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('GetTags Error:', error);
+    res.status(500).json({ message: 'Failed to fetch tags' });
   }
 };
-
-module.exports = { getTags };
