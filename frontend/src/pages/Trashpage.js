@@ -195,7 +195,6 @@ export default function TrashPage() {
         <div className="pg-topbar">
           <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={22} /></button>
           <div className="pg-title-section">
-            <div className="pg-title-icon"><Trash2 size={18} /></div>
             <h1 className="pg-title">Trash Hub</h1>
             <span className="pg-count">{notes.length} NODES</span>
           </div>
