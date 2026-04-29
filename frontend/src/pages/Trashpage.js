@@ -1,113 +1,90 @@
 import { useState, useEffect } from "react";
-import { Trash2, RotateCcw, X, AlertTriangle, RefreshCw, Menu, Clock, Inbox } from "lucide-react";
+import { Trash2, RotateCcw, X, AlertTriangle, RefreshCw, Menu, Clock, Inbox, ShieldAlert } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
-  @keyframes scaleIn { from { opacity: 0; transform: scale(0.96) } to { opacity: 1; transform: scale(1) } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes spin { to { transform: rotate(360deg) } }
   
-  body { background: #FAFAFA; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+  body { background: #FFFFFF; color: #000000; font-family: 'Plus Jakarta Sans', sans-serif; }
   
-  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #FAFAFA; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #FFFFFF; }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; }
   
-  /* Sleek Topbar */
+  /* Topbar */
   .pg-topbar { 
-    height: 64px; display: flex; align-items: center; gap: 16px; padding: 0 24px; 
-    background: #FFF; border-bottom: 1px solid #E2E8F0; flex-shrink: 0; 
+    height: 70px; display: flex; align-items: center; gap: 16px; padding: 0 32px; 
+    background: #FFFFFF; border-bottom: 1px solid #F1F5F9; flex-shrink: 0; 
   }
-  .pg-menu-btn { display: none; background: none; border: none; color: #64748B; cursor: pointer; padding: 4px; flex-shrink: 0; }
+  .pg-menu-btn { display: none; background: #F1F5F9; border: none; border-radius: 10px; cursor: pointer; padding: 10px; color: #000; }
   
-  .pg-title-section { display: flex; align-items: center; gap: 10px; }
-  .pg-title { font-size: 18px; font-weight: 700; color: #0F172A; letter-spacing: -0.5px; }
-  .pg-count { background: #F1F5F9; color: #64748B; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 100px; border: 1px solid #E2E8F0; }
+  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: #000; display: flex; align-items: center; justify-content: center; color: #ccff00; }
+  .pg-title { font-size: 20px; font-weight: 900; color: #000; letter-spacing: -1px; text-transform: uppercase; }
+  .pg-count { background: #F1F5F9; color: #000; font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 100px; }
   
-  /* Topbar Actions */
-  .pg-actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
-  
-  .btn-empty { 
-    display: flex; align-items: center; gap: 8px; background: #FFF; color: #EF4444; 
-    border: 1px solid #FEE2E2; border-radius: 10px; padding: 8px 16px; 
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
+  /* Action Buttons */
+  .btn-action { 
+    display: flex; align-items: center; gap: 8px; background: #000; color: #ccff00; 
+    border: none; border-radius: 12px; padding: 10px 18px; font-size: 12px; 
+    font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase;
   }
-  .btn-empty:hover { background: #FEF2F2; border-color: #FCA5A5; }
+  .btn-action:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+  .btn-danger-outline { background: transparent; color: #FF4444; border: 1px solid #FF4444; border-radius: 12px; padding: 10px 18px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s; }
+  .btn-danger-outline:hover { background: #FF4444; color: #FFF; }
 
-  /* Content Area */
-  .pg-content { flex: 1; overflow-y: auto; padding: 32px 5vw; scrollbar-width: none; }
-  
+  /* Alert Banner */
   .pg-alert { 
-    display: flex; align-items: center; gap: 12px; background: #FFFBEB; 
-    border: 1px solid #FEF3C7; border-radius: 12px; padding: 14px 18px; 
-    margin-bottom: 32px; font-size: 14px; color: #92400E; font-weight: 500;
+    display: flex; align-items: center; gap: 12px; background: #000; 
+    border-radius: 16px; padding: 16px 24px; margin-bottom: 40px; 
+    font-size: 13px; color: #ccff00; font-weight: 700; letter-spacing: 0.5px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
   }
 
+  .pg-content { flex: 1; overflow-y: auto; padding: 40px 5vw; scrollbar-width: none; }
   .pg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
   
   /* Trash Card */
   .pg-card { 
-    background: #FFF; border: 1px solid #E2E8F0; border-radius: 16px; 
-    padding: 24px; position: relative; transition: all 0.2s ease; 
-    animation: fadeUp 0.3s both; display: flex; flex-direction: column;
+    background: #FFFFFF; border: 1px solid #F1F5F9; border-radius: 24px; 
+    padding: 28px; position: relative; transition: 0.3s; 
+    animation: fadeUp 0.4s both; display: flex; flex-direction: column; opacity: 0.85;
   }
-  .pg-card:hover { border-color: #FCA5A5; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.04); }
+  .pg-card:hover { border-color: #000; transform: translateY(-5px); opacity: 1; box-shadow: 0 15px 30px rgba(0,0,0,0.04); }
   
-  .pg-card-title { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 8px; line-height: 1.4; opacity: 0.8; }
-  .pg-card-preview { 
-    font-size: 14px; color: #64748B; display: -webkit-box; -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical; overflow: hidden; line-height: 1.6; margin-bottom: 20px; flex: 1;
+  .pg-card-title { font-size: 17px; font-weight: 900; color: #000; margin-bottom: 10px; line-height: 1.3; }
+  .pg-card-preview { font-size: 14px; color: #64748B; line-height: 1.7; margin-bottom: 24px; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  
+  .pg-card-footer { display: flex; gap: 10px; border-top: 1px solid #F1F5F9; padding-top: 20px; }
+  
+  .pg-btn-sm { 
+    flex: 1; border: none; border-radius: 10px; padding: 10px; font-family: inherit; 
+    font-weight: 800; font-size: 12px; cursor: pointer; display: flex; 
+    align-items: center; justify-content: center; gap: 8px; transition: 0.2s; text-transform: uppercase;
   }
-  
-  .pg-card-date { font-size: 12px; color: #94A3B8; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
-  
-  .pg-card-actions { display: flex; gap: 8px; border-top: 1px solid #F1F5F9; padding-top: 16px; }
-  
-  .pg-btn { 
-    flex: 1; border: none; border-radius: 8px; padding: 8px; font-family: inherit; 
-    font-weight: 600; font-size: 13px; cursor: pointer; display: flex; 
-    align-items: center; justify-content: center; gap: 6px; transition: 0.2s; 
-  }
-  .pg-restore { background: #F0FDF4; color: #16A34A; border: 1px solid #DCFCE7; }
-  .pg-restore:hover { background: #DCFCE7; }
-  
-  .pg-delete { background: #FEF2F2; color: #EF4444; border: 1px solid #FEE2E2; }
-  .pg-delete:hover { background: #FEE2E2; }
+  .pg-restore { background: #000; color: #ccff00; }
+  .pg-restore:hover { transform: scale(1.05); }
+  .pg-delete-forever { background: #F8FAFC; color: #FF4444; border: 1px solid #F1F5F9; }
+  .pg-delete-forever:hover { background: #FF4444; color: #FFF; border-color: #FF4444; }
 
-  /* Modern Confirm Modals */
-  .modal-overlay { 
-    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); 
-    backdrop-filter: blur(4px); z-index: 200; display: flex; 
-    align-items: center; justify-content: center; padding: 24px; 
-  }
-  .modal-box { 
-    background: #FFF; border: 1px solid #E2E8F0; border-radius: 20px; 
-    padding: 32px; max-width: 400px; width: 100%; animation: scaleIn 0.2s ease;
-  }
-  .modal-title { font-size: 18px; font-weight: 700; color: #0F172A; margin-bottom: 8px; }
-  .modal-desc { font-size: 14px; color: #64748B; line-height: 1.5; margin-bottom: 24px; }
-  
-  /* Empty States */
-  .pg-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 24px; text-align: center; }
-  .pg-empty-icon { width: 64px; height: 64px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #94A3B8; margin-bottom: 16px; }
-  .pg-spinner { width: 24px; height: 24px; border: 3px solid #E2E8F0; border-top-color: #0F172A; border-radius: 50%; animation: spin .7s linear infinite; }
-  .pg-overlay-blur { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 40; }
-  
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal-box { background: #000; border: 1px solid #222; border-radius: 28px; padding: 40px; max-width: 440px; width: 100%; color: #FFF; text-align: center; }
+  .modal-title { font-size: 22px; font-weight: 900; color: #FFF; margin-bottom: 12px; text-transform: uppercase; letter-spacing: -1px; }
+  .modal-desc { font-size: 14px; color: #888; line-height: 1.6; margin-bottom: 30px; }
+
+  .db-spinner { width: 30px; height: 30px; border: 3px solid #F1F5F9; border-top-color: #ccff00; border-radius: 50%; animation: spin .8s linear infinite; }
+
   @media(max-width:768px) {
-    .pg-menu-btn { display: flex !important; background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; border-radius: 10px !important; min-width: 38px; height: 38px; align-items: center !important; justify-content: center !important; }
-    .pg-topbar { padding: 0 14px !important; height: 56px !important; }
-    .pg-content, .saas-main, .flashcard-wrap { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important; padding-left: 16px !important; padding-right: 16px !important; } 
-    .pg-menu-btn { display: flex !important; background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; border-radius: 10px !important; padding: 8px !important; min-width: 38px; min-height: 38px; }
-    .pg-topbar { padding: 0 14px !important; height: 56px !important; gap: 8px !important; }
-    .pg-content { padding: 16px !important; } 
-    .pg-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
-    .btn-empty span { display: none; }
-    .pg-card { padding: 16px !important; border-radius: 12px !important; }
+    .pg-menu-btn { display: flex; }
+    .pg-topbar { padding: 0 16px; }
+    .pg-grid { grid-template-columns: 1fr; }
+    .btn-action span { display: none; }
   }
 `;
 
@@ -121,11 +98,7 @@ export default function TrashPage() {
   const [actionLoading, setActionLoading] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const toggleSelected = (id) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  };
-
-  const clearSelection = () => setSelectedIds([]);
+  useEffect(() => { loadTrash(); }, []);
 
   const loadTrash = async () => {
     setLoading(true);
@@ -136,27 +109,23 @@ export default function TrashPage() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { loadTrash(); }, []);
-
   const restoreNote = async (noteId) => {
     setActionLoading(noteId + "_restore");
     try {
       await API.patch(`/notes/${noteId}/restore`);
       setNotes(prev => prev.filter(n => n._id !== noteId));
-      toast.success("Note restored! ✅");
-    } catch { toast.error("Could not restore"); }
+      toast.success("FRAGEMENT RESTORED ⚡");
+    } catch { toast.error("Restore failed"); }
     finally { setActionLoading(null); }
   };
 
-  const deleteNote = async (noteId) => {
-    setActionLoading(noteId + "_delete");
+  const deleteNoteForever = async (noteId) => {
     try {
       await API.delete(`/notes/${noteId}`);
       setNotes(prev => prev.filter(n => n._id !== noteId));
       setConfirmId(null);
-      toast.success("Permanently deleted");
-    } catch { toast.error("Could not delete"); }
-    finally { setActionLoading(null); }
+      toast.success("PERMANENTLY WIPED");
+    } catch { toast.error("Wipe failed"); }
   };
 
   const emptyTrash = async () => {
@@ -165,112 +134,48 @@ export default function TrashPage() {
       await Promise.all(notes.map(n => API.delete(`/notes/${n._id}`)));
       setNotes([]);
       setConfirmAll(false);
-      clearSelection();
-      toast.success("Trash emptied!");
+      setSelectedIds([]);
+      toast.success("TRASH BUFFER CLEARED");
     } catch { toast.error("Action failed"); }
     finally { setActionLoading(null); }
-  };
-
-  const deleteSelectedForever = async () => {
-    if (!selectedIds.length) return;
-    setActionLoading("selected_forever");
-    try {
-      await Promise.all(selectedIds.map((id) => API.delete(`/notes/${id}`)));
-      setNotes((prev) => prev.filter((n) => !selectedIds.includes(n._id)));
-      setConfirmSelectedForever(false);
-      clearSelection();
-      toast.success("Selected notes permanently deleted");
-    } catch {
-      toast.error("Delete failed");
-    } finally {
-      setActionLoading(null);
-    }
   };
 
   return (
     <div className="pg-wrap">
       <style>{STYLES}</style>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      {sidebarOpen && <div className="pg-overlay-blur" onClick={() => setSidebarOpen(false)} />}
 
-      {/* Confirmation Modals */}
-      {confirmId && (
+      {/* Confirmation Modals (Styled Dark) */}
+      {(confirmId || confirmAll || confirmSelectedForever) && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <h3 className="modal-title">Delete Permanently?</h3>
-            <p className="modal-desc">This action cannot be undone. The note will be gone forever.</p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
-              <button className="pg-btn" onClick={() => setConfirmId(null)} style={{ background: "#F1F5F9", color: "#64748B" }}>Cancel</button>
-              <button className="pg-btn pg-delete" onClick={() => deleteNote(confirmId)} disabled={actionLoading === confirmId + "_delete"}>
-                {actionLoading === confirmId + "_delete" ? "Deleting..." : "Delete Forever"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {confirmSelectedForever && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3 className="modal-title">Delete selected permanently?</h3>
-            <p className="modal-desc">
-              {selectedIds.length} items will be permanently erased. This action cannot be undone.
-            </p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
-              <button className="pg-btn" onClick={() => setConfirmSelectedForever(false)} style={{ background: "#F1F5F9", color: "#64748B" }}>
-                Cancel
-              </button>
-              <button
-                className="pg-btn pg-delete"
-                onClick={deleteSelectedForever}
-                disabled={actionLoading === "selected_forever"}
-              >
-                {actionLoading === "selected_forever" ? "Deleting..." : "Delete Selected"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {confirmAll && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3 className="modal-title">Empty Entire Trash?</h3>
-            <p className="modal-desc">All {notes.length} items will be permanently erased. Are you sure?</p>
-            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
-              <button className="pg-btn" onClick={() => setConfirmAll(false)} style={{ background: "#F1F5F9", color: "#64748B" }}>Cancel</button>
-              <button className="pg-btn pg-delete" onClick={emptyTrash} disabled={actionLoading === "all"}>
-                {actionLoading === "all" ? "Emptying..." : "Yes, Empty Trash"}
-              </button>
+            <ShieldAlert size={48} color="#FF4444" style={{ margin: '0 auto 20px' }} />
+            <h3 className="modal-title">Irreversible Action</h3>
+            <p className="modal-desc">This data node will be permanently purged from the neural network. Do you wish to proceed?</p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button className="pg-btn-sm" onClick={() => {setConfirmId(null); setConfirmAll(false); setConfirmSelectedForever(false);}} style={{ background: "#222", color: "#888" }}>Abort</button>
+              <button className="pg-btn-sm" onClick={() => { if(confirmId) deleteNoteForever(confirmId); else emptyTrash(); }} style={{ background: "#FF4444", color: "#FFF" }}>Confirm Purge</button>
             </div>
           </div>
         </div>
       )}
 
       <div className="pg-main">
-        {/* Sleek Topbar */}
         <div className="pg-topbar">
-          <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={20} /></button>
+          <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={22} /></button>
           <div className="pg-title-section">
-            <div style={{ width: 28, height: 28, borderRadius: '8px', background: '#F1F5F9', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Trash2 size={14} color="#64748B" />
-            </div>
-            <h1 className="pg-title">Trash</h1>
-            <span className="pg-count">{notes.length}</span>
+            <div className="pg-title-icon"><Trash2 size={18} /></div>
+            <h1 className="pg-title">Trash Hub</h1>
+            <span className="pg-count">{notes.length} NODES</span>
           </div>
 
           <div className="pg-actions">
-            <button onClick={loadTrash} style={{ background: "none", border: "none", color: "#64748B", cursor: "pointer", display: "flex", padding: "8px", borderRadius: "8px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.background="#F1F5F9"} onMouseOut={e=>e.currentTarget.style.background="none"}>
-              <RefreshCw size={16} className={loading ? "spin" : ""} />
+            <button onClick={loadTrash} style={{ background: "none", border: "none", color: "#000", cursor: "pointer", padding: "8px" }}>
+              <RefreshCw size={18} className={loading ? "spin" : ""} />
             </button>
-            {selectedIds.length > 0 && (
-              <button className="btn-empty" onClick={() => setConfirmSelectedForever(true)} style={{ borderColor: "#FEE2E2", color: "#EF4444" }}>
-                <Trash2 size={14} /> <span>Delete Selected</span>
-              </button>
-            )}
             {notes.length > 0 && (
-              <button className="btn-empty" onClick={() => setConfirmAll(true)}>
-                <Trash2 size={14} /> <span>Empty Trash</span>
+              <button className="btn-action" onClick={() => setConfirmAll(true)}>
+                <Trash2 size={16} strokeWidth={3} /> <span>EMPTY TRASH</span>
               </button>
             )}
           </div>
@@ -279,47 +184,44 @@ export default function TrashPage() {
         <div className="pg-content">
           {notes.length > 0 && (
             <div className="pg-alert">
-              <AlertTriangle size={16} />
-              <span>Items in trash are not automatically deleted. They will stay here until you empty the trash.</span>
+              <AlertTriangle size={18} />
+              <span>TERMINAL WARNING: Purged items stay in buffer until manual wipe. Memory is not auto-reclaimed.</span>
             </div>
           )}
 
           {loading ? (
-            <div style={{ display: "flex", justifyContent: "center", padding: "100px 0" }}>
-              <div className="pg-spinner" />
-            </div>
+            <div style={{ display: "flex", justifyContent: "center", padding: "100px 0" }}><div className="db-spinner" /></div>
           ) : notes.length === 0 ? (
-            <div className="pg-empty">
-              <div className="pg-empty-icon"><Inbox size={28} /></div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#0F172A", marginBottom: 8 }}>Trash is empty</h3>
-              <p style={{ fontSize: 14, color: "#64748B", maxWidth: 300 }}>Notes you delete will appear here. You can restore them or delete them forever.</p>
+            <div style={{ textAlign: 'center', padding: '100px 0' }}>
+              <Inbox size={60} color="#F1F5F9" style={{ margin: '0 auto 20px' }} />
+              <h3 style={{ color: '#94A3B8', fontWeight: 900 }}>BUFFER IS EMPTY</h3>
+              <p style={{ color: '#E2E8F0', fontSize: 13, fontWeight: 700, marginTop: 10 }}>NO DELETED NODES DETECTED</p>
             </div>
           ) : (
             <div className="pg-grid">
               {notes.map((note, i) => (
-                <div key={note._id} className="pg-card" style={{ animationDelay: `${i * 0.03}s` }}>
+                <div key={note._id} className="pg-card" style={{ animationDelay: `${i * 0.05}s` }}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                    <h3 className="pg-card-title">{note.title || "UNTITLED FRAGMENT"}</h3>
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(note._id)}
-                      onChange={() => toggleSelected(note._id)}
-                      aria-label="Select note"
-                      style={{ width: 18, height: 18, accentColor: "#E55B2D", marginTop: 4 }}
+                      onChange={() => setSelectedIds(prev => prev.includes(note._id) ? prev.filter(x => x !== note._id) : [...prev, note._id])}
+                      style={{ width: 18, height: 18, accentColor: "#ccff00" }}
                     />
-                    <h3 className="pg-card-title" style={{ marginBottom: 0 }}>{note.title || "Untitled Intelligence"}</h3>
                   </div>
-                  <p className="pg-card-preview">{note.plainText || "No preview content available..."}</p>
+                  <p className="pg-card-preview">{note.plainText || "Neural data stream inactive..."}</p>
                   
-                  <div className="pg-card-date">
-                    <Clock size={12} /> Deleted recently
+                  <div style={{ fontSize: 11, fontWeight: 900, color: '#CBD5E1', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
+                    <Clock size={12} /> MARKED FOR DELETION
                   </div>
                   
-                  <div className="pg-card-actions">
-                    <button className="pg-btn pg-restore" onClick={() => restoreNote(note._id)} disabled={actionLoading === note._id + "_restore"}>
+                  <div className="pg-card-footer">
+                    <button className="pg-btn-sm pg-restore" onClick={() => restoreNote(note._id)}>
                       <RotateCcw size={14} /> Restore
                     </button>
-                    <button className="pg-btn pg-delete" onClick={() => setConfirmId(note._id)}>
-                      <X size={14} /> Delete
+                    <button className="pg-btn-sm pg-delete-forever" onClick={() => setConfirmId(note._id)}>
+                      Purge
                     </button>
                   </div>
                 </div>
@@ -328,7 +230,6 @@ export default function TrashPage() {
           )}
         </div>
       </div>
-      {/* Mobile bottom navigation - sab pages pe consistent */}
       <MobileNav />
     </div>
   );
