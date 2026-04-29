@@ -28,7 +28,7 @@ const STYLES = `
   .pg-title { font-size: 20px; font-weight: 900; color: #000; letter-spacing: -1px; text-transform: uppercase; }
   .pg-count { background: #F1F5F9; color: #000; font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 100px; }
   
-  /* Floating Action Bar (Visible when selected) */
+  /* Floating Action Bar */
   .bulk-action-bar {
     position: absolute; top: 85px; left: 50%; transform: translateX(-50%);
     background: #000; border: 2px solid #ccff00; padding: 12px 24px;
@@ -38,8 +38,7 @@ const STYLES = `
   }
 
   .btn-neon-sm { background: #ccff00; color: #000; border: none; border-radius: 10px; padding: 8px 16px; font-weight: 900; font-size: 11px; cursor: pointer; text-transform: uppercase; }
-  .btn-danger-sm { background: transparent; color: #FF4444; border: 1px solid #FF4444; border-radius: 10px; padding: 8px 16px; font-weight: 800; font-size: 11px; cursor: pointer; }
-
+  
   .pg-content { flex: 1; overflow-y: auto; padding: 40px 5vw; scrollbar-width: none; }
   
   .pg-alert { 
@@ -50,7 +49,6 @@ const STYLES = `
 
   .pg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
   
-  /* Card Design */
   .pg-card { 
     background: #FFFFFF; border: 1px solid #F1F5F9; border-radius: 24px; 
     padding: 28px; position: relative; transition: 0.3s; 
@@ -72,7 +70,6 @@ const STYLES = `
   .pg-restore { background: #000; color: #ccff00; }
   .pg-delete-forever { background: #F8FAFC; color: #FF4444; border: 1px solid #F1F5F9; }
 
-  /* Fixed Modals */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .modal-box { background: #000; border: 1px solid #222; border-radius: 28px; padding: 40px; max-width: 440px; width: 100%; color: #FFF; text-align: center; }
 
@@ -103,7 +100,7 @@ export default function TrashPage() {
     try {
       const { data } = await API.get("/notes?trashed=true");
       setNotes((data || []).filter(n => n.isTrashed));
-    } catch { toast.error("Sync failed"); }
+    } catch { toast.error("Could not sync trash"); }
     finally { setLoading(false); }
   };
 
@@ -116,9 +113,9 @@ export default function TrashPage() {
     try {
       await API.patch(`/notes/${noteId}/restore`);
       setNotes(prev => prev.filter(n => n._id !== noteId));
-      setSelectedIds(prev => prev.filter(id => id !== noteId)); // Fix: Sync selection
-      toast.success("FRAGMENT RESTORED ⚡");
-    } catch { toast.error("Restore failed"); }
+      setSelectedIds(prev => prev.filter(id => id !== noteId)); 
+      toast.success("Note restored successfully! ✅");
+    } catch { toast.error("Failed to restore"); }
     finally { setActionLoading(null); }
   };
 
@@ -128,8 +125,8 @@ export default function TrashPage() {
       setNotes(prev => prev.filter(n => n._id !== noteId));
       setSelectedIds(prev => prev.filter(id => id !== noteId));
       setConfirmId(null);
-      toast.success("PERMANENTLY WIPED");
-    } catch { toast.error("Wipe failed"); }
+      toast.success("Deleted forever");
+    } catch { toast.error("Failed to delete"); }
   };
 
   const deleteSelectedForever = async () => {
@@ -139,21 +136,20 @@ export default function TrashPage() {
       setNotes(prev => prev.filter(n => !selectedIds.includes(n._id)));
       setSelectedIds([]);
       setConfirmSelectedForever(false);
-      toast.success("SELECTED NODES PURGED");
-    } catch { toast.error("Bulk action failed"); }
+      toast.success("Selected notes deleted");
+    } catch { toast.error("Something went wrong"); }
     finally { setActionLoading(null); }
   };
 
   const emptyTrash = async () => {
     setActionLoading("empty_all");
     try {
-      // Best practice: Backend should have a single endpoint for this
       await Promise.all(notes.map(n => API.delete(`/notes/${n._id}`)));
       setNotes([]);
       setSelectedIds([]);
       setConfirmAll(false);
-      toast.success("BUFFER CLEARED");
-    } catch { toast.error("Protocol error"); }
+      toast.success("Trash is now empty");
+    } catch { toast.error("Action failed"); }
     finally { setActionLoading(null); }
   };
 
@@ -163,19 +159,19 @@ export default function TrashPage() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       {sidebarOpen && <div className="pg-overlay-blur" onClick={() => setSidebarOpen(false)} />}
 
-      {/* FIXED MODAL SYSTEM */}
+      {/* CONFIRMATION MODALS */}
       {(confirmId || confirmAll || confirmSelectedForever) && (
         <div className="modal-overlay" onClick={() => {setConfirmId(null); setConfirmAll(false); setConfirmSelectedForever(false);}}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
             <ShieldAlert size={48} color="#FF4444" style={{ margin: '0 auto 20px' }} />
-            <h3 className="modal-title">{confirmAll ? "WIPE ALL DATA?" : "PURGE NODE?"}</h3>
+            <h3 className="modal-title">{confirmAll ? "EMPTY ALL TRASH?" : "DELETE FOREVER?"}</h3>
             <p className="modal-desc">
-                {confirmAll ? "This will erase your entire trash buffer. This action is irreversible." : 
-                 confirmSelectedForever ? `Permanently delete ${selectedIds.length} selected fragments?` : 
-                 "This node will be permanently erased from your neural network."}
+                {confirmAll ? "Are you sure? You will lose all notes in the trash. You cannot get them back." : 
+                 confirmSelectedForever ? `Delete these ${selectedIds.length} notes forever? This cannot be undone.` : 
+                 "This note will be permanently deleted. You won't be able to recover it later."}
             </p>
             <div style={{ display: "flex", gap: 12 }}>
-              <button className="pg-btn-sm" onClick={() => {setConfirmId(null); setConfirmAll(false); setConfirmSelectedForever(false);}} style={{ background: "#222", color: "#888" }}>Abort</button>
+              <button className="pg-btn-sm" onClick={() => {setConfirmId(null); setConfirmAll(false); setConfirmSelectedForever(false);}} style={{ background: "#222", color: "#888" }}>Go Back</button>
               <button className="pg-btn-sm" 
                 onClick={() => { 
                     if(confirmId) deleteNoteForever(confirmId); 
@@ -183,7 +179,7 @@ export default function TrashPage() {
                     else emptyTrash();
                 }} 
                 style={{ background: "#FF4444", color: "#FFF" }}>
-                {actionLoading ? "PURGING..." : "Confirm Purge"}
+                {actionLoading ? "Deleting..." : "Yes, Delete"}
               </button>
             </div>
           </div>
@@ -192,15 +188,16 @@ export default function TrashPage() {
 
       <div className="pg-main">
         {/* TOPBAR */}
-        <div className="pg-topbar" m-b-4>
+        <div className="pg-topbar">
           <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={22} /></button>
           <div className="pg-title-section">
-            <h1 className="pg-title">Trash Hub</h1>
-            <span className="pg-count">{notes.length} NODES</span>
+            <div className="pg-title-icon"><Trash2 size={18} /></div>
+            <h1 className="pg-title">Trash</h1>
+            <span className="pg-count">{notes.length} NOTES</span>
           </div>
 
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 12 }}>
-             <button onClick={loadTrash} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+             <button onClick={loadTrash} title="Refresh" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <RefreshCw size={18} className={loading ? "spin" : ""} />
              </button>
              {notes.length > 0 && (
@@ -217,11 +214,11 @@ export default function TrashPage() {
                     <span style={{ color: '#FFF', fontWeight: 900, fontSize: 13 }}>{selectedIds.length} SELECTED</span>
                 </div>
                 <div style={{ height: '20px', width: '1px', background: '#333' }} />
-                <button className="btn-neon-sm" onClick={() => setSelectedIds(notes.map(n => n._id))}>ALL</button>
+                <button className="btn-neon-sm" onClick={() => setSelectedIds(notes.map(n => n._id))}>SELECT ALL</button>
                 <button className="btn-neon-sm" style={{ background: '#FFF' }} onClick={async () => {
                     for(const id of selectedIds) await restoreNote(id);
                 }}>RESTORE</button>
-                <button className="btn-danger-sm" onClick={() => setConfirmSelectedForever(true)}>PURGE</button>
+                <button className="btn-neon-sm" style={{ background: '#FF4444', color: '#FFF' }} onClick={() => setConfirmSelectedForever(true)}>DELETE</button>
                 <X size={18} color="#555" style={{ cursor: 'pointer' }} onClick={() => setSelectedIds([])} />
             </div>
         )}
@@ -230,7 +227,7 @@ export default function TrashPage() {
           {notes.length > 0 && (
             <div className="pg-alert">
               <AlertTriangle size={18} />
-              <span>TERMINAL WARNING: Buffer reclaimed manually. Purged nodes cannot be recovered.</span>
+              <span>Reminder: Notes in the trash are not automatically deleted. Empty the trash to save space.</span>
             </div>
           )}
 
@@ -239,14 +236,14 @@ export default function TrashPage() {
           ) : notes.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '100px 0' }}>
               <Inbox size={60} color="#F1F5F9" style={{ margin: '0 auto 20px' }} />
-              <h3 style={{ color: '#CBD5E1', fontWeight: 900 }}>BUFFER CLEAR</h3>
+              <h3 style={{ color: '#CBD5E1', fontWeight: 900 }}>TRASH IS EMPTY</h3>
             </div>
           ) : (
             <div className="pg-grid">
               {notes.map((note, i) => (
                 <div key={note._id} className={`pg-card ${selectedIds.includes(note._id) ? 'selected' : ''}`} style={{ animationDelay: `${i * 0.05}s` }}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                    <h3 className="pg-card-title">{note.title || "UNTITLED LOG"}</h3>
+                    <h3 className="pg-card-title">{note.title || "Untitled Note"}</h3>
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(note._id)}
@@ -254,10 +251,10 @@ export default function TrashPage() {
                       style={{ width: 18, height: 18, accentColor: "#ccff00", cursor: 'pointer' }}
                     />
                   </div>
-                  <p className="pg-card-preview">{note.plainText || "Data nodes inactive..."}</p>
+                  <p className="pg-card-preview">{note.plainText || "No content to show..."}</p>
                   
                   <div style={{ fontSize: 11, fontWeight: 900, color: '#CBD5E1', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
-                    <Clock size={12} /> DELETED {new Date(note.updatedAt).toLocaleDateString()}
+                    <Clock size={12} /> DELETED ON {new Date(note.updatedAt).toLocaleDateString()}
                   </div>
                   
                   <div className="pg-card-footer">
@@ -265,7 +262,7 @@ export default function TrashPage() {
                       RESTORE
                     </button>
                     <button className="pg-btn-sm pg-delete-forever" onClick={() => setConfirmId(note._id)}>
-                      PURGE
+                      DELETE
                     </button>
                   </div>
                 </div>
