@@ -90,7 +90,7 @@ export default function Sidebar({ open, onClose }) {
         .sidebar-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.7);
+          background: rgba(0, 0, 0, 0.2);
           backdrop-filter: blur(4px);
           z-index: 299;
         }
@@ -98,8 +98,8 @@ export default function Sidebar({ open, onClose }) {
         .sidebar-main {
           width: 260px;
           height: 100vh;
-          background: #000000;
-          border-right: 1px solid #1A1A1A;
+          background: #FFFFFF;
+          border-right: 1px solid #F1F5F9;
           display: flex;
           flex-direction: column;
           font-family: 'Plus Jakarta Sans', sans-serif;
@@ -114,7 +114,7 @@ export default function Sidebar({ open, onClose }) {
           align-items: center;
           justify-content: space-between;
           padding: 0 24px;
-          border-bottom: 1px solid #1A1A1A;
+          border-bottom: 1px solid #F1F5F9;
         }
 
         .sidebar-logo {
@@ -124,14 +124,14 @@ export default function Sidebar({ open, onClose }) {
           letter-spacing: -1px;
         }
 
-        .logo-txt { color: #FFFFFF; }
-        .logo-highlight { color: #ccff00; margin-left: 2px; }
+        .logo-txt { color: #000000; }
+        .logo-highlight { color: #ccff00; margin-left: 2px; background: #000; padding: 2px 6px; border-radius: 6px; }
 
         .sidebar-close-btn {
           display: none;
-          background: #1A1A1A;
-          border: 1px solid #333;
-          color: #FFF;
+          background: #F8FAFC;
+          border: 1px solid #E2E8F0;
+          color: #000;
           padding: 6px;
           border-radius: 8px;
           cursor: pointer;
@@ -144,6 +144,7 @@ export default function Sidebar({ open, onClose }) {
           flex-direction: column;
           gap: 6px;
           overflow-y: auto;
+          scrollbar-width: none;
         }
 
         .nav-btn {
@@ -151,31 +152,32 @@ export default function Sidebar({ open, onClose }) {
           align-items: center;
           gap: 14px;
           padding: 12px 16px;
-          color: #888;
+          color: #64748B;
           background: transparent;
           border: none;
           cursor: pointer;
           font-size: 14px;
-          font-weight: 600;
-          border-radius: 12px;
+          font-weight: 700;
+          border-radius: 14px;
           transition: 0.2s;
+          text-align: left;
         }
 
         .nav-btn:hover {
-          color: #FFF;
-          background: #111;
+          color: #000;
+          background: #F1F5F9;
         }
 
         .nav-btn.active {
-          color: #000 !important;
-          background: #ccff00 !important;
-          box-shadow: 0 4px 15px rgba(204, 255, 0, 0.2);
+          color: #ccff00 !important;
+          background: #000000 !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-footer {
           padding: 20px;
-          background: #050505;
-          border-top: 1px solid #1A1A1A;
+          background: #FFFFFF;
+          border-top: 1px solid #F1F5F9;
           display: flex;
           flex-direction: column;
           gap: 16px;
@@ -186,27 +188,28 @@ export default function Sidebar({ open, onClose }) {
           align-items: center;
           gap: 12px;
           cursor: pointer;
-          padding: 10px;
-          border-radius: 12px;
+          padding: 12px;
+          border-radius: 14px;
           transition: 0.2s;
-          border: 1px solid transparent;
+          background: #F8FAFC;
+          border: 1px solid #F1F5F9;
         }
 
         .profile-section:hover {
-          background: #111;
-          border-color: #222;
+          background: #F1F5F9;
+          border-color: #E2E8F0;
         }
 
         .avatar-box {
           width: 40px;
           height: 40px;
           border-radius: 10px;
-          background: #ccff00;
-          color: #000;
+          background: #000000;
+          color: #ccff00;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: 800;
+          font-weight: 900;
           overflow: hidden;
           flex-shrink: 0;
         }
@@ -223,20 +226,21 @@ export default function Sidebar({ open, onClose }) {
         .username {
           font-size: 13px;
           font-weight: 800;
-          color: #FFF;
+          color: #000;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
         .subtext {
-          font-size: 11px;
-          color: #555;
-          font-weight: 700;
+          font-size: 10px;
+          color: #94A3B8;
+          font-weight: 800;
           text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
-        .settings-icon { color: #333; }
+        .settings-icon { color: #94A3B8; }
 
         .logout-action {
           display: flex;
@@ -244,12 +248,14 @@ export default function Sidebar({ open, onClose }) {
           gap: 10px;
           background: none;
           border: none;
-          padding: 8px 10px;
+          padding: 8px 12px;
           font-size: 13px;
-          font-weight: 700;
-          color: #555;
+          font-weight: 800;
+          color: #94A3B8;
           cursor: pointer;
           transition: 0.2s;
+          text-transform: uppercase;
+          letter-spacing: 1px;
         }
 
         .logout-action:hover { color: #FF4444; }
@@ -258,6 +264,7 @@ export default function Sidebar({ open, onClose }) {
           .sidebar-main {
             position: fixed;
             transform: translateX(-100%);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.05);
           }
           .sidebar-main.sidebar-open { transform: translateX(0); }
           .sidebar-close-btn { display: flex; }
