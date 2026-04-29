@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 // Sidebar ke navigation links
 const NAV_ITEMS = [
   { icon: Home,       label: 'Home',       path: '/home' },
-  { icon: BookOpen,   label: 'Dashboard',  path: '/dashboard' },
+  { icon: BookOpen,   label: 'Notes',      path: '/notes' },
   { icon: Star,       label: 'Starred',    path: '/starred' },
   { icon: Folder,     label: 'Folders',    path: '/folders' },
   { icon: Tag,        label: 'Tags',       path: '/tags' },

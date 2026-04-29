@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus, Search, Star, Trash2,
-  Menu, LayoutGrid, FilePlus, Sparkles, Brain
+  Menu, LayoutGrid, FilePlus
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useAuth } from "../context/AuthContext";
 import API from "../api/axios";
 import NoteEditor from "../components/NoteEditor";
 import Sidebar from "../components/Sidebar";
@@ -69,6 +68,31 @@ const STYLES = `
   
   .note-title { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 8px; }
   .note-excerpt { font-size: 13px; color: #64748B; line-height: 1.6; margin-bottom: 20px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* Notes card top row: title + compact actions */
+  .note-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .note-title { margin-bottom: 0; }
+  .note-card-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .bulk-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    accent-color: #E55B2D;
+    cursor: pointer;
+  }
   
   .note-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 14px; }
   .note-date { font-size: 11px; font-weight: 600; color: #94A3B8; }
@@ -81,11 +105,16 @@ const STYLES = `
   .ai-btn-mini:hover { border-color: #E55B2D; color: #E55B2D; background: #FFF5F2; }
 
   .btn-trash {
-    position: absolute; top: 10px; right: 10px; padding: 6px; border-radius: 8px;
-    color: #94A3B8; background: transparent; border: none; opacity: 0; transition: 0.2s; cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    color: #94A3B8;
+    background: transparent;
+    border: 1px solid transparent;
+    opacity: 1;
+    transition: 0.2s;
+    cursor: pointer;
   }
-  .note-card:hover .btn-trash { opacity: 1; }
-  .btn-trash:hover { color: #EF4444; background: #FEF2F2; }
+  .btn-trash:hover { color: #EF4444; background: #FEF2F2; border-color: #FEE2E2; }
 
   .spinner { width: 24px; height: 24px; border: 3px solid #E2E8F0; border-top-color: #0F172A; border-radius: 50%; animation: spin .7s linear infinite; }
   .pg-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 40; }
@@ -94,7 +123,6 @@ const STYLES = `
   @media(max-width: 768px) { 
     .pg-menu-btn { display: flex !important; } 
     .search-wrapper { display: none; }
-    .note-card .btn-trash { opacity: 1 !important; }
     .pg-topbar { padding: 0 14px !important; height: 56px !important; }
     .pg-content { padding: 16px !important; }
     .notes-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
@@ -107,29 +135,94 @@ const STYLES = `
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const importInputRef = useRef(null);
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNote, setSelectedNote] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const activeFolderId = searchParams.get("folder");
+  const shareToCommunityMode = searchParams.get("shareToCommunity") === "1";
+  const bulkMode = shareToCommunityMode || searchParams.get("bulk") === "1";
+
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [folders, setFolders] = useState([]);
+  const [bulkTargetFolderId, setBulkTargetFolderId] = useState(null);
+  const [foldersLoading, setFoldersLoading] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await API.get("/notes");
+      const endpoint = activeFolderId ? `/notes?folder=${activeFolderId}` : "/notes";
+      const { data } = await API.get(endpoint);
       setNotes(data || []);
     } catch { toast.error("Failed to sync workspace"); }
     finally { setLoading(false); }
-  }, []);
+  }, [activeFolderId]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  useEffect(() => {
+    // Bulk mode me folder dropdown chahiye (Move to Folder action ke liye)
+    if (!bulkMode) return;
+    setFoldersLoading(true);
+    API.get("/folders")
+      .then(({ data }) => {
+        const list = data || [];
+        setFolders(list);
+        setBulkTargetFolderId((prev) => prev || (list[0]?._id || null));
+      })
+      .catch(() => toast.error("Could not load folders"))
+      .finally(() => setFoldersLoading(false));
+  }, [bulkMode]);
+
   const createNote = async () => {
     try {
-      const { data } = await API.post("/notes", { title: "Untitled Document", content: "" });
+      const payload = { title: "Untitled Document", content: "", folder: activeFolderId || null };
+      const { data } = await API.post("/notes", payload);
       setNotes(prev => [data, ...prev]);
       setSelectedNote(data);
     } catch { toast.error("Error creating document"); }
+  };
+
+  const toggleStar = async (e, id) => {
+    e.stopPropagation();
+    try {
+      const { data } = await API.patch(`/notes/${id}/star`);
+      setNotes((prev) => prev.map((n) => (n._id === id ? { ...n, isStarred: data.isStarred } : n)));
+    } catch {
+      toast.error("Failed to update star");
+    }
+  };
+
+  const togglePrivacy = async (e, note) => {
+    e.stopPropagation();
+    try {
+      const { data } = await API.put(`/notes/${note._id}`, { isPublic: !note.isPublic });
+      setNotes((prev) => prev.map((n) => (n._id === note._id ? data : n)));
+      toast.success(data.isPublic ? "Marked as public" : "Marked as private");
+    } catch {
+      toast.error("Failed to update privacy");
+    }
+  };
+
+  const handleImportClick = () => importInputRef.current?.click();
+
+  const handleImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      await API.post("/ai/import", formData, { headers: { "Content-Type": "multipart/form-data" } });
+      toast.success("Notes imported successfully");
+      loadData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Import failed");
+    } finally {
+      e.target.value = "";
+    }
   };
 
   const deleteNote = async (e, id) => {
@@ -140,6 +233,51 @@ export default function DashboardPage() {
       setNotes(prev => prev.filter(n => n._id !== id));
       toast.success("Note moved to trash");
     } catch { toast.error("Failed to delete note"); }
+  };
+
+  const toggleSelected = (id) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const clearSelection = () => setSelectedIds([]);
+
+  const makeSelectedPublic = async () => {
+    if (!selectedIds.length) return;
+    try {
+      await Promise.all(selectedIds.map((id) => API.put(`/notes/${id}`, { isPublic: true })));
+      toast.success("Notes are now public");
+      navigate("/community");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to publish notes");
+    }
+  };
+
+  const moveSelectedToFolder = async () => {
+    if (!selectedIds.length) return;
+    if (!bulkTargetFolderId) {
+      toast.error("Select a folder first");
+      return;
+    }
+    try {
+      await Promise.all(selectedIds.map((id) => API.put(`/notes/${id}`, { folder: bulkTargetFolderId })));
+      toast.success("Notes moved to folder");
+      clearSelection();
+    } catch {
+      toast.error("Move failed");
+    }
+  };
+
+  const deleteSelectedToTrash = async () => {
+    if (!selectedIds.length) return;
+    if (!window.confirm(`Move ${selectedIds.length} notes to trash?`)) return;
+    try {
+      await Promise.all(selectedIds.map((id) => API.patch(`/notes/${id}/trash`)));
+      setNotes((prev) => prev.filter((n) => !selectedIds.includes(n._id)));
+      toast.success("Selected notes moved to trash");
+      clearSelection();
+    } catch {
+      toast.error("Bulk delete failed");
+    }
   };
 
   const filteredNotes = notes.filter(n => 
@@ -186,6 +324,10 @@ export default function DashboardPage() {
               <Plus size={15} /> 
               <span>New Note</span>
             </button>
+            <button className="btn-create" style={{ background: "#334155" }} onClick={handleImportClick}>
+              <span>Import</span>
+            </button>
+            <input ref={importInputRef} type="file" accept=".json,application/json" style={{ display: "none" }} onChange={handleImportFile} />
           </div>
         </header>
 
@@ -207,6 +349,49 @@ export default function DashboardPage() {
             {!loading && <span style={{fontSize: '12px', fontWeight: 700, background: '#F1F5F9', color: '#64748B', padding: '3px 10px', borderRadius: '100px'}}>{filteredNotes.length} Items</span>}
           </div>
 
+          {bulkMode && selectedIds.length > 0 && (
+            <div style={{ marginBottom: 16, padding: 14, borderRadius: 16, border: "1px solid #E2E8F0", background: "#FFF" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ fontWeight: 800, color: "#0F172A" }}>{selectedIds.length} selected</div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                  {shareToCommunityMode ? (
+                    <button className="btn-create" onClick={makeSelectedPublic} disabled={loading}>
+                      <span>Make Public</span>
+                    </button>
+                  ) : null}
+
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <select
+                      value={bulkTargetFolderId || ""}
+                      onChange={(e) => setBulkTargetFolderId(e.target.value || null)}
+                      disabled={foldersLoading}
+                      style={{ background: "#FFF", border: "1px solid #E2E8F0", borderRadius: 10, padding: "10px 12px", fontWeight: 700, color: "#0F172A" }}
+                      aria-label="Select target folder"
+                    >
+                      {foldersLoading ? <option value="">Loading...</option> : null}
+                      {!foldersLoading && folders.map((f) => <option key={f._id} value={f._id}>{f.name}</option>)}
+                    </select>
+                  </div>
+
+                  <button className="btn-create" style={{ background: "#334155" }} onClick={moveSelectedToFolder} disabled={foldersLoading}>
+                    <span>Move</span>
+                  </button>
+
+                  <button className="btn-create" style={{ background: "#EF4444" }} onClick={deleteSelectedToTrash}>
+                    <span>Delete</span>
+                  </button>
+
+                  <button
+                    onClick={clearSelection}
+                    style={{ background: "#FFF", color: "#64748B", border: "1px solid #E2E8F0", borderRadius: 10, padding: "10px 14px", fontWeight: 700, cursor: "pointer" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}><div className="spinner" /></div>
           ) : filteredNotes.length === 0 ? (
@@ -219,20 +404,38 @@ export default function DashboardPage() {
             <div className="notes-grid">
               {filteredNotes.map((note, i) => (
                 <div key={note._id} className="note-card" style={{ animationDelay: `${i * 0.03}s` }} onClick={() => setSelectedNote(note)}>
-                  <button className="btn-trash" onClick={(e) => deleteNote(e, note._id)} title="Delete Note">
-                    <Trash2 size={15} />
-                  </button>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <h3 className="note-title" style={{ paddingRight: 24 }}>{note.title || "Untitled Document"}</h3>
-                    {note.isStarred && <Star size={15} fill="#E55B2D" color="#E55B2D" style={{ flexShrink: 0 }} />}
+                  <div className="note-card-top">
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 10, minWidth: 0 }}>
+                      {bulkMode && (
+                        <input
+                          type="checkbox"
+                          className="bulk-check"
+                          checked={selectedIds.includes(note._id)}
+                          onChange={() => toggleSelected(note._id)}
+                          onClick={(e) => e.stopPropagation()}
+                          aria-label="Select note"
+                        />
+                      )}
+                      <h3 className="note-title" style={{ flex: 1, minWidth: 0 }}>{note.title || "Untitled Document"}</h3>
+                    </div>
+                    <div className="note-card-actions">
+                      <button className="ai-btn-mini" onClick={(e) => toggleStar(e, note._id)} title="Toggle star" aria-label="Toggle star">
+                        <Star size={15} fill={note.isStarred ? "#E55B2D" : "none"} color={note.isStarred ? "#E55B2D" : "#64748B"} />
+                      </button>
+                      {!shareToCommunityMode && (
+                        <button className="ai-btn-mini" onClick={(e) => togglePrivacy(e, note)} title="Toggle privacy" aria-label="Toggle privacy">
+                          {note.isPublic ? "Public" : "Private"}
+                        </button>
+                      )}
+                      <button className="btn-trash" onClick={(e) => deleteNote(e, note._id)} title="Move to trash" aria-label="Move to trash">
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </div>
                   <p className="note-excerpt">{note.plainText || "No content available..."}</p>
                   <div className="note-footer">
                     <span className="note-date">{new Date(note.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                    <div className="ai-actions-mini">
-                      <button className="ai-btn-mini" title="AI Summary"><Sparkles size={13} /></button>
-                      <button className="ai-btn-mini" title="AI Flashcards"><Brain size={13} /></button>
-                    </div>
+                    <div className="ai-actions-mini" aria-hidden="true" />
                   </div>
                 </div>
               ))}

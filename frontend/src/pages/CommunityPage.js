@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Users, Download, Search, Eye, Heart, Clock, TrendingUp, Globe, Menu, FileText } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Users, Download, Search, Heart, Clock, TrendingUp, Globe, Menu, FileText } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
+import { useNavigate } from "react-router-dom";
 
 const TABS = [
   { key: "recent",    label: "Recent",    icon: Clock },
@@ -127,41 +127,95 @@ const STYLES = `
 export default function CommunityPage() {
   const navigate = useNavigate();
   const [notes, setNotes] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQ, setSearchQ] = useState("");
   const [activeTab, setActiveTab] = useState("recent");
   const [downloading, setDownloading] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    API.get("/community/notes")
-      .then(({ data }) => setNotes(data || []))
-      .catch(() => toast.error("Community notes load nahi ho sake"))
+    const sort = activeTab === "all" ? "popular" : activeTab;
+    API.get(`/community/feed?sort=${sort}`)
+      .then(({ data }) => setNotes(data?.notes || []))
+      .catch(() => toast.error("Failed to load community notes"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeTab, refreshKey]);
 
-  useEffect(() => {
+  const filtered = useMemo(() => {
     let result = [...notes];
     if (searchQ.trim()) {
       const q = searchQ.toLowerCase();
-      result = result.filter(n => (n.title || "").toLowerCase().includes(q) || (n.author?.name || "").toLowerCase().includes(q));
+      result = result.filter(
+        (n) =>
+          (n.title || "").toLowerCase().includes(q) ||
+          (n.user?.name || "").toLowerCase().includes(q) ||
+          (n.subject || "").toLowerCase().includes(q)
+      );
     }
-    if (activeTab === "popular") result.sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0));
-    else if (activeTab === "recent") result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    setFiltered(result);
-  }, [notes, searchQ, activeTab]);
+    return result;
+  }, [notes, searchQ]);
+
+  const subjects = useMemo(() => {
+    const map = new Map();
+    for (const n of filtered) {
+      const key = n.subject || "General";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(n);
+    }
+    const keys = Array.from(map.keys());
+    keys.sort((a, b) => {
+      const aSum = (map.get(a) || []).reduce((acc, x) => acc + (x.likesCount || 0), 0);
+      const bSum = (map.get(b) || []).reduce((acc, x) => acc + (x.likesCount || 0), 0);
+      return bSum - aSum;
+    });
+    return keys.map((k) => ({ subject: k, items: map.get(k) || [] }));
+  }, [filtered]);
 
   const downloadNote = async (noteId) => {
     setDownloading(noteId);
     try {
-      await API.post(`/community/notes/${noteId}/download`);
-      setNotes(prev => prev.map(n => n._id === noteId ? { ...n, downloadCount: (n.downloadCount || 0) + 1 } : n));
-      toast.success("Note saved to your dashboard! ✅");
-      navigate("/dashboard");
+      const { data } = await API.post(`/community/${noteId}/download`);
+      setNotes((prev) =>
+        prev.map((n) => (n._id === noteId ? { ...n, downloads: (n.downloads || 0) + 1 } : n))
+      );
+      if (data?.fileUrl) window.open(data.fileUrl, "_blank");
+      toast.success("Download started");
     } catch (err) {
       toast.error(err.response?.data?.message || "Download failed");
     } finally { setDownloading(null); }
+  };
+
+  const toggleLike = async (noteId) => {
+    try {
+      const { data } = await API.post(`/community/${noteId}/like`);
+      setNotes((prev) => prev.map((n) => (n._id === noteId ? { ...n, liked: data.liked, likesCount: data.likesCount } : n)));
+      setRefreshKey((k) => k + 1);
+    } catch {
+      toast.error("Failed to like note");
+    }
+  };
+
+  const toggleSave = async (noteId) => {
+    try {
+      const { data } = await API.post(`/community/${noteId}/save`);
+      setNotes((prev) => prev.map((n) => (n._id === noteId ? { ...n, saved: data.saved, savesCount: data.savesCount } : n)));
+      setRefreshKey((k) => k + 1);
+      toast.success(data.saved ? "Saved to bookmarks" : "Removed from bookmarks");
+    } catch {
+      toast.error("Save failed");
+    }
+  };
+
+  const addComment = async (noteId) => {
+    const text = window.prompt("Add your comment");
+    if (!text?.trim()) return;
+    try {
+      await API.post(`/community/${noteId}/comment`, { text });
+      toast.success("Comment posted");
+    } catch {
+      toast.error("Comment failed");
+    }
   };
 
   return (
@@ -207,6 +261,15 @@ export default function CommunityPage() {
                 onChange={e => setSearchQ(e.target.value)} 
               />
             </div>
+
+            <button
+              className="btn-create"
+              onClick={() => navigate("/notes?shareToCommunity=1")}
+              style={{ background: "#0F172A", color: "#FFF", borderRadius: 10, padding: "10px 14px", fontWeight: 800, border: "none", cursor: "pointer" }}
+              disabled={loading}
+            >
+              Add Your Notes
+            </button>
           </div>
 
           {/* Main Content Area */}
@@ -225,40 +288,71 @@ export default function CommunityPage() {
               </div>
             </div>
           ) : (
-            <div className="cm-grid">
-              {filtered.map((note, i) => (
-                <div key={note._id} className="cm-card" style={{ animationDelay: `${i * 0.03}s` }}>
-                  
-                  <div className="cm-card-header">
-                    <div className="cm-author-avatar">
-                      {(note.author?.name || "U")[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="cm-author-name">{note.author?.name || "Anonymous Scholar"}</div>
-                      <div className="cm-date">Shared on {formatDate(note.createdAt)}</div>
-                    </div>
+            <div style={{ display: "grid", gap: 30 }}>
+              {subjects.map(({ subject, items }) => (
+                <section key={subject}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, color: "#0F172A" }}>{subject}</h3>
+                    <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 999, background: "#F1F5F9", color: "#64748B", border: "1px solid #E2E8F0" }}>
+                      {items.length} notes
+                    </span>
                   </div>
-                  
-                  <div className="cm-card-title">{note.title || "Untitled Intelligence"}</div>
-                  <div className="cm-card-preview">{note.plainText || "No preview text available for this document..."}</div>
-                  
-                  <div className="cm-card-footer">
-                    <div className="cm-stats">
-                      <span className="cm-stat-item" title="Downloads"><Download size={14} /> {note.downloadCount || 0}</span>
-                      <span className="cm-stat-item" title="Views"><Eye size={14} /> {note.viewCount || 0}</span>
-                    </div>
-                    
-                    <button className="cm-dl-btn" onClick={() => downloadNote(note._id)} disabled={downloading === note._id}>
-                      {downloading === note._id ? (
-                        <div style={{ width: 14, height: 14, border: "2px solid #E2E8F0", borderTopColor: "#E55B2D", borderRadius: "50%", animation: "spin .7s linear infinite" }} />
-                      ) : (
-                        <Download size={14} />
-                      )}
-                      {downloading === note._id ? "Saving..." : "Save"}
-                    </button>
-                  </div>
+                  <div className="cm-grid">
+                    {items.map((note, i) => (
+                      <div key={note._id} className="cm-card" style={{ animationDelay: `${i * 0.03}s` }}>
+                        <div className="cm-card-header">
+                          <div className="cm-author-avatar">
+                            {(note.user?.name || "U")[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="cm-author-name">{note.user?.name || "Anonymous Scholar"}</div>
+                            <div className="cm-date">Shared on {formatDate(note.createdAt)}</div>
+                          </div>
+                        </div>
 
-                </div>
+                        <div className="cm-card-title">{note.title || "Untitled"}</div>
+                        <div className="cm-card-preview">{note.plainText || note.content || "No preview text available..."}</div>
+                        <div style={{ fontSize: 12, color: "#64748B", marginBottom: 12 }}>
+                          {note.likesCount || 0} likes • {note.commentsCount || 0} comments
+                        </div>
+
+                        <div className="cm-card-footer">
+                          <div className="cm-stats">
+                            <button
+                              className="cm-stat-item"
+                              title="Likes"
+                              onClick={() => toggleLike(note._id)}
+                              style={{ border: "none", background: "none", cursor: "pointer", padding: 0 }}
+                            >
+                              <Heart size={14} fill={note.liked ? "#E55B2D" : "none"} color={note.liked ? "#E55B2D" : "#64748B"} />{" "}
+                              {note.likesCount || 0}
+                            </button>
+                            <span className="cm-stat-item" title="Downloads">
+                              <Download size={14} /> {note.downloads || 0}
+                            </span>
+                          </div>
+
+                          <div style={{ display: "flex", gap: 8 }}>
+                            <button className="cm-dl-btn" onClick={() => addComment(note._id)}>
+                              Comment
+                            </button>
+                            <button className="cm-dl-btn" onClick={() => toggleSave(note._id)}>
+                              {note.saved ? "Saved" : "Save"}
+                            </button>
+                            <button className="cm-dl-btn" onClick={() => downloadNote(note._id)} disabled={downloading === note._id}>
+                              {downloading === note._id ? (
+                                <div style={{ width: 14, height: 14, border: "2px solid #E2E8F0", borderTopColor: "#E55B2D", borderRadius: "50%", animation: "spin .7s linear infinite" }} />
+                              ) : (
+                                <Download size={14} />
+                              )}
+                              {downloading === note._id ? "Downloading..." : "Download"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           )}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Plus, Search, FileText, Star, Activity, 
+  Plus, Search, FileText, Star, Globe, 
   ChevronRight, Brain, Folder, Zap, Clock,
   MoreVertical, Command, Menu
 } from 'lucide-react';
@@ -140,11 +140,21 @@ export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [stats, setStats] = useState({ totalNotes: 0, starredNotes: 0, flashcardsDue: 0, totalFolders: 0 });
+  const [stats, setStats] = useState({ totalNotes: 0, publicNotes: 0, starredNotes: 0, flashcardsDue: 0, totalFolders: 0, streakCount: 0 });
   const [recent, setRecent] = useState([]);
 
   useEffect(() => {
-    API.get('/dashboard').then(res => setStats(res.data)).catch(() => {});
+    API.get('/dashboard').then(res => {
+      const data = res.data || {};
+      setStats({
+        totalNotes: data.totalNotes ?? data.indicators?.total ?? 0,
+        publicNotes: data.publicNotes ?? data.indicators?.public ?? 0,
+        starredNotes: data.starredNotes ?? data.indicators?.starred ?? 0,
+        flashcardsDue: data.flashcardsDue ?? data.indicators?.revisionDue ?? 0,
+        totalFolders: data.totalFolders ?? data.indicators?.folders ?? 0,
+        streakCount: data.goals?.currentStreak ?? 0,
+      });
+    }).catch(() => {});
     API.get('/notes').then(res => setRecent(res.data.slice(0, 5))).catch(() => {});
   }, []);
 
@@ -226,9 +236,9 @@ export default function HomePage() {
         <div className="stats-mini-row">
           {[
             { lbl: "Total Notes", val: stats.totalNotes, icn: FileText },
+            { lbl: "Public Notes", val: stats.publicNotes, icn: Globe },
             { lbl: "Starred",     val: stats.starredNotes, icn: Star },
-            { lbl: "Active Days", val: "12",        icn: Activity },
-            { lbl: "Last Sync",   val: "Just now",  icn: Clock }
+            { lbl: "Daily Streak", val: stats.streakCount, icn: Zap }
           ].map((item, i) => (
             <div key={i} className="clean-card" style={{ padding: '18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
               <div style={{ padding: '9px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #F1F5F9', flexShrink: 0 }}>

@@ -116,10 +116,18 @@ export default function TrashPage() {
   const navigate = useNavigate();
   const [notes, setNotes]             = useState([]);
   const [loading, setLoading]         = useState(true);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [confirmId, setConfirmId]     = useState(null);
   const [confirmAll, setConfirmAll]   = useState(false);
+  const [confirmSelectedForever, setConfirmSelectedForever] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSelected = (id) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const clearSelection = () => setSelectedIds([]);
 
   const loadTrash = async () => {
     setLoading(true);
@@ -159,9 +167,26 @@ export default function TrashPage() {
       await Promise.all(notes.map(n => API.delete(`/notes/${n._id}`)));
       setNotes([]);
       setConfirmAll(false);
+      clearSelection();
       toast.success("Trash emptied!");
     } catch { toast.error("Action failed"); }
     finally { setActionLoading(null); }
+  };
+
+  const deleteSelectedForever = async () => {
+    if (!selectedIds.length) return;
+    setActionLoading("selected_forever");
+    try {
+      await Promise.all(selectedIds.map((id) => API.delete(`/notes/${id}`)));
+      setNotes((prev) => prev.filter((n) => !selectedIds.includes(n._id)));
+      setConfirmSelectedForever(false);
+      clearSelection();
+      toast.success("Selected notes permanently deleted");
+    } catch {
+      toast.error("Delete failed");
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   return (
@@ -180,6 +205,29 @@ export default function TrashPage() {
               <button className="pg-btn" onClick={() => setConfirmId(null)} style={{ background: "#F1F5F9", color: "#64748B" }}>Cancel</button>
               <button className="pg-btn pg-delete" onClick={() => deleteNote(confirmId)} disabled={actionLoading === confirmId + "_delete"}>
                 {actionLoading === confirmId + "_delete" ? "Deleting..." : "Delete Forever"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmSelectedForever && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3 className="modal-title">Delete selected permanently?</h3>
+            <p className="modal-desc">
+              {selectedIds.length} items will be permanently erased. This action cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+              <button className="pg-btn" onClick={() => setConfirmSelectedForever(false)} style={{ background: "#F1F5F9", color: "#64748B" }}>
+                Cancel
+              </button>
+              <button
+                className="pg-btn pg-delete"
+                onClick={deleteSelectedForever}
+                disabled={actionLoading === "selected_forever"}
+              >
+                {actionLoading === "selected_forever" ? "Deleting..." : "Delete Selected"}
               </button>
             </div>
           </div>
@@ -217,6 +265,11 @@ export default function TrashPage() {
             <button onClick={loadTrash} style={{ background: "none", border: "none", color: "#64748B", cursor: "pointer", display: "flex", padding: "8px", borderRadius: "8px", transition: "0.2s" }} onMouseOver={e=>e.currentTarget.style.background="#F1F5F9"} onMouseOut={e=>e.currentTarget.style.background="none"}>
               <RefreshCw size={16} className={loading ? "spin" : ""} />
             </button>
+            {selectedIds.length > 0 && (
+              <button className="btn-empty" onClick={() => setConfirmSelectedForever(true)} style={{ borderColor: "#FEE2E2", color: "#EF4444" }}>
+                <Trash2 size={14} /> <span>Delete Selected</span>
+              </button>
+            )}
             {notes.length > 0 && (
               <button className="btn-empty" onClick={() => setConfirmAll(true)}>
                 <Trash2 size={14} /> <span>Empty Trash</span>
@@ -247,7 +300,16 @@ export default function TrashPage() {
             <div className="pg-grid">
               {notes.map((note, i) => (
                 <div key={note._id} className="pg-card" style={{ animationDelay: `${i * 0.03}s` }}>
-                  <h3 className="pg-card-title">{note.title || "Untitled Intelligence"}</h3>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(note._id)}
+                      onChange={() => toggleSelected(note._id)}
+                      aria-label="Select note"
+                      style={{ width: 18, height: 18, accentColor: "#E55B2D", marginTop: 4 }}
+                    />
+                    <h3 className="pg-card-title" style={{ marginBottom: 0 }}>{note.title || "Untitled Intelligence"}</h3>
+                  </div>
                   <p className="pg-card-preview">{note.plainText || "No preview content available..."}</p>
                   
                   <div className="pg-card-date">

@@ -138,6 +138,8 @@ const STYLES = `
 export default function FlashcardReviewPage() {
   const navigate = useNavigate();
   const [flashcards, setFlashcards] = useState([]);
+  const [flashcardNotes, setFlashcardNotes] = useState([]);
+  const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [loading, setLoading]       = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [flipped, setFlipped]       = useState(false);
@@ -147,17 +149,48 @@ export default function FlashcardReviewPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    API.get("/ai/flashcards-due")
-      .then(({ data }) => {
-        const due = (data || []).filter(fc => {
-          if (!fc.nextReviewDate) return true;
-          return new Date(fc.nextReviewDate) <= new Date();
-        });
-        setFlashcards(due);
-      })
-      .catch(() => toast.error("Could not load flashcards"))
-      .finally(() => setLoading(false));
+    const loadNotes = async () => {
+      setLoading(true);
+      try {
+        const { data } = await API.get("/ai/flashcard-notes");
+        const notes = data || [];
+        setFlashcardNotes(notes);
+
+        // Prefer note with max dueCount; fallback to first note
+        const first = notes.find((n) => (n.dueCount || 0) > 0) || notes[0];
+        if (first) setSelectedNoteId(first.noteId);
+      } catch {
+        toast.error("Could not load flashcard notes");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNotes();
   }, []);
+
+  useEffect(() => {
+    const loadFlashcardsForNote = async () => {
+      if (!selectedNoteId) return;
+      setLoading(true);
+      try {
+        const { data } = await API.get(`/ai/flashcards/${selectedNoteId}`);
+        setFlashcards(data || []);
+        // Reset session state on note change
+        setCurrentIdx(0);
+        setFlipped(false);
+        setDone(false);
+        setReviewed(new Set());
+        setScore({ correct: 0, wrong: 0 });
+      } catch {
+        toast.error("Could not load flashcards for this note");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFlashcardsForNote();
+  }, [selectedNoteId]);
 
   const current = flashcards[currentIdx];
   const progress = flashcards.length ? (reviewed.size / flashcards.length) * 100 : 0;
@@ -206,7 +239,9 @@ export default function FlashcardReviewPage() {
           <div style={{ width: 28, height: 28, borderRadius: "8px", background: "#F1F5F9", border: "1px solid #E2E8F0", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Brain size={14} color="#64748B" />
           </div>
-          <span style={{ fontSize: 16, fontWeight: 700, color: "#0F172A", letterSpacing: "-0.5px" }}>Active Review</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: "#0F172A", letterSpacing: "-0.5px" }}>
+            Active Review
+          </span>
           {!done && flashcards.length > 0 && (
             <span style={{ marginLeft: "auto", fontSize: 13, color: "#64748B", fontWeight: 600, background: "#F8FAFC", padding: "4px 10px", borderRadius: "100px", border: "1px solid #E2E8F0" }}>
               Card {currentIdx + 1} of {flashcards.length}
@@ -215,6 +250,55 @@ export default function FlashcardReviewPage() {
         </div>
 
         <div className="pg-content">
+          {/* Notes list (notes with flashcards) */}
+          <div style={{ width: "100%", maxWidth: 800, marginBottom: 28 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+              <h3 style={{ fontSize: 15, fontWeight: 800, color: "#0F172A", margin: 0 }}>Flashcard Notes</h3>
+              <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 999, background: "#F1F5F9", color: "#64748B", border: "1px solid #E2E8F0" }}>
+                {flashcardNotes.length} notes
+              </span>
+            </div>
+
+            {flashcardNotes.length === 0 ? (
+              <div style={{ padding: 18, borderRadius: 16, border: "1px solid #E2E8F0", background: "#FFF", color: "#64748B", fontWeight: 600 }}>
+                No flashcards found yet. Create flashcards from a note first.
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
+                {flashcardNotes.map((n, i) => (
+                  <button
+                    key={n.noteId}
+                    onClick={() => setSelectedNoteId(n.noteId)}
+                    style={{
+                      textAlign: "left",
+                      padding: 14,
+                      borderRadius: 16,
+                      border: `1px solid ${selectedNoteId === n.noteId ? "#FFE4DB" : "#E2E8F0"}`,
+                      background: selectedNoteId === n.noteId ? "#FFF5F2" : "#FFF",
+                      cursor: "pointer",
+                      transition: "0.2s",
+                      boxShadow: selectedNoteId === n.noteId ? "0 10px 25px -10px rgba(229,91,45,0.25)" : "none",
+                      animation: "fadeUp 0.2s both",
+                      animationDelay: `${i * 0.03}s`,
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+                      <div style={{ fontWeight: 900, color: "#0F172A", fontSize: 14, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                        {n.title || "Untitled Note"}
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 800, padding: "3px 10px", borderRadius: 999, background: "#F8FAFC", color: "#64748B", border: "1px solid #E2E8F0" }}>
+                        Due: {n.dueCount || 0}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#64748B", marginTop: 8 }}>
+                      Subject: {n.subject || "General"}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {loading ? (
             <div style={{ padding: "80px 0" }}><div className="fc-spinner" /></div>
           ) : flashcards.length === 0 ? (

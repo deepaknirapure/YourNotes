@@ -12,17 +12,17 @@ const LoginPage           = lazy(() => import('./pages/LoginPage'));
 const RegisterPage        = lazy(() => import('./pages/RegisterPage'));
 const ForgotPasswordPage  = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'));
-const DashboardPage       = lazy(() => import('./pages/DashboardPage'));
+const NotesPage           = lazy(() => import('./pages/DashboardPage'));
 const FlashcardReviewPage = lazy(() => import('./pages/FlashcardReviewPage'));
 const SharedNotePage      = lazy(() => import('./pages/SharedNotePage'));
 const ProfilePage         = lazy(() => import('./pages/ProfilePage'));
 const CommunityPage       = lazy(() => import('./pages/CommunityPage'));
 const AskAIPage           = lazy(() => import('./pages/AskAIPage'));
-const HomePage    = lazy(() => import('./pages/Homepage'));
-const TrashPage   = lazy(() => import('./pages/Trashpage'));
-const StarredPage = lazy(() => import('./pages/Starredpage'));
-const FoldersPage = lazy(() => import('./pages/Folderspage'));
-const TagsPage    = lazy(() => import('./pages/Tagspage'));
+const HomePage    = lazy(() => import('./pages/HomePage'));
+const TrashPage   = lazy(() => import('./pages/TrashPage'));
+const StarredPage = lazy(() => import('./pages/StarredPage'));
+const FoldersPage = lazy(() => import('./pages/FoldersPage'));
+const TagsPage    = lazy(() => import('./pages/TagsPage'));
 // 404 page - jab koi route na mile
 function NotFoundPage() {
   return (
@@ -100,7 +100,8 @@ function App() {
 
             {/* Protected routes - sirf logged-in users ke liye */}
             <Route path="/home"            element={<PrivateRoute><HomePage /></PrivateRoute>} />
-            <Route path="/dashboard"       element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+            <Route path="/dashboard"       element={<PrivateRoute><NotesPage /></PrivateRoute>} />
+            <Route path="/notes"           element={<PrivateRoute><NotesPage /></PrivateRoute>} />
             <Route path="/starred"         element={<PrivateRoute><StarredPage /></PrivateRoute>} />
             <Route path="/folders"         element={<PrivateRoute><FoldersPage /></PrivateRoute>} />
             <Route path="/tags"            element={<PrivateRoute><TagsPage /></PrivateRoute>} />

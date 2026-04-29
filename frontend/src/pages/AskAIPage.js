@@ -77,7 +77,15 @@ const STYLES = `
   .ai-copy-btn:hover { background: #F1F5F9; color: #0F172A; }
   
   /* Bottom Input Area */
-  .ai-bottom { background: #FFF; border-top: 1px solid #E2E8F0; padding: 24px; flex-shrink: 0; }
+  .ai-bottom { 
+    background: #FFF; 
+    border-top: 1px solid #E2E8F0; 
+    padding: 24px; 
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+  }
   .ai-bottom-inner { max-width: 900px; margin: 0 auto; width: 100%; position: relative; }
   
   .ai-prompt-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -158,6 +166,7 @@ const PROMPTS = [
 ];
 
 export default function AskAIPage() {
+  const HISTORY_KEY = "yournotes_ai_history_v1";
   const [messages, setMessages] = useState([
     { role: "assistant", content: "Haan bolo! Main YourNotes AI assistant hoon. Apne notes, subjects, ya koi bhi study-related sawaal poochho. Kya help chahiye? 🎓" }
   ]);
@@ -171,6 +180,27 @@ export default function AskAIPage() {
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null); 
+
+  useEffect(() => {
+    // Chat history load (localStorage)
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) setMessages(parsed);
+      }
+    } catch (_) {}
+
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Chat history persist
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(messages));
+    } catch (_) {}
+  }, [messages]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -269,7 +299,10 @@ export default function AskAIPage() {
   };
 
   const clearChat = () => {
-    setMessages([{ role: "assistant", content: "Chat clear ho gaya! Naya sawaal poochho. 🎓" }]);
+    try {
+      localStorage.removeItem(HISTORY_KEY);
+    } catch (_) {}
+    setMessages([{ role: "assistant", content: "Chat cleared! Ask a new question. 🎓" }]);
     setSelectedFile(null);
     setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";

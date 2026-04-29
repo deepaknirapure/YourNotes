@@ -312,7 +312,7 @@ export default function FoldersPage() {
                 <div
                   key={folder._id}
                   className="fp-card"
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate(`/notes?folder=${folder._id}`)}
                   style={{ animationDelay: `${i * 0.03}s` }}
                 >
                   {/* 3-dot menu button */}
