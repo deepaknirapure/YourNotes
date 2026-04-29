@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Plus, Search, FileText, Star, Globe, 
   ChevronRight, Brain, Folder, Zap,
-  MoreVertical, Command, Menu
+  MoreVertical, Command, Menu, Activity
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
@@ -14,125 +14,104 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
   .saas-root { 
-    display: flex; height: 100dvh; background: #FAFAFA; 
-    font-family: 'Plus Jakarta Sans', sans-serif; color: #0F172A; overflow: hidden;
+    display: flex; height: 100dvh; background: #FFFFFF; 
+    font-family: 'Plus Jakarta Sans', sans-serif; color: #000; overflow: hidden;
   }
 
   .saas-main { 
     flex: 1; padding: 40px 5vw; overflow-y: auto; scrollbar-width: none; min-width: 0;
   }
 
+  /* Header Redesign */
   .home-topbar {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 0;
+    margin-bottom: 32px;
   }
-
   .home-menu-btn {
-    display: none; /* shown via CSS on mobile */ background: #F8FAFC; border: 1px solid #E2E8F0;
-    border-radius: 10px; cursor: pointer; padding: 8px;
-    color: #64748B; align-items: center; justify-content: center;
-    transition: 0.15s;
+    display: none; background: #F1F5F9; border: none; border-radius: 12px; 
+    cursor: pointer; padding: 10px; color: #000;
   }
-  .home-menu-btn:hover { background: #FFF5F2; color: #E55B2D; border-color: #FFE4DB; }
-
-  .text-muted { color: #64748B; }
-  .text-xs-bold { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
-  
-  .clean-card {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 16px;
-    padding: 28px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-    transition: all 0.2s ease;
-  }
-  .clean-card:hover {
-    border-color: #CBD5E1;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
-  }
-
-  .saas-grid { 
-    display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; margin-top: 32px; 
-  }
-  .hero-span { grid-column: span 8; display: flex; flex-direction: column; justify-content: center; }
-  .stat-span { grid-column: span 4; display: flex; flex-direction: column; gap: 20px; }
-
-  .hero-title {
-    font-size: clamp(26px, 3.5vw, 44px);
-    font-weight: 800; letter-spacing: -1.5px; line-height: 1.1;
-    color: #0F172A; margin: 14px 0 20px 0;
-  }
-
-  .btn-primary {
-    background: #0F172A; color: #FFF; border: none; padding: 13px 24px;
-    border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; 
-    transition: 0.2s; display: flex; align-items: center; gap: 10px; width: fit-content;
-    font-family: inherit;
-  }
-  .btn-primary:hover { background: #E55B2D; }
-  .btn-secondary {
-    background: #FFF; color: #0F172A; border: 1.5px solid #E2E8F0; padding: 13px 22px;
-    border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer;
-    transition: 0.2s; font-family: inherit;
-  }
-  .btn-secondary:hover { border-color: #CBD5E1; background: #F8FAFC; }
 
   .search-wrapper {
-    background: #FFF; border: 1.5px solid #E2E8F0; border-radius: 12px;
-    padding: 10px 16px; display: flex; align-items: center; gap: 12px;
-    transition: 0.2s; width: 280px;
+    background: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 14px;
+    padding: 10px 18px; display: flex; align-items: center; gap: 12px;
+    width: 320px; transition: 0.3s;
   }
-  .search-wrapper:focus-within { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229,91,45,0.1); }
-  .search-wrapper input { border: none; outline: none; background: transparent; width: 100%; font-size: 14px; font-weight: 500; color: #0F172A; font-family: inherit; }
+  .search-wrapper:focus-within { border-color: #000; background: #FFF; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+  .search-wrapper input { border: none; outline: none; background: transparent; width: 100%; font-size: 14px; font-weight: 700; color: #000; }
 
+  /* Hero Section - The "Black & Neon" Look */
+  .hero-card {
+    grid-column: span 8; background: #000; border-radius: 28px; padding: 40px;
+    color: #FFF; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .hero-card::after {
+    content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px;
+    background: #ccff00; filter: blur(80px); opacity: 0.2;
+  }
+
+  .hero-title {
+    font-size: clamp(28px, 4vw, 42px); font-weight: 900; line-height: 1.1;
+    letter-spacing: -1.5px; margin: 20px 0; color: #FFF;
+  }
+  .hero-title span { color: #ccff00; }
+
+  /* Buttons */
+  .btn-neon {
+    background: #ccff00; color: #000; border: none; padding: 14px 28px;
+    border-radius: 14px; font-weight: 900; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; transition: 0.3s;
+  }
+  .btn-neon:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(204,255,0,0.3); }
+
+  .btn-outline {
+    background: transparent; color: #FFF; border: 2px solid #333; padding: 12px 26px;
+    border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s;
+  }
+  .btn-outline:hover { border-color: #ccff00; color: #ccff00; }
+
+  /* Grid Layout */
+  .saas-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+  .stat-span { grid-column: span 4; display: flex; flex-direction: column; gap: 24px; }
+
+  .indicator-card {
+    background: #FFF; border: 1px solid #F1F5F9; border-radius: 24px; padding: 28px;
+    display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s;
+  }
+  .indicator-card:hover { border-color: #000; transform: translateY(-5px); }
+
+  .mini-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 32px; }
+  
+  .mini-card {
+    background: #F8FAFC; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px;
+    border: 1px solid transparent; transition: 0.3s;
+  }
+  .mini-card:hover { background: #FFF; border-color: #000; }
+  .mini-icon { width: 40px; height: 40px; border-radius: 12px; background: #000; display: flex; align-items: center; justify-content: center; color: #ccff00; }
+
+  /* Recent List */
+  .list-container { background: #FFF; border: 1px solid #F1F5F9; border-radius: 24px; overflow: hidden; margin-top: 16px; }
   .list-item {
-    padding: 18px 20px; border-bottom: 1px solid #F1F5F9;
-    display: flex; align-items: center; justify-content: space-between;
-    transition: 0.2s; cursor: pointer; background: #FFF;
+    padding: 20px 24px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: 0.2s;
   }
   .list-item:hover { background: #F8FAFC; }
-  .list-item:last-child { border-bottom: none; }
+  .neon-dot { width: 10px; height: 10px; border-radius: 50%; background: #ccff00; box-shadow: 0 0 10px #ccff00; }
 
-  .badge-ai {
-    background: #FFF5F2; color: #E55B2D; border: 1px solid #FFE4DB;
-    padding: 5px 12px; border-radius: 8px; display: inline-flex; 
-    align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
-  }
-
-  .stats-mini-row {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 20px;
+  @media(max-width: 1024px) {
+    .hero-card { grid-column: span 12; }
+    .stat-span { grid-column: span 12; flex-direction: row; }
+    .stat-span > * { flex: 1; }
+    .mini-stat-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media(max-width: 768px) {
-    .saas-main { padding: 20px 16px !important; }
-    .home-menu-btn { display: flex !important; }
-    .search-wrapper { display: none !important; }
-    .home-title-text h1 { font-size: 20px !important; }
-    .saas-grid {
-      grid-template-columns: 1fr !important;
-      gap: 14px !important;
-      margin-top: 20px !important;
-    }
-    .hero-span { grid-column: span 1 !important; }
-    .stat-span {
-      grid-column: span 1 !important;
-      flex-direction: row !important;
-      gap: 12px !important;
-    }
-    .stat-span > * { flex: 1 !important; }
-    .clean-card { padding: 18px !important; border-radius: 12px !important; }
-    .hero-title { font-size: 24px !important; letter-spacing: -0.8px !important; margin: 10px 0 16px !important; }
-    .hero-buttons { flex-direction: column !important; gap: 10px !important; }
-    .btn-primary, .btn-secondary { width: 100% !important; justify-content: center; }
-    .stats-mini-row {
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 12px !important;
-    }
-    .list-item { padding: 14px 16px !important; }
-  }
-
-  @media(max-width: 380px) {
-    .stat-span { flex-direction: column !important; }
+    .saas-main { padding: 20px 16px; }
+    .home-menu-btn { display: flex; }
+    .stat-span { flex-direction: column; }
+    .search-wrapper { display: none; }
+    .mini-stat-grid { grid-template-columns: 1fr; }
   }
 `;
 
@@ -147,12 +126,12 @@ export default function HomePage() {
     API.get('/dashboard').then(res => {
       const data = res.data || {};
       setStats({
-        totalNotes: data.totalNotes ?? data.indicators?.total ?? 0,
-        publicNotes: data.publicNotes ?? data.indicators?.public ?? 0,
-        starredNotes: data.starredNotes ?? data.indicators?.starred ?? 0,
-        flashcardsDue: data.flashcardsDue ?? data.indicators?.revisionDue ?? 0,
-        totalFolders: data.totalFolders ?? data.indicators?.folders ?? 0,
-        streakCount: data.goals?.currentStreak ?? 0,
+        totalNotes: data.totalNotes || 0,
+        publicNotes: data.publicNotes || 0,
+        starredNotes: data.starredNotes || 0,
+        flashcardsDue: data.flashcardsDue || 0,
+        totalFolders: data.totalFolders || 0,
+        streakCount: data.goals?.currentStreak || 0,
       });
     }).catch(() => {});
     API.get('/notes').then(res => setRecent(res.data.slice(0, 5))).catch(() => {});
@@ -166,116 +145,103 @@ export default function HomePage() {
       <main className="saas-main">
         {/* Topbar */}
         <header className="home-topbar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
             <button className="home-menu-btn" onClick={() => setSidebarOpen(true)}>
-              <Menu size={20} />
+              <Menu size={22} />
             </button>
-            <div className="home-title-text">
-              <h1 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.5px' }}>Overview</h1>
-              <p className="text-muted" style={{ fontSize: '13px', marginTop: '2px' }}>
-                Welcome back, {user?.name?.split(' ')[0] || 'Developer'}
-              </p>
+            <div>
+              <h1 style={{ fontSize: '24px', fontWeight: 900, letterSpacing: '-1px' }}>DASHBOARD</h1>
+              <p style={{ color: '#94A3B8', fontSize: '13px', fontWeight: 700 }}>Pulse check for {user?.name || 'Developer'}</p>
             </div>
           </div>
           <div className="search-wrapper">
-            <Search size={17} className="text-muted" />
-            <input placeholder="Search YourNotes..." />
-            <Command size={13} className="text-muted" />
+            <Search size={18} color="#94A3B8" />
+            <input placeholder="Jump to document..." />
+            <Command size={14} color="#CBD5E1" />
           </div>
         </header>
 
         {/* Master Grid */}
         <div className="saas-grid">
-          <div className="clean-card hero-span">
-            <div className="badge-ai">
-              <Zap size={13} fill="currentColor" /> Neural Engine Online
+          <div className="hero-card">
+            <div style={{ background: 'rgba(204,255,0,0.1)', color: '#ccff00', padding: '6px 14px', borderRadius: '10px', fontSize: '11px', fontWeight: 800, width: 'fit-content', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Activity size={14} /> SYSTEM OPERATIONAL
             </div>
             <h2 className="hero-title">
-              Manage your knowledge.<br/>Accelerate your learning.
+              Master your <span>Knowledge</span>.<br/>Accelerate your <span>Growth</span>.
             </h2>
-            <p className="text-muted" style={{ fontSize: '15px', lineHeight: 1.6, maxWidth: '480px', marginBottom: '28px' }}>
-              Instantly generate summaries, organize subject modules, and review automated flashcards all in one unified workspace.
-            </p>
-            <div className="hero-buttons" style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-              <button className="btn-primary" onClick={() => navigate('/ask-ai')}>
-                New AI Chat <Plus size={15} />
+            <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+              <button className="btn-neon" onClick={() => navigate('/ask-ai')}>
+                <Plus size={18} strokeWidth={3} /> START AI CHAT
               </button>
-              <button className="btn-secondary" onClick={() => navigate('/folders')}>
-                Browse Modules
+              <button className="btn-outline" onClick={() => navigate('/folders')}>
+                VIEW REPOS
               </button>
             </div>
           </div>
 
           <div className="stat-span">
-            <div className="clean-card" style={{ padding: '22px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div className="text-xs-bold text-muted">Review Queue</div>
-                  <div style={{ fontSize: '36px', fontWeight: 800, marginTop: '6px', color: '#0F172A' }}>{stats.flashcardsDue}</div>
-                </div>
-                <div style={{ padding: '10px', background: '#FFF5F2', borderRadius: '10px' }}>
-                  <Brain size={19} color="#E55B2D" />
-                </div>
+            <div className="indicator-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '11px', fontWeight: 900, color: '#94A3B8', letterSpacing: '1px' }}>REVISION QUEUE</span>
+                <Brain size={20} color="#ccff00" />
               </div>
+              <div style={{ fontSize: '48px', fontWeight: 900, marginTop: '10px' }}>{stats.flashcardsDue}</div>
+              <p style={{ fontSize: '12px', fontWeight: 700, color: '#10B981', marginTop: '5px' }}>Items due for review</p>
             </div>
-            <div className="clean-card" style={{ padding: '22px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div className="text-xs-bold text-muted">Folders</div>
-                  <div style={{ fontSize: '36px', fontWeight: 800, marginTop: '6px', color: '#0F172A' }}>{stats.totalFolders}</div>
-                </div>
-                <div style={{ padding: '10px', background: '#F1F5F9', borderRadius: '10px' }}>
-                  <Folder size={19} color="#64748B" />
-                </div>
+            <div className="indicator-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '11px', fontWeight: 900, color: '#94A3B8', letterSpacing: '1px' }}>DATA CLUSTERS</span>
+                <Folder size={20} color="#000" />
               </div>
+              <div style={{ fontSize: '48px', fontWeight: 900, marginTop: '10px' }}>{stats.totalFolders}</div>
+              <p style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', marginTop: '5px' }}>Active modules</p>
             </div>
           </div>
         </div>
 
         {/* Mini Stats Row */}
-        <div className="stats-mini-row">
+        <div className="mini-stat-grid">
           {[
             { lbl: "Total Notes", val: stats.totalNotes, icn: FileText },
-            { lbl: "Public Notes", val: stats.publicNotes, icn: Globe },
+            { lbl: "Community", val: stats.publicNotes, icn: Globe },
             { lbl: "Starred",     val: stats.starredNotes, icn: Star },
-            { lbl: "Daily Streak", val: stats.streakCount, icn: Zap }
+            { lbl: "Streak",      val: stats.streakCount, icn: Zap }
           ].map((item, i) => (
-            <div key={i} className="clean-card" style={{ padding: '18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ padding: '9px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #F1F5F9', flexShrink: 0 }}>
-                <item.icn size={17} color="#64748B" />
+            <div key={i} className="mini-card">
+              <div className="mini-icon">
+                <item.icn size={18} strokeWidth={2.5} />
               </div>
               <div>
-                <div className="text-xs-bold text-muted">{item.lbl}</div>
-                <div style={{ fontSize: '17px', fontWeight: 700, marginTop: '2px' }}>{item.val}</div>
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>{item.lbl}</div>
+                <div style={{ fontSize: '18px', fontWeight: 900 }}>{item.val}</div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Recent Documents */}
-        <div style={{ marginTop: '40px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: 700 }}>Recent Documents</h3>
-            <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', color: '#64748B', fontWeight: 600, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'inherit' }}>
-              View Archive <ChevronRight size={13} />
+        <div style={{ marginTop: '48px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 900 }}>RECENT LOGS</h3>
+            <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', color: '#94A3B8', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              ACCESS ARCHIVE <ChevronRight size={14} />
             </button>
           </div>
 
-          <div className="clean-card" style={{ padding: '0', overflow: 'hidden' }}>
+          <div className="list-container">
             {recent.length === 0 ? (
-              <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8', fontSize: 14, fontWeight: 600 }}>
-                No recent documents
-              </div>
+              <div style={{ padding: '60px', textAlign: 'center', color: '#94A3B8', fontWeight: 800 }}>NO RECENT ACTIVITY</div>
             ) : recent.map((note, i) => (
               <div key={i} className="list-item" onClick={() => navigate('/dashboard')}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#E55B2D', flexShrink: 0 }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <div className="neon-dot" />
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '14px', color: '#0F172A' }}>{note.title || "Untitled Note"}</div>
-                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>Last edited {new Date(note.updatedAt).toLocaleDateString()}</div>
+                    <div style={{ fontWeight: 800, fontSize: '15px' }}>{note.title || "UNTITLED LOG"}</div>
+                    <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 600, marginTop: '2px' }}>Modified {new Date(note.updatedAt).toLocaleDateString()}</div>
                   </div>
                 </div>
-                <MoreVertical size={17} color="#94A3B8" />
+                <MoreVertical size={18} color="#CBD5E1" />
               </div>
             ))}
           </div>
