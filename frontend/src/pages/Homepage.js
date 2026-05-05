@@ -1,127 +1,91 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, Search, FileText, Star, Globe, 
-  ChevronRight, Brain, Folder, Zap,
-  MoreVertical, Command, Menu, Activity
-} from 'lucide-react';
+import { Plus, Search, FileText, Star, Globe, ChevronRight, Brain, Folder, Zap, Menu, ArrowUpRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import MobileNav from '../components/MobileNav';
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  .saas-root { 
-    display: flex; height: 100dvh; background: #151313; 
-    font-family: 'Plus Jakarta Sans', sans-serif; color: #000; overflow: hidden;
-  }
+  .home-root { display: flex; height: 100dvh; background: #f5f5f3; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
+  .home-main { flex: 1; overflow-y: auto; scrollbar-width: none; min-width: 0; }
+  .home-main::-webkit-scrollbar { display: none; }
 
-  .saas-main { 
-    flex: 1; padding: 40px 5vw; overflow-y: auto; scrollbar-width: none; min-width: 0;
-  }
-
-  /* Header Redesign */
   .home-topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 32px;
+    height: 58px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; background: #fff; border-bottom: 1px solid #e8e6e1; position: sticky; top: 0; z-index: 10;
   }
-  .home-menu-btn {
-    display: none; background: #2a2525; border: none; border-radius: 12px; 
-    cursor: pointer; padding: 10px; color: #000;
-  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .menu-btn { display: none; background: transparent; border: 1px solid #e8e6e1; border-radius: 7px; cursor: pointer; padding: 7px; color: #888580; align-items: center; justify-content: center; transition: 0.15s; }
+  .menu-btn:hover { border-color: #f97316; color: #f97316; }
+  .page-title { font-size: 14px; font-weight: 800; color: #1a1a1a; }
+  .user-greet { font-size: 12px; color: #b0ada6; font-weight: 500; }
 
-  .search-wrapper {
-    background: #2a2525; border: 1px solid #2a2525; border-radius: 14px;
-    padding: 10px 18px; display: flex; align-items: center; gap: 12px;
-    width: 320px; transition: 0.3s;
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: #f5f5f3; border: 1px solid #e8e6e1;
+    border-radius: 9px; padding: 7px 14px; width: 240px; transition: 0.18s;
   }
-  .search-wrapper:focus-within { border-color: #000; background: #1e1b1b; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
-  .search-wrapper input { border: none; outline: none; background: transparent; width: 100%; font-size: 14px; font-weight: 700; color: #000; }
+  .search-bar:focus-within { border-color: #f97316; background: #fff; }
+  .search-bar input { border: none; outline: none; background: transparent; font-size: 13px; font-weight: 500; color: #1a1a1a; font-family: inherit; width: 100%; }
+  .search-bar input::placeholder { color: #c8c5be; }
 
-  /* Hero Section - The "Black & Neon" Look */
-  .hero-card {
-    grid-column: span 8; background: #151313; border-radius: 28px; padding: 40px;
-    color: #f7f7f5; position: relative; overflow: hidden;
-    display: flex; flex-direction: column; justify-content: center;
+  .home-body { padding: 28px 32px; }
+
+  /* Hero */
+  .hero-banner {
+    background: #1a1a1a; border-radius: 20px; padding: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; position: relative; overflow: hidden; animation: fadeUp 0.4s both;
   }
-  .hero-card::after {
-    content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px;
-    background: #ff5734; filter: blur(80px); opacity: 0.2;
+  .hero-deco { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(249,115,22,0.2) 0%, transparent 70%); top: -80px; right: -80px; }
+  .hero-deco2 { position: absolute; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%); bottom: -60px; left: 200px; }
+  .hero-text { position: relative; z-index: 1; }
+  .hero-eyebrow { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .hero-title { font-size: clamp(24px, 3vw, 36px); font-weight: 900; color: #fff; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px; }
+  .hero-title em { color: #f97316; font-style: normal; }
+  .hero-actions { display: flex; gap: 12px; }
+  .btn-hero-primary { background: #f97316; color: #fff; border: none; border-radius: 9px; padding: 10px 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: inherit; display: flex; align-items: center; gap: 7px; }
+  .btn-hero-primary:hover { background: #ea6c0a; box-shadow: 0 4px 16px rgba(249,115,22,0.35); }
+  .btn-hero-secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.12); border-radius: 9px; padding: 9px 18px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; font-family: inherit; }
+  .btn-hero-secondary:hover { background: rgba(255,255,255,0.12); }
+
+  /* Stats */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: #fff; border: 1px solid #e8e6e1; border-radius: 14px; padding: 20px; animation: fadeUp 0.35s both; transition: 0.2s; }
+  .stat-card:hover { border-color: #d0cdc6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .stat-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+  .stat-val { font-size: 28px; font-weight: 900; color: #1a1a1a; letter-spacing: -1px; line-height: 1; margin-bottom: 4px; }
+  .stat-lbl { font-size: 12px; font-weight: 600; color: #b0ada6; }
+
+  /* Recent */
+  .section-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 14px; font-weight: 800; color: #1a1a1a; }
+  .section-link { font-size: 12px; font-weight: 600; color: #888580; text-decoration: none; display: flex; align-items: center; gap: 4px; cursor: pointer; background: none; border: none; font-family: inherit; }
+  .section-link:hover { color: #f97316; }
+
+  .recent-list { background: #fff; border: 1px solid #e8e6e1; border-radius: 14px; overflow: hidden; }
+  .recent-item {
+    padding: 16px 20px; border-bottom: 1px solid #f0ede8; display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: 0.15s;
   }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-item:hover { background: #faf9f7; }
+  .recent-dot { width: 8px; height: 8px; border-radius: 50%; background: #f97316; flex-shrink: 0; }
+  .recent-title { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .recent-date { font-size: 12px; color: #b0ada6; font-weight: 500; margin-top: 2px; }
 
-  .hero-title {
-    font-size: clamp(28px, 4vw, 42px); font-weight: 900; line-height: 1.1;
-    letter-spacing: -1.5px; margin: 20px 0; color: #f7f7f5;
-  }
-  .hero-title span { color: #ff5734; }
-
-  /* Buttons */
-  .btn-neon {
-    background: #ff5734; color: #000; border: none; padding: 14px 28px;
-    border-radius: 14px; font-weight: 900; font-size: 14px; cursor: pointer;
-    display: flex; align-items: center; gap: 10px; transition: 0.3s;
-  }
-  .btn-neon:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,87,52,0.3); }
-
-  .btn-outline {
-    background: transparent; color: #f7f7f5; border: 2px solid #333; padding: 12px 26px;
-    border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s;
-  }
-  .btn-outline:hover { border-color: #ff5734; color: #ff5734; }
-
-  /* Grid Layout */
-  .saas-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
-  .stat-span { grid-column: span 4; display: flex; flex-direction: column; gap: 24px; }
-
-  .indicator-card {
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 24px; padding: 28px;
-    display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s;
-  }
-  .indicator-card:hover { border-color: #000; transform: translateY(-5px); }
-
-  .mini-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 32px; }
-  
-  .mini-card {
-    background: #1e1b1b; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px;
-    border: 1px solid transparent; transition: 0.3s;
-  }
-  .mini-card:hover { background: #1e1b1b; border-color: #000; }
-  .mini-icon { width: 40px; height: 40px; border-radius: 12px; background: #151313; display: flex; align-items: center; justify-content: center; color: #ff5734; }
-
-  /* Recent List */
-  .list-container { background: #1e1b1b; border: 1px solid #2a2525; border-radius: 24px; overflow: hidden; margin-top: 16px; }
-  .list-item {
-    padding: 20px 24px; border-bottom: 1px solid #2a2525; display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; transition: 0.2s;
-  }
-  .list-item:hover { background: #1e1b1b; }
-  .neon-dot { width: 10px; height: 10px; border-radius: 50%; background: #ff5734; box-shadow: 0 0 10px #ff5734; }
-
-  @media(max-width: 1024px) {
-    .hero-card { grid-column: span 12; }
-    .stat-span { grid-column: span 12; flex-direction: row; }
-    .stat-span > * { flex: 1; }
-    .mini-stat-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  @media(max-width: 1024px) {
-    .saas-main { padding: 28px 4vw; }
-    .hero-card { grid-column: span 12; }
-    .stat-span { grid-column: span 12; flex-direction: row; gap: 16px; }
-    .stat-span > * { flex: 1; }
-    .mini-stat-grid { grid-template-columns: repeat(2, 1fr); }
-    .home-menu-btn { display: flex; }
-    .search-wrapper { width: 220px; }
-  }
-
-  @media(max-width: 768px) {
-    .saas-main { padding: 20px 16px; }
-    .home-menu-btn { display: flex; }
-    .stat-span { flex-direction: column; }
-    .search-wrapper { display: none; }
-    .mini-stat-grid { grid-template-columns: 1fr; }
+  @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 768px) {
+    .menu-btn { display: flex; }
+    .search-bar { display: none; }
+    .home-body { padding: 16px; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .hero-banner { padding: 28px; }
   }
 `;
 
@@ -134,129 +98,94 @@ export default function HomePage() {
 
   useEffect(() => {
     API.get('/dashboard').then(res => {
-      const data = res.data || {};
-      setStats({
-        totalNotes: data.totalNotes || 0,
-        publicNotes: data.publicNotes || 0,
-        starredNotes: data.starredNotes || 0,
-        flashcardsDue: data.flashcardsDue || 0,
-        totalFolders: data.totalFolders || 0,
-        streakCount: data.goals?.currentStreak || 0,
-      });
+      const d = res.data || {};
+      setStats({ totalNotes: d.totalNotes || 0, publicNotes: d.publicNotes || 0, starredNotes: d.starredNotes || 0, flashcardsDue: d.flashcardsDue || 0, totalFolders: d.totalFolders || 0, streakCount: d.goals?.currentStreak || 0 });
     }).catch(() => {});
-    API.get('/notes').then(res => setRecent(res.data.slice(0, 5))).catch(() => {});
+    API.get('/notes').then(res => setRecent((res.data || []).slice(0, 5))).catch(() => {});
   }, []);
 
+  const STATS = [
+    { lbl: 'Total Notes',  val: stats.totalNotes,    icon: FileText, bg: 'rgba(249,115,22,0.1)',   color: '#f97316' },
+    { lbl: 'Community',    val: stats.publicNotes,   icon: Globe,    bg: 'rgba(139,92,246,0.1)',   color: '#8b5cf6' },
+    { lbl: 'Starred',      val: stats.starredNotes,  icon: Star,     bg: 'rgba(245,158,11,0.1)',   color: '#f59e0b' },
+    { lbl: 'Day Streak',   val: stats.streakCount,   icon: Zap,      bg: 'rgba(16,185,129,0.1)',   color: '#10b981' },
+  ];
+
   return (
-    <div className="saas-root">
+    <div className="home-root">
       <style>{STYLES}</style>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="saas-main">
-        {/* Topbar */}
+      <div className="home-main">
         <header className="home-topbar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
-            <button className="home-menu-btn" onClick={() => setSidebarOpen(true)}>
-              <Menu size={22} />
-            </button>
+          <div className="topbar-left">
+            <button className="menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
             <div>
-              <h1 style={{ fontSize: '24px', fontWeight: 900, letterSpacing: '-1px' }}>DASHBOARD</h1>
-              <p style={{ color: '#8a7f7f', fontSize: '13px', fontWeight: 700 }}>Pulse check for {user?.name || 'Developer'}</p>
+              <div className="page-title">Overview</div>
+              <div className="user-greet">Hello, {user?.name?.split(' ')[0] || 'there'} 👋</div>
             </div>
           </div>
-          <div className="search-wrapper">
-            <Search size={18} color="#8a7f7f" />
-            <input placeholder="Jump to document..." />
-            <Command size={14} color="#3a3535" />
+          <div className="search-bar">
+            <Search size={14} color="#b0ada6" />
+            <input placeholder="Search anything..." />
           </div>
         </header>
 
-        {/* Master Grid */}
-        <div className="saas-grid">
-          <div className="hero-card">
-            <div style={{ background: 'rgba(255,87,52,0.1)', color: '#ff5734', padding: '6px 14px', borderRadius: '10px', fontSize: '11px', fontWeight: 800, width: 'fit-content', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Activity size={14} /> SYSTEM OPERATIONAL
-            </div>
-            <h2 className="hero-title">
-              Master your <span>Knowledge</span>.<br/>Accelerate your <span>Growth</span>.
-            </h2>
-            <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-              <button className="btn-neon" onClick={() => navigate('/ask-ai')}>
-                <Plus size={18} strokeWidth={3} /> START AI CHAT
-              </button>
-              <button className="btn-outline" onClick={() => navigate('/folders')}>
-                VIEW REPOS
-              </button>
+        <div className="home-body">
+          <div className="hero-banner">
+            <div className="hero-deco" /><div className="hero-deco2" />
+            <div className="hero-text">
+              <div className="hero-eyebrow">Your workspace</div>
+              <h2 className="hero-title">Master your <em>knowledge</em>.<br />Ace your exams.</h2>
+              <div className="hero-actions">
+                <button className="btn-hero-primary" onClick={() => navigate('/ask-ai')}>
+                  <Plus size={16} /> Ask AI
+                </button>
+                <button className="btn-hero-secondary" onClick={() => navigate('/dashboard')}>
+                  View all notes
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="stat-span">
-            <div className="indicator-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '11px', fontWeight: 900, color: '#8a7f7f', letterSpacing: '1px' }}>REVISION QUEUE</span>
-                <Brain size={20} color="#ff5734" />
+          <div className="stats-row">
+            {STATS.map((s, i) => (
+              <div key={i} className="stat-card" style={{ animationDelay: `${i * 0.06}s` }}>
+                <div className="stat-icon" style={{ background: s.bg, color: s.color }}>
+                  <s.icon size={17} />
+                </div>
+                <div className="stat-val">{s.val}</div>
+                <div className="stat-lbl">{s.lbl}</div>
               </div>
-              <div style={{ fontSize: '48px', fontWeight: 900, marginTop: '10px' }}>{stats.flashcardsDue}</div>
-              <p style={{ fontSize: '12px', fontWeight: 700, color: '#10B981', marginTop: '5px' }}>Items due for review</p>
-            </div>
-            <div className="indicator-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '11px', fontWeight: 900, color: '#8a7f7f', letterSpacing: '1px' }}>DATA CLUSTERS</span>
-                <Folder size={20} color="#000" />
-              </div>
-              <div style={{ fontSize: '48px', fontWeight: 900, marginTop: '10px' }}>{stats.totalFolders}</div>
-              <p style={{ fontSize: '12px', fontWeight: 700, color: '#8a7f7f', marginTop: '5px' }}>Active modules</p>
-            </div>
+            ))}
           </div>
-        </div>
 
-        {/* Mini Stats Row */}
-        <div className="mini-stat-grid">
-          {[
-            { lbl: "Total Notes", val: stats.totalNotes, icn: FileText },
-            { lbl: "Community", val: stats.publicNotes, icn: Globe },
-            { lbl: "Starred",     val: stats.starredNotes, icn: Star },
-            { lbl: "Streak",      val: stats.streakCount, icn: Zap }
-          ].map((item, i) => (
-            <div key={i} className="mini-card">
-              <div className="mini-icon">
-                <item.icn size={18} strokeWidth={2.5} />
-              </div>
-              <div>
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#8a7f7f', textTransform: 'uppercase' }}>{item.lbl}</div>
-                <div style={{ fontSize: '18px', fontWeight: 900 }}>{item.val}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Recent Documents */}
-        <div style={{ marginTop: '48px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 900 }}>RECENT LOGS</h3>
-            <button onClick={() => navigate('/dashboard')} style={{ background: 'none', border: 'none', color: '#8a7f7f', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              ACCESS ARCHIVE <ChevronRight size={14} />
+          <div className="section-row">
+            <span className="section-title">Recent Notes</span>
+            <button className="section-link" onClick={() => navigate('/dashboard')}>
+              View all <ChevronRight size={13} />
             </button>
           </div>
 
-          <div className="list-container">
+          <div className="recent-list">
             {recent.length === 0 ? (
-              <div style={{ padding: '60px', textAlign: 'center', color: '#8a7f7f', fontWeight: 800 }}>NO RECENT ACTIVITY</div>
+              <div style={{ padding: '48px', textAlign: 'center', color: '#b0ada6', fontSize: 14 }}>No notes yet — create your first one!</div>
             ) : recent.map((note, i) => (
-              <div key={i} className="list-item" onClick={() => navigate('/dashboard')}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div className="neon-dot" />
+              <div key={i} className="recent-item" onClick={() => navigate('/dashboard')}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div className="recent-dot" />
                   <div>
-                    <div style={{ fontWeight: 800, fontSize: '15px' }}>{note.title || "UNTITLED LOG"}</div>
-                    <div style={{ fontSize: '12px', color: '#8a7f7f', fontWeight: 600, marginTop: '2px' }}>Modified {new Date(note.updatedAt).toLocaleDateString()}</div>
+                    <div className="recent-title">{note.title || 'Untitled Note'}</div>
+                    <div className="recent-date">Updated {new Date(note.updatedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</div>
                   </div>
                 </div>
-                <MoreVertical size={18} color="#3a3535" />
+                <ArrowUpRight size={15} color="#b0ada6" />
               </div>
             ))}
           </div>
         </div>
-      </main>
+      </div>
+
       <MobileNav />
     </div>
   );
