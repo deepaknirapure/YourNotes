@@ -1,34 +1,36 @@
-// Community routes — shared notes community ke endpoints
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
+
 const { protect } = require('../middleware/authMiddleware');
-const upload = require('../middleware/uploadMiddleware');
+const upload      = require('../middleware/uploadMiddleware');
+
 const {
-  uploadNote,
   getFeed,
+  getNoteById,
   toggleLike,
   toggleSave,
-  downloadNote,
   addComment,
-  getNoteById,
+  downloadNote,
+  uploadNote,
   getUserNotes,
+  getSavedNotes,
   deleteNote,
 } = require('../controllers/communityController');
 
-// IMPORTANT: Static/prefix routes pehle aani chahiye — /:id se pehle
-// Warna "/feed" ko /:id samjh lega Express
+// ── Static / prefix routes FIRST (before /:id shadow them) ──────────────────
 router.get('/feed',         protect, getFeed);
+router.get('/saved',        protect, getSavedNotes);
 router.get('/user/:userId', protect, getUserNotes);
 
-// File upload route
+// File-upload route (multipart/form-data)
 router.post('/upload', protect, upload.single('file'), uploadNote);
 
-// Single note routes — yeh baad mein (shadowing avoid karne ke liye)
-router.get('/:id',            protect, getNoteById);
-router.post('/:id/like',      protect, toggleLike);
-router.post('/:id/save',      protect, toggleSave);
-router.post('/:id/download',  protect, downloadNote);
-router.post('/:id/comment',   protect, addComment);
-router.delete('/:id',         protect, deleteNote);
+// ── Single-note routes (dynamic :id last) ────────────────────────────────────
+router.get('/:id',           protect, getNoteById);
+router.post('/:id/like',     protect, toggleLike);
+router.post('/:id/save',     protect, toggleSave);
+router.post('/:id/comment',  protect, addComment);
+router.post('/:id/download', protect, downloadNote);
+router.delete('/:id',        protect, deleteNote);
 
 module.exports = router;
