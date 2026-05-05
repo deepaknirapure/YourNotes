@@ -1,32 +1,29 @@
 /* ================================================================
-   YourNotes - Mobile CSS
-   Ye file mobile-specific fixes ke liye hai
-   global.css pe depend karta hai
+   YourNotes - Mobile CSS (Updated Theme)
    ================================================================ */
 
-/* ── iOS specific fixes ── */
 html {
   -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
 }
 
-/* iOS bounce aur freeze rokne ke liye */
 body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;
 }
 
-/* ── Mobile Screen Fixes ── */
 @media (max-width: 768px) {
-
-  /* ── Full height fix (100vh mobile pe freeze karta hai) ── */
-  .pg-wrap, .saas-root, .ai-wrap, .flashcard-wrap {
+  /* Full height fix */
+  .pg-wrap, .saas-root, .ai-wrap, .flashcard-wrap,
+  .db-wrap, .notes-wrap, .starred-wrap, .folders-wrap,
+  .tags-wrap, .trash-wrap, .community-wrap {
     height: 100dvh !important;
     height: -webkit-fill-available !important;
   }
 
-  /* ── Scrollable areas ── */
-  .pg-content, .saas-main, .ai-messages, .flashcard-wrap {
+  /* Scrollable areas */
+  .pg-content, .saas-main, .ai-messages, .flashcard-wrap,
+  .db-content, .notes-content {
     -webkit-overflow-scrolling: touch !important;
   }
 
@@ -38,52 +35,27 @@ body {
     left: 0 !important;
     height: 100dvh !important;
     height: -webkit-fill-available !important;
-    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.5) !important;
     transform: translateX(-100%) !important;
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
     will-change: transform !important;
   }
 
-  /* Sidebar open hone pe slide karo */
-  .sidebar-main.sidebar-open {
-    transform: translateX(0) !important;
-  }
+  .sidebar-main.sidebar-open { transform: translateX(0) !important; }
+  .sidebar-overlay { display: block !important; }
+  .sidebar-close-btn { display: flex !important; }
 
-  /* Sidebar mobile overlay */
-  .sidebar-overlay {
-    display: block !important;
-  }
-
-  /* Sidebar close button dikhao */
-  .sidebar-close-btn {
-    display: flex !important;
-  }
-
-  /* ── AskAI Page fixes ── */
-  .ai-wrap {
-    flex-direction: column !important;
-  }
-
+  /* ── AskAI Page ── */
+  .ai-wrap { flex-direction: column !important; }
   .ai-main {
     height: 100dvh !important;
-    height: -webkit-fill-available !important;
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
     width: 100% !important;
   }
-
-  .ai-messages {
-    flex: 1 !important;
-    padding: 16px 14px !important;
-  }
-
-  .ai-bubble {
-    max-width: 92% !important;
-    font-size: 14px !important;
-  }
-
-  /* Input box keyboard ke upar rahe */
+  .ai-messages { flex: 1 !important; padding: 16px 14px !important; }
+  .ai-bubble { max-width: 92% !important; font-size: 14px !important; }
   .ai-bottom {
     padding: 12px 14px !important;
     padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
@@ -92,46 +64,34 @@ body {
     bottom: 0 !important;
     z-index: 10 !important;
   }
+  .ai-input-box { font-size: 16px !important; }
 
-  /* 16px se chhota font iOS mein zoom karta hai - avoid karo */
-  .ai-input-box {
-    font-size: 16px !important;
-  }
-
-  /* ── Note Editor - full screen on mobile ── */
+  /* ── Note Editor - full screen ── */
   .note-editor-wrap {
     position: fixed !important;
     inset: 0 !important;
-    z-index: 200 !important;
+    z-index: 400 !important;
     border-radius: 0 !important;
     height: 100dvh !important;
   }
-
   .editor-toolbar {
     flex-wrap: wrap !important;
     gap: 4px !important;
     overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
   }
 
-  /* ── Flashcards page ── */
+  /* ── Flashcards ── */
   .flashcard-box {
     min-height: 180px !important;
     padding: 20px !important;
     font-size: 18px !important;
   }
 
-  /* ── Profile page ── */
-  .profile-grid {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
+  /* ── Profile ── */
+  .profile-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
 
-  /* ── Community grid ── */
-  .community-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
+  /* ── Community ── */
+  .community-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
 
   /* ── Stats grids ── */
   .stats-mini-row, .stats-row-4 {
@@ -149,60 +109,46 @@ body {
   .modal-box, .fp-modal {
     width: calc(100vw - 24px) !important;
     max-width: 100% !important;
-    border-radius: 18px !important;
+    border-radius: 20px !important;
     padding: 20px !important;
   }
+  .pg-overlay, .fp-modal-overlay { touch-action: none !important; }
 
-  /* Modal scroll rokne ke liye */
-  .pg-overlay, .fp-modal-overlay {
-    touch-action: none !important;
-  }
-
-  /* ── Minimum touch target size (44px) ── */
-  button, a, [role="button"] {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* ── Hero section mobile ── */
+  /* ── Hero section ── */
   .saas-grid {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
     margin-top: 16px !important;
   }
-
   .hero-span { grid-column: span 1 !important; }
-
   .stat-span {
     grid-column: span 1 !important;
-    flex-direction: row !important;
+    flex-direction: column !important;
     gap: 12px !important;
   }
+  .hero-title { font-size: 26px !important; letter-spacing: -0.5px !important; }
+  .hero-buttons { flex-direction: column !important; gap: 10px !important; }
 
-  .stat-span > * { flex: 1 !important; }
+  /* Dashboard grid */
+  .db-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .db-topbar { padding: 0 14px !important; height: 58px !important; }
+  .db-menu-btn { display: flex !important; }
+  .db-content { padding: 16px !important; padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+  .search-box { width: 100% !important; }
 
-  .hero-title {
-    font-size: 24px !important;
-    letter-spacing: -0.5px !important;
-  }
-
-  .hero-buttons {
-    flex-direction: column !important;
-    gap: 10px !important;
-  }
+  /* mini stats */
+  .mini-stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
 }
 
 /* ── Very small phones (< 380px) ── */
 @media (max-width: 380px) {
-  .stat-span { flex-direction: column !important; }
   .fp-grid, .folders-grid { grid-template-columns: 1fr !important; }
-  .hero-title { font-size: 20px !important; }
+  .hero-title { font-size: 22px !important; }
   .stats-mini-row { grid-template-columns: repeat(2, 1fr) !important; }
+  .mini-stat-grid { grid-template-columns: 1fr !important; }
   .mobile-bottom-nav { height: 58px !important; }
 }
 
-/* ── Safe area support (notch phones) ── */
 @supports (padding: env(safe-area-inset-bottom)) {
-  .mobile-bottom-nav {
-    padding-bottom: env(safe-area-inset-bottom) !important;
-  }
+  .mobile-bottom-nav { padding-bottom: env(safe-area-inset-bottom) !important; }
 }

@@ -103,38 +103,38 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
   return (
     <div className="editor-root">
       <style>{`
-        .editor-root { display: flex; flex-direction: column; height: 100vh; background: #FFFFFF; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
+        .editor-root { display: flex; flex-direction: column; height: 100vh; background: #1e1b1b; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
         
         /* Responsive Header */
-        .ed-header { height: 64px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: #FFFFFF; flex-shrink: 0; }
+        .ed-header { height: 64px; border-bottom: 1px solid #2a2525; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: #1e1b1b; flex-shrink: 0; }
         .ed-header-left { display: flex; align-items: center; gap: 10px; }
-        .back-btn { padding: 8px; border-radius: 12px; border: none; background: #F8FAFC; cursor: pointer; color: #000; transition: 0.2s; }
-        .save-status { font-size: 11px; font-weight: 700; color: #94A3B8; display: flex; align-items: center; gap: 4px; }
+        .back-btn { padding: 8px; border-radius: 12px; border: none; background: #1e1b1b; cursor: pointer; color: #000; transition: 0.2s; }
+        .save-status { font-size: 11px; font-weight: 700; color: #8a7f7f; display: flex; align-items: center; gap: 4px; }
 
         /* Scrollable Tabs */
-        .ed-tabs-container { overflow-x: auto; scrollbar-width: none; background: #FFFFFF; padding: 12px 16px; flex-shrink: 0; }
+        .ed-tabs-container { overflow-x: auto; scrollbar-width: none; background: #1e1b1b; padding: 12px 16px; flex-shrink: 0; }
         .ed-tabs-container::-webkit-scrollbar { display: none; }
-        .ed-tabs { display: flex; gap: 6px; background: #F1F5F9; padding: 4px; border-radius: 12px; width: max-content; }
-        .ed-tab { padding: 8px 16px; border: none; background: none; border-radius: 9px; font-size: 12px; font-weight: 800; color: #64748B; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; white-space: nowrap; }
-        .ed-tab.active { background: #000000; color: #ccff00; }
+        .ed-tabs { display: flex; gap: 6px; background: #2a2525; padding: 4px; border-radius: 12px; width: max-content; }
+        .ed-tab { padding: 8px 16px; border: none; background: none; border-radius: 9px; font-size: 12px; font-weight: 800; color: #8a7f7f; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; white-space: nowrap; }
+        .ed-tab.active { background: #000000; color: #ff5734; }
 
         /* Scrollable Toolbar */
-        .rich-toolbar { display: flex; gap: 4px; padding: 10px 16px; border-bottom: 1px solid #F1F5F9; background: #FFFFFF; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+        .rich-toolbar { display: flex; gap: 4px; padding: 10px 16px; border-bottom: 1px solid #2a2525; background: #1e1b1b; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
         .rich-toolbar::-webkit-scrollbar { display: none; }
         .tool-btn { padding: 8px; border-radius: 8px; border: none; background: transparent; color: #000; cursor: pointer; flex-shrink: 0; }
         
         /* Responsive Content */
-        .title-input { width: 100%; padding: 20px 20px 8px; border: none; font-size: 24px; font-weight: 900; outline: none; color: #000; letter-spacing: -1px; background: #FFFFFF; }
-        .content-area { flex: 1; width: 100%; padding: 0 20px 20px; border: none; outline: none; font-size: 16px; line-height: 1.6; resize: none; color: #1E293B; background: #FFFFFF; -webkit-tap-highlight-color: transparent; }
+        .title-input { width: 100%; padding: 20px 20px 8px; border: none; font-size: 24px; font-weight: 900; outline: none; color: #000; letter-spacing: -1px; background: #1e1b1b; }
+        .content-area { flex: 1; width: 100%; padding: 0 20px 20px; border: none; outline: none; font-size: 16px; line-height: 1.6; resize: none; color: #f7f7f5; background: #1e1b1b; -webkit-tap-highlight-color: transparent; }
 
         /* Adaptive Tags */
-        .tag-container { display: flex; gap: 8px; padding: 0 20px 16px; flex-wrap: wrap; background: #FFFFFF; }
-        .tag-badge { background: #000; color: #ccff00; padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .tag-container { display: flex; gap: 8px; padding: 0 20px 16px; flex-wrap: wrap; background: #1e1b1b; }
+        .tag-badge { background: #151313; color: #ff5734; padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
 
         .ai-btn-group { display: flex; gap: 8px; }
         .ai-btn { border: none; padding: 10px 14px; border-radius: 12px; font-size: 12px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.3s; white-space: nowrap; }
-        .ai-btn.primary { background: #ccff00; color: #000; }
-        .ai-btn.secondary { background: #000; color: #ccff00; }
+        .ai-btn.primary { background: #ff5734; color: #000; }
+        .ai-btn.secondary { background: #151313; color: #ff5734; }
 
         /* Desktop Adjustments */
         @media(min-width: 1024px) {
@@ -191,7 +191,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
               {tags.map(t => (
                 <span key={t} className="tag-badge">#{t} <X size={12} onClick={() => setTags(tags.filter(x => x !== t))} /></span>
               ))}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#94A3B8', paddingLeft: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#8a7f7f', paddingLeft: 4 }}>
                 <Hash size={14} />
                 <input 
                   style={{ border: 'none', outline: 'none', fontSize: 13, fontWeight: 800, width: 80, background: 'transparent' }} 
@@ -211,7 +211,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
           </div>
         </div>
       ) : (
-        <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#F8FAFC' }}>
+        <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#1e1b1b' }}>
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             {loadingAI ? (
               <div style={{ textAlign: 'center', padding: '100px 0' }}>
@@ -221,28 +221,28 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
             ) : (
               <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
                 {activeTab === 'summary' && (
-                  <div style={{ background: '#fff', padding: '30px', borderRadius: '24px', border: '1px solid #E2E8F0', color: '#1E293B', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-                    <div style={{ fontSize: 11, fontWeight: 900, color: '#94A3B8', marginBottom: '16px' }}>AI SUMMARY</div>
+                  <div style={{ background: '#fff', padding: '30px', borderRadius: '24px', border: '1px solid #2a2525', color: '#f7f7f5', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+                    <div style={{ fontSize: 11, fontWeight: 900, color: '#8a7f7f', marginBottom: '16px' }}>AI SUMMARY</div>
                     {aiSummary || "Add content to generate a summary."}
                   </div>
                 )}
                 {activeTab === 'flashcards' && (
                   <div style={{ display: 'grid', gap: 12 }}>
                     {flashcards.length > 0 ? flashcards.map((fc, i) => (
-                      <div key={i} style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #E2E8F0', borderLeft: '4px solid #ccff00' }}>
+                      <div key={i} style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #2a2525', borderLeft: '4px solid #ff5734' }}>
                         <p style={{ fontWeight: 900, color: '#000', fontSize: 16, marginBottom: 8 }}>{fc.question}</p>
-                        <p style={{ color: '#64748B', fontSize: 14, borderTop: '1px solid #F1F5F9', paddingTop: '12px' }}>{fc.answer}</p>
+                        <p style={{ color: '#8a7f7f', fontSize: 14, borderTop: '1px solid #2a2525', paddingTop: '12px' }}>{fc.answer}</p>
                       </div>
-                    )) : <p style={{textAlign:'center', color:'#94A3B8', padding: '40px'}}>No cards yet.</p>}
+                    )) : <p style={{textAlign:'center', color:'#8a7f7f', padding: '40px'}}>No cards yet.</p>}
                   </div>
                 )}
                 {activeTab === 'quiz' && (
                   <div style={{ display: 'grid', gap: 16 }}>
                     {quizQuestions.map((q, i) => (
-                      <div key={i} style={{ background: '#fff', padding: '24px', borderRadius: '20px', border: '1px solid #E2E8F0' }}>
+                      <div key={i} style={{ background: '#fff', padding: '24px', borderRadius: '20px', border: '1px solid #2a2525' }}>
                         <p style={{ fontWeight: 900, fontSize: 16, marginBottom: 16, color: '#000' }}>{i+1}. {q.question}</p>
                         {q.options.map((opt, oi) => (
-                          <div key={oi} style={{ padding: '12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', marginBottom: 8, fontSize: 14, fontWeight: 700 }}>{opt}</div>
+                          <div key={oi} style={{ padding: '12px', background: '#1e1b1b', border: '1px solid #2a2525', borderRadius: '10px', marginBottom: 8, fontSize: 14, fontWeight: 700 }}>{opt}</div>
                         ))}
                       </div>
                     ))}

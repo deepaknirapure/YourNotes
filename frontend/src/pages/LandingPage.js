@@ -37,9 +37,9 @@ const STYLES = `
   .left-content { position: relative; z-index: 1; max-width: 520px; margin-top: 40px; }
   
   .neon-badge {
-    display: inline-flex; align-items: center; gap: 8px; background: rgba(204, 255, 0, 0.1);
-    border: 1px solid #ccff00; border-radius: 100px; padding: 6px 16px;
-    font-size: 11px; font-weight: 800; color: #ccff00; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 87, 52, 0.1);
+    border: 1px solid #ff5734; border-radius: 100px; padding: 6px 16px;
+    font-size: 11px; font-weight: 800; color: #ff5734; text-transform: uppercase;
     margin-bottom: 32px; letter-spacing: 1px;
   }
 
@@ -53,7 +53,7 @@ const STYLES = `
   .feat-icon { 
     width: 44px; height: 44px; border-radius: 12px; background: #111; 
     border: 1px solid #222; display: flex; align-items: center; 
-    justify-content: center; color: #ccff00; flex-shrink: 0;
+    justify-content: center; color: #ff5734; flex-shrink: 0;
   }
   .feat-text h4 { font-size: 16px; font-weight: 800; color: #FFF; margin-bottom: 4px; }
   .feat-text p { font-size: 14px; color: #888; line-height: 1.5; font-weight: 500; }
@@ -93,28 +93,28 @@ const STYLES = `
     color: #FFF; font-family: inherit; transition: 0.3s; outline: none;
   }
   .form-input:focus { 
-    border-color: #ccff00; background: #000;
-    box-shadow: 0 0 20px rgba(204, 255, 0, 0.05); 
+    border-color: #ff5734; background: #000;
+    box-shadow: 0 0 20px rgba(255, 87, 52, 0.05); 
   }
-  .form-input:focus + .input-icon { color: #ccff00; }
+  .form-input:focus + .input-icon { color: #ff5734; }
 
   .forgot-link {
     display: block; text-align: right; font-size: 13px; font-weight: 700;
-    color: #ccff00; text-decoration: none; margin-top: -12px; margin-bottom: 30px;
+    color: #ff5734; text-decoration: none; margin-top: -12px; margin-bottom: 30px;
   }
 
   .btn-submit {
-    width: 100%; padding: 16px; background: #ccff00; color: #000;
+    width: 100%; padding: 16px; background: #ff5734; color: #000;
     border: none; border-radius: 12px; font-size: 16px; font-weight: 900;
     cursor: pointer; transition: 0.3s;
     display: flex; align-items: center; justify-content: center; gap: 10px;
     text-transform: uppercase; letter-spacing: 0.5px;
   }
-  .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(204, 255, 0, 0.3); }
+  .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 87, 52, 0.3); }
   .btn-submit:disabled { opacity: 0.5; filter: grayscale(1); }
 
   .register-prompt { text-align: center; margin-top: 32px; font-size: 14px; color: #555; font-weight: 600; }
-  .register-link { color: #FFF; font-weight: 800; text-decoration: none; border-bottom: 2px solid #ccff00; padding-bottom: 2px; }
+  .register-link { color: #FFF; font-weight: 800; text-decoration: none; border-bottom: 2px solid #ff5734; padding-bottom: 2px; }
 
   @media(max-width: 1024px) {
     .login-left { display: none; }
@@ -154,14 +154,14 @@ export default function LoginPage() {
       <div className="login-left">
         <div className="bg-grid" />
         <div className="brand-logo">
-           <div style={{ background: '#ccff00', padding: '6px', borderRadius: '8px' }}>
-             <Terminal size={20} color="#000" />
+           <div style={{ background: '#ff5734', padding: '6px', borderRadius: '8px' }}>
+             <Terminal size={20} color="#151313" />
            </div>
-           Your<span style={{ color: "#ccff00" }}>Notes</span>.
+           Your<span style={{ color: "#ff5734" }}>Notes</span>.
         </div>
 
         <div className="left-content">
-          <div className="neon-badge"><Zap size={12} fill="#ccff00" /> v2.0 Live Now</div>
+          <div className="neon-badge"><Zap size={12} fill="#ff5734" /> v2.0 Live Now</div>
           <h2 className="left-title">Master your <br/> Knowledge.</h2>
           
           <div className="features-stack">
@@ -185,7 +185,7 @@ export default function LoginPage() {
         <div className="left-footer">
           <div>
             <div style={{ fontSize: 10, fontWeight: 900, color: '#444', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>Deployment</div>
-            <div style={{ fontSize: 13, color: '#FFF', fontWeight: 700 }}>S.V. Polytechnic College, Bhopal</div>
+            <div style={{ fontSize: 13, color: '#f7f7f5', fontWeight: 700 }}>S.V. Polytechnic College, Bhopal</div>
           </div>
           <div style={{ width: '1px', height: '30px', background: '#1a1a1a' }} />
           <div style={{ fontSize: 13, color: '#888', fontWeight: 600 }}>Est. 2026</div>

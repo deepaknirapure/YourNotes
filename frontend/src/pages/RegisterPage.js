@@ -12,42 +12,42 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  body { background: #FFF; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; margin: 0; }
+  body { background: #151313; color: #f7f7f5; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; margin: 0; }
 
   .register-root { display: flex; min-height: 100vh; overflow: hidden; }
 
   /* ── LEFT PANEL (Marketing) ── */
   .register-left {
-    flex: 1; background: #F8FAFC; border-right: 1px solid #E2E8F0;
+    flex: 1; background: #1e1b1b; border-right: 1px solid #2a2525;
     display: flex; flex-direction: column; justify-content: space-between;
     padding: 60px; position: relative; overflow: hidden;
   }
   
   .bg-dots {
     position: absolute; inset: 0; z-index: 0; opacity: 0.5; pointer-events: none;
-    background-image: radial-gradient(#CBD5E1 1px, transparent 1px); background-size: 24px 24px;
+    background-image: radial-gradient(#2a2525 1px, transparent 1px); background-size: 24px 24px;
   }
 
   .brand-logo {
-    font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;
+    font-size: 22px; font-weight: 800; color: #f7f7f5; letter-spacing: -0.5px;
     position: relative; z-index: 1;
   }
 
   .left-content { position: relative; z-index: 1; max-width: 480px; }
   
   .saas-badge {
-    display: inline-flex; align-items: center; gap: 8px; background: #FFF5F2;
-    border: 1px solid #FFE4DB; border-radius: 100px; padding: 6px 14px;
-    font-size: 11px; font-weight: 700; color: #E55B2D; letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 8px; background: rgba(255,87,52,0.08);
+    border: 1px solid rgba(255,87,52,0.2); border-radius: 100px; padding: 6px 14px;
+    font-size: 11px; font-weight: 700; color: #ff5734; letter-spacing: 0.5px;
     margin-bottom: 24px; text-transform: uppercase;
   }
 
   .left-title {
-    font-size: 48px; font-weight: 800; color: #0F172A;
+    font-size: 48px; font-weight: 800; color: #f7f7f5;
     line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px;
   }
 
-  .left-desc { font-size: 16px; color: #64748B; line-height: 1.6; margin-bottom: 40px; font-weight: 500; }
+  .left-desc { font-size: 16px; color: #8a7f7f; line-height: 1.6; margin-bottom: 40px; font-weight: 500; }
 
   .feature-list { display: flex; flex-direction: column; gap: 20px; }
   .feature-item { display: flex; gap: 16px; align-items: flex-start; }
@@ -55,18 +55,18 @@ const STYLES = `
     width: 36px; height: 36px; border-radius: 10px; display: flex;
     align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .feature-title { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 2px; }
-  .feature-desc { font-size: 13px; color: #64748B; font-weight: 500; line-height: 1.5; }
+  .feature-title { font-size: 15px; font-weight: 700; color: #f7f7f5; margin-bottom: 2px; }
+  .feature-desc { font-size: 13px; color: #8a7f7f; font-weight: 500; line-height: 1.5; }
 
   .left-footer {
-    position: relative; z-index: 1; background: #FFF; border: 1px solid #E2E8F0;
+    position: relative; z-index: 1; background: #1e1b1b; border: 1px solid #2a2525;
     border-radius: 12px; padding: 20px; display: inline-flex; flex-direction: column; gap: 4px;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
   }
 
   /* ── RIGHT PANEL (Form) ── */
   .register-right {
-    flex: 1; background: #FFF; display: flex; flex-direction: column;
+    flex: 1; background: #1e1b1b; display: flex; flex-direction: column;
     justify-content: center; padding: 60px 8%; position: relative;
   }
 
@@ -76,28 +76,28 @@ const STYLES = `
   }
 
   .form-header { margin-bottom: 40px; }
-  .form-title { font-size: 32px; font-weight: 800; color: #0F172A; letter-spacing: -1px; margin-bottom: 8px; }
-  .form-subtitle { font-size: 15px; color: #64748B; font-weight: 500; }
+  .form-title { font-size: 32px; font-weight: 800; color: #f7f7f5; letter-spacing: -1px; margin-bottom: 8px; }
+  .form-subtitle { font-size: 15px; color: #8a7f7f; font-weight: 500; }
 
   .input-group { margin-bottom: 20px; }
   .input-label {
-    display: block; font-size: 12px; font-weight: 700; color: #475569;
+    display: block; font-size: 12px; font-weight: 700; color: #8a7f7f;
     text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
   }
   
   .input-wrapper { position: relative; display: flex; align-items: center; }
-  .input-icon { position: absolute; left: 16px; color: #94A3B8; pointer-events: none; }
+  .input-icon { position: absolute; left: 16px; color: #8a7f7f; pointer-events: none; }
   
   .form-input {
-    width: 100%; padding: 14px 16px 14px 44px; background: #FFF;
-    border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; font-weight: 500;
-    color: #0F172A; font-family: inherit; transition: 0.2s; outline: none;
+    width: 100%; padding: 14px 16px 14px 44px; background: #1e1b1b;
+    border: 1px solid #2a2525; border-radius: 12px; font-size: 15px; font-weight: 500;
+    color: #f7f7f5; font-family: inherit; transition: 0.2s; outline: none;
   }
-  .form-input::placeholder { color: #94A3B8; font-weight: 400; }
-  .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
+  .form-input::placeholder { color: #8a7f7f; font-weight: 400; }
+  .form-input:focus { border-color: #ff5734; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
 
   .btn-submit {
-    width: 100%; padding: 14px; background: #0F172A; color: #FFF;
+    width: 100%; padding: 14px; background: #f7f7f5; color: #f7f7f5;
     border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
     font-family: inherit; cursor: pointer; transition: 0.2s;
     display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -106,9 +106,9 @@ const STYLES = `
   .btn-submit:hover:not(:disabled) { background: #E55B2D; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229, 91, 45, 0.2); }
   .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  .login-prompt { text-align: center; margin-top: 32px; font-size: 14px; color: #64748B; font-weight: 500; }
-  .login-link { color: #E55B2D; font-weight: 700; text-decoration: none; transition: 0.2s; }
-  .login-link:hover { color: #0F172A; }
+  .login-prompt { text-align: center; margin-top: 32px; font-size: 14px; color: #8a7f7f; font-weight: 500; }
+  .login-link { color: #ff5734; font-weight: 700; text-decoration: none; transition: 0.2s; }
+  .login-link:hover { color: #f7f7f5; }
 
   /* Mobile Footer */
   .mobile-footer {
@@ -117,7 +117,7 @@ const STYLES = `
     margin-top: 40px;
     font-size: 11px;
     font-weight: 700;
-    color: #94A3B8;
+    color: #8a7f7f;
     letter-spacing: 1px;
   }
 
@@ -205,10 +205,10 @@ export default function RegisterPage() {
         </div>
 
         <div className="left-footer">
-          <div style={{ fontSize: 11, fontWeight: 800, color: '#0F172A', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#f7f7f5', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             Built for Students
           </div>
-          <div style={{ fontSize: 13, color: '#64748B', fontWeight: 500 }}>
+          <div style={{ fontSize: 13, color: '#8a7f7f', fontWeight: 500 }}>
             S.V. Polytechnic College, Bhopal · 2026
           </div>
         </div>

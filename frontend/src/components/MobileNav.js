@@ -1,11 +1,10 @@
-// MobileNav.js - Optimized Bottom Navigation
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, BookOpen, Bot, Folder, Star } from 'lucide-react';
 
 const BOTTOM_NAV = [
   { icon: Home,     label: 'Home',    path: '/home' },
   { icon: BookOpen, label: 'Notes',   path: '/dashboard' },
-  { icon: Bot,      label: 'AI Chat',  path: '/ask-ai' },
+  { icon: Bot,      label: 'AI',      path: '/ask-ai' },
   { icon: Folder,   label: 'Folders', path: '/folders' },
   { icon: Star,     label: 'Starred', path: '/starred' },
 ];
@@ -19,19 +18,18 @@ export default function MobileNav() {
       <style>{`
         .mobile-bottom-nav {
           position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: calc(65px + env(safe-area-inset-bottom, 0px));
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border-top: 1px solid #F1F5F9;
+          bottom: 0; left: 0; right: 0;
+          height: calc(64px + env(safe-area-inset-bottom, 0px));
+          background: rgba(30, 27, 27, 0.97);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border-top: 1px solid #2a2525;
           display: flex;
           align-items: center;
           justify-content: space-around;
           padding-bottom: env(safe-area-inset-bottom, 0px);
           z-index: 500;
+          box-shadow: 0 -4px 30px rgba(0,0,0,0.4);
         }
 
         .mb-nav-btn {
@@ -42,30 +40,28 @@ export default function MobileNav() {
           gap: 4px;
           background: none;
           border: none;
-          color: #94A3B8;
+          color: #8a7f7f;
           cursor: pointer;
           flex: 1;
           height: 100%;
-          transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: color 0.2s;
           position: relative;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          padding: 0;
+          min-height: 44px;
         }
 
         .mb-nav-btn span {
           font-size: 10px;
-          font-weight: 800;
+          font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.4px;
         }
 
-        /* Active State Style */
-        .mb-nav-btn.active {
-          color: #000000;
-        }
+        .mb-nav-btn.active { color: #ff5734; }
 
         .mb-nav-btn.active svg {
-          color: #000000;
-          fill: #ccff00; /* Subtle neon fill for active icon */
-          transform: translateY(-2px);
+          filter: drop-shadow(0 0 6px rgba(255,87,52,0.55));
         }
 
         .mb-nav-btn.active::after {
@@ -74,15 +70,14 @@ export default function MobileNav() {
           top: 0;
           left: 50%;
           transform: translateX(-50%);
-          width: 30px;
+          width: 28px;
           height: 3px;
-          background: #ccff00;
+          background: #ff5734;
           border-bottom-left-radius: 4px;
           border-bottom-right-radius: 4px;
-          box-shadow: 0 2px 10px rgba(204, 255, 0, 0.5);
+          box-shadow: 0 2px 10px rgba(255, 87, 52, 0.5);
         }
 
-        /* Hide on Desktop */
         @media (min-width: 769px) {
           .mobile-bottom-nav { display: none; }
         }
@@ -95,8 +90,9 @@ export default function MobileNav() {
             key={path}
             className={`mb-nav-btn ${isActive ? 'active' : ''}`}
             onClick={() => navigate(path)}
+            aria-label={label}
           >
-            <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+            <Icon size={21} strokeWidth={isActive ? 2.5 : 2} />
             <span>{label}</span>
           </button>
         );

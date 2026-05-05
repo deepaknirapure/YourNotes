@@ -11,38 +11,38 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  body { background: #FAFAFA; color: #0F172A; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+  body { background: #151313; color: #f7f7f5; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
 
   .auth-root {
     min-height: 100vh; display: flex; flex-direction: column; 
     align-items: center; justify-content: center; padding: 24px;
-    background: #FAFAFA; position: relative;
+    background: #151313; position: relative;
   }
 
   /* Subtle Background Pattern */
   .bg-pattern {
     position: absolute; inset: 0; pointer-events: none; z-index: 0;
-    background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
+    background-image: radial-gradient(#2a2525 1px, transparent 1px);
     background-size: 32px 32px; opacity: 0.4;
   }
 
   .brand-logo {
-    font-size: 24px; font-weight: 800; color: #0F172A; 
+    font-size: 24px; font-weight: 800; color: #f7f7f5; 
     letter-spacing: -0.5px; margin-bottom: 32px; z-index: 1;
     display: flex; align-items: center; justify-content: center;
   }
 
   .auth-card {
-    background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px;
+    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 20px;
     padding: 48px 40px; width: 100%; max-width: 440px; z-index: 1;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
     animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .icon-wrap {
-    width: 56px; height: 56px; background: #F8FAFC; border: 1px solid #E2E8F0;
+    width: 56px; height: 56px; background: #1e1b1b; border: 1px solid #2a2525;
     border-radius: 14px; display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 24px; color: #0F172A;
+    margin: 0 auto 24px; color: #f7f7f5;
   }
 
   .icon-wrap.success {
@@ -50,32 +50,32 @@ const STYLES = `
   }
 
   .auth-title {
-    font-size: 24px; font-weight: 800; color: #0F172A; 
+    font-size: 24px; font-weight: 800; color: #f7f7f5; 
     letter-spacing: -0.5px; text-align: center; margin-bottom: 12px;
   }
 
   .auth-subtitle {
-    font-size: 14px; color: #64748B; text-align: center; 
+    font-size: 14px; color: #8a7f7f; text-align: center; 
     line-height: 1.6; margin-bottom: 32px;
   }
 
   .form-group { margin-bottom: 24px; }
   
   .form-label {
-    display: block; font-size: 12px; font-weight: 700; color: #475569;
+    display: block; font-size: 12px; font-weight: 700; color: #8a7f7f;
     text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
   }
 
   .form-input {
-    width: 100%; padding: 14px 16px; background: #FFF; 
-    border: 1px solid #E2E8F0; border-radius: 12px; font-size: 15px; 
-    color: #0F172A; font-family: inherit; transition: 0.2s; outline: none;
+    width: 100%; padding: 14px 16px; background: #1e1b1b; 
+    border: 1px solid #2a2525; border-radius: 12px; font-size: 15px; 
+    color: #f7f7f5; font-family: inherit; transition: 0.2s; outline: none;
   }
-  .form-input::placeholder { color: #94A3B8; }
+  .form-input::placeholder { color: #8a7f7f; }
   .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
 
   .btn-primary {
-    width: 100%; padding: 14px; background: #0F172A; color: #FFF;
+    width: 100%; padding: 14px; background: #f7f7f5; color: #f7f7f5;
     border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
     font-family: inherit; cursor: pointer; transition: 0.2s;
     display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -91,13 +91,13 @@ const STYLES = `
 
   .back-link {
     display: flex; align-items: center; justify-content: center; gap: 6px;
-    color: #64748B; font-size: 14px; font-weight: 600; text-decoration: none;
+    color: #8a7f7f; font-size: 14px; font-weight: 600; text-decoration: none;
     transition: 0.2s; margin-top: 32px;
   }
-  .back-link:hover { color: #0F172A; }
+  .back-link:hover { color: #f7f7f5; }
 
   .footer-text {
-    font-size: 11px; font-weight: 700; color: #94A3B8; letter-spacing: 2px;
+    font-size: 11px; font-weight: 700; color: #8a7f7f; letter-spacing: 2px;
     text-transform: uppercase; position: absolute; bottom: 32px;
   }
 `;
@@ -150,10 +150,10 @@ export default function ForgotPasswordPage() {
 
         {sent ? (
           <div>
-            <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", padding: "16px", borderRadius: "12px", marginBottom: "32px", textAlign: "center" }}>
-              <span style={{ fontSize: "14px", fontWeight: 600, color: "#0F172A" }}>{email}</span>
+            <div style={{ background: "#1e1b1b", border: "1px solid #2a2525", padding: "16px", borderRadius: "12px", marginBottom: "32px", textAlign: "center" }}>
+              <span style={{ fontSize: "14px", fontWeight: 600, color: "#f7f7f5" }}>{email}</span>
             </div>
-            <p style={{ fontSize: "13px", color: "#64748B", textAlign: "center", marginBottom: "24px" }}>
+            <p style={{ fontSize: "13px", color: "#8a7f7f", textAlign: "center", marginBottom: "24px" }}>
               Didn't receive the email? Check your spam folder.
             </p>
             <Link to="/login" style={{ textDecoration: "none" }}>

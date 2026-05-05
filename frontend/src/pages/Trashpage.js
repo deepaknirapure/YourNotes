@@ -12,68 +12,68 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes spin { to { transform: rotate(360deg) } }
   
-  body { background: #FFFFFF; color: #000000; font-family: 'Plus Jakarta Sans', sans-serif; }
+  body { background: #1e1b1b; color: #000000; font-family: 'Plus Jakarta Sans', sans-serif; }
   
-  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #FFFFFF; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #1e1b1b; }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; }
   
   /* Topbar */
   .pg-topbar { 
     height: 70px; display: flex; align-items: center; gap: 16px; padding: 0 32px; 
-    background: #FFFFFF; border-bottom: 1px solid #F1F5F9; flex-shrink: 0; z-index: 100;
+    background: #1e1b1b; border-bottom: 1px solid #2a2525; flex-shrink: 0; z-index: 100;
   }
-  .pg-menu-btn { display: none; background: #F1F5F9; border: none; border-radius: 10px; cursor: pointer; padding: 10px; color: #000; }
+  .pg-menu-btn { display: none; background: #2a2525; border: none; border-radius: 10px; cursor: pointer; padding: 10px; color: #000; }
   
-  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: #000; display: flex; align-items: center; justify-content: center; color: #ccff00; }
+  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: #151313; display: flex; align-items: center; justify-content: center; color: #ff5734; }
   .pg-title { font-size: 20px; font-weight: 900; color: #000; letter-spacing: -1px; text-transform: uppercase; }
-  .pg-count { background: #F1F5F9; color: #000; font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 100px; }
+  .pg-count { background: #2a2525; color: #000; font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 100px; }
   
   /* Floating Action Bar */
   .bulk-action-bar {
     position: absolute; top: 85px; left: 50%; transform: translateX(-50%);
-    background: #000; border: 2px solid #ccff00; padding: 12px 24px;
+    background: #151313; border: 2px solid #ff5734; padding: 12px 24px;
     border-radius: 20px; display: flex; align-items: center; gap: 20px;
-    box-shadow: 0 15px 40px rgba(204,255,0,0.2); z-index: 200;
+    box-shadow: 0 15px 40px rgba(255,87,52,0.2); z-index: 200;
     animation: fadeUp 0.3s ease;
   }
 
-  .btn-neon-sm { background: #ccff00; color: #000; border: none; border-radius: 10px; padding: 8px 16px; font-weight: 900; font-size: 11px; cursor: pointer; text-transform: uppercase; }
+  .btn-neon-sm { background: #ff5734; color: #000; border: none; border-radius: 10px; padding: 8px 16px; font-weight: 900; font-size: 11px; cursor: pointer; text-transform: uppercase; }
   
   .pg-content { flex: 1; overflow-y: auto; padding: 40px 5vw; scrollbar-width: none; }
   
   .pg-alert { 
-    display: flex; align-items: center; gap: 12px; background: #000; 
+    display: flex; align-items: center; gap: 12px; background: #151313; 
     border-radius: 16px; padding: 16px 24px; margin-bottom: 40px; 
-    font-size: 13px; color: #ccff00; font-weight: 700;
+    font-size: 13px; color: #ff5734; font-weight: 700;
   }
 
   .pg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
   
   .pg-card { 
-    background: #FFFFFF; border: 1px solid #F1F5F9; border-radius: 24px; 
+    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 24px; 
     padding: 28px; position: relative; transition: 0.3s; 
     animation: fadeUp 0.4s both; display: flex; flex-direction: column;
   }
   .pg-card:hover { border-color: #000; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.04); }
-  .pg-card.selected { border-color: #ccff00; background: #FAFAFA; }
+  .pg-card.selected { border-color: #ff5734; background: #151313; }
   
   .pg-card-title { font-size: 17px; font-weight: 900; color: #000; margin-bottom: 10px; line-height: 1.3; }
-  .pg-card-preview { font-size: 14px; color: #64748B; line-height: 1.7; margin-bottom: 24px; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pg-card-preview { font-size: 14px; color: #8a7f7f; line-height: 1.7; margin-bottom: 24px; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   
-  .pg-card-footer { display: flex; gap: 10px; border-top: 1px solid #F1F5F9; padding-top: 20px; }
+  .pg-card-footer { display: flex; gap: 10px; border-top: 1px solid #2a2525; padding-top: 20px; }
   
   .pg-btn-sm { 
     flex: 1; border: none; border-radius: 10px; padding: 10px; 
     font-weight: 800; font-size: 12px; cursor: pointer; display: flex; 
     align-items: center; justify-content: center; gap: 8px; transition: 0.2s; text-transform: uppercase;
   }
-  .pg-restore { background: #000; color: #ccff00; }
-  .pg-delete-forever { background: #F8FAFC; color: #FF4444; border: 1px solid #F1F5F9; }
+  .pg-restore { background: #151313; color: #ff5734; }
+  .pg-delete-forever { background: #1e1b1b; color: #FF4444; border: 1px solid #2a2525; }
 
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .modal-box { background: #000; border: 1px solid #222; border-radius: 28px; padding: 40px; max-width: 440px; width: 100%; color: #FFF; text-align: center; }
+  .modal-box { background: #151313; border: 1px solid #2a2525; border-radius: 28px; padding: 40px; max-width: 440px; width: 100%; color: #f7f7f5; text-align: center; }
 
-  .db-spinner { width: 30px; height: 30px; border: 3px solid #F1F5F9; border-top-color: #ccff00; border-radius: 50%; animation: spin .7s linear infinite; }
+  .db-spinner { width: 30px; height: 30px; border: 3px solid #2a2525; border-top-color: #ff5734; border-radius: 50%; animation: spin .7s linear infinite; }
   .pg-overlay-blur { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 90; }
 
   @media(max-width:768px) {
@@ -178,7 +178,7 @@ export default function TrashPage() {
                     else if(confirmSelectedForever) deleteSelectedForever();
                     else emptyTrash();
                 }} 
-                style={{ background: "#FF4444", color: "#FFF" }}>
+                style={{ background: "#FF4444", color: "#f7f7f5" }}>
                 {actionLoading ? "Deleting..." : "Yes, Delete"}
               </button>
             </div>
@@ -201,7 +201,7 @@ export default function TrashPage() {
                 <RefreshCw size={18} className={loading ? "spin" : ""} />
              </button>
              {notes.length > 0 && (
-                <button className="btn-neon-sm" style={{ background: '#000', color: '#ccff00' }} onClick={() => setConfirmAll(true)}>WIPE ALL</button>
+                <button className="btn-neon-sm" style={{ background: '#151313', color: '#ff5734' }} onClick={() => setConfirmAll(true)}>WIPE ALL</button>
              )}
           </div>
         </div>
@@ -210,15 +210,15 @@ export default function TrashPage() {
         {selectedIds.length > 0 && (
             <div className="bulk-action-bar">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <CheckCircle2 size={18} color="#ccff00" />
-                    <span style={{ color: '#FFF', fontWeight: 900, fontSize: 13 }}>{selectedIds.length} SELECTED</span>
+                    <CheckCircle2 size={18} color="#ff5734" />
+                    <span style={{ color: '#f7f7f5', fontWeight: 900, fontSize: 13 }}>{selectedIds.length} SELECTED</span>
                 </div>
                 <div style={{ height: '20px', width: '1px', background: '#333' }} />
                 <button className="btn-neon-sm" onClick={() => setSelectedIds(notes.map(n => n._id))}>SELECT ALL</button>
-                <button className="btn-neon-sm" style={{ background: '#FFF' }} onClick={async () => {
+                <button className="btn-neon-sm" style={{ background: '#f7f7f5' }} onClick={async () => {
                     for(const id of selectedIds) await restoreNote(id);
                 }}>RESTORE</button>
-                <button className="btn-neon-sm" style={{ background: '#FF4444', color: '#FFF' }} onClick={() => setConfirmSelectedForever(true)}>DELETE</button>
+                <button className="btn-neon-sm" style={{ background: '#FF4444', color: '#f7f7f5' }} onClick={() => setConfirmSelectedForever(true)}>DELETE</button>
                 <X size={18} color="#555" style={{ cursor: 'pointer' }} onClick={() => setSelectedIds([])} />
             </div>
         )}
@@ -235,8 +235,8 @@ export default function TrashPage() {
             <div style={{ display: "flex", justifyContent: "center", padding: "100px 0" }}><div className="db-spinner" /></div>
           ) : notes.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '100px 0' }}>
-              <Inbox size={60} color="#F1F5F9" style={{ margin: '0 auto 20px' }} />
-              <h3 style={{ color: '#CBD5E1', fontWeight: 900 }}>TRASH IS EMPTY</h3>
+              <Inbox size={60} color="#2a2525" style={{ margin: '0 auto 20px' }} />
+              <h3 style={{ color: '#3a3535', fontWeight: 900 }}>TRASH IS EMPTY</h3>
             </div>
           ) : (
             <div className="pg-grid">
@@ -248,12 +248,12 @@ export default function TrashPage() {
                       type="checkbox"
                       checked={selectedIds.includes(note._id)}
                       onChange={() => toggleSelect(note._id)}
-                      style={{ width: 18, height: 18, accentColor: "#ccff00", cursor: 'pointer' }}
+                      style={{ width: 18, height: 18, accentColor: "#ff5734", cursor: 'pointer' }}
                     />
                   </div>
                   <p className="pg-card-preview">{note.plainText || "No content to show..."}</p>
                   
-                  <div style={{ fontSize: 11, fontWeight: 900, color: '#CBD5E1', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 900, color: '#3a3535', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20 }}>
                     <Clock size={12} /> DELETED ON {new Date(note.updatedAt).toLocaleDateString()}
                   </div>
                   

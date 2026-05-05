@@ -12,35 +12,35 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes spin { to { transform: rotate(360deg) } }
   
-  body { background: #FFFFFF; color: #000; font-family: 'Plus Jakarta Sans', sans-serif; }
+  body { background: #1e1b1b; color: #000; font-family: 'Plus Jakarta Sans', sans-serif; }
   
-  .ai-wrap { display: flex; height: 100dvh; overflow: hidden; background: #FFFFFF; }
+  .ai-wrap { display: flex; height: 100dvh; overflow: hidden; background: #1e1b1b; }
   .ai-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
   .ai-shell { flex: 1; display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 0; }
   
   /* Sidebar History */
-  .ai-history { background: #F8FAFC; border-right: 1px solid #F1F5F9; overflow-y: auto; padding: 20px; }
+  .ai-history { background: #1e1b1b; border-right: 1px solid #2a2525; overflow-y: auto; padding: 20px; }
   .ai-history-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .ai-history-title { font-size: 11px; font-weight: 900; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; }
+  .ai-history-title { font-size: 11px; font-weight: 900; color: #8a7f7f; text-transform: uppercase; letter-spacing: 1px; }
   
   .ai-history-item { 
-    width: 100%; text-align: left; border: 1px solid #E2E8F0; background: #FFF; 
+    width: 100%; text-align: left; border: 1px solid #2a2525; background: #1e1b1b; 
     border-radius: 12px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.3s;
   }
   .ai-history-item:hover { border-color: #000; }
-  .ai-history-item.active { background: #000; border-color: #000; }
-  .ai-history-item.active .ai-history-name { color: #ccff00; }
-  .ai-history-item.active .ai-history-date { color: #555; }
+  .ai-history-item.active { background: #151313; border-color: #000; }
+  .ai-history-item.active .ai-history-name { color: #ff5734; }
+  .ai-history-item.active .ai-history-date { color: #8a7f7f; }
   
   .ai-history-name { font-size: 13px; font-weight: 800; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ai-history-date { font-size: 11px; font-weight: 700; color: #94A3B8; margin-top: 4px; }
+  .ai-history-date { font-size: 11px; font-weight: 700; color: #8a7f7f; margin-top: 4px; }
 
   /* Topbar */
   .ai-topbar { 
     height: 70px; display: flex; align-items: center; gap: 16px; padding: 0 32px; 
-    background: #FFF; border-bottom: 1px solid #F1F5F9; flex-shrink: 0; 
+    background: #1e1b1b; border-bottom: 1px solid #2a2525; flex-shrink: 0; 
   }
-  .ai-menu-btn { display: none; background: #F1F5F9; border: none; border-radius: 10px; cursor: pointer; padding: 8px; color: #000; }
+  .ai-menu-btn { display: none; background: #2a2525; border: none; border-radius: 10px; cursor: pointer; padding: 8px; color: #000; }
   
   /* Chat Messages */
   .ai-messages { 
@@ -54,33 +54,33 @@ const STYLES = `
     width: 36px; height: 36px; border-radius: 10px; display: flex; 
     align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .ai-avatar.bot { background: #000; color: #ccff00; }
-  .ai-avatar.user { background: #F1F5F9; color: #000; border: 1px solid #E2E8F0; }
+  .ai-avatar.bot { background: #151313; color: #ff5734; }
+  .ai-avatar.user { background: #2a2525; color: #000; border: 1px solid #2a2525; }
   
   .ai-bubble { 
     max-width: 85%; padding: 18px 22px; border-radius: 20px; font-size: 15px; 
-    line-height: 1.7; color: #1E293B; font-weight: 600;
+    line-height: 1.7; color: #f7f7f5; font-weight: 600;
   }
-  .ai-bubble.bot { background: #FFF; border: 1px solid #F1F5F9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-  .ai-bubble.user { background: #000; color: #FFF; }
+  .ai-bubble.bot { background: #1e1b1b; border: 1px solid #2a2525; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+  .ai-bubble.user { background: #151313; color: #f7f7f5; }
   
   /* Input Section */
   .ai-bottom { 
     background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
-    border-top: 1px solid #F1F5F9; padding: 24px; flex-shrink: 0;
+    border-top: 1px solid #2a2525; padding: 24px; flex-shrink: 0;
   }
   .ai-bottom-inner { max-width: 850px; margin: 0 auto; width: 100%; }
   
   .ai-chip { 
-    background: #FFF; border: 1px solid #F1F5F9; border-radius: 12px; 
-    padding: 8px 16px; font-size: 12px; font-weight: 800; color: #64748B; 
+    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 12px; 
+    padding: 8px 16px; font-size: 12px; font-weight: 800; color: #8a7f7f; 
     cursor: pointer; transition: 0.3s;
   }
-  .ai-chip:hover { border-color: #ccff00; color: #000; background: #ccff00; }
+  .ai-chip:hover { border-color: #ff5734; color: #000; background: #ff5734; }
   
   .ai-input-wrapper { 
-    display: flex; gap: 12px; align-items: center; background: #FFF; 
-    border: 1px solid #F1F5F9; border-radius: 18px; padding: 12px 16px; 
+    display: flex; gap: 12px; align-items: center; background: #1e1b1b; 
+    border: 1px solid #2a2525; border-radius: 18px; padding: 12px 16px; 
     box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: 0.3s; 
   }
   .ai-input-wrapper:focus-within { border-color: #000; }
@@ -93,8 +93,8 @@ const STYLES = `
     width: 42px; height: 42px; border-radius: 14px; border: none; cursor: pointer; 
     display: flex; align-items: center; justify-content: center; transition: 0.3s;
   }
-  .ai-send-btn.active { background: #ccff00; color: #000; }
-  .ai-send-btn.active:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(204,255,0,0.4); }
+  .ai-send-btn.active { background: #ff5734; color: #000; }
+  .ai-send-btn.active:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255,87,52,0.4); }
   
   .ai-spinner { width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.1); border-top-color: #000; border-radius: 50%; animation: spin .8s linear infinite; }
   
@@ -234,9 +234,9 @@ export default function AskAIPage() {
       <div className="ai-main">
         <div className="ai-topbar">
           <button className="ai-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={20} /></button>
-          <div style={{ padding: "8px", borderRadius: "10px", background: "#000" }}><Bot size={18} color="#ccff00" /></div>
-          <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: "-0.5px" }}>NEURAL <span style={{color: "#ccff00", background: "#000", padding: "2px 6px", borderRadius: "4px"}}>CHAT</span></span>
-          <button onClick={startNewChat} style={{ marginLeft: "auto", background: "#000", color: "#ccff00", border: "none", borderRadius: "10px", padding: "8px 16px", fontSize: "12px", fontWeight: 800, cursor: "pointer" }}>NEW SESSION</button>
+          <div style={{ padding: "8px", borderRadius: "10px", background: "#000" }}><Bot size={18} color="#ff5734" /></div>
+          <span style={{ fontSize: 18, fontWeight: 900, letterSpacing: "-0.5px" }}>NEURAL <span style={{color: "#ff5734", background: "#000", padding: "2px 6px", borderRadius: "4px"}}>CHAT</span></span>
+          <button onClick={startNewChat} style={{ marginLeft: "auto", background: "#000", color: "#ff5734", border: "none", borderRadius: "10px", padding: "8px 16px", fontSize: "12px", fontWeight: 800, cursor: "pointer" }}>NEW SESSION</button>
         </div>
 
         <div className="ai-shell">
@@ -265,7 +265,7 @@ export default function AskAIPage() {
                     {msg.role === "user" ? <User size={18} /> : <Zap size={18} />}
                   </div>
                   <div className={`ai-bubble ${msg.role === "user" ? "user" : "bot"}`}>
-                    {msg.fileName && <div style={{ fontSize: 11, fontWeight: 800, color: "#ccff00", marginBottom: 8 }}>ATTACHMENT: {msg.fileName}</div>}
+                    {msg.fileName && <div style={{ fontSize: 11, fontWeight: 800, color: "#ff5734", marginBottom: 8 }}>ATTACHMENT: {msg.fileName}</div>}
                     {msg.streaming ? <div className="ai-spinner" /> : <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>}
                   </div>
                 </div>
@@ -282,7 +282,7 @@ export default function AskAIPage() {
                 </div>
 
                 {selectedFile && (
-                  <div style={{ background: "#000", color: "#ccff00", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 800, marginBottom: 12, display: "flex", alignItems: "center", gap: 10, width: "fit-content" }}>
+                  <div style={{ background: "#000", color: "#ff5734", padding: "8px 16px", borderRadius: "10px", fontSize: "12px", fontWeight: 800, marginBottom: 12, display: "flex", alignItems: "center", gap: 10, width: "fit-content" }}>
                     <File size={14} /> {selectedFile.name} <X size={14} onClick={() => setSelectedFile(null)} style={{cursor: "pointer"}} />
                   </div>
                 )}

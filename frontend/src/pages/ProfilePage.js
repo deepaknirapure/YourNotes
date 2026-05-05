@@ -13,9 +13,9 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(15px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes spin { to { transform: rotate(360deg) } }
   
-  body { background: #000; color: #FFF; font-family: 'Plus Jakarta Sans', sans-serif; }
+  body { background: #151313; color: #f7f7f5; font-family: 'Plus Jakarta Sans', sans-serif; }
   
-  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #000; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #151313; }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
   
   /* Sleek Topbar */
@@ -23,7 +23,7 @@ const STYLES = `
     height: 70px; display: flex; align-items: center; gap: 16px; padding: 0 32px; 
     background: #0A0A0A; border-bottom: 1px solid #1A1A1A; flex-shrink: 0; 
   }
-  .pg-menu-btn { display: none; background: #1A1A1A; border: 1px solid #333; color: #FFF; cursor: pointer; padding: 8px; border-radius: 10px; }
+  .pg-menu-btn { display: none; background: #1A1A1A; border: 1px solid #333; color: #f7f7f5; cursor: pointer; padding: 8px; border-radius: 10px; }
   
   .pg-content { flex: 1; overflow-y: auto; padding: 40px 24px; scrollbar-width: none; }
   
@@ -37,50 +37,50 @@ const STYLES = `
   .pr-card:hover { border-color: #333; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
   
   .pr-card-title { 
-    font-size: 15px; font-weight: 800; color: #ccff00; text-transform: uppercase;
+    font-size: 15px; font-weight: 800; color: #ff5734; text-transform: uppercase;
     letter-spacing: 1px; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; 
   }
   
   /* Avatar Redesign */
   .pr-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 10px; }
-  .pr-avatar-container { position: relative; display: inline-block; padding: 5px; border-radius: 30px; background: linear-gradient(45deg, #ccff00, transparent); }
+  .pr-avatar-container { position: relative; display: inline-block; padding: 5px; border-radius: 30px; background: linear-gradient(45deg, #ff5734, transparent); }
   
   .pr-avatar { 
     width: 100px; height: 100px; border-radius: 25px; background: #111; 
     border: 3px solid #000; display: flex; align-items: center; justify-content: center; 
-    font-size: 36px; font-weight: 900; color: #ccff00; overflow: hidden;
+    font-size: 36px; font-weight: 900; color: #ff5734; overflow: hidden;
   }
   .pr-avatar img { width: 100%; height: 100%; object-fit: cover; }
   
   .pr-avatar-edit { 
     position: absolute; bottom: 0px; right: 0px; width: 32px; height: 32px; 
-    border-radius: 10px; background: #ccff00; display: flex; align-items: center; 
+    border-radius: 10px; background: #ff5734; display: flex; align-items: center; 
     justify-content: center; cursor: pointer; border: 3px solid #000; transition: 0.2s;
   }
   .pr-avatar-edit:hover { transform: scale(1.1) rotate(10deg); }
   
   /* Input Styling */
   .pr-field { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-  .pr-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #555; }
+  .pr-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #8a7f7f; }
   
   .pr-input-wrap { position: relative; display: flex; align-items: center; }
-  .pr-input-wrap svg { position: absolute; left: 16px; color: #444; transition: 0.3s; }
+  .pr-input-wrap svg { position: absolute; left: 16px; color: #4a4040; transition: 0.3s; }
   
   .pr-input { 
     width: 100%; padding: 14px 16px 14px 48px; background: #050505; 
-    border: 1px solid #222; border-radius: 12px; font-size: 14px; 
-    font-weight: 600; color: #FFF; outline: none; transition: 0.3s; 
+    border: 1px solid #2a2525; border-radius: 12px; font-size: 14px; 
+    font-weight: 600; color: #f7f7f5; outline: none; transition: 0.3s; 
   }
-  .pr-input:focus { border-color: #ccff00; box-shadow: 0 0 20px rgba(204,255,0,0.05); }
-  .pr-input:focus + svg { color: #ccff00; }
+  .pr-input:focus { border-color: #ff5734; box-shadow: 0 0 20px rgba(255,87,52,0.05); }
+  .pr-input:focus + svg { color: #ff5734; }
   
   /* Buttons */
   .pr-save-btn { 
-    display: flex; align-items: center; gap: 8px; background: #ccff00; color: #000; 
+    display: flex; align-items: center; gap: 8px; background: #ff5734; color: #000; 
     border: none; border-radius: 12px; padding: 14px 28px; font-size: 14px; 
     font-weight: 800; cursor: pointer; transition: 0.3s; width: fit-content;
   }
-  .pr-save-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(204,255,0,0.3); }
+  .pr-save-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255,87,52,0.3); }
   
   .pr-danger-btn { 
     display: flex; align-items: center; gap: 8px; background: transparent; color: #FF4444; 
@@ -97,9 +97,9 @@ const STYLES = `
     display: flex; flex-direction: column; align-items: center; gap: 8px; 
     padding: 20px; background: #050505; border-radius: 16px; border: 1px solid #111; transition: 0.3s;
   }
-  .pr-stat:hover { border-color: #ccff00; transform: translateY(-3px); }
-  .pr-stat-val { font-size: 28px; font-weight: 900; color: #FFF; line-height: 1; }
-  .pr-stat-lbl { font-size: 10px; color: #555; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+  .pr-stat:hover { border-color: #ff5734; transform: translateY(-3px); }
+  .pr-stat-val { font-size: 28px; font-weight: 900; color: #f7f7f5; line-height: 1; }
+  .pr-stat-lbl { font-size: 10px; color: #8a7f7f; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
   
   .pr-spinner { width: 16px; height: 16px; border: 2px solid #000; border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
 
@@ -174,10 +174,10 @@ export default function ProfilePage() {
           <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}>
             <Menu size={20} />
           </button>
-          <div style={{ padding: "8px", borderRadius: "10px", background: "#ccff00" }}>
+          <div style={{ padding: "8px", borderRadius: "10px", background: "#ff5734" }}>
             <User size={18} color="#000" />
           </div>
-          <span style={{ fontSize: 18, fontWeight: 800, color: "#FFF" }}>Security <span style={{color: "#ccff00"}}>& Hub</span></span>
+          <span style={{ fontSize: 18, fontWeight: 800, color: "#f7f7f5" }}>Security <span style={{color: "#ff5734"}}>& Hub</span></span>
         </div>
 
         <div className="pg-content">
@@ -197,7 +197,7 @@ export default function ProfilePage() {
                 </div>
                 
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: "#FFF" }}>{user?.name || "User"}</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: "#f7f7f5" }}>{user?.name || "User"}</div>
                   <div style={{ fontSize: 14, color: "#555", fontWeight: 700, marginTop: 4 }}>{user?.email}</div>
                 </div>
               </div>
@@ -210,7 +210,7 @@ export default function ProfilePage() {
                 ].map((s, i) => (
                   <div key={i} className="pr-stat">
                     <div className="pr-stat-val">{s.val}</div>
-                    <div className="pr-stat-lbl"><s.icn size={12} color="#ccff00" /> {s.lbl}</div>
+                    <div className="pr-stat-lbl"><s.icn size={12} color="#ff5734" /> {s.lbl}</div>
                   </div>
                 ))}
               </div>
