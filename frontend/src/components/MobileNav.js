@@ -1,12 +1,14 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Bot, Folder, Star } from 'lucide-react';
+// Users icon add kiya gaya hai
+import { Home, BookOpen, Bot, Folder, Star, Users } from 'lucide-react';
 
 const BOTTOM_NAV = [
-  { icon: Home,     label: 'Home',    path: '/home' },
-  { icon: BookOpen, label: 'Notes',   path: '/dashboard' },
-  { icon: Bot,      label: 'AI',      path: '/ask-ai' },
-  { icon: Folder,   label: 'Folders', path: '/folders' },
-  { icon: Star,     label: 'Starred', path: '/starred' },
+  { icon: Home,     label: 'Home',      path: '/home' },
+  { icon: BookOpen, label: 'Notes',     path: '/dashboard' },
+  { icon: Bot,      label: 'AI',        path: '/ask-ai' },
+  { icon: Users,    label: 'Community', path: '/community' }, // Naya Button
+  { icon: Folder,   label: 'Folders',   path: '/folders' },
+  { icon: Star,     label: 'Starred',   path: '/starred' },
 ];
 
 export default function MobileNav() {
@@ -52,10 +54,10 @@ export default function MobileNav() {
         }
 
         .mb-nav-btn span {
-          font-size: 10px;
+          font-size: 9px; /* Items badhne par font thoda chota kiya taaki fit ho sake */
           font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.4px;
+          letter-spacing: 0.2px;
         }
 
         .mb-nav-btn.active { color: #ff5734; }
@@ -70,7 +72,7 @@ export default function MobileNav() {
           top: 0;
           left: 50%;
           transform: translateX(-50%);
-          width: 28px;
+          width: 24px;
           height: 3px;
           background: #ff5734;
           border-bottom-left-radius: 4px;
@@ -92,7 +94,7 @@ export default function MobileNav() {
             onClick={() => navigate(path)}
             aria-label={label}
           >
-            <Icon size={21} strokeWidth={isActive ? 2.5 : 2} />
+            <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
             <span>{label}</span>
           </button>
         );
