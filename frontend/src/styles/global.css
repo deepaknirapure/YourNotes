@@ -1,37 +1,33 @@
-/* ================================================================
-   YourNotes - Global CSS (Updated Theme)
-   Colors: #151313, #ff5734, #be94f5, #fcc42d, #f7f7f5
-   ================================================================ */
+/* 
+   YourNotes — Global CSS (Light Minimal Theme)
+   Colors: #ffffff, #f97316, #8b5cf6, #f59e0b, #1a1a1a
+*/
 
-/* ── Google Fonts ── */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
-/* ── CSS Variables ── */
 :root {
-  --color-bg:       #151313;
-  --color-primary:  #ff5734;
-  --color-purple:   #be94f5;
-  --color-yellow:   #fcc42d;
-  --color-light:    #f7f7f5;
-  --color-surface:  #1e1b1b;
-  --color-border:   #2a2525;
-  --color-text:     #f7f7f5;
-  --color-muted:    #8a7f7f;
+  --color-bg:       #f9f9f8;
+  --color-primary:  #f97316;
+  --color-purple:   #8b5cf6;
+  --color-yellow:   #f59e0b;
+  --color-light:    #ffffff;
+  --color-surface:  #ffffff;
+  --color-border:   #e8e5e0;
+  --color-text:     #1a1a1a;
+  --color-muted:    #9e9a93;
   --sidebar-w:      260px;
   --radius-sm:      8px;
-  --radius-md:      14px;
-  --radius-lg:      20px;
-  --radius-xl:      28px;
+  --radius-md:      12px;
+  --radius-lg:      18px;
+  --radius-xl:      24px;
 }
 
-/* ── Box Sizing Reset ── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* ── Root HTML/Body ── */
 html {
   font-size: 16px;
   scroll-behavior: smooth;
@@ -49,45 +45,33 @@ body {
   overscroll-behavior: none;
 }
 
-/* ── Scrollbar Styling ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
 
-/* ── Text Selection ── */
-::selection { background: rgba(255, 87, 52, 0.25); color: var(--color-light); }
+::selection { background: rgba(249, 115, 22, 0.15); color: var(--color-text); }
 
-/* ── Focus Ring ── */
 :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
-/* ── Touch highlight remove on mobile ── */
 button, a, [role="button"] {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Animations ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.96); }
   to   { opacity: 1; transform: scale(1); }
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(255, 87, 52, 0.2); }
-  50% { box-shadow: 0 0 35px rgba(255, 87, 52, 0.4); }
-}
-
 /* ================================================================
-   SHARED PAGE LAYOUT CLASSES
+   LAYOUT
    ================================================================ */
 
 .pg-wrap {
@@ -108,7 +92,7 @@ button, a, [role="button"] {
 }
 
 .pg-topbar {
-  height: 64px;
+  height: 60px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -125,204 +109,196 @@ button, a, [role="button"] {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
-
 .pg-content::-webkit-scrollbar { display: none; }
 
-/* ── Hamburger Menu Button ── */
 .pg-menu-btn {
   display: none;
   align-items: center;
   justify-content: center;
-  background: var(--color-border);
+  background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   padding: 8px;
-  color: var(--color-light);
-  min-width: 38px;
-  height: 38px;
+  color: var(--color-text);
+  min-width: 36px;
+  height: 36px;
   transition: all 0.15s;
   flex-shrink: 0;
 }
-
 .pg-menu-btn:hover {
-  background: var(--color-primary);
-  color: #fff;
+  background: rgba(249, 115, 22, 0.08);
   border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
-/* ── Modal Overlay ── */
 .pg-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(21, 19, 19, 0.75);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(26, 26, 26, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 40;
 }
 
-/* ── Primary Button ── */
+/* ================================================================
+   BUTTONS
+   ================================================================ */
+
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-md);
-  padding: 11px 20px;
+  padding: 10px 18px;
   font-size: 14px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s;
   white-space: nowrap;
 }
-
 .btn-primary:hover:not(:disabled) {
-  background: #e64a2a;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 87, 52, 0.35);
+  background: #ea6c0a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.25);
 }
-
 .btn-primary:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
   transform: none;
 }
 
-/* ── Secondary Button ── */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: var(--color-border);
-  color: var(--color-light);
+  gap: 7px;
+  background: var(--color-surface);
+  color: var(--color-text);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 10px 18px;
+  padding: 9px 16px;
   font-size: 14px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s;
   white-space: nowrap;
 }
-
 .btn-secondary:hover:not(:disabled) {
-  background: var(--color-surface);
+  background: var(--color-bg);
   border-color: var(--color-muted);
 }
 
-/* ── Notes Grid ── */
+/* ================================================================
+   NOTES
+   ================================================================ */
+
 .notes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
-/* ── Note Card ── */
 .note-card {
   background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 22px;
+  padding: 20px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   animation: fadeUp 0.3s both;
   position: relative;
 }
-
 .note-card:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 12px 30px rgba(255, 87, 52, 0.12);
-  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.08);
+  transform: translateY(-2px);
 }
 
-/* ── Spinner ── */
+/* ================================================================
+   UTILITIES
+   ================================================================ */
+
 .spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid var(--color-border);
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid var(--color-border);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
-/* ── Empty State ── */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 24px;
-  gap: 14px;
+  padding: 72px 24px;
+  gap: 12px;
   text-align: center;
   color: var(--color-muted);
 }
 
-/* ── Section Header ── */
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 .section-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
-  color: var(--color-light);
-  letter-spacing: -0.5px;
+  color: var(--color-text);
+  letter-spacing: -0.4px;
 }
 
-/* ── Search Input ── */
 .search-wrapper {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 10px 16px;
-  transition: all 0.2s;
+  padding: 9px 14px;
+  transition: all 0.18s;
 }
-
 .search-wrapper:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(255, 87, 52, 0.12);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
-
 .search-wrapper input {
   border: none;
   outline: none;
   background: transparent;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-light);
+  color: var(--color-text);
   font-family: inherit;
   width: 100%;
 }
-
 .search-wrapper input::placeholder { color: var(--color-muted); }
 
-/* ── Tag Chip ── */
 .tag-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: rgba(190, 148, 245, 0.12);
+  gap: 4px;
+  background: rgba(139, 92, 246, 0.08);
   color: var(--color-purple);
-  border: 1px solid rgba(190, 148, 245, 0.25);
+  border: 1px solid rgba(139, 92, 246, 0.18);
   border-radius: 100px;
-  padding: 3px 10px;
+  padding: 3px 9px;
   font-size: 12px;
   font-weight: 600;
 }
 
-/* ── Badge ── */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -335,38 +311,37 @@ button, a, [role="button"] {
 }
 
 /* ================================================================
-   MOBILE BOTTOM NAV - hidden on desktop
+   MOBILE NAV
    ================================================================ */
+
 .mobile-bottom-nav { display: none; }
 .mobile-fab { display: none; }
 
 /* ================================================================
-   RESPONSIVE BREAKPOINTS
+   RESPONSIVE
    ================================================================ */
 
-/* ── Large Tablet (max 1024px) ── */
 @media (max-width: 1024px) {
-  .pg-content { padding: 24px; }
-  .notes-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+  .pg-content { padding: 22px; }
+  .notes-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 }
 
-/* ── Tablet & Mobile (max 768px) ── */
 @media (max-width: 768px) {
   .pg-menu-btn { display: flex !important; }
 
   .pg-topbar {
-    height: 58px !important;
-    padding: 0 16px !important;
+    height: 54px !important;
+    padding: 0 14px !important;
   }
 
   .pg-content {
-    padding: 16px !important;
-    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 14px !important;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .notes-grid {
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: 10px !important;
   }
 
   .note-card {
@@ -374,16 +349,13 @@ button, a, [role="button"] {
     border-radius: 14px !important;
   }
 
-  .section-title { font-size: 16px !important; }
+  .section-title { font-size: 15px !important; }
 
-  /* Mobile Bottom Nav show */
   .mobile-bottom-nav {
     display: flex !important;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 64px;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
     background: var(--color-surface);
     border-top: 1px solid var(--color-border);
     z-index: 200;
@@ -391,7 +363,7 @@ button, a, [role="button"] {
     justify-content: space-around;
     padding: 0 4px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
   }
 
   .mb-nav-btn {
@@ -401,59 +373,58 @@ button, a, [role="button"] {
     justify-content: center;
     gap: 3px;
     flex: 1;
-    padding: 8px 4px;
+    padding: 6px 4px;
     background: none;
     border: none;
     cursor: pointer;
     color: var(--color-muted);
-    transition: color 0.2s;
+    transition: color 0.18s;
     min-height: 44px;
     font-family: inherit;
   }
-
-  .mb-nav-btn span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+  .mb-nav-btn span {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
   .mb-nav-btn.active { color: var(--color-primary); }
-  .mb-nav-btn.active svg { filter: drop-shadow(0 0 6px rgba(255,87,52,0.5)); }
 
-  /* Mobile FAB */
   .mobile-fab {
     display: flex !important;
     position: fixed;
-    bottom: 80px;
-    right: 18px;
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    bottom: 76px; right: 16px;
+    width: 48px; height: 48px;
+    border-radius: 14px;
     background: var(--color-primary);
     color: #fff;
     border: none;
     cursor: pointer;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 24px rgba(255, 87, 52, 0.45);
+    box-shadow: 0 4px 18px rgba(249, 115, 22, 0.35);
     z-index: 199;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.18s, box-shadow 0.18s;
   }
-
   .mobile-fab:active {
     transform: scale(0.93);
-    box-shadow: 0 3px 12px rgba(255, 87, 52, 0.3);
+    box-shadow: 0 2px 10px rgba(249, 115, 22, 0.25);
   }
 
   .search-hide-mobile { display: none !important; }
 }
 
-/* ── Small phones (< 380px) ── */
 @media (max-width: 380px) {
-  .pg-topbar { padding: 0 12px !important; }
+  .pg-topbar { padding: 0 10px !important; }
   .pg-content {
-    padding: 12px !important;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 10px !important;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
   }
-  .mobile-bottom-nav { height: 60px !important; }
+  .mobile-bottom-nav { height: 56px !important; }
 }
 
-/* ── Safe area notch phones ── */
 @supports (padding: env(safe-area-inset-bottom)) {
-  .mobile-bottom-nav { padding-bottom: env(safe-area-inset-bottom) !important; }
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
 }
