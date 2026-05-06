@@ -244,6 +244,17 @@ const resetWeeklyGoals = async () => {
   }
 };
 
+// 10. DELETE AVATAR — Profile picture hatana
+const deleteProfilePicture = async (req, res) => {
+  try {
+    const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+    await User.findByIdAndUpdate(req.user.id, { avatar: DEFAULT_AVATAR });
+    res.json({ message: 'Profile picture removed', avatar: DEFAULT_AVATAR });
+  } catch (error) {
+    res.status(500).json({ message: 'Delete failed' });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -253,5 +264,6 @@ module.exports = {
   updateProfile,
   changePassword,
   uploadProfilePicture,
+  deleteProfilePicture,
   resetWeeklyGoals,
 };

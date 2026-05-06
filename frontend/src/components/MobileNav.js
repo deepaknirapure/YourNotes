@@ -1,16 +1,16 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-// Users icon add kiya gaya hai
 import { Home, BookOpen, Bot, Folder, Star, Users } from 'lucide-react';
 
 const BOTTOM_NAV = [
   { icon: Home,     label: 'Home',      path: '/home' },
   { icon: BookOpen, label: 'Notes',     path: '/dashboard' },
   { icon: Bot,      label: 'AI',        path: '/ask-ai' },
-  { icon: Users,    label: 'Community', path: '/community' }, // Naya Button
+  { icon: Users,    label: 'Community', path: '/community' },
   { icon: Folder,   label: 'Folders',   path: '/folders' },
   { icon: Star,     label: 'Starred',   path: '/starred' },
 ];
 
+// Hindi: Mobile bottom navigation — CSS variables se theme automatic switch hogi
 export default function MobileNav() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,17 +21,15 @@ export default function MobileNav() {
         .mobile-bottom-nav {
           position: fixed;
           bottom: 0; left: 0; right: 0;
-          height: calc(64px + env(safe-area-inset-bottom, 0px));
-          background: rgba(30, 27, 27, 0.97);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-top: 1px solid #2a2525;
+          height: calc(60px + env(safe-area-inset-bottom, 0px));
+          background: var(--surface);
+          border-top: 1px solid var(--border);
           display: flex;
           align-items: center;
           justify-content: space-around;
           padding-bottom: env(safe-area-inset-bottom, 0px);
           z-index: 500;
-          box-shadow: 0 -4px 30px rgba(0,0,0,0.4);
+          box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
         }
 
         .mb-nav-btn {
@@ -39,10 +37,10 @@ export default function MobileNav() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 4px;
+          gap: 3px;
           background: none;
           border: none;
-          color: #8a7f7f;
+          color: var(--text-light);
           cursor: pointer;
           flex: 1;
           height: 100%;
@@ -54,30 +52,26 @@ export default function MobileNav() {
         }
 
         .mb-nav-btn span {
-          font-size: 9px; /* Items badhne par font thoda chota kiya taaki fit ho sake */
+          font-size: 9px;
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.2px;
         }
 
-        .mb-nav-btn.active { color: #ff5734; }
-
+        /* Hindi: Active state mein accent color dikhao */
+        .mb-nav-btn.active { color: #f97316; }
         .mb-nav-btn.active svg {
-          filter: drop-shadow(0 0 6px rgba(255,87,52,0.55));
+          filter: drop-shadow(0 0 5px rgba(249,115,22,0.4));
         }
-
         .mb-nav-btn.active::after {
           content: '';
           position: absolute;
-          top: 0;
-          left: 50%;
+          top: 0; left: 50%;
           transform: translateX(-50%);
-          width: 24px;
-          height: 3px;
-          background: #ff5734;
+          width: 24px; height: 3px;
+          background: #f97316;
           border-bottom-left-radius: 4px;
           border-bottom-right-radius: 4px;
-          box-shadow: 0 2px 10px rgba(255, 87, 52, 0.5);
         }
 
         @media (min-width: 769px) {

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Suspense, lazy } from 'react';
 import { AuthProvider } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import PrivateRoute from './components/PrivateRoute';
 import './styles/global.css';
 import './styles/mobile.css';
@@ -13,7 +13,6 @@ const RegisterPage        = lazy(() => import('./pages/RegisterPage'));
 const ForgotPasswordPage  = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'));
 const NotesPage           = lazy(() => import('./pages/DashboardPage'));
-const FlashcardReviewPage = lazy(() => import('./pages/FlashcardReviewPage'));
 const SharedNotePage      = lazy(() => import('./pages/SharedNotePage'));
 const ProfilePage         = lazy(() => import('./pages/ProfilePage'));
 const SettingsPage        = lazy(() => import('./pages/SettingsPage'));
@@ -29,14 +28,14 @@ function NotFoundPage() {
   return (
     <div style={{
       height: '100vh', height: '100dvh',
-      background: '#151313',
+      background: 'var(--bg)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       gap: 14, fontFamily: "'Plus Jakarta Sans', sans-serif",
     }}>
-      <div style={{ fontSize: 72, fontWeight: 900, color: '#ff5734', letterSpacing: '-4px' }}>404</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: '#f7f7f5' }}>Page not found</div>
-      <a href="/" style={{ color: '#be94f5', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>← Go Home</a>
+      <div style={{ fontSize: 72, fontWeight: 900, color: 'var(--accent)', letterSpacing: '-4px' }}>404</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>Page not found</div>
+      <a href="/" style={{ color: 'var(--purple)', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>← Go Home</a>
     </div>
   );
 }
@@ -45,13 +44,13 @@ function PageLoader() {
   return (
     <div style={{
       height: '100vh', height: '100dvh',
-      background: '#151313',
+      background: 'var(--bg)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
       <div style={{
         width: 36, height: 36,
-        border: '3px solid rgba(255,87,52,0.15)',
-        borderTopColor: '#ff5734',
+        border: '3px solid var(--border)',
+        borderTopColor: 'var(--accent)',
         borderRadius: '50%',
         animation: 'spin 0.75s linear infinite',
       }} />
@@ -60,27 +59,35 @@ function PageLoader() {
   );
 }
 
+// Hindi: Theme ke hisaab se Toaster ka style change karo
+function ThemedToaster() {
+  const { isDark } = useTheme();
+  return (
+    <Toaster
+      position="top-right"
+      toastOptions={{
+        style: {
+          background: isDark ? '#1e1919' : '#ffffff',
+          color: isDark ? '#f5f5f4' : '#1a1a1a',
+          border: isDark ? '1px solid #2a2828' : '1px solid #e8e6e1',
+          borderRadius: '12px',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: '14px',
+          fontWeight: 600,
+        },
+        success: { iconTheme: { primary: '#f97316', secondary: '#fff' } },
+        error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+      }}
+    />
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
       <Router>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#1e1b1b',
-              color: '#f7f7f5',
-              border: '1px solid #2a2525',
-              borderRadius: '12px',
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontSize: '14px',
-              fontWeight: 600,
-            },
-            success: { iconTheme: { primary: '#ff5734', secondary: '#fff' } },
-            error: { iconTheme: { primary: '#ff4444', secondary: '#fff' } },
-          }}
-        />
+        <ThemedToaster />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/"                      element={<LandingPage />} />
@@ -96,7 +103,6 @@ function App() {
             <Route path="/starred"          element={<PrivateRoute><StarredPage /></PrivateRoute>} />
             <Route path="/folders"          element={<PrivateRoute><FoldersPage /></PrivateRoute>} />
             <Route path="/tags"             element={<PrivateRoute><TagsPage /></PrivateRoute>} />
-            <Route path="/flashcard-review" element={<PrivateRoute><FlashcardReviewPage /></PrivateRoute>} />
             <Route path="/ask-ai"           element={<PrivateRoute><AskAIPage /></PrivateRoute>} />
             <Route path="/community"        element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
             <Route path="/trash"            element={<PrivateRoute><TrashPage /></PrivateRoute>} />

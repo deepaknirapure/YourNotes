@@ -1,9 +1,10 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, Star, Folder, Tag,
-  CreditCard, Bot, Users, Trash2, LogOut, X, Settings
+  Bot, Users, Trash2, LogOut, X, Settings, Sun, Moon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const NAV_ITEMS = [
   { icon: Home,       label: 'Home',       path: '/home' },
@@ -11,7 +12,6 @@ const NAV_ITEMS = [
   { icon: Star,       label: 'Starred',    path: '/starred' },
   { icon: Folder,     label: 'Folders',    path: '/folders' },
   { icon: Tag,        label: 'Tags',       path: '/tags' },
-  { icon: CreditCard, label: 'Flashcards', path: '/flashcard-review' },
   { icon: Bot,        label: 'Ask AI',     path: '/ask-ai' },
   { icon: Users,      label: 'Community',  path: '/community' },
   { icon: Trash2,     label: 'Trash',      path: '/trash' },
@@ -22,6 +22,8 @@ export default function Sidebar({ open, onClose }) {
   const navigate  = useNavigate();
   const location  = useLocation();
   const { user, logout } = useAuth();
+  // Hindi: Theme context se isDark value lo
+  const { isDark, toggleTheme } = useTheme();
 
   const goTo = (path) => { navigate(path); if (onClose) onClose(); };
   const handleLogout = () => { logout(); navigate('/login'); };
@@ -65,28 +67,35 @@ export default function Sidebar({ open, onClose }) {
               <span className="username">{user?.name || 'User'}</span>
               <span className="user-sub">My account</span>
             </div>
-            <Settings size={13} style={{ color: '#b0ada6', flexShrink: 0 }} />
+            <Settings size={13} style={{ color: 'var(--text-light)', flexShrink: 0 }} />
           </div>
 
           <button onClick={handleLogout} className="logout-btn">
             <LogOut size={14} /> Sign out
           </button>
+
+          {/* Hindi: Dark/Light mode toggle button */}
+          <button onClick={toggleTheme} className="theme-toggle-btn">
+            {isDark ? <Sun size={14} /> : <Moon size={14} />}
+            {isDark ? 'Light Mode' : 'Dark Mode'}
+          </button>
         </div>
       </aside>
 
+      {/* Hindi: CSS variables use kar rahe hain — dark/light automatic switch hoga */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
         .sidebar-overlay {
           position: fixed; inset: 0;
-          background: rgba(26,26,26,0.35);
+          background: rgba(26,26,26,0.45);
           backdrop-filter: blur(4px);
           z-index: 299; display: none;
         }
 
         .sidebar-main {
           width: 240px; min-width: 240px; height: 100vh; height: 100dvh;
-          background: #ffffff; border-right: 1px solid #e8e6e1;
+          background: var(--surface); border-right: 1px solid var(--border);
           display: flex; flex-direction: column;
           font-family: 'Plus Jakarta Sans', sans-serif;
           position: relative; z-index: 300; flex-shrink: 0;
@@ -95,7 +104,7 @@ export default function Sidebar({ open, onClose }) {
         .sidebar-header {
           height: 58px; display: flex; align-items: center;
           justify-content: space-between; padding: 0 18px;
-          border-bottom: 1px solid #e8e6e1; flex-shrink: 0;
+          border-bottom: 1px solid var(--border); flex-shrink: 0;
         }
 
         .sidebar-logo {
@@ -106,12 +115,12 @@ export default function Sidebar({ open, onClose }) {
           width: 26px; height: 26px; background: #f97316; border-radius: 6px;
           display: flex; align-items: center; justify-content: center;
         }
-        .logo-txt { color: #1a1a1a; }
+        .logo-txt { color: var(--text); }
         .logo-accent { color: #f97316; }
 
         .sidebar-close-btn {
-          display: none; background: #f5f5f3; border: 1px solid #e8e6e1;
-          color: #888580; padding: 6px; border-radius: 7px;
+          display: none; background: var(--bg); border: 1px solid var(--border);
+          color: var(--text-muted); padding: 6px; border-radius: 7px;
           cursor: pointer; align-items: center; justify-content: center; transition: 0.15s;
         }
         .sidebar-close-btn:hover { border-color: #f97316; color: #f97316; }
@@ -125,19 +134,19 @@ export default function Sidebar({ open, onClose }) {
 
         .nav-btn {
           display: flex; align-items: center; gap: 10px;
-          padding: 9px 12px; color: #888580;
+          padding: 9px 12px; color: var(--text-muted);
           background: transparent; border: none; cursor: pointer;
           font-size: 13.5px; font-weight: 600; border-radius: 9px;
           transition: all 0.15s; text-align: left; width: 100%; font-family: inherit;
         }
-        .nav-btn:hover { color: #1a1a1a; background: #f5f5f3; }
+        .nav-btn:hover { color: var(--text); background: var(--bg); }
         .nav-btn.active {
           color: #f97316 !important; background: rgba(249,115,22,0.08) !important;
           font-weight: 700;
         }
 
         .sidebar-footer {
-          padding: 12px; border-top: 1px solid #e8e6e1;
+          padding: 12px; border-top: 1px solid var(--border);
           display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
         }
 
@@ -146,7 +155,7 @@ export default function Sidebar({ open, onClose }) {
           padding: 10px; border-radius: 10px; transition: 0.15s;
           border: 1px solid transparent;
         }
-        .profile-row:hover { background: #f5f5f3; border-color: #e8e6e1; }
+        .profile-row:hover { background: var(--bg); border-color: var(--border); }
 
         .avatar {
           width: 32px; height: 32px; border-radius: 8px;
@@ -158,25 +167,35 @@ export default function Sidebar({ open, onClose }) {
 
         .user-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
         .username {
-          font-size: 13px; font-weight: 700; color: #1a1a1a;
+          font-size: 13px; font-weight: 700; color: var(--text);
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .user-sub { font-size: 11px; color: #b0ada6; font-weight: 600; }
+        .user-sub { font-size: 11px; color: var(--text-light); font-weight: 600; }
 
         .logout-btn {
           display: flex; align-items: center; gap: 7px;
           background: none; border: none; padding: 7px 10px;
-          font-size: 12px; font-weight: 600; color: #b0ada6;
+          font-size: 12px; font-weight: 600; color: var(--text-muted);
           cursor: pointer; transition: 0.15s; font-family: inherit;
           border-radius: 7px; width: 100%;
         }
         .logout-btn:hover { color: #f97316; background: rgba(249,115,22,0.06); }
 
+        /* Hindi: Theme toggle button */
+        .theme-toggle-btn {
+          display: flex; align-items: center; gap: 7px;
+          background: var(--bg); border: 1px solid var(--border); padding: 7px 10px;
+          font-size: 12px; font-weight: 600; color: var(--text-muted);
+          cursor: pointer; transition: 0.15s; font-family: inherit;
+          border-radius: 7px; width: 100%;
+        }
+        .theme-toggle-btn:hover { border-color: #f97316; color: #f97316; }
+
         @media (max-width: 768px) {
           .sidebar-overlay { display: block; }
           .sidebar-main {
             position: fixed; transform: translateX(-100%);
-            box-shadow: 4px 0 24px rgba(0,0,0,0.08);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.15);
             transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
           }
           .sidebar-main.sidebar-open { transform: translateX(0); }

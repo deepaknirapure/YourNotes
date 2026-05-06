@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, FileText, Star, Globe, ChevronRight, Brain, Folder, Zap, Menu, ArrowUpRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import API from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import MobileNav from '../components/MobileNav';
@@ -11,27 +12,27 @@ const STYLES = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  .home-root { display: flex; height: 100dvh; background: #f5f5f3; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
+  .home-root { display: flex; height: 100dvh; background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden; }
   .home-main { flex: 1; overflow-y: auto; scrollbar-width: none; min-width: 0; }
   .home-main::-webkit-scrollbar { display: none; }
 
   .home-topbar {
     height: 58px; display: flex; align-items: center; justify-content: space-between;
-    padding: 0 28px; background: #fff; border-bottom: 1px solid #e8e6e1; position: sticky; top: 0; z-index: 10;
+    padding: 0 28px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
   }
   .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .menu-btn { display: none; background: transparent; border: 1px solid #e8e6e1; border-radius: 7px; cursor: pointer; padding: 7px; color: #888580; align-items: center; justify-content: center; transition: 0.15s; }
+  .menu-btn { display: none; background: transparent; border: 1px solid var(--border); border-radius: 7px; cursor: pointer; padding: 7px; color: var(--text-muted); align-items: center; justify-content: center; transition: 0.15s; }
   .menu-btn:hover { border-color: #f97316; color: #f97316; }
-  .page-title { font-size: 14px; font-weight: 800; color: #1a1a1a; }
-  .user-greet { font-size: 12px; color: #b0ada6; font-weight: 500; }
+  .page-title { font-size: 14px; font-weight: 800; color: var(--text); }
+  .user-greet { font-size: 12px; color: var(--text-light); font-weight: 500; }
 
   .search-bar {
     display: flex; align-items: center; gap: 8px;
-    background: #f5f5f3; border: 1px solid #e8e6e1;
+    background: var(--bg); border: 1px solid var(--border);
     border-radius: 9px; padding: 7px 14px; width: 240px; transition: 0.18s;
   }
-  .search-bar:focus-within { border-color: #f97316; background: #fff; }
-  .search-bar input { border: none; outline: none; background: transparent; font-size: 13px; font-weight: 500; color: #1a1a1a; font-family: inherit; width: 100%; }
+  .search-bar:focus-within { border-color: #f97316; background: var(--surface); }
+  .search-bar input { border: none; outline: none; background: transparent; font-size: 13px; font-weight: 500; color: var(--text); font-family: inherit; width: 100%; }
   .search-bar input::placeholder { color: #c8c5be; }
 
   .home-body { padding: 28px 32px; }
@@ -56,19 +57,19 @@ const STYLES = `
 
   /* Stats */
   .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-  .stat-card { background: #fff; border: 1px solid #e8e6e1; border-radius: 14px; padding: 20px; animation: fadeUp 0.35s both; transition: 0.2s; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; animation: fadeUp 0.35s both; transition: 0.2s; }
   .stat-card:hover { border-color: #d0cdc6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
   .stat-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
-  .stat-val { font-size: 28px; font-weight: 900; color: #1a1a1a; letter-spacing: -1px; line-height: 1; margin-bottom: 4px; }
-  .stat-lbl { font-size: 12px; font-weight: 600; color: #b0ada6; }
+  .stat-val { font-size: 28px; font-weight: 900; color: var(--text); letter-spacing: -1px; line-height: 1; margin-bottom: 4px; }
+  .stat-lbl { font-size: 12px; font-weight: 600; color: var(--text-light); }
 
   /* Recent */
   .section-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .section-title { font-size: 14px; font-weight: 800; color: #1a1a1a; }
-  .section-link { font-size: 12px; font-weight: 600; color: #888580; text-decoration: none; display: flex; align-items: center; gap: 4px; cursor: pointer; background: none; border: none; font-family: inherit; }
+  .section-title { font-size: 14px; font-weight: 800; color: var(--text); }
+  .section-link { font-size: 12px; font-weight: 600; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 4px; cursor: pointer; background: none; border: none; font-family: inherit; }
   .section-link:hover { color: #f97316; }
 
-  .recent-list { background: #fff; border: 1px solid #e8e6e1; border-radius: 14px; overflow: hidden; }
+  .recent-list { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
   .recent-item {
     padding: 16px 20px; border-bottom: 1px solid #f0ede8; display: flex; align-items: center; justify-content: space-between;
     cursor: pointer; transition: 0.15s;
@@ -76,8 +77,8 @@ const STYLES = `
   .recent-item:last-child { border-bottom: none; }
   .recent-item:hover { background: #faf9f7; }
   .recent-dot { width: 8px; height: 8px; border-radius: 50%; background: #f97316; flex-shrink: 0; }
-  .recent-title { font-size: 14px; font-weight: 700; color: #1a1a1a; }
-  .recent-date { font-size: 12px; color: #b0ada6; font-weight: 500; margin-top: 2px; }
+  .recent-title { font-size: 14px; font-weight: 700; color: var(--text); }
+  .recent-date { font-size: 12px; color: var(--text-light); font-weight: 500; margin-top: 2px; }
 
   @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 768px) {
@@ -91,6 +92,7 @@ const STYLES = `
 
 export default function HomePage() {
   const { user } = useAuth();
+  const { isDark } = useTheme(); // Hindi: theme change hone par re-render trigger hoga
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState({ totalNotes: 0, publicNotes: 0, starredNotes: 0, flashcardsDue: 0, totalFolders: 0, streakCount: 0 });
