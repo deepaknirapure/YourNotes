@@ -1,268 +1,3 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { Suspense, lazy } from 'react';
-import { AuthProvider } from './context/AuthContext';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
-import PrivateRoute from './components/PrivateRoute';
-import './styles/global.css';
-import './styles/mobile.css';
-
-const LandingPage         = lazy(() => import('./pages/LandingPage'));
-const LoginPage           = lazy(() => import('./pages/LoginPage'));
-const RegisterPage        = lazy(() => import('./pages/RegisterPage'));
-const ForgotPasswordPage  = lazy(() => import('./pages/ForgotPasswordPage'));
-const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'));
-const NotesPage           = lazy(() => import('./pages/DashboardPage'));
-const SharedNotePage      = lazy(() => import('./pages/SharedNotePage'));
-const ProfilePage         = lazy(() => import('./pages/ProfilePage'));
-const SettingsPage        = lazy(() => import('./pages/SettingsPage'));
-const CommunityPage       = lazy(() => import('./pages/CommunityPage'));
-const AskAIPage           = lazy(() => import('./pages/AskAIPage'));
-const HomePage            = lazy(() => import('./pages/Homepage'));
-const TrashPage           = lazy(() => import('./pages/Trashpage'));
-const StarredPage         = lazy(() => import('./pages/Starredpage'));
-const FoldersPage         = lazy(() => import('./pages/Folderspage'));
-const TagsPage            = lazy(() => import('./pages/Tagspage'));
-
-function NotFoundPage() {
-  return (
-    <div style={{
-      height: '100vh', height: '100dvh',
-      background: 'var(--bg)',
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      gap: 14, fontFamily: "'Plus Jakarta Sans', sans-serif",
-    }}>
-      <div style={{ fontSize: 72, fontWeight: 900, color: 'var(--accent)', letterSpacing: '-4px' }}>404</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>Page not found</div>
-      <a href="/" style={{ color: 'var(--purple)', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>← Go Home</a>
-    </div>
-  );
-}
-
-function PageLoader() {
-  return (
-    <div style={{
-      height: '100vh', height: '100dvh',
-      background: 'var(--bg)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      <div style={{
-        width: 36, height: 36,
-        border: '3px solid var(--border)',
-        borderTopColor: 'var(--accent)',
-        borderRadius: '50%',
-        animation: 'spin 0.75s linear infinite',
-      }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
-}
-
-// Hindi: Theme ke hisaab se Toaster ka style change karo
-function ThemedToaster() {
-  const { isDark } = useTheme();
-  return (
-    <Toaster
-      position="top-right"
-      toastOptions={{
-        style: {
-          background: isDark ? '#1e1919' : '#ffffff',
-          color: isDark ? '#f5f5f4' : '#1a1a1a',
-          border: isDark ? '1px solid #2a2828' : '1px solid #e8e6e1',
-          borderRadius: '12px',
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          fontSize: '14px',
-          fontWeight: 600,
-        },
-        success: { iconTheme: { primary: '#f97316', secondary: '#fff' } },
-        error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
-      }}
-    />
-  );
-}
-
-function App() {
-  return (
-    <AuthProvider>
-      <ThemeProvider>
-      <Router>
-        <ThemedToaster />
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/"                      element={<LandingPage />} />
-            <Route path="/login"                 element={<LoginPage />} />
-            <Route path="/register"              element={<RegisterPage />} />
-            <Route path="/forgot-password"       element={<ForgotPasswordPage />} />
-            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-            <Route path="/shared/:token"         element={<SharedNotePage />} />
-
-            <Route path="/home"             element={<PrivateRoute><HomePage /></PrivateRoute>} />
-            <Route path="/dashboard"        element={<PrivateRoute><NotesPage /></PrivateRoute>} />
-            <Route path="/notes"            element={<PrivateRoute><NotesPage /></PrivateRoute>} />
-            <Route path="/starred"          element={<PrivateRoute><StarredPage /></PrivateRoute>} />
-            <Route path="/folders"          element={<PrivateRoute><FoldersPage /></PrivateRoute>} />
-            <Route path="/tags"             element={<PrivateRoute><TagsPage /></PrivateRoute>} />
-            <Route path="/ask-ai"           element={<PrivateRoute><AskAIPage /></PrivateRoute>} />
-            <Route path="/community"        element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
-            <Route path="/trash"            element={<PrivateRoute><TrashPage /></PrivateRoute>} />
-            <Route path="/profile"          element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-            <Route path="/settings"         element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
-
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
-      </Router>
-      </ThemeProvider>
-    </AuthProvider>
-  );
-}
-
-export default App;
-
-// यह component Login aur Register pages ka shared left panel hai
-// Dono pages ka left side same dikhta tha - isliye ek component banaya
-
-// Field input component - reusable input field
-export function FieldGroup({ label, icon, type, placeholder, value, onChange }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      {/* Label */}
-      <label style={{
-        fontSize: 11, fontWeight: 600,
-        letterSpacing: '0.06em', textTransform: 'uppercase',
-        color: 'rgba(255,255,255,0.3)',
-      }}>
-        {label}
-      </label>
-      {/* Input with icon */}
-      <div style={{ position: 'relative' }}>
-        <div style={{
-          position: 'absolute', left: 11,
-          top: '50%', transform: 'translateY(-50%)',
-          color: 'rgba(255,255,255,0.25)', pointerEvents: 'none',
-          display: 'flex', alignItems: 'center',
-        }}>
-          {icon}
-        </div>
-        <input
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px 12px 10px 36px',
-            background: '#111',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 6,
-            fontSize: 14,
-            fontFamily: 'inherit',
-            color: '#fff',
-            outline: 'none',
-            transition: 'border-color 0.15s',
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#E55B2D';
-            e.target.style.background = 'rgba(229,91,45,0.04)';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = 'rgba(255,255,255,0.08)';
-            e.target.style.background = '#111';
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-// Auth page CSS - Login aur Register dono ke liye
-export const AUTH_STYLES = `
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-  .auth-wrap {
-    display: flex;
-    min-height: 100vh;
-    background: #0a0a0a;
-    font-family: 'Geist', -apple-system, sans-serif;
-  }
-  .auth-left {
-    flex: 1;
-    background: #000;
-    border-right: 1px solid rgba(255,255,255,0.07);
-    padding: 48px 6%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-  }
-  .auth-right {
-    width: 440px;
-    padding: 0 48px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    background: #0a0a0a;
-    animation: fadeUp 0.5s ease both;
-  }
-  .auth-grid-line {
-    position: absolute;
-    width: 1px;
-    height: 200%;
-    background: rgba(255,255,255,0.025);
-    top: -50%;
-    transform: rotate(12deg);
-  }
-  .auth-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border: 1px solid rgba(229,91,45,0.3);
-    border-radius: 4px;
-    padding: 3px 10px;
-    margin-bottom: 24px;
-  }
-  .auth-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #E55B2D;
-    animation: pulse 2s infinite;
-  }
-  .auth-btn {
-    width: 100%;
-    padding: 11px;
-    background: #E55B2D;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .auth-btn:hover:not(:disabled) {
-    background: #d14e24;
-    box-shadow: 0 6px 20px rgba(229,91,45,0.3);
-  }
-  .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* Mobile par left panel hide karo */
-  @media (max-width: 768px) {
-    .auth-left  { display: none !important; }
-    .auth-right { width: 100% !important; padding: 40px 24px !important; min-height: 100vh; }
-  }
-`;
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, FileText, Star, Globe, ChevronRight, Brain, Folder, Zap, Menu, ArrowUpRight } from 'lucide-react';
@@ -323,5 +58,137 @@ const STYLES = `
   /* Stats */
   .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; animation: fadeUp 0.35s both; transition: 0.2s; }
+  .stat-card:hover { border-color: #d0cdc6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .stat-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+  .stat-val { font-size: 28px; font-weight: 900; color: var(--text); letter-spacing: -1px; line-height: 1; margin-bottom: 4px; }
+  .stat-lbl { font-size: 12px; font-weight: 600; color: var(--text-light); }
+
+  /* Recent */
+  .section-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 14px; font-weight: 800; color: var(--text); }
+  .section-link { font-size: 12px; font-weight: 600; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 4px; cursor: pointer; background: none; border: none; font-family: inherit; }
+  .section-link:hover { color: #f97316; }
+
+  .recent-list { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .recent-item {
+    padding: 16px 20px; border-bottom: 1px solid #f0ede8; display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: 0.15s;
+  }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-item:hover { background: #faf9f7; }
+  .recent-dot { width: 8px; height: 8px; border-radius: 50%; background: #f97316; flex-shrink: 0; }
+  .recent-title { font-size: 14px; font-weight: 700; color: var(--text); }
+  .recent-date { font-size: 12px; color: var(--text-light); font-weight: 500; margin-top: 2px; }
+
+  @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 768px) {
+    .menu-btn { display: flex; }
+    .search-bar { display: none; }
+    .home-body { padding: 16px; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .hero-banner { padding: 28px; }
+  }
 `;
 
+export default function HomePage() {
+  const { user } = useAuth();
+  const { isDark } = useTheme(); // Hindi: theme change hone par re-render trigger hoga
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats, setStats] = useState({ totalNotes: 0, publicNotes: 0, starredNotes: 0, flashcardsDue: 0, totalFolders: 0, streakCount: 0 });
+  const [recent, setRecent] = useState([]);
+
+  useEffect(() => {
+    API.get('/dashboard').then(res => {
+      const d = res.data || {};
+      setStats({ totalNotes: d.totalNotes || 0, publicNotes: d.publicNotes || 0, starredNotes: d.starredNotes || 0, flashcardsDue: d.flashcardsDue || 0, totalFolders: d.totalFolders || 0, streakCount: d.goals?.currentStreak || 0 });
+    }).catch(() => {});
+    API.get('/notes').then(res => setRecent((res.data || []).slice(0, 5))).catch(() => {});
+  }, []);
+
+  const STATS = [
+    { lbl: 'Total Notes',  val: stats.totalNotes,    icon: FileText, bg: 'rgba(249,115,22,0.1)',   color: '#f97316' },
+    { lbl: 'Community',    val: stats.publicNotes,   icon: Globe,    bg: 'rgba(139,92,246,0.1)',   color: '#8b5cf6' },
+    { lbl: 'Starred',      val: stats.starredNotes,  icon: Star,     bg: 'rgba(245,158,11,0.1)',   color: '#f59e0b' },
+    { lbl: 'Day Streak',   val: stats.streakCount,   icon: Zap,      bg: 'rgba(16,185,129,0.1)',   color: '#10b981' },
+  ];
+
+  return (
+    <div className="home-root">
+      <style>{STYLES}</style>
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <div className="home-main">
+        <header className="home-topbar">
+          <div className="topbar-left">
+            <button className="menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
+            <div>
+              <div className="page-title">Overview</div>
+              <div className="user-greet">Hello, {user?.name?.split(' ')[0] || 'there'} 👋</div>
+            </div>
+          </div>
+          <div className="search-bar">
+            <Search size={14} color="#b0ada6" />
+            <input placeholder="Search anything..." />
+          </div>
+        </header>
+
+        <div className="home-body">
+          <div className="hero-banner">
+            <div className="hero-deco" /><div className="hero-deco2" />
+            <div className="hero-text">
+              <div className="hero-eyebrow">Your workspace</div>
+              <h2 className="hero-title">Master your <em>knowledge</em>.<br />Ace your exams.</h2>
+              <div className="hero-actions">
+                <button className="btn-hero-primary" onClick={() => navigate('/ask-ai')}>
+                  <Plus size={16} /> Ask AI
+                </button>
+                <button className="btn-hero-secondary" onClick={() => navigate('/dashboard')}>
+                  View all notes
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="stats-row">
+            {STATS.map((s, i) => (
+              <div key={i} className="stat-card" style={{ animationDelay: `${i * 0.06}s` }}>
+                <div className="stat-icon" style={{ background: s.bg, color: s.color }}>
+                  <s.icon size={17} />
+                </div>
+                <div className="stat-val">{s.val}</div>
+                <div className="stat-lbl">{s.lbl}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="section-row">
+            <span className="section-title">Recent Notes</span>
+            <button className="section-link" onClick={() => navigate('/dashboard')}>
+              View all <ChevronRight size={13} />
+            </button>
+          </div>
+
+          <div className="recent-list">
+            {recent.length === 0 ? (
+              <div style={{ padding: '48px', textAlign: 'center', color: '#b0ada6', fontSize: 14 }}>No notes yet — create your first one!</div>
+            ) : recent.map((note, i) => (
+              <div key={i} className="recent-item" onClick={() => navigate('/dashboard')}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div className="recent-dot" />
+                  <div>
+                    <div className="recent-title">{note.title || 'Untitled Note'}</div>
+                    <div className="recent-date">Updated {new Date(note.updatedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</div>
+                  </div>
+                </div>
+                <ArrowUpRight size={15} color="#b0ada6" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <MobileNav />
+    </div>
+  );
+}
