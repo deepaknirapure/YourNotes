@@ -59,26 +59,74 @@ function PageLoader() {
   );
 }
 
-// Hindi: Theme ke hisaab se Toaster ka style change karo
 function ThemedToaster() {
   const { isDark } = useTheme();
+
   return (
-    <Toaster
-      position="top-right"
-      toastOptions={{
-        style: {
-          background: isDark ? '#1e1919' : '#ffffff',
-          color: isDark ? '#f5f5f4' : '#1a1a1a',
-          border: isDark ? '1px solid #2a2828' : '1px solid #e8e6e1',
-          borderRadius: '12px',
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          fontSize: '14px',
-          fontWeight: 600,
-        },
-        success: { iconTheme: { primary: '#f97316', secondary: '#fff' } },
-        error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
-      }}
-    />
+    <>
+      <style>{`
+        @keyframes toastSlideIn {
+          from { opacity: 0; transform: translateY(16px) scale(0.95); }
+          to   { opacity: 1; transform: translateY(0)   scale(1);    }
+        }
+        @keyframes toastSlideOut {
+          from { opacity: 1; transform: translateY(0)   scale(1);    }
+          to   { opacity: 0; transform: translateY(10px) scale(0.95); }
+        }
+      `}</style>
+      <Toaster
+        position="bottom-right"
+        gutter={8}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: isDark ? '#1c1b1b' : '#ffffff',
+            color: isDark ? '#f0efef' : '#1a1a1a',
+            border: isDark ? '1px solid #2e2c2c' : '1px solid #e8e6e1',
+            borderRadius: '14px',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '13.5px',
+            fontWeight: 600,
+            padding: '12px 16px',
+            boxShadow: isDark
+              ? '0 12px 40px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4)'
+              : '0 8px 30px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06)',
+            maxWidth: '300px',
+            lineHeight: '1.45',
+            animation: 'toastSlideIn 0.3s cubic-bezier(0.16,1,0.3,1)',
+          },
+          success: {
+            duration: 2500,
+            iconTheme: { primary: '#10b981', secondary: '#fff' },
+            style: {
+              background: isDark ? '#0f1f18' : '#f0fdf4',
+              color: isDark ? '#6ee7b7' : '#065f46',
+              border: isDark ? '1px solid #1a3a2a' : '1px solid #bbf7d0',
+              borderLeft: '3px solid #10b981',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: { primary: '#ef4444', secondary: '#fff' },
+            style: {
+              background: isDark ? '#1f0f0f' : '#fff5f5',
+              color: isDark ? '#fca5a5' : '#991b1b',
+              border: isDark ? '1px solid #3a1a1a' : '1px solid #fecaca',
+              borderLeft: '3px solid #ef4444',
+            },
+          },
+          loading: {
+            iconTheme: { primary: 'var(--accent)', secondary: 'transparent' },
+            style: {
+              background: isDark ? '#1c1b1b' : '#ffffff',
+              color: isDark ? '#f0efef' : '#1a1a1a',
+              border: isDark ? '1px solid #2e2c2c' : '1px solid #e8e6e1',
+              borderLeft: '3px solid #f97316',
+            },
+          },
+        }}
+      />
+    </>
   );
 }
 
