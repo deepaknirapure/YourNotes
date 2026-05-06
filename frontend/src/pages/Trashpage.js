@@ -12,37 +12,37 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes spin { to { transform: rotate(360deg) } }
   
-  body { background: #1e1b1b; color: #000000; font-family: 'Plus Jakarta Sans', sans-serif; }
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; }
   
-  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #1e1b1b; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: var(--bg); }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; }
   
   /* Topbar */
   .pg-topbar { 
     height: 70px; display: flex; align-items: center; gap: 16px; padding: 0 32px; 
-    background: #1e1b1b; border-bottom: 1px solid #2a2525; flex-shrink: 0; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 100;
   }
-  .pg-menu-btn { display: none; background: #2a2525; border: none; border-radius: 10px; cursor: pointer; padding: 10px; color: #000; }
+  .pg-menu-btn { display: none; background: var(--border); border: none; border-radius: 10px; cursor: pointer; padding: 10px; color: var(--text); }
   
-  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: #151313; display: flex; align-items: center; justify-content: center; color: #ff5734; }
-  .pg-title { font-size: 20px; font-weight: 900; color: #000; letter-spacing: -1px; text-transform: uppercase; }
-  .pg-count { background: #2a2525; color: #000; font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 100px; }
+  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--surface); display: flex; align-items: center; justify-content: center; color: #ff5734; }
+  .pg-title { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: -1px; text-transform: uppercase; }
+  .pg-count { background: var(--border); color: var(--text); font-size: 11px; font-weight: 900; padding: 4px 12px; border-radius: 100px; }
   
   /* Floating Action Bar */
   .bulk-action-bar {
     position: absolute; top: 85px; left: 50%; transform: translateX(-50%);
-    background: #151313; border: 2px solid #ff5734; padding: 12px 24px;
+    background: var(--surface); border: 2px solid #ff5734; padding: 12px 24px;
     border-radius: 20px; display: flex; align-items: center; gap: 20px;
     box-shadow: 0 15px 40px rgba(255,87,52,0.2); z-index: 200;
     animation: fadeUp 0.3s ease;
   }
 
-  .btn-neon-sm { background: #ff5734; color: #000; border: none; border-radius: 10px; padding: 8px 16px; font-weight: 900; font-size: 11px; cursor: pointer; text-transform: uppercase; }
+  .btn-neon-sm { background: #ff5734; color: var(--text); border: none; border-radius: 10px; padding: 8px 16px; font-weight: 900; font-size: 11px; cursor: pointer; text-transform: uppercase; }
   
   .pg-content { flex: 1; overflow-y: auto; padding: 40px 5vw; scrollbar-width: none; }
   
   .pg-alert { 
-    display: flex; align-items: center; gap: 12px; background: #151313; 
+    display: flex; align-items: center; gap: 12px; background: var(--surface); 
     border-radius: 16px; padding: 16px 24px; margin-bottom: 40px; 
     font-size: 13px; color: #ff5734; font-weight: 700;
   }
@@ -50,30 +50,30 @@ const STYLES = `
   .pg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
   
   .pg-card { 
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 24px; 
+    background: var(--bg); border: 1px solid var(--border); border-radius: 24px; 
     padding: 28px; position: relative; transition: 0.3s; 
     animation: fadeUp 0.4s both; display: flex; flex-direction: column;
   }
-  .pg-card:hover { border-color: #000; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.04); }
-  .pg-card.selected { border-color: #ff5734; background: #151313; }
+  .pg-card:hover { border-color: var(--text); transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.04); }
+  .pg-card.selected { border-color: #ff5734; background: var(--surface); }
   
-  .pg-card-title { font-size: 17px; font-weight: 900; color: #000; margin-bottom: 10px; line-height: 1.3; }
+  .pg-card-title { font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 10px; line-height: 1.3; }
   .pg-card-preview { font-size: 14px; color: #8a7f7f; line-height: 1.7; margin-bottom: 24px; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   
-  .pg-card-footer { display: flex; gap: 10px; border-top: 1px solid #2a2525; padding-top: 20px; }
+  .pg-card-footer { display: flex; gap: 10px; border-top: 1px solid var(--border); padding-top: 20px; }
   
   .pg-btn-sm { 
     flex: 1; border: none; border-radius: 10px; padding: 10px; 
     font-weight: 800; font-size: 12px; cursor: pointer; display: flex; 
     align-items: center; justify-content: center; gap: 8px; transition: 0.2s; text-transform: uppercase;
   }
-  .pg-restore { background: #151313; color: #ff5734; }
-  .pg-delete-forever { background: #1e1b1b; color: #FF4444; border: 1px solid #2a2525; }
+  .pg-restore { background: var(--surface); color: #ff5734; }
+  .pg-delete-forever { background: var(--bg); color: #FF4444; border: 1px solid var(--border); }
 
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .modal-box { background: #151313; border: 1px solid #2a2525; border-radius: 28px; padding: 40px; max-width: 440px; width: 100%; color: #f7f7f5; text-align: center; }
+  .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 40px; max-width: 440px; width: 100%; color: var(--text); text-align: center; }
 
-  .db-spinner { width: 30px; height: 30px; border: 3px solid #2a2525; border-top-color: #ff5734; border-radius: 50%; animation: spin .7s linear infinite; }
+  .db-spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
   .pg-overlay-blur { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 90; }
 
   @media(max-width:768px) {
@@ -178,7 +178,7 @@ export default function TrashPage() {
                     else if(confirmSelectedForever) deleteSelectedForever();
                     else emptyTrash();
                 }} 
-                style={{ background: "#FF4444", color: "#f7f7f5" }}>
+                style={{ background: "#FF4444", color: "var(--text)" }}>
                 {actionLoading ? "Deleting..." : "Yes, Delete"}
               </button>
             </div>
@@ -201,7 +201,7 @@ export default function TrashPage() {
                 <RefreshCw size={18} className={loading ? "spin" : ""} />
              </button>
              {notes.length > 0 && (
-                <button className="btn-neon-sm" style={{ background: '#151313', color: '#ff5734' }} onClick={() => setConfirmAll(true)}>WIPE ALL</button>
+                <button className="btn-neon-sm" style={{ background: 'var(--bg)', color: 'var(--accent)' }} onClick={() => setConfirmAll(true)}>WIPE ALL</button>
              )}
           </div>
         </div>
@@ -211,11 +211,11 @@ export default function TrashPage() {
             <div className="bulk-action-bar">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <CheckCircle2 size={18} color="#ff5734" />
-                    <span style={{ color: '#f7f7f5', fontWeight: 900, fontSize: 13 }}>{selectedIds.length} SELECTED</span>
+                    <span style={{ color: 'var(--text)', fontWeight: 900, fontSize: 13 }}>{selectedIds.length} SELECTED</span>
                 </div>
                 <div style={{ height: '20px', width: '1px', background: '#333' }} />
                 <button className="btn-neon-sm" onClick={() => setSelectedIds(notes.map(n => n._id))}>SELECT ALL</button>
-                <button className="btn-neon-sm" style={{ background: '#f7f7f5' }} onClick={async () => {
+                <button className="btn-neon-sm" style={{ background: 'var(--accent)', color: '#fff' }} onClick={async () => {
                     for(const id of selectedIds) await restoreNote(id);
                 }}>RESTORE</button>
                 <button className="btn-neon-sm" style={{ background: '#FF4444', color: '#f7f7f5' }} onClick={() => setConfirmSelectedForever(true)}>DELETE</button>

@@ -12,12 +12,12 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  body { background: #151313; color: #f7f7f5; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; margin: 0; }
+  body { background: var(--surface); color: var(--text); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; margin: 0; }
 
   .reset-root {
     min-height: 100vh; display: flex; flex-direction: column; 
     align-items: center; justify-content: center; padding: 24px;
-    background: #151313; position: relative;
+    background: var(--surface); position: relative;
   }
 
   /* Subtle Background Pattern */
@@ -28,13 +28,13 @@ const STYLES = `
   }
 
   .brand-logo {
-    font-size: 24px; font-weight: 800; color: #f7f7f5; 
+    font-size: 24px; font-weight: 800; color: var(--text); 
     letter-spacing: -0.5px; margin-bottom: 32px; z-index: 1;
     display: flex; align-items: center; justify-content: center;
   }
 
   .auth-card {
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 20px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
     padding: 48px 40px; width: 100%; max-width: 440px; z-index: 1;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
     animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -51,7 +51,7 @@ const STYLES = `
   }
 
   .auth-title {
-    font-size: 24px; font-weight: 800; color: #f7f7f5; 
+    font-size: 24px; font-weight: 800; color: var(--text); 
     letter-spacing: -0.5px; text-align: center; margin-bottom: 12px;
   }
 
@@ -71,9 +71,9 @@ const STYLES = `
   .input-icon { position: absolute; left: 16px; color: #8a7f7f; pointer-events: none; }
   
   .form-input {
-    width: 100%; padding: 14px 44px; background: #1e1b1b; 
-    border: 1px solid #2a2525; border-radius: 12px; font-size: 15px; font-weight: 500;
-    color: #f7f7f5; font-family: inherit; transition: 0.2s; outline: none;
+    width: 100%; padding: 14px 44px; background: var(--bg); 
+    border: 1px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 500;
+    color: var(--text); font-family: inherit; transition: 0.2s; outline: none;
   }
   .form-input::placeholder { color: #8a7f7f; font-weight: 400; }
   .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
@@ -83,10 +83,10 @@ const STYLES = `
     color: #8a7f7f; cursor: pointer; display: flex; align-items: center;
     justify-content: center; padding: 4px; border-radius: 6px; transition: 0.2s;
   }
-  .pw-toggle-btn:hover { color: #f7f7f5; background: #2a2525; }
+  .pw-toggle-btn:hover { color: var(--text); background: var(--border); }
 
   .btn-primary {
-    width: 100%; padding: 14px; background: #f7f7f5; color: #f7f7f5;
+    width: 100%; padding: 14px; background: #f7f7f5; color: var(--text);
     border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
     font-family: inherit; cursor: pointer; transition: 0.2s;
     display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -100,7 +100,7 @@ const STYLES = `
     color: #8a7f7f; font-size: 14px; font-weight: 600; text-decoration: none;
     transition: 0.2s; margin-top: 32px;
   }
-  .back-link:hover { color: #f7f7f5; }
+  .back-link:hover { color: var(--text); }
 
   .footer-text {
     font-size: 11px; font-weight: 700; color: #8a7f7f; letter-spacing: 2px;

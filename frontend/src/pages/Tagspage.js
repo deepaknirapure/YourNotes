@@ -13,39 +13,39 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes spin { to { transform: rotate(360deg) } }
 
-  body { background: #1e1b1b; color: #000000; font-family: 'Plus Jakarta Sans', sans-serif; }
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; }
 
-  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #1e1b1b; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: var(--bg); }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
   /* ── Top Bar ── */
   .pg-topbar {
     height: 70px; display: flex; align-items: center; padding: 0 32px;
-    background: #1e1b1b; border-bottom: 1px solid #2a2525; flex-shrink: 0; gap: 16px;
+    background: var(--bg); border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 16px;
   }
   .pg-menu-btn {
-    display: none; background: #2a2525; border: none; border-radius: 12px; 
-    cursor: pointer; padding: 10px; color: #000;
+    display: none; background: var(--border); border: none; border-radius: 12px; 
+    cursor: pointer; padding: 10px; color: var(--text);
   }
 
-  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: #151313; display: flex; align-items: center; justify-content: center; color: #ff5734; }
-  .pg-title { font-size: 20px; font-weight: 900; color: #000; letter-spacing: -1px; text-transform: uppercase; }
+  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--surface); display: flex; align-items: center; justify-content: center; color: #ff5734; }
+  .pg-title { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: -1px; text-transform: uppercase; }
 
   .pg-search-wrap { position: relative; margin-left: auto; display: flex; align-items: center; }
   .pg-search-wrap svg { position: absolute; left: 14px; color: #8a7f7f; pointer-events: none; }
   .pg-search {
-    padding: 10px 16px 10px 42px; background: #1e1b1b; border: 1px solid #2a2525;
-    border-radius: 14px; font-size: 14px; font-weight: 700; color: #000;
+    padding: 10px 16px 10px 42px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 14px; font-size: 14px; font-weight: 700; color: var(--text);
     outline: none; width: 260px; transition: 0.3s;
   }
-  .pg-search:focus { border-color: #000; background: #1e1b1b; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+  .pg-search:focus { border-color: var(--text); background: var(--bg); box-shadow: 0 0 15px rgba(0,0,0,0.05); }
 
   /* ── Content Layout ── */
   .pg-content { flex: 1; overflow: hidden; display: flex; }
 
   /* Left Panel (Tag list) */
   .tp-tags-panel {
-    width: 280px; background: #1e1b1b; border-right: 1px solid #2a2525;
+    width: 280px; background: var(--bg); border-right: 1px solid var(--border);
     padding: 24px; overflow-y: auto; scrollbar-width: none; flex-shrink: 0;
   }
   .panel-label { font-size: 10px; font-weight: 900; color: #8a7f7f; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; }
@@ -54,34 +54,34 @@ const STYLES = `
     display: flex; align-items: center; justify-content: space-between;
     padding: 12px 16px; border-radius: 14px; cursor: pointer;
     transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; margin-bottom: 6px;
-    background: #1e1b1b;
+    background: var(--bg);
   }
-  .tp-tag-chip:hover { border-color: #2a2525; transform: translateX(4px); }
-  .tp-tag-chip.active { background: #000000; border-color: #000000; }
+  .tp-tag-chip:hover { border-color: var(--border); transform: translateX(4px); }
+  .tp-tag-chip.active { background: #000000; border-color: var(--text); }
 
-  .tp-tag-name { font-size: 14px; font-weight: 800; color: #000; display: flex; align-items: center; gap: 10px; }
+  .tp-tag-name { font-size: 14px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 10px; }
   .tp-tag-chip.active .tp-tag-name { color: #ff5734; }
-  .tp-tag-count { font-size: 11px; font-weight: 900; color: #8a7f7f; background: #2a2525; padding: 3px 10px; border-radius: 100px; }
-  .tp-tag-chip.active .tp-tag-count { color: #ff5734; background: #2a2525; }
+  .tp-tag-count { font-size: 11px; font-weight: 900; color: #8a7f7f; background: var(--border); padding: 3px 10px; border-radius: 100px; }
+  .tp-tag-chip.active .tp-tag-count { color: #ff5734; background: var(--border); }
 
   /* Right Panel (Notes grid) */
-  .tp-notes-panel { flex: 1; padding: 40px 5vw; overflow-y: auto; scrollbar-width: none; background: #1e1b1b; }
+  .tp-notes-panel { flex: 1; padding: 40px 5vw; overflow-y: auto; scrollbar-width: none; background: var(--bg); }
   .tp-notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 
   /* Note card */
   .tp-card {
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 24px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 24px;
     padding: 28px; cursor: pointer; transition: 0.3s;
     animation: fadeUp 0.4s both; display: flex; flex-direction: column;
   }
-  .tp-card:hover { border-color: #000; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.04); }
+  .tp-card:hover { border-color: var(--text); transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.04); }
 
-  .tp-card-title { font-size: 17px; font-weight: 900; color: #000; margin-bottom: 10px; line-height: 1.3; }
+  .tp-card-title { font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 10px; line-height: 1.3; }
   .tp-card-preview { font-size: 14px; color: #8a7f7f; line-height: 1.7; margin-bottom: 20px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
   .tp-tag-pill-list { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
-  .tp-tag-pill { background: #151313; color: #ff5734; border-radius: 8px; padding: 4px 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
-  .tp-tag-pill.dim { background: #2a2525; color: #8a7f7f; }
+  .tp-tag-pill { background: var(--surface); color: #ff5734; border-radius: 8px; padding: 4px 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+  .tp-tag-pill.dim { background: var(--border); color: #8a7f7f; }
 
   .tp-card-date { font-size: 11px; color: #8a7f7f; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
 
@@ -95,7 +95,7 @@ const STYLES = `
 
     .pg-content { flex-direction: column; }
     .tp-tags-panel {
-      width: 100%; height: auto; border-right: none; border-bottom: 1px solid #2a2525;
+      width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border);
       display: flex; gap: 10px; padding: 16px; overflow-x: auto;
     }
     .panel-label { display: none; }
@@ -192,7 +192,7 @@ export default function TagsPage() {
                       #{selectedTag.toUpperCase()}
                     </div>
                     <div style={{ flex: 1, height: '1px', background: '#2a2525' }}></div>
-                    <span style={{ fontSize: 11, color: "#8a7f7f", fontWeight: 900 }}>{displayedNotes.length} FRAGMENTS</span>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 900 }}>{displayedNotes.length} FRAGMENTS</span>
                   </div>
 
                   <div className="tp-notes-grid">

@@ -265,20 +265,13 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Hindi: Mobile floating action button */}
+      {/* Mobile floating action button */}
       <button
         className="mobile-fab"
         onClick={createNote}
         aria-label="Create note"
-        style={{
-          position: 'fixed', bottom: 76, right: 16,
-          width: 48, height: 48, borderRadius: 14,
-          background: 'var(--accent)', color: '#fff', border: 'none',
-          cursor: 'pointer', display: 'none', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 18px rgba(249,115,22,0.3)', zIndex: 199, transition: 'transform 0.18s',
-        }}
       >
-        <Plus size={24} strokeWidth={2.5} />
+        <Plus size={22} strokeWidth={2.5} />
       </button>
       <MobileNav />
     </div>

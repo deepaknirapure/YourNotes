@@ -11,12 +11,12 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  body { background: #151313; color: #f7f7f5; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+  body { background: var(--surface); color: var(--text); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
 
   .auth-root {
     min-height: 100vh; display: flex; flex-direction: column; 
     align-items: center; justify-content: center; padding: 24px;
-    background: #151313; position: relative;
+    background: var(--surface); position: relative;
   }
 
   /* Subtle Background Pattern */
@@ -27,22 +27,22 @@ const STYLES = `
   }
 
   .brand-logo {
-    font-size: 24px; font-weight: 800; color: #f7f7f5; 
+    font-size: 24px; font-weight: 800; color: var(--text); 
     letter-spacing: -0.5px; margin-bottom: 32px; z-index: 1;
     display: flex; align-items: center; justify-content: center;
   }
 
   .auth-card {
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 20px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
     padding: 48px 40px; width: 100%; max-width: 440px; z-index: 1;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
     animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .icon-wrap {
-    width: 56px; height: 56px; background: #1e1b1b; border: 1px solid #2a2525;
+    width: 56px; height: 56px; background: var(--bg); border: 1px solid var(--border);
     border-radius: 14px; display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 24px; color: #f7f7f5;
+    margin: 0 auto 24px; color: var(--text);
   }
 
   .icon-wrap.success {
@@ -50,7 +50,7 @@ const STYLES = `
   }
 
   .auth-title {
-    font-size: 24px; font-weight: 800; color: #f7f7f5; 
+    font-size: 24px; font-weight: 800; color: var(--text); 
     letter-spacing: -0.5px; text-align: center; margin-bottom: 12px;
   }
 
@@ -67,15 +67,15 @@ const STYLES = `
   }
 
   .form-input {
-    width: 100%; padding: 14px 16px; background: #1e1b1b; 
-    border: 1px solid #2a2525; border-radius: 12px; font-size: 15px; 
-    color: #f7f7f5; font-family: inherit; transition: 0.2s; outline: none;
+    width: 100%; padding: 14px 16px; background: var(--bg); 
+    border: 1px solid var(--border); border-radius: 12px; font-size: 15px; 
+    color: var(--text); font-family: inherit; transition: 0.2s; outline: none;
   }
   .form-input::placeholder { color: #8a7f7f; }
   .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
 
   .btn-primary {
-    width: 100%; padding: 14px; background: #f7f7f5; color: #f7f7f5;
+    width: 100%; padding: 14px; background: #f7f7f5; color: var(--text);
     border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
     font-family: inherit; cursor: pointer; transition: 0.2s;
     display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -94,7 +94,7 @@ const STYLES = `
     color: #8a7f7f; font-size: 14px; font-weight: 600; text-decoration: none;
     transition: 0.2s; margin-top: 32px;
   }
-  .back-link:hover { color: #f7f7f5; }
+  .back-link:hover { color: var(--text); }
 
   .footer-text {
     font-size: 11px; font-weight: 700; color: #8a7f7f; letter-spacing: 2px;
@@ -151,7 +151,7 @@ export default function ForgotPasswordPage() {
         {sent ? (
           <div>
             <div style={{ background: "#1e1b1b", border: "1px solid #2a2525", padding: "16px", borderRadius: "12px", marginBottom: "32px", textAlign: "center" }}>
-              <span style={{ fontSize: "14px", fontWeight: 600, color: "#f7f7f5" }}>{email}</span>
+              <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>{email}</span>
             </div>
             <p style={{ fontSize: "13px", color: "#8a7f7f", textAlign: "center", marginBottom: "24px" }}>
               Didn't receive the email? Check your spam folder.

@@ -13,20 +13,20 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes spin { to { transform: rotate(360deg) } }
   
-  body { background: #151313; color: #f7f7f5; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
+  body { background: var(--surface); color: var(--text); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
   
-  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #151313; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: var(--surface); }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; }
   
   /* Sleek Topbar */
   .pg-topbar { 
     height: 64px; display: flex; align-items: center; gap: 16px; padding: 0 24px; 
-    background: #1e1b1b; border-bottom: 1px solid #2a2525; flex-shrink: 0; 
+    background: var(--bg); border-bottom: 1px solid var(--border); flex-shrink: 0; 
   }
   .pg-menu-btn { display: none; background: none; border: none; color: #8a7f7f; cursor: pointer; padding: 4px; flex-shrink: 0; }
   
   .pg-title-section { display: flex; align-items: center; gap: 10px; }
-  .pg-title { font-size: 18px; font-weight: 700; color: #f7f7f5; letter-spacing: -0.5px; }
+  .pg-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
   .pg-count { background: #FFF5F2; color: #E55B2D; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 100px; border: 1px solid #FFE4DB; }
   
   /* Topbar Actions */
@@ -35,18 +35,18 @@ const STYLES = `
   .pg-search-wrap { position: relative; display: flex; align-items: center; }
   .pg-search-wrap svg { position: absolute; left: 12px; color: #8a7f7f; pointer-events: none; }
   .pg-search { 
-    padding: 8px 12px 8px 36px; background: #1e1b1b; border: 1px solid #2a2525; 
-    border-radius: 10px; font-size: 14px; font-family: inherit; color: #f7f7f5; 
+    padding: 8px 12px 8px 36px; background: var(--bg); border: 1px solid var(--border); 
+    border-radius: 10px; font-size: 14px; font-family: inherit; color: var(--text); 
     outline: none; width: 220px; transition: 0.2s; 
   }
-  .pg-search:focus { border-color: #E55B2D; background: #1e1b1b; box-shadow: 0 0 0 3px rgba(229,91,45,0.1); }
+  .pg-search:focus { border-color: #E55B2D; background: var(--bg); box-shadow: 0 0 0 3px rgba(229,91,45,0.1); }
 
   .pg-sort-select {
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 10px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
     padding: 8px 12px; font-size: 13px; font-weight: 600; color: #8a7f7f;
     outline: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center;
   }
-  .pg-sort-select:hover { border-color: #3a3535; color: #f7f7f5; }
+  .pg-sort-select:hover { border-color: #3a3535; color: var(--text); }
 
   /* Content Area */
   .pg-content { flex: 1; overflow-y: auto; padding: 32px 5vw; scrollbar-width: none; }
@@ -54,7 +54,7 @@ const STYLES = `
   
   /* Starred Note Card */
   .pg-card { 
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 16px; 
+    background: var(--bg); border: 1px solid var(--border); border-radius: 16px; 
     padding: 24px; cursor: pointer; position: relative;
     transition: all 0.2s ease; animation: fadeUp 0.3s both;
     display: flex; flex-direction: column;
@@ -64,7 +64,7 @@ const STYLES = `
     transform: translateY(-2px); 
   }
   
-  .pg-card-title { font-size: 16px; font-weight: 700; color: #f7f7f5; margin-bottom: 8px; line-height: 1.4; }
+  .pg-card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.4; }
   .pg-card-preview { 
     font-size: 14px; color: #8a7f7f; display: -webkit-box; -webkit-line-clamp: 3; 
     -webkit-box-orient: vertical; overflow: hidden; line-height: 1.6; margin-bottom: 20px; flex: 1;
@@ -72,13 +72,13 @@ const STYLES = `
   
   .pg-card-footer { 
     display: flex; align-items: center; justify-content: space-between; 
-    border-top: 1px solid #2a2525; padding-top: 16px; margin-top: auto;
+    border-top: 1px solid var(--border); padding-top: 16px; margin-top: auto;
   }
   
   .pg-tag-list { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
   .pg-tag { 
-    background: #2a2525; border-radius: 6px; padding: 2px 8px; 
-    font-size: 11px; font-weight: 700; color: #8a7f7f; border: 1px solid #2a2525; 
+    background: var(--border); border-radius: 6px; padding: 2px 8px; 
+    font-size: 11px; font-weight: 700; color: #8a7f7f; border: 1px solid var(--border); 
   }
 
   .pg-unstar-btn { 
@@ -86,19 +86,19 @@ const STYLES = `
     background: #FFF5F2; color: #E55B2D; cursor: pointer; 
     display: flex; align-items: center; justify-content: center; transition: 0.2s; 
   }
-  .pg-unstar-btn:hover { background: #E55B2D; color: #f7f7f5; transform: scale(1.1); }
+  .pg-unstar-btn:hover { background: #E55B2D; color: var(--text); transform: scale(1.1); }
   
   /* States */
   .pg-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 24px; text-align: center; }
-  .pg-empty-icon { width: 64px; height: 64px; background: #1e1b1b; border: 1px solid #2a2525; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #8a7f7f; margin-bottom: 16px; }
-  .pg-spinner { width: 24px; height: 24px; border: 3px solid #2a2525; border-top-color: #f7f7f5; border-radius: 50%; animation: spin .7s linear infinite; }
+  .pg-empty-icon { width: 64px; height: 64px; background: var(--bg); border: 1px solid var(--border); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #8a7f7f; margin-bottom: 16px; }
+  .pg-spinner { width: 24px; height: 24px; border: 3px solid #2a2525; border-top-color: var(--text); border-radius: 50%; animation: spin .7s linear infinite; }
   .pg-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 40; }
   
   @media(max-width:768px) {
-    .pg-menu-btn { display: flex !important; background: #1e1b1b !important; border: 1px solid #2a2525 !important; border-radius: 10px !important; min-width: 38px; height: 38px; align-items: center !important; justify-content: center !important; }
+    .pg-menu-btn { display: flex !important; background: var(--bg) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; min-width: 38px; height: 38px; align-items: center !important; justify-content: center !important; }
     .pg-topbar { padding: 0 14px !important; height: 56px !important; }
     .pg-content, .saas-main, .flashcard-wrap { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important; padding-left: 16px !important; padding-right: 16px !important; } 
-    .pg-menu-btn { display: flex !important; background: #1e1b1b !important; border: 1px solid #2a2525 !important; border-radius: 10px !important; padding: 8px !important; min-width: 38px; min-height: 38px; }
+    .pg-menu-btn { display: flex !important; background: var(--bg) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; padding: 8px !important; min-width: 38px; min-height: 38px; }
     .pg-topbar { padding: 0 14px !important; height: 56px !important; gap: 8px !important; }
     .pg-search { width: 110px !important; font-size: 13px !important; }
     .pg-sort-select { display: none !important; }
@@ -195,7 +195,7 @@ export default function StarredPage() {
           ) : filtered.length === 0 ? (
             <div className="pg-empty">
               <div className="pg-empty-icon"><Star size={28} /></div>
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#f7f7f5", marginBottom: 8 }}>{searchQ ? "No matches found" : "No starred notes"}</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)", marginBottom: 8 }}>{searchQ ? "No matches found" : "No starred notes"}</h3>
               <p style={{ fontSize: 14, color: "#8a7f7f", maxWidth: 300, lineHeight: 1.5 }}>
                 {searchQ ? "Try adjusting your search terms." : "Mark notes as important in your workspace to see them here."}
               </p>

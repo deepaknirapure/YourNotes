@@ -15,29 +15,29 @@ const STYLES = `
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes scaleIn { from { opacity: 0; transform: scale(0.96) } to { opacity: 1; transform: scale(1) } }
 
-  body { background: #1e1b1b; color: #000000; font-family: 'Plus Jakarta Sans', sans-serif; }
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; }
 
-  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #1e1b1b; }
+  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: var(--bg); }
   .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
   /* ── Top Bar ── */
   .pg-topbar {
     height: 70px; display: flex; align-items: center; padding: 0 32px;
-    background: #1e1b1b; border-bottom: 1px solid #2a2525; flex-shrink: 0; gap: 16px;
+    background: var(--bg); border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 16px;
   }
 
   .pg-menu-btn {
-    display: none; background: #2a2525; border: none; border-radius: 12px; 
-    cursor: pointer; padding: 10px; color: #000;
+    display: none; background: var(--border); border: none; border-radius: 12px; 
+    cursor: pointer; padding: 10px; color: var(--text);
   }
 
-  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: #151313; display: flex; align-items: center; justify-content: center; color: #ff5734; }
-  .pg-title { font-size: 20px; font-weight: 900; color: #000; letter-spacing: -1px; text-transform: uppercase; }
-  .pg-count-badge { background: #2a2525; color: #8a7f7f; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 100px; }
+  .pg-title-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--surface); display: flex; align-items: center; justify-content: center; color: #ff5734; }
+  .pg-title { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: -1px; text-transform: uppercase; }
+  .pg-count-badge { background: var(--border); color: #8a7f7f; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 100px; }
 
   .btn-neon {
     margin-left: auto; display: flex; align-items: center; gap: 8px;
-    background: #ff5734; color: #000; border: none; border-radius: 14px;
+    background: #ff5734; color: var(--text); border: none; border-radius: 14px;
     padding: 12px 24px; font-size: 13px; font-weight: 900; cursor: pointer;
     transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
   }
@@ -51,22 +51,22 @@ const STYLES = `
 
   /* ── Folder Card ── */
   .fp-card {
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 24px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 24px;
     padding: 28px; cursor: pointer; animation: fadeUp 0.4s both;
     transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
   }
-  .fp-card:hover { border-color: #000; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.04); }
+  .fp-card:hover { border-color: var(--text); transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.04); }
 
   .fp-icon-wrap { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-  .fp-name { font-size: 17px; font-weight: 900; color: #000; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fp-name { font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .fp-count { font-size: 13px; color: #8a7f7f; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
   .fp-menu-btn {
-    position: absolute; top: 18px; right: 18px; background: #1e1b1b;
-    border: 1px solid #2a2525; color: #000; cursor: pointer; padding: 6px;
+    position: absolute; top: 18px; right: 18px; background: var(--bg);
+    border: 1px solid var(--border); color: var(--text); cursor: pointer; padding: 6px;
     border-radius: 10px; transition: 0.2s;
   }
-  .fp-menu-btn:hover { background: #151313; color: #ff5734; border-color: #000; }
+  .fp-menu-btn:hover { background: var(--surface); color: #ff5734; border-color: var(--text); }
 
   /* ── Modal ── */
   .fp-modal-overlay {
@@ -75,24 +75,24 @@ const STYLES = `
     align-items: center; justify-content: center; padding: 20px;
   }
   .fp-modal {
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 28px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 28px;
     padding: 32px; max-width: 440px; width: 100%; animation: scaleIn 0.3s ease;
     box-shadow: 0 20px 50px rgba(0,0,0,0.1);
   }
-  .fp-modal-title { font-size: 20px; font-weight: 900; color: #000; text-transform: uppercase; letter-spacing: -1px; }
+  .fp-modal-title { font-size: 20px; font-weight: 900; color: var(--text); text-transform: uppercase; letter-spacing: -1px; }
 
   .fp-input {
-    background: #1e1b1b; border: 1px solid #2a2525; border-radius: 14px;
-    padding: 14px 18px; color: #000; font-size: 15px; font-weight: 700;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 18px; color: var(--text); font-size: 15px; font-weight: 700;
     outline: none; width: 100%; transition: 0.2s;
   }
-  .fp-input:focus { border-color: #000; background: #1e1b1b; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+  .fp-input:focus { border-color: var(--text); background: var(--bg); box-shadow: 0 0 15px rgba(0,0,0,0.05); }
 
-  .fp-btn-primary { background: #151313; color: #ff5734; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 900; cursor: pointer; transition: 0.3s; }
-  .fp-btn-primary:hover { background: #ff5734; color: #000; }
+  .fp-btn-primary { background: var(--surface); color: #ff5734; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 900; cursor: pointer; transition: 0.3s; }
+  .fp-btn-primary:hover { background: #ff5734; color: var(--text); }
 
   .fp-color-dot { width: 30px; height: 30px; border-radius: 10px; cursor: pointer; transition: 0.2s; border: 3px solid transparent; }
-  .fp-color-dot.sel { border-color: #000; transform: scale(1.15); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+  .fp-color-dot.sel { border-color: var(--text); transform: scale(1.15); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
   @media (max-width: 768px) {
     .pg-menu-btn { display: flex; }
@@ -170,7 +170,7 @@ export default function FoldersPage() {
               <input className="fp-input" placeholder="CLUSTER NAME..." value={newName} onChange={e => setNewName(e.target.value)} autoFocus />
               
               <div>
-                <label style={{ fontSize: 10, fontWeight: 900, color: "#8a7f7f", marginBottom: 12, display: "block" }}>TAG COLOR</label>
+                <label style={{ fontSize: 10, fontWeight: 900, color: "var(--text-muted)", marginBottom: 12, display: "block" }}>TAG COLOR</label>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   {COLORS.map(c => (
                     <div key={c} className={`fp-color-dot ${newColor === c ? "sel" : ""}`} style={{ background: c }} onClick={() => setNewColor(c)} />
@@ -203,7 +203,7 @@ export default function FoldersPage() {
             <div style={{ display: "flex", justifyContent: "center", padding: "100px 0" }}><div className="pg-spinner" /></div>
           ) : folders.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '100px 0' }}>
-                <Folder size={60} color="#2a2525" style={{ margin: '0 auto 20px' }} />
+                <Folder size={60} color="var(--border)" style={{ margin: '0 auto 20px' }} />
                 <h3 style={{ color: '#8a7f7f', fontWeight: 900 }}>NO CLUSTERS FOUND</h3>
                 <button className="btn-neon" style={{ margin: '20px auto 0' }} onClick={() => setCreating(true)}>INITIALIZE LIBRARY</button>
             </div>

@@ -29,7 +29,7 @@ export default function SharedNotePage() {
     body { background: #0a0a0a; }
 
     .yn-note-content h1,.yn-note-content h2,.yn-note-content h3 {
-      font-family: 'Syne', sans-serif; color: #f7f7f5;
+      font-family: 'Syne', sans-serif; color: var(--text);
       margin: 1.5em 0 .6em; letter-spacing: -.5px;
     }
     .yn-note-content h1 { font-size: 28px; font-weight: 800; }
@@ -40,12 +40,12 @@ export default function SharedNotePage() {
     .yn-note-content code { background: rgba(229,91,45,.1); border: 1px solid rgba(229,91,45,.2); padding: 2px 7px; border-radius: 5px; font-size: 13px; color: #E55B2D; }
     .yn-note-content pre { background: #111; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 16px; margin: 1em 0; overflow-x: auto; }
     .yn-note-content blockquote { border-left: 3px solid #E55B2D; padding-left: 16px; margin: 1em 0; color: rgba(255,255,255,.45); font-style: italic; }
-    .yn-note-content strong { color: #f7f7f5; font-weight: 700; }
+    .yn-note-content strong { color: var(--text); font-weight: 700; }
     .yn-note-content a { color: #E55B2D; }
 
     .yn-cta-btn {
       display: inline-flex; align-items: center; gap: 8px;
-      background: #E55B2D; color: #f7f7f5; padding: 13px 24px;
+      background: #E55B2D; color: var(--text); padding: 13px 24px;
       border-radius: 9px; font-weight: 700; font-size: 14px;
       text-decoration: none; transition: all .2s; font-family: 'Inter', 'DM Sans', sans-serif;
     }
