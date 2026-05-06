@@ -5,6 +5,13 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
+
+// Hindi: Cloudinary ko .env se credentials de rahe hain — bina iske upload fail hoga
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 const sgMail = require('@sendgrid/mail');
 
 // SendGrid API Key setup
@@ -158,20 +165,55 @@ const resetPassword = async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const uploadProfilePicture = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: 'Please upload a file' });
+    if (!req.file) return res.status(400).json({ message: 'Please select an image to upload' });
 
+    // Hindi: Sirf image files allowed hain
+    if (!req.file.mimetype.startsWith('image/')) {
+      return res.status(400).json({ message: 'Only image files are allowed' });
+    }
+
+    // Hindi: Purani image ka public_id nikalne ke liye pehle user fetch karo
+    const existingUser = await User.findById(req.user.id);
+
+    // Hindi: Cloudinary pe naya image upload karo — buffer se stream ke through
     const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: 'yournotes/avatars', transformation: [{ width: 200, height: 200, crop: 'fill' }] },
-        (err, res) => (err ? reject(err) : resolve(res))
+        {
+          folder: 'yournotes/avatars',
+          transformation: [{ width: 200, height: 200, crop: 'fill', gravity: 'face' }],
+          resource_type: 'image',
+        },
+        (err, result) => (err ? reject(err) : resolve(result))
       );
       streamifier.createReadStream(req.file.buffer).pipe(stream);
     });
 
-    const user = await User.findByIdAndUpdate(req.user.id, { avatar: result.secure_url }, { new: true });
-    res.json({ message: 'Avatar updated', avatar: result.secure_url });
+    // Hindi: Agar purani custom image thi to Cloudinary se delete karo (storage bachane ke liye)
+    if (existingUser?.avatar && existingUser.avatar.includes('cloudinary.com')) {
+      try {
+        const urlParts = existingUser.avatar.split('/');
+        const filename = urlParts[urlParts.length - 1].split('.')[0];
+        const folder   = urlParts[urlParts.length - 2];
+        await cloudinary.uploader.destroy(`${folder}/${filename}`);
+      } catch (_) {
+        // Hindi: Old image delete fail ho to bhi new upload success hona chahiye
+      }
+    }
+
+    // Hindi: DB mein naya avatar URL save karo
+    await User.findByIdAndUpdate(req.user.id, { avatar: result.secure_url });
+
+    res.json({
+      message: 'Profile photo updated successfully',
+      avatar: result.secure_url,
+      avatarUrl: result.secure_url, // Hindi: dono keys bhejo — frontend dono check karta hai
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Upload failed' });
+    console.error('Avatar upload error:', error?.message || error);
+    if (error?.message?.includes('Must supply api_key') || error?.message?.includes('cloud_name')) {
+      return res.status(500).json({ message: 'Image service not configured. Set Cloudinary credentials in .env' });
+    }
+    res.status(500).json({ message: 'Upload failed. Please try again.' });
   }
 };
 
