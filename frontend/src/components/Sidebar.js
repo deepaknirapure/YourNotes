@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { icon: Bot,        label: 'Ask AI',     path: '/ask-ai' },
   { icon: Users,      label: 'Community',  path: '/community' },
   { icon: Trash2,     label: 'Trash',      path: '/trash' },
+  { icon: Settings,   label: 'Settings',   path: '/settings' },
 ];
 
 export default function Sidebar({ open, onClose }) {

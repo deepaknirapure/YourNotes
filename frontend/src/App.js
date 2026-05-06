@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Suspense, lazy } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import PrivateRoute from './components/PrivateRoute';
 import './styles/global.css';
 import './styles/mobile.css';
@@ -15,6 +16,7 @@ const NotesPage           = lazy(() => import('./pages/DashboardPage'));
 const FlashcardReviewPage = lazy(() => import('./pages/FlashcardReviewPage'));
 const SharedNotePage      = lazy(() => import('./pages/SharedNotePage'));
 const ProfilePage         = lazy(() => import('./pages/ProfilePage'));
+const SettingsPage        = lazy(() => import('./pages/SettingsPage'));
 const CommunityPage       = lazy(() => import('./pages/CommunityPage'));
 const AskAIPage           = lazy(() => import('./pages/AskAIPage'));
 const HomePage            = lazy(() => import('./pages/Homepage'));
@@ -61,6 +63,7 @@ function PageLoader() {
 function App() {
   return (
     <AuthProvider>
+      <ThemeProvider>
       <Router>
         <Toaster
           position="top-right"
@@ -98,11 +101,13 @@ function App() {
             <Route path="/community"        element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
             <Route path="/trash"            element={<PrivateRoute><TrashPage /></PrivateRoute>} />
             <Route path="/profile"          element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+            <Route path="/settings"         element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

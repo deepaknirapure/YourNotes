@@ -1,273 +1,300 @@
 import { useState, useEffect, useRef } from "react";
-import { User, Mail, Lock, Save, Camera, LogOut, Menu, Check, FileText, Star, Folder, ShieldCheck } from "lucide-react";
+import {
+  User, Mail, Lock, Save, Camera, LogOut, Menu,
+  Check, FileText, Star, Folder, Trash2, Eye, EyeOff, Settings
+} from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
 
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-  
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(15px) } to { opacity: 1; transform: translateY(0) } }
-  @keyframes spin { to { transform: rotate(360deg) } }
-  
-  body { background: #151313; color: #f7f7f5; font-family: 'Plus Jakarta Sans', sans-serif; }
-  
-  .pg-wrap { display: flex; height: 100dvh; overflow: hidden; background: #151313; }
-  .pg-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-  
-  /* Sleek Topbar */
-  .pg-topbar { 
-    height: 70px; display: flex; align-items: center; gap: 16px; padding: 0 32px; 
-    background: #0A0A0A; border-bottom: 1px solid #1A1A1A; flex-shrink: 0; 
-  }
-  .pg-menu-btn { display: none; background: #1A1A1A; border: 1px solid #333; color: #f7f7f5; cursor: pointer; padding: 8px; border-radius: 10px; }
-  
-  .pg-content { flex: 1; overflow-y: auto; padding: 40px 24px; scrollbar-width: none; }
-  
-  .pr-container { max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
-  
-  /* Dark Cards */
-  .pr-card { 
-    background: #0A0A0A; border: 1px solid #1A1A1A; border-radius: 24px; 
-    padding: 32px; animation: fadeUp 0.4s ease-out both; transition: 0.3s; 
-  }
-  .pr-card:hover { border-color: #333; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-  
-  .pr-card-title { 
-    font-size: 15px; font-weight: 800; color: #ff5734; text-transform: uppercase;
-    letter-spacing: 1px; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; 
-  }
-  
-  /* Avatar Redesign */
-  .pr-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 10px; }
-  .pr-avatar-container { position: relative; display: inline-block; padding: 5px; border-radius: 30px; background: linear-gradient(45deg, #ff5734, transparent); }
-  
-  .pr-avatar { 
-    width: 100px; height: 100px; border-radius: 25px; background: #111; 
-    border: 3px solid #000; display: flex; align-items: center; justify-content: center; 
-    font-size: 36px; font-weight: 900; color: #ff5734; overflow: hidden;
-  }
-  .pr-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  
-  .pr-avatar-edit { 
-    position: absolute; bottom: 0px; right: 0px; width: 32px; height: 32px; 
-    border-radius: 10px; background: #ff5734; display: flex; align-items: center; 
-    justify-content: center; cursor: pointer; border: 3px solid #000; transition: 0.2s;
-  }
-  .pr-avatar-edit:hover { transform: scale(1.1) rotate(10deg); }
-  
-  /* Input Styling */
-  .pr-field { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-  .pr-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #8a7f7f; }
-  
-  .pr-input-wrap { position: relative; display: flex; align-items: center; }
-  .pr-input-wrap svg { position: absolute; left: 16px; color: #4a4040; transition: 0.3s; }
-  
-  .pr-input { 
-    width: 100%; padding: 14px 16px 14px 48px; background: #050505; 
-    border: 1px solid #2a2525; border-radius: 12px; font-size: 14px; 
-    font-weight: 600; color: #f7f7f5; outline: none; transition: 0.3s; 
-  }
-  .pr-input:focus { border-color: #ff5734; box-shadow: 0 0 20px rgba(255,87,52,0.05); }
-  .pr-input:focus + svg { color: #ff5734; }
-  
-  /* Buttons */
-  .pr-save-btn { 
-    display: flex; align-items: center; gap: 8px; background: #ff5734; color: #000; 
-    border: none; border-radius: 12px; padding: 14px 28px; font-size: 14px; 
-    font-weight: 800; cursor: pointer; transition: 0.3s; width: fit-content;
-  }
-  .pr-save-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255,87,52,0.3); }
-  
-  .pr-danger-btn { 
-    display: flex; align-items: center; gap: 8px; background: transparent; color: #FF4444; 
-    border: 1px solid #331111; border-radius: 12px; padding: 14px 28px; font-size: 14px; 
-    font-weight: 800; cursor: pointer; transition: 0.2s;
-  }
-  .pr-danger-btn:hover { background: #220000; border-color: #FF4444; }
-  
-  /* Stats Grid */
-  .pr-stats-row { 
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 30px; 
-  }
-  .pr-stat { 
-    display: flex; flex-direction: column; align-items: center; gap: 8px; 
-    padding: 20px; background: #050505; border-radius: 16px; border: 1px solid #111; transition: 0.3s;
-  }
-  .pr-stat:hover { border-color: #ff5734; transform: translateY(-3px); }
-  .pr-stat-val { font-size: 28px; font-weight: 900; color: #f7f7f5; line-height: 1; }
-  .pr-stat-lbl { font-size: 10px; color: #8a7f7f; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
-  
-  .pr-spinner { width: 16px; height: 16px; border: 2px solid #000; border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
-
-  @media(max-width:768px) {
-    .pg-menu-btn { display: flex; }
-    .pg-topbar { padding: 0 16px; }
-    .pr-stats-row { grid-template-columns: 1fr; }
-  }
-`;
-
 export default function ProfilePage() {
   const { user, updateUser, logout } = useAuth();
+  const { isDark } = useTheme();
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({ name: user?.name || "", email: user?.email || "" });
   const [pwForm, setPwForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
-  
+  const [showPw, setShowPw] = useState({ current: false, new: false, confirm: false });
+
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPw, setSavingPw] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [deletingImage, setDeletingImage] = useState(false);
   const [stats, setStats] = useState({ totalNotes: 0, starredNotes: 0, totalFolders: 0 });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profilePic, setProfilePic] = useState(user?.avatar || null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     API.get("/dashboard").then(({ data }) => setStats(data)).catch(() => {});
   }, []);
 
-  const handleImageUpload = async (e) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => setPreviewUrl(ev.target.result);
+    reader.readAsDataURL(file);
+    handleImageUpload(file);
+  };
+
+  const handleImageUpload = async (file) => {
     setUploadingImage(true);
     try {
       const formData = new FormData();
       formData.append("profilePic", file);
-      const { data } = await API.put("/auth/profile-picture", formData, { headers: { "Content-Type": "multipart/form-data" } });
-      updateUser?.(data.user || { ...user, avatar: data.avatarUrl });
-      setProfilePic(data.avatarUrl);
-      toast.success("Identity visual updated! 📸");
-    } catch { toast.error("Upload failed"); } 
-    finally { setUploadingImage(false); }
+      const { data } = await API.put("/auth/profile-picture", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const url = data.avatarUrl || data.avatar;
+      updateUser?.({ ...user, avatar: url });
+      setProfilePic(url);
+      setPreviewUrl(null);
+      toast.success("Profile photo updated!");
+    } catch {
+      toast.error("Upload failed. Please try again.");
+      setPreviewUrl(null);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    setDeletingImage(true);
+    try {
+      await API.delete("/auth/profile-picture").catch(() => {});
+      updateUser?.({ ...user, avatar: null });
+      setProfilePic(null);
+      setPreviewUrl(null);
+      setShowDeleteConfirm(false);
+      toast.success("Profile photo removed.");
+    } finally {
+      setDeletingImage(false);
+    }
   };
 
   const saveProfile = async () => {
+    if (!form.name.trim()) { toast.error("Name cannot be empty"); return; }
     setSavingProfile(true);
     try {
       const { data } = await API.put("/auth/profile", form);
       updateUser?.(data.user || { ...user, ...form });
-      toast.success("Profile synced to cloud! ⚡");
-    } catch { toast.error("Update failed"); }
-    finally { setSavingProfile(false); }
+      toast.success("Profile updated!");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Update failed");
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   const changePassword = async () => {
+    if (!pwForm.currentPassword || !pwForm.newPassword || !pwForm.confirmPassword) {
+      toast.error("Please fill all fields"); return;
+    }
+    if (pwForm.newPassword !== pwForm.confirmPassword) {
+      toast.error("New passwords don't match"); return;
+    }
+    if (pwForm.newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters"); return;
+    }
     setSavingPw(true);
     try {
       await API.put("/auth/change-password", pwForm);
       setPwForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-      toast.success("Security keys rotated! 🔐");
-    } catch { toast.error("Verification failed"); }
-    finally { setSavingPw(false); }
+      toast.success("Password changed!");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Current password incorrect");
+    } finally {
+      setSavingPw(false);
+    }
   };
 
-  const initials = (user?.name || "U").split(" ").map(w => w[0]).join("").toUpperCase();
+  const initials = (user?.name || "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+  const displayPic = previewUrl || profilePic;
+  const c = isDark ? DARK : LIGHT;
 
   return (
-    <div className="pg-wrap">
-      <style>{STYLES}</style>
+    <div style={{ display: "flex", height: "100dvh", overflow: "hidden", background: c.bg, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <style>{BASE_STYLES + getInputFocusStyle(isDark)}</style>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      <div className="pg-main">
-        <div className="pg-topbar">
-          <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <Menu size={20} />
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
+        {/* Topbar */}
+        <div style={{ height: 58, display: "flex", alignItems: "center", gap: 12, padding: "0 24px", background: c.surface, borderBottom: `1px solid ${c.border}`, flexShrink: 0 }}>
+          <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}
+            style={{ background: "transparent", border: `1px solid ${c.border}`, color: c.textMuted, borderRadius: 6, padding: 7, cursor: "pointer" }}>
+            <Menu size={18} />
           </button>
-          <div style={{ padding: "8px", borderRadius: "10px", background: "#ff5734" }}>
-            <User size={18} color="#000" />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 30, height: 30, background: "var(--accent)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <User size={15} color="#fff" />
+            </div>
+            <span style={{ fontSize: 16, fontWeight: 800, color: c.text }}>Profile</span>
           </div>
-          <span style={{ fontSize: 18, fontWeight: 800, color: "#f7f7f5" }}>Security <span style={{color: "#ff5734"}}>& Hub</span></span>
+          <div style={{ flex: 1 }} />
+          <button onClick={() => navigate("/settings")}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "transparent", border: `1px solid ${c.border}`, borderRadius: 8, cursor: "pointer", color: c.textMuted, fontSize: 13, fontWeight: 600, fontFamily: "inherit", transition: "all 0.15s" }}>
+            <Settings size={14} /> Settings
+          </button>
         </div>
 
-        <div className="pg-content">
+        {/* Content */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px", scrollbarWidth: "none" }}>
           <div className="pr-container">
 
-            {/* Profile Overview Card */}
-            <div className="pr-card">
-              <div className="pr-avatar-wrap">
-                <div className="pr-avatar-container">
-                  <div className="pr-avatar">
-                    {profilePic ? <img src={profilePic} alt="Profile" /> : initials}
+            {/* Hero Card */}
+            <div className="pr-card" style={cardStyle(c)}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, paddingBottom: 24, borderBottom: `1px solid ${c.border}` }}>
+                <div style={{ position: "relative" }}>
+                  <div style={{
+                    width: 100, height: 100, borderRadius: 26,
+                    background: displayPic ? "#000" : "linear-gradient(135deg, #f97316, #f59e0b)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 32, fontWeight: 900, color: "#fff",
+                    overflow: "hidden", border: `3px solid ${c.border}`,
+                    boxShadow: "0 6px 24px rgba(0,0,0,0.12)",
+                  }}>
+                    {displayPic
+                      ? <img src={displayPic} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      : initials}
+                    {uploadingImage && (
+                      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div className="yn-spinner" />
+                      </div>
+                    )}
                   </div>
-                  <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImageUpload} />
-                  <div className="pr-avatar-edit" onClick={() => fileInputRef.current?.click()}>
-                    {uploadingImage ? <div className="pr-spinner" /> : <Camera size={16} color="#000" />}
-                  </div>
+                  <button onClick={() => fileInputRef.current?.click()} title="Change photo"
+                    style={{ position: "absolute", bottom: -3, right: -3, width: 30, height: 30, borderRadius: 9, background: "var(--accent)", border: `2px solid ${c.surface}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "transform 0.2s" }}
+                    onMouseOver={e => e.currentTarget.style.transform = "scale(1.12)"}
+                    onMouseOut={e => e.currentTarget.style.transform = "scale(1)"}>
+                    <Camera size={13} color="#fff" />
+                  </button>
+                  <input type="file" ref={fileInputRef} style={{ display: "none" }} accept="image/*" onChange={handleFileSelect} />
                 </div>
-                
+
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: "#f7f7f5" }}>{user?.name || "User"}</div>
-                  <div style={{ fontSize: 14, color: "#555", fontWeight: 700, marginTop: 4 }}>{user?.email}</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: c.text }}>{user?.name || "Your Name"}</div>
+                  <div style={{ fontSize: 13, color: c.textMuted, marginTop: 3 }}>{user?.email}</div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                    <button onClick={() => fileInputRef.current?.click()}
+                      style={{ padding: "6px 14px", background: "var(--accent)", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                      {uploadingImage ? "Uploading…" : "Change Photo"}
+                    </button>
+                    {(displayPic) && !showDeleteConfirm && (
+                      <button onClick={() => setShowDeleteConfirm(true)}
+                        style={{ padding: "6px 14px", background: "transparent", color: "#ef4444", border: "1px solid #fca5a5", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                        Remove
+                      </button>
+                    )}
+                    {showDeleteConfirm && (
+                      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                        <span style={{ fontSize: 12, color: c.textMuted }}>Remove photo?</span>
+                        <button onClick={handleDeletePhoto} disabled={deletingImage}
+                          style={{ padding: "5px 12px", background: "#ef4444", color: "#fff", border: "none", borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                          {deletingImage ? "…" : "Yes"}
+                        </button>
+                        <button onClick={() => setShowDeleteConfirm(false)}
+                          style={{ padding: "5px 12px", background: "transparent", color: c.textMuted, border: `1px solid ${c.border}`, borderRadius: 7, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="pr-stats-row">
+              {/* Stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, paddingTop: 20 }} className="pr-stats-grid">
                 {[
-                  { val: stats.totalNotes, lbl: "Knowledge Nodes", icn: FileText },
-                  { val: stats.starredNotes, lbl: "Priority Items", icn: Star },
-                  { val: stats.totalFolders, lbl: "Data Clusters", icn: Folder }
-                ].map((s, i) => (
-                  <div key={i} className="pr-stat">
-                    <div className="pr-stat-val">{s.val}</div>
-                    <div className="pr-stat-lbl"><s.icn size={12} color="#ff5734" /> {s.lbl}</div>
+                  { val: stats.totalNotes, lbl: "Notes", icon: FileText, color: "var(--accent)" },
+                  { val: stats.starredNotes, lbl: "Starred", icon: Star, color: "#f59e0b" },
+                  { val: stats.totalFolders, lbl: "Folders", icon: Folder, color: "#8b5cf6" },
+                ].map(({ val, lbl, icon: Icon, color }) => (
+                  <div key={lbl} className="pr-stat" style={{
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
+                    padding: "14px 8px", background: c.statBg, borderRadius: 12, border: `1px solid ${c.border}`,
+                    cursor: "default", transition: "all 0.2s",
+                  }}
+                    onMouseOver={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseOut={e => { e.currentTarget.style.borderColor = c.border; e.currentTarget.style.transform = "none"; }}>
+                    <Icon size={16} color={color} />
+                    <span style={{ fontSize: 22, fontWeight: 900, color: c.text, lineHeight: 1 }}>{val}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: c.textMuted, textTransform: "uppercase", letterSpacing: "0.4px" }}>{lbl}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Personal Info Card */}
-            <div className="pr-card">
-              <div className="pr-card-title"><User size={18} /> Identity Core</div>
-              <div className="pr-field">
-                <label className="pr-label">Full Alias</label>
-                <div className="pr-input-wrap">
-                  <input className="pr-input" type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-                  <User size={18} />
-                </div>
-              </div>
-              <div className="pr-field">
-                <label className="pr-label">Communication Channel</label>
-                <div className="pr-input-wrap">
-                  <input className="pr-input" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-                  <Mail size={18} />
-                </div>
-              </div>
-              <button className="pr-save-btn" onClick={saveProfile} disabled={savingProfile}>
-                {savingProfile ? <div className="pr-spinner" /> : <><Save size={18} /> Sync Changes</>}
-              </button>
-            </div>
-
-            {/* Security Card */}
-            <div className="pr-card">
-              <div className="pr-card-title"><ShieldCheck size={18} /> Authentication Keys</div>
-              {[
-                { label: "Master Key", key: "currentPassword", placeholder: "Current Security Key" },
-                { label: "New Sequence", key: "newPassword", placeholder: "New Security Key" },
-                { label: "Verify Sequence", key: "confirmPassword", placeholder: "Repeat New Key" },
-              ].map(f => (
-                <div key={f.key} className="pr-field">
-                  <label className="pr-label">{f.label}</label>
-                  <div className="pr-input-wrap">
-                    <input className="pr-input" type="password" placeholder={f.placeholder}
-                      value={pwForm[f.key]} onChange={e => setPwForm({ ...pwForm, [f.key]: e.target.value })} />
-                    <Lock size={18} />
+            {/* Personal Info */}
+            <div className="pr-card" style={cardStyle(c)}>
+              <div style={sectionTitle(c)}><User size={15} style={{ color: "var(--accent)" }} /> Personal Information</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[
+                  { label: "Full Name", key: "name", type: "text", icon: User, ph: "Your full name" },
+                  { label: "Email Address", key: "email", type: "email", icon: Mail, ph: "your@email.com" },
+                ].map(({ label, key, type, icon: Icon, ph }) => (
+                  <div key={key}>
+                    <label style={lbl(c)}>{label}</label>
+                    <div style={{ position: "relative" }}>
+                      <Icon size={14} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: c.textLight, pointerEvents: "none" }} />
+                      <input className="yn-input" style={inp(c)} type={type}
+                        value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} placeholder={ph} />
+                    </div>
                   </div>
-                </div>
-              ))}
-              <button className="pr-save-btn" onClick={changePassword} disabled={savingPw} style={{ marginTop: 10 }}>
-                {savingPw ? <div className="pr-spinner" /> : <><Check size={18} /> Rotate Keys</>}
+                ))}
+              </div>
+              <button onClick={saveProfile} disabled={savingProfile} style={primBtn}>
+                {savingProfile ? <><div className="yn-spinner-sm" /> Saving…</> : <><Save size={14} /> Save Changes</>}
               </button>
             </div>
 
-            {/* Danger Zone */}
-            <div className="pr-card" style={{ borderColor: "#331111", background: "linear-gradient(to bottom, #0A0A0A, #110000)" }}>
-              <div className="pr-card-title" style={{ color: "#FF4444" }}><LogOut size={18} /> Terminal Actions</div>
-              <p style={{ fontSize: 13, color: "#888", marginBottom: 20, lineHeight: 1.6 }}>
-                Terminating the session will wipe local temporary data. You will need to re-authenticate to access the hub.
+            {/* Password */}
+            <div className="pr-card" style={cardStyle(c)}>
+              <div style={sectionTitle(c)}><Lock size={15} style={{ color: "var(--accent)" }} /> Change Password</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[
+                  { label: "Current Password", key: "currentPassword", vis: "current" },
+                  { label: "New Password", key: "newPassword", vis: "new" },
+                  { label: "Confirm New Password", key: "confirmPassword", vis: "confirm" },
+                ].map(({ label, key, vis }) => (
+                  <div key={key}>
+                    <label style={lbl(c)}>{label}</label>
+                    <div style={{ position: "relative" }}>
+                      <Lock size={14} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: c.textLight, pointerEvents: "none" }} />
+                      <input className="yn-input" style={{ ...inp(c), paddingRight: 42 }}
+                        type={showPw[vis] ? "text" : "password"}
+                        value={pwForm[key]} onChange={e => setPwForm({ ...pwForm, [key]: e.target.value })}
+                        placeholder={label} />
+                      <button onClick={() => setShowPw(p => ({ ...p, [vis]: !p[vis] }))}
+                        style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: c.textMuted, padding: 2, display: "flex" }}>
+                        {showPw[vis] ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={changePassword} disabled={savingPw} style={primBtn}>
+                {savingPw ? <><div className="yn-spinner-sm" /> Updating…</> : <><Check size={14} /> Update Password</>}
+              </button>
+            </div>
+
+            {/* Danger */}
+            <div className="pr-card" style={{ ...cardStyle(c), borderColor: isDark ? "#3a1010" : "#fecaca", background: isDark ? "#1a0808" : "#fff9f9" }}>
+              <div style={{ ...sectionTitle(c), color: "#ef4444" }}><LogOut size={15} style={{ color: "#ef4444" }} /> Sign Out</div>
+              <p style={{ fontSize: 13, color: c.textMuted, marginBottom: 16, lineHeight: 1.6 }}>
+                Sign out from your account. Your notes and data will remain safe and accessible on your next login.
               </p>
-              <button className="pr-danger-btn" onClick={logout}>
-                <LogOut size={18} /> Kill Session
+              <button onClick={() => { logout(); navigate("/login"); }}
+                className="pr-danger-btn"
+                style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 18px", background: "transparent", border: "1.5px solid #fca5a5", color: "#ef4444", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}>
+                <LogOut size={14} /> Sign Out
               </button>
             </div>
 
@@ -278,3 +305,76 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+const cardStyle = (c) => ({
+  background: c.surface, border: `1px solid ${c.border}`,
+  borderRadius: 18, padding: "24px",
+  transition: "all 0.2s",
+});
+const sectionTitle = (c) => ({
+  display: "flex", alignItems: "center", gap: 8,
+  fontSize: 13, fontWeight: 800, color: c.text,
+  marginBottom: 18, paddingBottom: 14, borderBottom: `1px solid ${c.border}`,
+  textTransform: "uppercase", letterSpacing: "0.3px",
+});
+const lbl = (c) => ({
+  display: "block", fontSize: 11, fontWeight: 700,
+  color: c.textMuted, textTransform: "uppercase",
+  letterSpacing: "0.4px", marginBottom: 7,
+});
+const inp = (c) => ({
+  width: "100%", padding: "10px 14px 10px 38px",
+  background: c.inputBg, border: `1.5px solid ${c.border}`,
+  borderRadius: 9, fontSize: 14, fontWeight: 500,
+  color: c.text, outline: "none", fontFamily: "inherit",
+  transition: "all 0.15s",
+});
+const primBtn = {
+  display: "inline-flex", alignItems: "center", gap: 6,
+  padding: "10px 20px", background: "var(--accent)", color: "#fff",
+  border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700,
+  cursor: "pointer", marginTop: 18, fontFamily: "inherit",
+  transition: "all 0.2s",
+};
+
+const DARK = {
+  bg: "#111010", surface: "#1a1919", border: "#2a2828",
+  text: "#f5f5f4", textMuted: "#888580", textLight: "#555",
+  inputBg: "#111", statBg: "#111",
+};
+const LIGHT = {
+  bg: "#f5f5f3", surface: "#ffffff", border: "#e8e6e1",
+  text: "#1a1a1a", textMuted: "#888580", textLight: "#b0ada6",
+  inputBg: "#f9f9f8", statBg: "#f9f9f8",
+};
+
+const getInputFocusStyle = (isDark) => `
+  .yn-input:focus {
+    border-color: var(--accent) !important;
+    background: ${isDark ? "#1a1a1a" : "#fff"} !important;
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.12) !important;
+  }
+  .pr-danger-btn:hover {
+    background: #ef4444 !important;
+    color: #fff !important;
+  }
+`;
+
+const BASE_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+  * { box-sizing: border-box; }
+  @keyframes spin { to { transform: rotate(360deg) } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+  .pg-menu-btn { display: none !important; }
+  .yn-spinner { width: 26px; height: 26px; border: 3px solid rgba(255,255,255,0.25); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .yn-spinner-sm { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .pr-card { animation: fadeUp 0.35s both; }
+  .pr-container { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+  @media (max-width: 768px) {
+    .pg-menu-btn { display: flex !important; }
+    .pr-stats-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  }
+  @media (max-width: 420px) {
+    .pr-stats-grid { grid-template-columns: 1fr !important; }
+  }
+`;
