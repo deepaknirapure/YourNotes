@@ -75,7 +75,7 @@ function ThemedToaster() {
         }
       `}</style>
       <Toaster
-        position="bottom-right"
+        position="top-center"
         gutter={8}
         toastOptions={{
           duration: 3000,
