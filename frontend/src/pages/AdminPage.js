@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 // ─── Icons (inline SVG — no extra dependencies) ──────────────────────────────
@@ -164,7 +164,7 @@ const TABS = [
 
 // ─── MAIN ADMIN PAGE ──────────────────────────────────────────────────────────
 export default function AdminPage() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
   const navigate         = useNavigate();
 
   const [activeTab,  setActiveTab]  = useState('overview');

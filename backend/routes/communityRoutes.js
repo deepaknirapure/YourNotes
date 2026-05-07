@@ -15,6 +15,7 @@ const {
   getUserNotes,
   getSavedNotes,
   deleteNote,
+  reportNote,
 } = require('../controllers/communityController');
 
 // ── Static / prefix routes FIRST (before /:id shadow them) ──────────────────
@@ -31,6 +32,7 @@ router.post('/:id/like',     protect, toggleLike);
 router.post('/:id/save',     protect, toggleSave);
 router.post('/:id/comment',  protect, addComment);
 router.post('/:id/download', protect, downloadNote);
+router.post('/:id/report',    protect, reportNote);
 router.delete('/:id',        protect, deleteNote);
 
 module.exports = router;
