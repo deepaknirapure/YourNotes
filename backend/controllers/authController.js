@@ -286,12 +286,29 @@ const resetWeeklyGoals = async () => {
   }
 };
 
-// 10. DELETE AVATAR — Profile picture hatana
+// 10. DELETE AVATAR — Profile picture hatana aur Cloudinary se bhi remove karna
 const deleteProfilePicture = async (req, res) => {
   try {
-    const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-    await User.findByIdAndUpdate(req.user.id, { avatar: DEFAULT_AVATAR });
-    res.json({ message: 'Profile picture removed', avatar: DEFAULT_AVATAR });
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Hindi: Agar Cloudinary pe image thi to wahan se bhi delete karo
+    if (user.avatar && user.avatar.includes('cloudinary.com')) {
+      try {
+        // Extract public_id from URL (format: .../folder/filename.ext)
+        const urlParts = user.avatar.split('/');
+        const filenameWithExt = urlParts[urlParts.length - 1];
+        const filename = filenameWithExt.split('.')[0];
+        const folder = urlParts[urlParts.length - 2];
+        await cloudinary.uploader.destroy(`${folder}/${filename}`);
+      } catch (_) {
+        // Hindi: Cloudinary delete fail ho bhi jaye to user ka avatar DB se hata do
+      }
+    }
+
+    // Hindi: Avatar null set karo — frontend initials dikhayega
+    await User.findByIdAndUpdate(req.user.id, { avatar: null });
+    res.json({ message: 'Profile picture removed', avatar: null });
   } catch (error) {
     res.status(500).json({ message: 'Delete failed' });
   }
