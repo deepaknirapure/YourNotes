@@ -30,6 +30,13 @@ const protect = async (req, res, next) => {
         return res.status(401).json({ message: 'User account not found' });
       }
 
+      // Ban check: Agar user ban hai toh access deny karo
+      if (req.user.isBanned) {
+        return res.status(403).json({ 
+          message: `Your account has been suspended. Reason: ${req.user.banReason || 'Violation of terms'}` 
+        });
+      }
+
       /**
        * Optional: Account Verification Check
        * Agar tumne email verification rakha hai, toh ye check enable kar sakte ho.
@@ -57,3 +64,13 @@ const protect = async (req, res, next) => {
 };
 
 module.exports = { protect };
+
+// Admin-only middleware: Sirf admin role wale users ko allow karo
+const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Access denied. Admin only.' });
+};
+
+module.exports = { protect, adminOnly };

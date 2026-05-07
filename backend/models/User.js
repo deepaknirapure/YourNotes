@@ -87,6 +87,25 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpire: {
       type: Date,
       default: undefined
+    },
+    /**
+     * Admin System:
+     * role: 'user' ya 'admin' — admin ke paas special powers hain
+     * isBanned: true hone par user login nahi kar sakta
+     * banReason: admin ne kyun ban kiya
+     */
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    banReason: {
+      type: String,
+      default: '',
     }
   },
   { timestamps: true } // createdAt aur updatedAt fields auto-manage hongi

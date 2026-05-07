@@ -50,7 +50,7 @@ const register = async (req, res) => {
     res.status(201).json({
       message: 'Welcome! Account created successfully.',
       token: generateToken(user._id),
-      user: { id: user._id, name, email }
+      user: { id: user._id, name, email, role: user.role, isBanned: false }
     });
   } catch (error) {
     res.status(500).json({ message: 'Registration failed' });
@@ -85,9 +85,16 @@ const login = async (req, res) => {
     user.streak.lastStudied = new Date();
     await user.save();
 
+    // Ban check before login
+    if (user.isBanned) {
+      return res.status(403).json({ 
+        message: `Your account has been suspended. Reason: ${user.banReason || 'Violation of terms'}` 
+      });
+    }
+
     res.status(200).json({
       token: generateToken(user._id),
-      user: { id: user._id, name: user.name, streak: user.streak, avatar: user.avatar }
+      user: { id: user._id, name: user.name, streak: user.streak, avatar: user.avatar, role: user.role, isBanned: user.isBanned }
     });
   } catch (error) {
     res.status(500).json({ message: 'Login error' });

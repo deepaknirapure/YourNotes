@@ -96,6 +96,19 @@ const noteSchema = new mongoose.Schema(
       type: String,
       default: 'General',
     },
+    // Admin: Report/Flag System
+    reports: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        reason: { type: String, required: true },
+        createdAt: { type: Date, default: Date.now }
+      }
+    ],
+    // Admin: Force removed by admin
+    isRemovedByAdmin: {
+      type: Boolean,
+      default: false,
+    },
     // Sharing Logic
     shareToken: {
       type: String,

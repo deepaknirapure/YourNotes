@@ -403,3 +403,29 @@ exports.getSavedNotes = async (req, res) => {
 };
 
 module.exports = exports;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. REPORT NOTE  (user flags a note for admin review)
+// ─────────────────────────────────────────────────────────────────────────────
+exports.reportNote = async (req, res) => {
+  try {
+    const { reason } = req.body;
+    if (!reason?.trim()) return res.status(400).json({ message: 'Reason required' });
+
+    const note = await Note.findOne({ _id: req.params.id, isPublic: true, isTrashed: false });
+    if (!note) return res.status(404).json({ message: 'Note not found' });
+
+    // Already reported by this user?
+    const alreadyReported = note.reports?.some(r => r.user?.toString() === req.user.id);
+    if (alreadyReported) return res.status(400).json({ message: 'Aapne pehle se report kar diya hai' });
+
+    if (!note.reports) note.reports = [];
+    note.reports.push({ user: req.user.id, reason: reason.trim() });
+    await note.save();
+
+    res.json({ message: 'Report submit ho gayi. Admin review karega.' });
+  } catch (err) {
+    console.error('reportNote error:', err);
+    res.status(500).json({ message: 'Report failed' });
+  }
+};

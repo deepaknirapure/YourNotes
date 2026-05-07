@@ -58,6 +58,7 @@ app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/tags',      require('./routes/tagRoutes'));
 app.use('/api/ai',        require('./routes/aiRoutes'));
 app.use('/api/community', require('./routes/communityRoutes'));
+app.use('/api/admin',     require('./routes/adminRoutes'));
 
 // Health check
 app.get('/api/health', (_req, res) => {

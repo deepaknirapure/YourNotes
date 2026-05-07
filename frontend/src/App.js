@@ -23,6 +23,7 @@ const TrashPage           = lazy(() => import('./pages/Trashpage'));
 const StarredPage         = lazy(() => import('./pages/Starredpage'));
 const FoldersPage         = lazy(() => import('./pages/Folderspage'));
 const TagsPage            = lazy(() => import('./pages/Tagspage'));
+const AdminPage           = lazy(() => import('./pages/AdminPage'));
 
 function NotFoundPage() {
   return (
@@ -156,6 +157,7 @@ function App() {
             <Route path="/trash"            element={<PrivateRoute><TrashPage /></PrivateRoute>} />
             <Route path="/profile"          element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/settings"         element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
+            <Route path="/admin"            element={<PrivateRoute><AdminPage /></PrivateRoute>} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
