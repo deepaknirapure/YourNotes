@@ -13,7 +13,6 @@ import MobileNav from "../components/MobileNav";
 import { useTheme } from "../context/ThemeContext";
 
 // ─── Note Colors ──────────────────────────────────────────────────────────────
-// Light aur Dark dono mode ke liye alag colors
 const NOTE_COLORS_DARK = {
   default: { bg: 'var(--surface)',  border: 'var(--border)' },
   red:     { bg: '#2d1515',         border: '#7f1d1d'        },
@@ -69,26 +68,44 @@ const getStyles = () => `
   .btn-import { background:transparent; border:1.5px solid var(--border); border-radius:9px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer; transition:0.2s; font-family:inherit; display:flex; align-items:center; gap:6px; color:var(--text-muted); white-space:nowrap; }
   .btn-import:hover { border-color:var(--accent); color:var(--accent); }
 
-  /* Filter Bar */
+  /* Filter Bar — FIX: overflow-y must stay visible so dropdown is not clipped */
   .filter-bar {
-  padding:10px 24px;
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  gap:8px;
-  overflow-x:auto;
-  overflow-y:visible;
-  scrollbar-width:none;
-  flex-shrink:0;
-  position:relative;
-  z-index:50;
-}
+    padding: 10px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 50;
+  }
   .filter-bar::-webkit-scrollbar { display:none; }
   .filter-chip { padding:5px 14px; border-radius:100px; border:1.5px solid var(--border); font-size:12px; font-weight:700; cursor:pointer; transition:0.15s; background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap; display:flex; align-items:center; gap:5px; }
   .filter-chip:hover { border-color:var(--text-muted); color:var(--text); }
   .filter-chip.active { background:var(--text); color:var(--surface); border-color:var(--text); }
   .filter-chip.tag-active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+  /* Tag Dropdown — FIX: rendered outside filter-bar, anchored via JS-calculated position */
+  .tag-drop {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    min-width: 180px;
+    animation: scaleIn 0.15s ease;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .tag-drop-item { padding:7px 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:var(--text-muted); }
+  .tag-drop-item:hover { background:var(--bg); color:var(--text); }
+  .tag-drop-item.a { color:var(--accent); background:var(--accent-light); }
 
   /* Content */
   .db-content { flex:1; overflow-y:auto; padding:24px 28px; scrollbar-width:none; background:var(--bg); }
@@ -121,26 +138,6 @@ const getStyles = () => `
   .color-menu { position:absolute; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; gap:6px; flex-wrap:wrap; z-index:200; box-shadow:0 8px 24px rgba(0,0,0,0.35); width:168px; animation:scaleIn 0.15s ease; bottom:100%; right:0; margin-bottom:6px; }
   .cdot { width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:0.15s; }
   .cdot:hover,.cdot.sel { border-color:var(--text); transform:scale(1.15); }
-
-  /* Tag Dropdown */
- .tag-drop {
-  position:absolute;
-  top:calc(100% + 8px);
-  left:0;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:8px;
-  z-index:9999;
-  box-shadow:0 8px 24px rgba(0,0,0,0.3);
-  min-width:180px;
-  animation:scaleIn 0.15s ease;
-  max-height:220px;
-  overflow-y:auto;
-}
-  .tag-drop-item { padding:7px 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:var(--text-muted); }
-  .tag-drop-item:hover { background:var(--bg); color:var(--text); }
-  .tag-drop-item.a { color:var(--accent); background:var(--accent-light); }
 
   /* Import Modal */
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:999; padding:20px; }
@@ -203,21 +200,31 @@ function ImportModal({ onClose, onImported }) {
           <span style={{ fontWeight:900, fontSize:17, color:'var(--text)' }}>📂 Import Note</span>
           <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)' }}><X size={18}/></button>
         </div>
-        <div className={`drop-zone${drag?' dov':''}`} onClick={() => ref.current?.click()}
-          onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)}
-          onDrop={e=>{e.preventDefault();setDrag(false);const f=e.dataTransfer.files[0];if(f)pick(f);}}>
-          <input ref={ref} type="file" accept=".pdf,.docx,.doc,.txt,.md" onChange={e=>{if(e.target.files[0])pick(e.target.files[0]);}}/>
-          <Upload size={32} color="var(--text-light)" style={{margin:'0 auto 12px'}}/>
+        <div
+          className={`drop-zone${drag ? ' dov' : ''}`}
+          onClick={() => ref.current?.click()}
+          onDragOver={e => { e.preventDefault(); setDrag(true); }}
+          onDragLeave={() => setDrag(false)}
+          onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) pick(f); }}
+        >
+          <input ref={ref} type="file" accept=".pdf,.docx,.doc,.txt,.md" onChange={e => { if (e.target.files[0]) pick(e.target.files[0]); }}/>
+          <Upload size={32} color="var(--text-light)" style={{ margin:'0 auto 12px' }}/>
           {file ? (
-            <div><div style={{fontWeight:800,color:'var(--text)',fontSize:14}}>✅ {file.name}</div><div style={{fontSize:12,color:'var(--text-muted)',marginTop:4}}>{(file.size/1024).toFixed(0)} KB</div></div>
+            <div>
+              <div style={{ fontWeight:800, color:'var(--text)', fontSize:14 }}>✅ {file.name}</div>
+              <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:4 }}>{(file.size/1024).toFixed(0)} KB</div>
+            </div>
           ) : (
-            <div><div style={{fontWeight:700,color:'var(--text)',fontSize:14}}>Click ya drag & drop</div><div style={{fontSize:12,color:'var(--text-muted)',marginTop:6}}>PDF • DOCX • TXT • MD &nbsp;|&nbsp; Max 10MB</div></div>
+            <div>
+              <div style={{ fontWeight:700, color:'var(--text)', fontSize:14 }}>Click or drag & drop</div>
+              <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:6 }}>PDF • DOCX • TXT • MD &nbsp;|&nbsp; Max 10MB</div>
+            </div>
           )}
         </div>
-        <div style={{display:'flex',gap:10,marginTop:20}}>
-          <button onClick={onClose} style={{flex:1,background:'transparent',border:'1.5px solid var(--border)',borderRadius:10,padding:'10px',fontWeight:700,cursor:'pointer',fontFamily:'inherit',color:'var(--text-muted)'}}>Cancel</button>
-          <button onClick={doImport} disabled={!file||loading} style={{flex:2,background:file&&!loading?'var(--accent)':'var(--border)',color:'#fff',border:'none',borderRadius:10,padding:'10px',fontWeight:800,cursor:file?'pointer':'not-allowed',fontFamily:'inherit',fontSize:14}}>
-            {loading?'Importing…':'Import Note'}
+        <div style={{ display:'flex', gap:10, marginTop:20 }}>
+          <button onClick={onClose} style={{ flex:1, background:'transparent', border:'1.5px solid var(--border)', borderRadius:10, padding:'10px', fontWeight:700, cursor:'pointer', fontFamily:'inherit', color:'var(--text-muted)' }}>Cancel</button>
+          <button onClick={doImport} disabled={!file || loading} style={{ flex:2, background:file&&!loading?'var(--accent)':'var(--border)', color:'#fff', border:'none', borderRadius:10, padding:'10px', fontWeight:800, cursor:file?'pointer':'not-allowed', fontFamily:'inherit', fontSize:14 }}>
+            {loading ? 'Importing…' : 'Import Note'}
           </button>
         </div>
       </div>
@@ -227,40 +234,53 @@ function ImportModal({ onClose, onImported }) {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const [searchParams]                = useSearchParams();
-  const [notes, setNotes]             = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams]                  = useSearchParams();
+  const [notes, setNotes]               = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [searchQuery, setSearchQuery]   = useState('');
   const [selectedNote, setSelectedNote] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [folderName, setFolderName]   = useState('');
+  const [sidebarOpen, setSidebarOpen]   = useState(false);
+  const [selectedIds, setSelectedIds]   = useState([]);
+  const [folderName, setFolderName]     = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [activeTag, setActiveTag]     = useState('');
-  const [showTagMenu, setShowTagMenu] = useState(false);
-  const [showImport, setShowImport]   = useState(false);
-  const [colorMenu, setColorMenu]     = useState(null);
-  const colorRef = useRef(null);
-  const tagRef   = useRef(null);
+  const [activeTag, setActiveTag]       = useState('');
+  const [showTagMenu, setShowTagMenu]   = useState(false);
+  const [tagMenuPos, setTagMenuPos]     = useState({ top: 0, left: 0 });
+  const [showImport, setShowImport]     = useState(false);
+  const [colorMenu, setColorMenu]       = useState(null);
+
+  const colorRef  = useRef(null);
+  const tagBtnRef = useRef(null);  // FIX: ref on the button, not the dropdown
+  const tagDropRef = useRef(null); // FIX: separate ref for the dropdown itself
+
   const { isDark } = useTheme();
   const navigate   = useNavigate();
   const location   = useLocation();
   const activeFolderId = searchParams.get('folder');
 
-  // Auto-set filter based on route: /starred → starred, /tags → tags dropdown
+  // Auto-set filter based on route
   useEffect(() => {
     if (location.pathname === '/starred') {
       setActiveFilter('starred');
+      setShowTagMenu(false);
     } else if (location.pathname === '/tags') {
       setActiveFilter('all');
-      setShowTagMenu(true);
+      // Don't auto-open menu — let user click the chip
     }
   }, [location.pathname]);
 
+  // FIX: outside-click closes both menus correctly using their own refs
   useEffect(() => {
     const h = (e) => {
-      if (colorRef.current && !colorRef.current.contains(e.target)) setColorMenu(null);
-      if (tagRef.current   && !tagRef.current.contains(e.target))   setShowTagMenu(false);
+      if (colorRef.current && !colorRef.current.contains(e.target)) {
+        setColorMenu(null);
+      }
+      if (
+        tagBtnRef.current && !tagBtnRef.current.contains(e.target) &&
+        tagDropRef.current && !tagDropRef.current.contains(e.target)
+      ) {
+        setShowTagMenu(false);
+      }
     };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
@@ -270,12 +290,22 @@ export default function DashboardPage() {
     setLoading(true);
     try {
       const ep = activeFolderId ? `/notes?folder=${activeFolderId}` : '/notes';
-      const [nRes, fRes] = await Promise.all([API.get(ep), activeFolderId ? API.get('/folders') : Promise.resolve(null)]);
+      const [nRes, fRes] = await Promise.all([
+        API.get(ep),
+        activeFolderId ? API.get('/folders') : Promise.resolve(null),
+      ]);
       setNotes(nRes.data || []);
-      if (activeFolderId && fRes) { const f = (fRes.data||[]).find(f=>f._id===activeFolderId); setFolderName(f?.name||'Folder'); }
-      else setFolderName('');
-    } catch { toast.error('Failed to load notes'); }
-    finally { setLoading(false); }
+      if (activeFolderId && fRes) {
+        const f = (fRes.data || []).find(f => f._id === activeFolderId);
+        setFolderName(f?.name || 'Folder');
+      } else {
+        setFolderName('');
+      }
+    } catch {
+      toast.error('Failed to load notes');
+    } finally {
+      setLoading(false);
+    }
   }, [activeFolderId]);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -283,180 +313,330 @@ export default function DashboardPage() {
   const createNote = async () => {
     try {
       const { data } = await API.post('/notes', { title:'Untitled Note', content:'', folder:activeFolderId });
-      setNotes(p => [data,...p]); setSelectedNote(data);
+      setNotes(p => [data, ...p]);
+      setSelectedNote(data);
     } catch { toast.error('Could not create note'); }
   };
 
   const toggleStar = async (e, id) => {
     e.stopPropagation();
-    try { const {data} = await API.patch(`/notes/${id}/star`); setNotes(p=>p.map(n=>n._id===id?{...n,isStarred:data.isStarred}:n)); }
-    catch { toast.error('Failed'); }
+    try {
+      const { data } = await API.patch(`/notes/${id}/star`);
+      setNotes(p => p.map(n => n._id === id ? { ...n, isStarred: data.isStarred } : n));
+    } catch { toast.error('Failed'); }
   };
 
   const togglePin = async (e, id) => {
     e.stopPropagation();
-    try { const {data} = await API.patch(`/notes/${id}/pin`); setNotes(p=>p.map(n=>n._id===id?{...n,isPinned:data.isPinned}:n)); toast.success(data.isPinned?'Pinned 📌':'Unpinned'); }
-    catch { toast.error('Failed'); }
+    try {
+      const { data } = await API.patch(`/notes/${id}/pin`);
+      setNotes(p => p.map(n => n._id === id ? { ...n, isPinned: data.isPinned } : n));
+      toast.success(data.isPinned ? 'Pinned 📌' : 'Unpinned');
+    } catch { toast.error('Failed'); }
   };
 
   const toggleFav = async (e, id) => {
     e.stopPropagation();
-    const note = notes.find(n=>n._id===id);
+    const note = notes.find(n => n._id === id);
     const val  = !note.isFavorite;
-    setNotes(p=>p.map(n=>n._id===id?{...n,isFavorite:val}:n));
-    try { await API.patch(`/notes/${id}`, {isFavorite:val}); }
-    catch { setNotes(p=>p.map(n=>n._id===id?{...n,isFavorite:!val}:n)); toast.error('Failed'); }
+    setNotes(p => p.map(n => n._id === id ? { ...n, isFavorite: val } : n));
+    try {
+      await API.patch(`/notes/${id}`, { isFavorite: val });
+    } catch {
+      setNotes(p => p.map(n => n._id === id ? { ...n, isFavorite: !val } : n));
+      toast.error('Failed');
+    }
   };
 
   const trashNote = async (e, id) => {
     e.stopPropagation();
-    try { await API.patch(`/notes/${id}/trash`); setNotes(p=>p.filter(n=>n._id!==id)); toast.success('Moved to trash'); }
-    catch { toast.error('Failed'); }
+    try {
+      await API.patch(`/notes/${id}/trash`);
+      setNotes(p => p.filter(n => n._id !== id));
+      toast.success('Moved to trash');
+    } catch { toast.error('Failed'); }
   };
 
   const bulkDelete = async () => {
     try {
-      await Promise.all(selectedIds.map(id=>API.patch(`/notes/${id}/trash`)));
-      setNotes(p=>p.filter(n=>!selectedIds.includes(n._id))); setSelectedIds([]);
+      await Promise.all(selectedIds.map(id => API.patch(`/notes/${id}/trash`)));
+      setNotes(p => p.filter(n => !selectedIds.includes(n._id)));
+      setSelectedIds([]);
       toast.success(`${selectedIds.length} notes moved to trash`);
     } catch { toast.error('Bulk delete failed'); }
   };
 
   const setColor = async (id, color) => {
-    setNotes(p=>p.map(n=>n._id===id?{...n,color}:n));
-    try { await API.patch(`/notes/${id}`, {color}); }
+    setNotes(p => p.map(n => n._id === id ? { ...n, color } : n));
+    try { await API.patch(`/notes/${id}`, { color }); }
     catch { toast.error('Color update failed'); }
     setColorMenu(null);
   };
 
-  const allTags = [...new Set(notes.flatMap(n=>n.tags||[]).filter(Boolean))];
+  // FIX: calculate dropdown position from button's bounding rect so it appears
+  // correctly regardless of scroll position or filter-bar overflow state
+  const openTagMenu = () => {
+    if (showTagMenu) {
+      setShowTagMenu(false);
+      return;
+    }
+    if (tagBtnRef.current) {
+      const rect = tagBtnRef.current.getBoundingClientRect();
+      setTagMenuPos({
+        top:  rect.bottom + 6,
+        left: rect.left,
+      });
+    }
+    setShowTagMenu(true);
+  };
+
+  const allTags = [...new Set(notes.flatMap(n => n.tags || []).filter(Boolean))];
 
   const filtered = notes.filter(n => {
     if (n.isTrashed) return false;
-    const q = searchQuery.toLowerCase();
+    const q  = searchQuery.toLowerCase();
     const ms = !q || n.title?.toLowerCase().includes(q) || n.plainText?.toLowerCase().includes(q);
-    const mf = activeFilter==='all' ? true : activeFilter==='starred' ? n.isStarred : activeFilter==='favorites' ? n.isFavorite : activeFilter==='pinned' ? n.isPinned : true;
-    const mt = !activeTag || (n.tags||[]).includes(activeTag);
+    const mf = activeFilter === 'all'      ? true
+             : activeFilter === 'starred'  ? n.isStarred
+             : activeFilter === 'favorites'? n.isFavorite
+             : activeFilter === 'pinned'   ? n.isPinned
+             : true;
+    const mt = !activeTag || (n.tags || []).includes(activeTag);
     return ms && mf && mt;
   });
 
-  const pinned   = filtered.filter(n=>n.isPinned);
-  const unpinned = filtered.filter(n=>!n.isPinned);
+  const pinned   = filtered.filter(n =>  n.isPinned);
+  const unpinned = filtered.filter(n => !n.isPinned);
 
-  if (selectedNote) return <NoteEditor note={selectedNote} onClose={()=>setSelectedNote(null)} onUpdate={u=>setNotes(p=>p.map(n=>n._id===u._id?u:n))} />;
+  if (selectedNote) {
+    return (
+      <NoteEditor
+        note={selectedNote}
+        onClose={() => setSelectedNote(null)}
+        onUpdate={u => setNotes(p => p.map(n => n._id === u._id ? u : n))}
+      />
+    );
+  }
 
   return (
     <div className="db-wrap">
       <style>{getStyles(isDark)}</style>
-      <Sidebar open={sidebarOpen} onClose={()=>setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
       <main className="db-main">
 
-        {/* Topbar */}
+        {/* ── Topbar ── */}
         <header className="db-topbar">
           <div className="db-topbar-left">
-            <button className="db-menu-btn" onClick={()=>setSidebarOpen(true)}><Menu size={18}/></button>
+            <button className="db-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18}/></button>
             {activeFolderId ? (
-              <div style={{display:'flex',alignItems:'center',gap:6}}>
-                <button onClick={()=>navigate('/folders')} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text-muted)',display:'flex',padding:2}}><ArrowLeft size={15}/></button>
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                <button
+                  onClick={() => navigate('/folders')}
+                  style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex', padding:2 }}
+                >
+                  <ArrowLeft size={15}/>
+                </button>
                 <FolderOpen size={15} color="var(--accent)"/>
-                <span className="page-label" style={{color:'var(--accent)'}}>{folderName||'Folder'}</span>
+                <span className="page-label" style={{ color:'var(--accent)' }}>{folderName || 'Folder'}</span>
               </div>
-            ) : <span className="page-label">My Notes</span>}
+            ) : (
+              <span className="page-label">My Notes</span>
+            )}
           </div>
+
           <div className="search-box">
             <Search size={14} color="var(--text-light)"/>
-            <input placeholder="Search notes…" value={searchQuery} onChange={e=>setSearchQuery(e.target.value)}/>
+            <input
+              placeholder="Search notes…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
           </div>
+
           <div className="topbar-actions">
-            <button className="btn-import" onClick={()=>setShowImport(true)}><Upload size={14}/><span>Import</span></button>
-            <button className="btn-new" onClick={createNote}><Plus size={15} strokeWidth={2.5}/><span>New Note</span></button>
+            <button className="btn-import" onClick={() => setShowImport(true)}>
+              <Upload size={14}/><span>Import</span>
+            </button>
+            <button className="btn-new" onClick={createNote}>
+              <Plus size={15} strokeWidth={2.5}/><span>New Note</span>
+            </button>
           </div>
         </header>
 
-        {/* Filter Bar */}
+        {/* ── Filter Bar ── */}
+        {/* FIX: tag dropdown is NOT inside this div anymore — it's a portal-like
+            fixed element below, so overflow-x:auto can never clip it             */}
         <div className="filter-bar">
-          {[{id:'all',l:'📝 All'},{id:'pinned',l:'📌 Pinned'},{id:'starred',l:'⭐ Starred'},{id:'favorites',l:'❤️ Favorites'}].map(f=>(
-            <button key={f.id} className={`filter-chip${activeFilter===f.id?' active':''}`} onClick={()=>{setActiveFilter(f.id);setActiveTag('');}}>{f.l}</button>
-          ))}
-          {/* Tags dropdown — hamesha dikhega */}
-          <div style={{position:'relative'}} ref={tagRef}>
-            <button className={`filter-chip${activeTag?' tag-active':''}`} onClick={()=>setShowTagMenu(p=>!p)}>
-              <Tag size={11}/> {activeTag ? (activeTag.startsWith('#') ? activeTag : `#${activeTag}`) : 'Tags'} <ChevronDown size={11}/>
+          {[
+            { id:'all',       l:'📝 All'       },
+            { id:'pinned',    l:'📌 Pinned'    },
+            { id:'starred',   l:'⭐ Starred'   },
+            { id:'favorites', l:'❤️ Favorites' },
+          ].map(f => (
+            <button
+              key={f.id}
+              className={`filter-chip${activeFilter === f.id ? ' active' : ''}`}
+              onClick={() => { setActiveFilter(f.id); setActiveTag(''); setShowTagMenu(false); }}
+            >
+              {f.l}
             </button>
-            {showTagMenu && (
-              <div className="tag-drop">
-                {allTags.length === 0 ? (
-                  <div className="tag-drop-item" style={{color:'var(--text-light)',cursor:'default'}}>Koi tag nahi — Note editor mein add karo</div>
-                ) : (
-                  <>
-                    <div className="tag-drop-item" onClick={()=>{setActiveTag('');setShowTagMenu(false);}}>🏷️ All Notes</div>
-                    {allTags.map(t=>(
-                      <div key={t} className={`tag-drop-item${activeTag===t?' a':''}`} onClick={()=>{setActiveTag(t);setShowTagMenu(false);}}>{t.startsWith('#') ? t : `#${t}`}</div>
-                    ))}
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+          ))}
+
+          {/* Tags chip — the button stays in the bar for layout */}
+          <button
+            ref={tagBtnRef}
+            className={`filter-chip${activeTag ? ' tag-active' : ''}`}
+            onClick={openTagMenu}
+          >
+            <Tag size={11}/>
+            {activeTag
+              ? (activeTag.startsWith('#') ? activeTag : `#${activeTag}`)
+              : 'Tags'}
+            <ChevronDown size={11}/>
+          </button>
         </div>
 
-        {/* Content */}
+        {/* ── Tag Dropdown (fixed, outside filter-bar) ── */}
+        {showTagMenu && (
+          <div
+            ref={tagDropRef}
+            className="tag-drop"
+            style={{ top: tagMenuPos.top, left: tagMenuPos.left }}
+          >
+            {allTags.length === 0 ? (
+              <div className="tag-drop-item" style={{ color:'var(--text-light)', cursor:'default' }}>
+                No tags yet — add them in the Note editor
+              </div>
+            ) : (
+              <>
+                <div
+                  className="tag-drop-item"
+                  onClick={() => { setActiveTag(''); setShowTagMenu(false); }}
+                >
+                  🏷️ All Notes
+                </div>
+                {allTags.map(t => (
+                  <div
+                    key={t}
+                    className={`tag-drop-item${activeTag === t ? ' a' : ''}`}
+                    onClick={() => { setActiveTag(t); setShowTagMenu(false); }}
+                  >
+                    {t.startsWith('#') ? t : `#${t}`}
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── Content ── */}
         <div className="db-content">
-          {selectedIds.length>0 && (
+
+          {/* Bulk action bar */}
+          {selectedIds.length > 0 && (
             <div className="bulk-bar">
-              <div style={{display:'flex',alignItems:'center',gap:8}}><CheckCircle2 size={16} color="var(--accent)"/><span style={{fontWeight:700,fontSize:13,color:'var(--text)'}}>{selectedIds.length} selected</span></div>
-              <div style={{display:'flex',gap:8}}>
-                <button onClick={bulkDelete} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',color:'#ef4444',borderRadius:8,padding:'6px 14px',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Delete</button>
-                <button onClick={()=>setSelectedIds([])} style={{background:'none',border:'1px solid var(--border)',color:'var(--text-muted)',borderRadius:8,padding:'6px 10px',cursor:'pointer',display:'flex',alignItems:'center',fontFamily:'inherit'}}><X size={13}/></button>
+              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                <CheckCircle2 size={16} color="var(--accent)"/>
+                <span style={{ fontWeight:700, fontSize:13, color:'var(--text)' }}>{selectedIds.length} selected</span>
+              </div>
+              <div style={{ display:'flex', gap:8 }}>
+                <button
+                  onClick={bulkDelete}
+                  style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', color:'#ef4444', borderRadius:8, padding:'6px 14px', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setSelectedIds([])}
+                  style={{ background:'none', border:'1px solid var(--border)', color:'var(--text-muted)', borderRadius:8, padding:'6px 10px', cursor:'pointer', display:'flex', alignItems:'center', fontFamily:'inherit' }}
+                >
+                  <X size={13}/>
+                </button>
               </div>
             </div>
           )}
 
           {loading ? (
-            <div style={{display:'flex',justifyContent:'center',padding:'80px 0'}}><div className="db-spinner"/></div>
-          ) : filtered.length===0 ? (
+            <div style={{ display:'flex', justifyContent:'center', padding:'80px 0' }}>
+              <div className="db-spinner"/>
+            </div>
+
+          ) : filtered.length === 0 ? (
             <div className="db-empty">
               <FilePlus size={36} color="var(--border)"/>
-              <h3 style={{color:'var(--text)',fontWeight:800,fontSize:15}}>
-                {activeFilter!=='all'?`Koi ${activeFilter} note nahi`:activeFolderId?`"${folderName}" mein koi note nahi`:'No notes yet'}
+              <h3 style={{ color:'var(--text)', fontWeight:800, fontSize:15 }}>
+                {activeTag
+                  ? `No notes with tag "${activeTag.startsWith('#') ? activeTag : '#' + activeTag}"`
+                  : activeFilter !== 'all'
+                    ? `No ${activeFilter} notes`
+                    : activeFolderId
+                      ? `"${folderName}" is empty`
+                      : 'No notes yet'}
               </h3>
-              <p style={{color:'var(--text-muted)',fontSize:13}}>{activeFilter==='all'?'Create karo ya import karo':'Filter change karo'}</p>
-              {activeFilter==='all' && (
-                <div style={{display:'flex',gap:10,marginTop:4}}>
+              <p style={{ color:'var(--text-muted)', fontSize:13 }}>
+                {activeFilter === 'all' && !activeTag ? 'Create or import a note to get started' : 'Try a different filter'}
+              </p>
+              {activeFilter === 'all' && !activeTag && (
+                <div style={{ display:'flex', gap:10, marginTop:4 }}>
                   <button className="btn-new" onClick={createNote}><Plus size={14}/> Create</button>
-                  <button className="btn-import" onClick={()=>setShowImport(true)}><Upload size={14}/> Import</button>
+                  <button className="btn-import" onClick={() => setShowImport(true)}><Upload size={14}/> Import</button>
                 </div>
               )}
             </div>
+
           ) : (
             <>
-              {/* Pinned section (only when filter=all) */}
-              {pinned.length>0 && activeFilter==='all' && (
-                <div style={{marginBottom:24}}>
+              {/* Pinned section (only when filter = all and tag not active) */}
+              {pinned.length > 0 && activeFilter === 'all' && !activeTag && (
+                <div style={{ marginBottom:24 }}>
                   <div className="pinned-label"><Pin size={11}/> Pinned</div>
                   <div className="db-grid">
-                    {pinned.map((note,i)=>(
-                      <NoteCard key={note._id} note={note} i={i} selectedIds={selectedIds} setSelectedIds={setSelectedIds}
-                        onOpen={setSelectedNote} toggleStar={toggleStar} togglePin={togglePin} toggleFav={toggleFav}
-                        trashNote={trashNote} colorMenu={colorMenu} setColorMenu={setColorMenu} setColor={setColor} colorRef={colorRef}/>
+                    {pinned.map((note, i) => (
+                      <NoteCard
+                        key={note._id} note={note} i={i}
+                        selectedIds={selectedIds} setSelectedIds={setSelectedIds}
+                        onOpen={setSelectedNote}
+                        toggleStar={toggleStar} togglePin={togglePin} toggleFav={toggleFav}
+                        trashNote={trashNote}
+                        colorMenu={colorMenu} setColorMenu={setColorMenu}
+                        setColor={setColor} colorRef={colorRef}
+                      />
                     ))}
                   </div>
-                  {unpinned.length>0 && <div style={{borderTop:'1px solid var(--border)',margin:'20px 0 16px'}}/>}
+                  {unpinned.length > 0 && (
+                    <div style={{ borderTop:'1px solid var(--border)', margin:'20px 0 16px' }}/>
+                  )}
                 </div>
               )}
 
-              {/* Main notes */}
+              {/* Main notes grid */}
               <div className="section-hd">
                 <h2 className="section-title">
-                  {activeFolderId?`📁 ${folderName}`:activeFilter==='all'?(pinned.length>0&&unpinned.length>0?'Other Notes':'All Notes'):activeFilter==='starred'?'⭐ Starred':activeFilter==='favorites'?'❤️ Favorites':'📌 Pinned'}
+                  {activeFolderId
+                    ? `📁 ${folderName}`
+                    : activeFilter === 'all'
+                      ? (pinned.length > 0 && unpinned.length > 0 && !activeTag ? 'Other Notes' : 'All Notes')
+                      : activeFilter === 'starred'   ? '⭐ Starred'
+                      : activeFilter === 'favorites' ? '❤️ Favorites'
+                      : '📌 Pinned'}
                 </h2>
-                <span className="count-pill">{(activeFilter==='pinned'?pinned:unpinned).length}</span>
+                <span className="count-pill">
+                  {(activeFilter === 'pinned' ? pinned : unpinned).length}
+                </span>
               </div>
+
               <div className="db-grid">
-                {(activeFilter==='pinned'?pinned:unpinned).map((note,i)=>(
-                  <NoteCard key={note._id} note={note} i={i} selectedIds={selectedIds} setSelectedIds={setSelectedIds}
-                    onOpen={setSelectedNote} toggleStar={toggleStar} togglePin={togglePin} toggleFav={toggleFav}
-                    trashNote={trashNote} colorMenu={colorMenu} setColorMenu={setColorMenu} setColor={setColor} colorRef={colorRef}/>
+                {(activeFilter === 'pinned' ? pinned : unpinned).map((note, i) => (
+                  <NoteCard
+                    key={note._id} note={note} i={i}
+                    selectedIds={selectedIds} setSelectedIds={setSelectedIds}
+                    onOpen={setSelectedNote}
+                    toggleStar={toggleStar} togglePin={togglePin} toggleFav={toggleFav}
+                    trashNote={trashNote}
+                    colorMenu={colorMenu} setColorMenu={setColorMenu}
+                    setColor={setColor} colorRef={colorRef}
+                  />
                 ))}
               </div>
             </>
@@ -464,53 +644,105 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {showImport && <ImportModal onClose={()=>setShowImport(false)} onImported={note=>setNotes(p=>[note,...p])}/>}
-      <button className="mobile-fab" onClick={createNote} aria-label="Create note"><Plus size={22} strokeWidth={2.5}/></button>
+      {showImport && (
+        <ImportModal
+          onClose={() => setShowImport(false)}
+          onImported={note => setNotes(p => [note, ...p])}
+        />
+      )}
+
+      <button className="mobile-fab" onClick={createNote} aria-label="Create note">
+        <Plus size={22} strokeWidth={2.5}/>
+      </button>
       <MobileNav/>
     </div>
   );
 }
 
 // ─── Note Card ────────────────────────────────────────────────────────────────
-function NoteCard({ note, i, selectedIds, setSelectedIds, onOpen, toggleStar, togglePin, toggleFav, trashNote, colorMenu, setColorMenu, setColor, colorRef }) {
+function NoteCard({
+  note, i, selectedIds, setSelectedIds, onOpen,
+  toggleStar, togglePin, toggleFav, trashNote,
+  colorMenu, setColorMenu, setColor, colorRef,
+}) {
   const { isDark } = useTheme();
   const NOTE_COLORS = isDark ? NOTE_COLORS_DARK : NOTE_COLORS_LIGHT;
   const cs  = NOTE_COLORS[note.color] || NOTE_COLORS.default;
   const sel = selectedIds.includes(note._id);
-  const menuRef = useRef(null);
+
   return (
     <div
-      className={`note-card${sel?' selected':''}`}
-      style={{background:cs.bg, borderColor:sel?'var(--accent)':cs.border, animationDelay:`${i*0.04}s`}}
-      onClick={()=>selectedIds.length>0?setSelectedIds(p=>p.includes(note._id)?p.filter(x=>x!==note._id):[...p,note._id]):onOpen(note)}
+      className={`note-card${sel ? ' selected' : ''}`}
+      style={{ background:cs.bg, borderColor:sel ? 'var(--accent)' : cs.border, animationDelay:`${i * 0.04}s` }}
+      onClick={() =>
+        selectedIds.length > 0
+          ? setSelectedIds(p => p.includes(note._id) ? p.filter(x => x !== note._id) : [...p, note._id])
+          : onOpen(note)
+      }
     >
-      {note.isPinned && <div className="pin-badge"><Pin size={12} fill="currentColor"/></div>}
-      <h3 className="note-title">{note.title||'Untitled Note'}</h3>
-      {note.tags?.length>0 && (
+      {note.isPinned && (
+        <div className="pin-badge"><Pin size={12} fill="currentColor"/></div>
+      )}
+
+      <h3 className="note-title">{note.title || 'Untitled Note'}</h3>
+
+      {note.tags?.length > 0 && (
         <div className="note-tags">
-          {note.tags.slice(0,3).map(t=><span key={t} className="note-tag">{t.startsWith('#') ? t : `#${t}`}</span>)}
-          {note.tags.length>3 && <span className="note-tag">+{note.tags.length-3}</span>}
+          {note.tags.slice(0, 3).map(t => (
+            <span key={t} className="note-tag">{t.startsWith('#') ? t : `#${t}`}</span>
+          ))}
+          {note.tags.length > 3 && <span className="note-tag">+{note.tags.length - 3}</span>}
         </div>
       )}
-      <p className="note-excerpt">{note.plainText||'Click to start writing…'}</p>
+
+      <p className="note-excerpt">{note.plainText || 'Click to start writing…'}</p>
+
       <div className="note-footer">
-        <span className="note-date">{new Date(note.updatedAt).toLocaleDateString('en-IN',{month:'short',day:'numeric'})}</span>
-        <div className="note-actions" onClick={e=>e.stopPropagation()}>
-          <button className={`ico-btn${note.isStarred?' s':''}`} onClick={e=>toggleStar(e,note._id)} title="Star"><Star size={12} fill={note.isStarred?'currentColor':'none'}/></button>
-          <button className={`ico-btn${note.isFavorite?' f':''}`} onClick={e=>toggleFav(e,note._id)} title="Favorite"><Heart size={12} fill={note.isFavorite?'currentColor':'none'}/></button>
-          <button className={`ico-btn${note.isPinned?' p':''}`} onClick={e=>togglePin(e,note._id)} title={note.isPinned?'Unpin':'Pin'}>{note.isPinned?<PinOff size={12}/>:<Pin size={12}/>}</button>
-          <div style={{position:'relative'}}>
-            <button className="ico-btn" onClick={e=>{e.stopPropagation();setColorMenu(colorMenu===note._id?null:note._id);}} title="Color"><Palette size={12}/></button>
-            {colorMenu===note._id && (
-              <div className="color-menu" ref={menuRef} onClick={e=>e.stopPropagation()}>
-                {Object.entries(COLOR_DOTS).map(([k,d])=>(
-                  <div key={k} className={`cdot${(note.color||'default')===k?' sel':''}`} style={{background:d}} title={k} onClick={()=>setColor(note._id,k)}/>
+        <span className="note-date">
+          {new Date(note.updatedAt).toLocaleDateString('en-IN', { month:'short', day:'numeric' })}
+        </span>
+        <div className="note-actions" onClick={e => e.stopPropagation()}>
+          <button className={`ico-btn${note.isStarred ? ' s' : ''}`} onClick={e => toggleStar(e, note._id)} title="Star">
+            <Star size={12} fill={note.isStarred ? 'currentColor' : 'none'}/>
+          </button>
+          <button className={`ico-btn${note.isFavorite ? ' f' : ''}`} onClick={e => toggleFav(e, note._id)} title="Favorite">
+            <Heart size={12} fill={note.isFavorite ? 'currentColor' : 'none'}/>
+          </button>
+          <button className={`ico-btn${note.isPinned ? ' p' : ''}`} onClick={e => togglePin(e, note._id)} title={note.isPinned ? 'Unpin' : 'Pin'}>
+            {note.isPinned ? <PinOff size={12}/> : <Pin size={12}/>}
+          </button>
+
+          {/* Color picker */}
+          <div style={{ position:'relative' }} ref={colorMenu === note._id ? colorRef : null}>
+            <button
+              className="ico-btn"
+              onClick={e => { e.stopPropagation(); setColorMenu(colorMenu === note._id ? null : note._id); }}
+              title="Color"
+            >
+              <Palette size={12}/>
+            </button>
+            {colorMenu === note._id && (
+              <div className="color-menu" onClick={e => e.stopPropagation()}>
+                {Object.entries(COLOR_DOTS).map(([k, d]) => (
+                  <div
+                    key={k}
+                    className={`cdot${(note.color || 'default') === k ? ' sel' : ''}`}
+                    style={{ background: d }}
+                    title={k}
+                    onClick={() => setColor(note._id, k)}
+                  />
                 ))}
               </div>
             )}
           </div>
-          {note.isPublic?<Globe size={11} color="var(--purple)"/>:<Lock size={11} color="var(--text-light)"/>}
-          <button className="ico-btn" onClick={e=>trashNote(e,note._id)} title="Delete"><Trash2 size={12}/></button>
+
+          {note.isPublic
+            ? <Globe size={11} color="var(--purple)"/>
+            : <Lock  size={11} color="var(--text-light)"/>
+          }
+          <button className="ico-btn" onClick={e => trashNote(e, note._id)} title="Delete">
+            <Trash2 size={12}/>
+          </button>
         </div>
       </div>
     </div>
