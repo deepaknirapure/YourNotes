@@ -21,7 +21,7 @@ const HomePage            = lazy(() => import('./pages/Homepage'));
 const TrashPage           = lazy(() => import('./pages/Trashpage'));
 const FoldersPage         = lazy(() => import('./pages/Folderspage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
-
+const SharedNotePage      = lazy(() => import('./pages/SharedNotePage'));
 function NotFoundPage() {
   return (
     <div style={{
