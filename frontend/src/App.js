@@ -142,7 +142,6 @@ function App() {
             <Route path="/forgot-password"       element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
             <Route path="/shared/:token"         element={<SharedNotePage />} />
-
             <Route path="/home"             element={<PrivateRoute><HomePage /></PrivateRoute>} />
             <Route path="/dashboard"        element={<PrivateRoute><NotesPage /></PrivateRoute>} />
             <Route path="/notes"            element={<PrivateRoute><NotesPage /></PrivateRoute>} />
@@ -153,7 +152,6 @@ function App() {
             <Route path="/profile"          element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/settings"         element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
             <Route path="/admin"            element={<PrivateRoute><AdminPage /></PrivateRoute>} />
-
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
