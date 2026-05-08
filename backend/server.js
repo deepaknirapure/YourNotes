@@ -21,6 +21,10 @@ const dbPromise = connectDB();
 
 const app = express();
 
+// Render/Vercel jaise proxy ke peeche deploy hai — trust proxy enable karo
+// Warna rate-limit X-Forwarded-For header se confuse hota hai
+app.set('trust proxy', 1);
+
 app.use(helmet());
 
 try {

@@ -19,7 +19,7 @@ const getGroq = () => {
   return groq;
 };
 
-const MODEL = 'llama3-8b-8192';
+const MODEL = 'llama-3.3-70b-versatile';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
