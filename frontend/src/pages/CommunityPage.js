@@ -590,7 +590,7 @@ function NoteDetailModal({ note, onClose, onLike, onSave, onDownload, onComment,
 
           {/* Author row with profile popup */}
           <div className="nd-author-row" ref={popupRef}>
-            <Avatar user={note.user} size={44} radius={13} fontSize={18} />
+            <Avatar user={note.user} size={44} radius={50} fontSize={18} />
             <div className="nd-author-info">
               <button
                 className="nd-author-btn"
