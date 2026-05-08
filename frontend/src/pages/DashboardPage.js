@@ -26,13 +26,13 @@ const NOTE_COLORS_DARK = {
 };
 const NOTE_COLORS_LIGHT = {
   default: { bg: 'var(--surface)',  border: 'var(--border)' },
-  red:     { bg: '#fff1f1',         border: '#fecaca'        },
-  orange:  { bg: '#fff7ed',         border: '#fed7aa'        },
-  yellow:  { bg: '#fefce8',         border: '#fde68a'        },
-  green:   { bg: '#f0fdf4',         border: '#bbf7d0'        },
-  blue:    { bg: '#eff6ff',         border: '#bfdbfe'        },
-  purple:  { bg: '#faf5ff',         border: '#e9d5ff'        },
-  pink:    { bg: '#fdf2f8',         border: '#fbcfe8'        },
+  red:     { bg: '#fca5a5',         border: '#ef4444'        },
+  orange:  { bg: '#fdba74',         border: '#f97316'        },
+  yellow:  { bg: '#fde047',         border: '#eab308'        },
+  green:   { bg: '#86efac',         border: '#22c55e'        },
+  blue:    { bg: '#93c5fd',         border: '#3b82f6'        },
+  purple:  { bg: '#d8b4fe',         border: '#a855f7'        },
+  pink:    { bg: '#f9a8d4',         border: '#ec4899'        },
 };
 
 const COLOR_DOTS = {
