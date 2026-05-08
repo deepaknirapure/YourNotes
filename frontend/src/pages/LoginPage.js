@@ -155,7 +155,7 @@ export default function LoginPage() {
       const { data } = await API.post('/auth/login', form);
       login(data.user, data.token);
       toast.success('Welcome back! ✨');
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid credentials.');
     } finally {
