@@ -52,7 +52,7 @@ export default function SettingsPage() {
                 onMouseOver={e => e.currentTarget.style.background = c.hover}
                 onMouseOut={e => e.currentTarget.style.background = "none"}>
                 <div style={{
-                  width: 52, height: 52, borderRadius: 15,
+                  width: 52, height: 52, borderRadius: 50,
                   background: user?.avatar ? "#000" : "linear-gradient(135deg, #f97316, #f59e0b)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 18, fontWeight: 900, color: "#fff", overflow: "hidden", flexShrink: 0,
