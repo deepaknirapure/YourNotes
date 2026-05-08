@@ -4,7 +4,7 @@ import {
   CheckCircle2, X, ArrowLeft, FolderOpen, Pin, PinOff,
   Tag, Upload, Palette, Heart, ChevronDown
 } from "lucide-react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import API from "../api/axios";
 import NoteEditor from "../components/NoteEditor";
@@ -206,7 +206,18 @@ export default function DashboardPage() {
   const tagRef   = useRef(null);
   const { isDark } = useTheme();
   const navigate   = useNavigate();
+  const location   = useLocation();
   const activeFolderId = searchParams.get('folder');
+
+  // Auto-set filter based on route: /starred → starred, /tags → tags dropdown
+  useEffect(() => {
+    if (location.pathname === '/starred') {
+      setActiveFilter('starred');
+    } else if (location.pathname === '/tags') {
+      setActiveFilter('all');
+      setShowTagMenu(true);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     const h = (e) => {

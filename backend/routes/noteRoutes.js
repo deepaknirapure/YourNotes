@@ -28,6 +28,8 @@ router.get('/:id',    protect, getNote);
 router.post('/',      protect, validateNote, createNote);
 // Hindi: Update partial hota hai, isliye title/content validation yahan force nahi karni.
 router.put('/:id',    protect, updateNote);
+// PATCH for partial updates (color, isFavorite, etc.)
+router.patch('/:id',  protect, updateNote);
 router.delete('/:id', protect, deleteNote);
 
 // Toggle actions — PATCH use karo (partial update)

@@ -244,7 +244,7 @@ export default function ProfilePage() {
                 {/* Avatar */}
                 <div style={{ position: "relative" }}>
                   <div style={{
-                    width: 108, height: 108, borderRadius: 28,
+                    width: 108, height: 108, borderRadius: 50,
                     background: hasPhoto ? "transparent" : "linear-gradient(135deg, #f97316, #f59e0b)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 34, fontWeight: 900, color: "#fff",

@@ -13,7 +13,6 @@ const RegisterPage        = lazy(() => import('./pages/RegisterPage'));
 const ForgotPasswordPage  = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'));
 const NotesPage           = lazy(() => import('./pages/DashboardPage'));
-const SharedNotePage      = lazy(() => import('./pages/SharedNotePage'));
 const ProfilePage         = lazy(() => import('./pages/ProfilePage'));
 const SettingsPage        = lazy(() => import('./pages/SettingsPage'));
 const CommunityPage       = lazy(() => import('./pages/CommunityPage'));
@@ -22,7 +21,6 @@ const HomePage            = lazy(() => import('./pages/Homepage'));
 const TrashPage           = lazy(() => import('./pages/Trashpage'));
 const StarredPage         = lazy(() => import('./pages/Starredpage'));
 const FoldersPage         = lazy(() => import('./pages/Folderspage'));
-const TagsPage            = lazy(() => import('./pages/Tagspage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
 
 function NotFoundPage() {
@@ -149,9 +147,7 @@ function App() {
             <Route path="/home"             element={<PrivateRoute><HomePage /></PrivateRoute>} />
             <Route path="/dashboard"        element={<PrivateRoute><NotesPage /></PrivateRoute>} />
             <Route path="/notes"            element={<PrivateRoute><NotesPage /></PrivateRoute>} />
-            <Route path="/starred"          element={<PrivateRoute><StarredPage /></PrivateRoute>} />
             <Route path="/folders"          element={<PrivateRoute><FoldersPage /></PrivateRoute>} />
-            <Route path="/tags"             element={<PrivateRoute><TagsPage /></PrivateRoute>} />
             <Route path="/ask-ai"           element={<PrivateRoute><AskAIPage /></PrivateRoute>} />
             <Route path="/community"        element={<PrivateRoute><CommunityPage /></PrivateRoute>} />
             <Route path="/trash"            element={<PrivateRoute><TrashPage /></PrivateRoute>} />

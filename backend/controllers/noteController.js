@@ -69,7 +69,7 @@ exports.updateNote = async (req, res) => {
 
     const oldFolder = note.folder ? note.folder.toString() : null;
     
-    const allowedUpdates = ['title', 'content', 'plainText', 'folder', 'tags', 'isStarred', 'isPinned', 'isPublic', 'subject'];
+    const allowedUpdates = ['title', 'content', 'plainText', 'folder', 'tags', 'isStarred', 'isPinned', 'isPublic', 'subject', 'color', 'isFavorite'];
     allowedUpdates.forEach(field => {
       if (req.body[field] !== undefined) note[field] = req.body[field];
     });

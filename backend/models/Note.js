@@ -51,6 +51,17 @@ const noteSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Favorite feature
+    isFavorite: {
+      type: Boolean,
+      default: false,
+    },
+    // Color label for note card
+    color: {
+      type: String,
+      enum: ['default', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink'],
+      default: 'default',
+    },
     // Trash Management (30 days auto-delete logic)
     isTrashed: {
       type: Boolean,

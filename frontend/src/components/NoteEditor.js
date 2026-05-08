@@ -395,6 +395,25 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
               onChange={e => setContent(e.target.value)}
               placeholder="Start writing here…"
             />
+            {/* Word Count & Read Time */}
+            {(() => {
+              const words = content.trim() ? content.trim().split(/\s+/).filter(Boolean).length : 0;
+              const chars = content.length;
+              const readMin = Math.max(1, Math.ceil(words / 200));
+              return (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 16,
+                  padding: '8px 24px', borderTop: '1px solid var(--border)',
+                  background: 'var(--surface)', flexShrink: 0,
+                  fontSize: 11, fontWeight: 600, color: 'var(--text-light)',
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                }}>
+                  <span>📝 {words} words</span>
+                  <span>🔤 {chars} chars</span>
+                  <span>⏱️ ~{readMin} min read</span>
+                </div>
+              );
+            })()}
           </div>
         </div>
       ) : (
