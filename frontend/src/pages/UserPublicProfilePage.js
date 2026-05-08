@@ -61,7 +61,7 @@ const STYLES = `
   /* Avatar */
   .up-avatar-wrap { position: relative; display: inline-block; margin-bottom: 16px; }
   .up-avatar {
-    width: 88px; height: 88px; border-radius: 24px;
+    width: 88px; height: 88px; border-radius: 50%;
     border: 3px solid rgba(255,255,255,0.4);
     background: rgba(255,255,255,0.2);
     display: flex; align-items: center; justify-content: center;
