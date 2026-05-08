@@ -70,7 +70,20 @@ const getStyles = () => `
   .btn-import:hover { border-color:var(--accent); color:var(--accent); }
 
   /* Filter Bar */
-  .filter-bar { padding:10px 24px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; overflow-x:auto; scrollbar-width:none; flex-shrink:0; }
+  .filter-bar {
+  padding:10px 24px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  overflow-x:auto;
+  overflow-y:visible;
+  scrollbar-width:none;
+  flex-shrink:0;
+  position:relative;
+  z-index:50;
+}
   .filter-bar::-webkit-scrollbar { display:none; }
   .filter-chip { padding:5px 14px; border-radius:100px; border:1.5px solid var(--border); font-size:12px; font-weight:700; cursor:pointer; transition:0.15s; background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap; display:flex; align-items:center; gap:5px; }
   .filter-chip:hover { border-color:var(--text-muted); color:var(--text); }
@@ -110,7 +123,21 @@ const getStyles = () => `
   .cdot:hover,.cdot.sel { border-color:var(--text); transform:scale(1.15); }
 
   /* Tag Dropdown */
-  .tag-drop { position:absolute; top:calc(100% + 4px); left:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:8px; z-index:200; box-shadow:0 8px 24px rgba(0,0,0,0.3); min-width:150px; animation:scaleIn 0.15s ease; max-height:200px; overflow-y:auto; }
+ .tag-drop {
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:8px;
+  z-index:9999;
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
+  min-width:180px;
+  animation:scaleIn 0.15s ease;
+  max-height:220px;
+  overflow-y:auto;
+}
   .tag-drop-item { padding:7px 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:var(--text-muted); }
   .tag-drop-item:hover { background:var(--bg); color:var(--text); }
   .tag-drop-item.a { color:var(--accent); background:var(--accent-light); }
