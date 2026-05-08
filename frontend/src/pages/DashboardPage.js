@@ -13,7 +13,8 @@ import MobileNav from "../components/MobileNav";
 import { useTheme } from "../context/ThemeContext";
 
 // ─── Note Colors ──────────────────────────────────────────────────────────────
-const NOTE_COLORS = {
+// Light aur Dark dono mode ke liye alag colors
+const NOTE_COLORS_DARK = {
   default: { bg: 'var(--surface)',  border: 'var(--border)' },
   red:     { bg: '#2d1515',         border: '#7f1d1d'        },
   orange:  { bg: '#2d1a0e',         border: '#7c2d12'        },
@@ -22,6 +23,16 @@ const NOTE_COLORS = {
   blue:    { bg: '#0f1d2d',         border: '#1e3a5f'        },
   purple:  { bg: '#1d0f2d',         border: '#4c1d95'        },
   pink:    { bg: '#2d0f1d',         border: '#831843'        },
+};
+const NOTE_COLORS_LIGHT = {
+  default: { bg: 'var(--surface)',  border: 'var(--border)' },
+  red:     { bg: '#fff1f1',         border: '#fecaca'        },
+  orange:  { bg: '#fff7ed',         border: '#fed7aa'        },
+  yellow:  { bg: '#fefce8',         border: '#fde68a'        },
+  green:   { bg: '#f0fdf4',         border: '#bbf7d0'        },
+  blue:    { bg: '#eff6ff',         border: '#bfdbfe'        },
+  purple:  { bg: '#faf5ff',         border: '#e9d5ff'        },
+  pink:    { bg: '#fdf2f8',         border: '#fbcfe8'        },
 };
 
 const COLOR_DOTS = {
@@ -435,8 +446,11 @@ export default function DashboardPage() {
 
 // ─── Note Card ────────────────────────────────────────────────────────────────
 function NoteCard({ note, i, selectedIds, setSelectedIds, onOpen, toggleStar, togglePin, toggleFav, trashNote, colorMenu, setColorMenu, setColor, colorRef }) {
+  const { isDark } = useTheme();
+  const NOTE_COLORS = isDark ? NOTE_COLORS_DARK : NOTE_COLORS_LIGHT;
   const cs  = NOTE_COLORS[note.color] || NOTE_COLORS.default;
   const sel = selectedIds.includes(note._id);
+  const menuRef = useRef(null);
   return (
     <div
       className={`note-card${sel?' selected':''}`}
@@ -461,7 +475,7 @@ function NoteCard({ note, i, selectedIds, setSelectedIds, onOpen, toggleStar, to
           <div style={{position:'relative'}}>
             <button className="ico-btn" onClick={e=>{e.stopPropagation();setColorMenu(colorMenu===note._id?null:note._id);}} title="Color"><Palette size={12}/></button>
             {colorMenu===note._id && (
-              <div className="color-menu" ref={colorRef} onClick={e=>e.stopPropagation()}>
+              <div className="color-menu" ref={menuRef} onClick={e=>e.stopPropagation()}>
                 {Object.entries(COLOR_DOTS).map(([k,d])=>(
                   <div key={k} className={`cdot${(note.color||'default')===k?' sel':''}`} style={{background:d}} title={k} onClick={()=>setColor(note._id,k)}/>
                 ))}
