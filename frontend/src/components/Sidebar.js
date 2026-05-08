@@ -156,7 +156,7 @@ export default function Sidebar({ open, onClose }) {
         .profile-row:hover { background: var(--bg); border-color: var(--border); }
 
         .avatar {
-          width: 32px; height: 32px; border-radius: 8px;
+          width: 32px; height: 32px; border-radius: 50%;
           background: #f97316; color: #fff;
           display: flex; align-items: center; justify-content: center;
           font-weight: 800; font-size: 13px; overflow: hidden; flex-shrink: 0;

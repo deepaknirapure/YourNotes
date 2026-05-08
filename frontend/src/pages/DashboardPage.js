@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus, Search, Star, Trash2, Menu, FilePlus, Globe, Lock,
   CheckCircle2, X, ArrowLeft, FolderOpen, Pin, PinOff,
-  Tag, Upload, Palette, Heart, ChevronDown
+  Tag, Upload, Palette, Heart, ChevronDown, StickyNote,
+  Hash, Layers, FileText, Clock, NotebookPen, AlignLeft
 } from "lucide-react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -68,7 +69,7 @@ const getStyles = () => `
   .btn-import { background:transparent; border:1.5px solid var(--border); border-radius:9px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer; transition:0.2s; font-family:inherit; display:flex; align-items:center; gap:6px; color:var(--text-muted); white-space:nowrap; }
   .btn-import:hover { border-color:var(--accent); color:var(--accent); }
 
-  /* Filter Bar — FIX: overflow-y must stay visible so dropdown is not clipped */
+  /* Filter Bar */
   .filter-bar {
     padding: 10px 24px;
     background: var(--surface);
@@ -89,7 +90,7 @@ const getStyles = () => `
   .filter-chip.active { background:var(--text); color:var(--surface); border-color:var(--text); }
   .filter-chip.tag-active { background:var(--accent); color:#fff; border-color:var(--accent); }
 
-  /* Tag Dropdown — FIX: rendered outside filter-bar, anchored via JS-calculated position */
+  /* Tag Dropdown */
   .tag-drop {
     position: fixed;
     background: var(--surface);
@@ -98,20 +99,25 @@ const getStyles = () => `
     padding: 8px;
     z-index: 9999;
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    min-width: 180px;
+    min-width: 210px;
     animation: scaleIn 0.15s ease;
-    max-height: 220px;
+    max-height: 280px;
     overflow-y: auto;
   }
-  .tag-drop-item { padding:7px 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:var(--text-muted); }
+  .tag-drop-search { display:flex; align-items:center; gap:7px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; padding:6px 10px; margin-bottom:6px; transition:0.15s; }
+  .tag-drop-search:focus-within { border-color:var(--accent); }
+  .tag-drop-search input { border:none; outline:none; background:transparent; width:100%; font-size:12px; font-weight:600; color:var(--text); font-family:inherit; }
+  .tag-drop-search input::placeholder { color:var(--text-light); }
+  .tag-drop-item { padding:7px 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:7px; }
   .tag-drop-item:hover { background:var(--bg); color:var(--text); }
   .tag-drop-item.a { color:var(--accent); background:var(--accent-light); }
+  .tag-empty { padding:14px 12px; font-size:12px; color:var(--text-light); text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; }
 
   /* Content */
   .db-content { flex:1; overflow-y:auto; padding:24px 28px; scrollbar-width:none; background:var(--bg); }
   .db-content::-webkit-scrollbar { display:none; }
   .section-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-  .section-title { font-size:14px; font-weight:800; color:var(--text); letter-spacing:-0.3px; }
+  .section-title { font-size:14px; font-weight:800; color:var(--text); letter-spacing:-0.3px; display:flex; align-items:center; gap:7px; }
   .count-pill { background:var(--bg); border:1px solid var(--border); color:var(--text-muted); font-size:11px; font-weight:700; padding:2px 9px; border-radius:100px; }
   .pinned-label { font-size:10px; font-weight:900; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
   .db-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:12px; }
@@ -123,9 +129,9 @@ const getStyles = () => `
   .note-title  { font-size:14px; font-weight:800; color:var(--text); margin-bottom:6px; line-height:1.35; padding-right:18px; }
   .note-excerpt{ font-size:12px; color:var(--text-muted); line-height:1.65; margin-bottom:14px; flex:1; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
   .note-tags   { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
-  .note-tag    { font-size:10px; font-weight:700; padding:2px 8px; border-radius:100px; background:var(--accent-light); color:var(--accent); }
+  .note-tag    { font-size:10px; font-weight:700; padding:2px 8px; border-radius:100px; background:var(--accent-light); color:var(--accent); display:flex; align-items:center; gap:3px; }
   .note-footer { display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:12px; }
-  .note-date   { font-size:10px; font-weight:600; color:var(--text-light); }
+  .note-date   { font-size:10px; font-weight:600; color:var(--text-light); display:flex; align-items:center; gap:4px; }
   .note-actions{ display:flex; gap:4px; align-items:center; }
   .ico-btn { width:26px; height:26px; border-radius:6px; border:1px solid transparent; background:transparent; color:var(--text-light); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:0.15s; }
   .ico-btn:hover { border-color:var(--border); color:var(--text); background:var(--bg); }
@@ -140,7 +146,7 @@ const getStyles = () => `
   .cdot:hover,.cdot.sel { border-color:var(--text); transform:scale(1.15); }
 
   /* Import Modal */
-  .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:999; padding:20px; }
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; }
   .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:28px; width:100%; max-width:440px; animation:scaleIn 0.2s ease; }
   .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:40px 20px; text-align:center; cursor:pointer; transition:0.2s; }
   .drop-zone:hover,.drop-zone.dov { border-color:var(--accent); background:var(--accent-light); }
@@ -150,6 +156,7 @@ const getStyles = () => `
   .bulk-bar { position:sticky; top:0; z-index:50; margin-bottom:16px; padding:10px 18px; background:var(--surface); border-radius:12px; border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 16px rgba(249,115,22,0.1); animation:fadeUp 0.2s ease; }
   .db-spinner { width:24px; height:24px; border:2.5px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
   .db-empty { text-align:center; padding:60px 20px; border:1.5px dashed var(--border); border-radius:16px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .db-empty-icon { width:56px; height:56px; border-radius:16px; background:var(--bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; }
 
   @media (max-width:768px) {
     .db-topbar { padding:0 12px; height:52px; }
@@ -196,10 +203,20 @@ function ImportModal({ onClose, onImported }) {
   return (
     <div className="overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
+
+        {/* Header — lucide icon */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-          <span style={{ fontWeight:900, fontSize:17, color:'var(--text)' }}>📂 Import Note</span>
-          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)' }}><X size={18}/></button>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <div style={{ width:34, height:34, borderRadius:9, background:'var(--accent-light)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <Upload size={16} color="var(--accent)"/>
+            </div>
+            <span style={{ fontWeight:900, fontSize:17, color:'var(--text)' }}>Import Note</span>
+          </div>
+          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex' }}>
+            <X size={18}/>
+          </button>
         </div>
+
         <div
           className={`drop-zone${drag ? ' dov' : ''}`}
           onClick={() => ref.current?.click()}
@@ -208,10 +225,12 @@ function ImportModal({ onClose, onImported }) {
           onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) pick(f); }}
         >
           <input ref={ref} type="file" accept=".pdf,.docx,.doc,.txt,.md" onChange={e => { if (e.target.files[0]) pick(e.target.files[0]); }}/>
-          <Upload size={32} color="var(--text-light)" style={{ margin:'0 auto 12px' }}/>
+          <Upload size={32} color="var(--text-light)" style={{ margin:'0 auto 12px', display:'block' }}/>
           {file ? (
             <div>
-              <div style={{ fontWeight:800, color:'var(--text)', fontSize:14 }}>✅ {file.name}</div>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontWeight:800, color:'var(--text)', fontSize:14 }}>
+                <FileText size={14} color="var(--accent)"/> {file.name}
+              </div>
               <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:4 }}>{(file.size/1024).toFixed(0)} KB</div>
             </div>
           ) : (
@@ -221,16 +240,34 @@ function ImportModal({ onClose, onImported }) {
             </div>
           )}
         </div>
+
         <div style={{ display:'flex', gap:10, marginTop:20 }}>
-          <button onClick={onClose} style={{ flex:1, background:'transparent', border:'1.5px solid var(--border)', borderRadius:10, padding:'10px', fontWeight:700, cursor:'pointer', fontFamily:'inherit', color:'var(--text-muted)' }}>Cancel</button>
-          <button onClick={doImport} disabled={!file || loading} style={{ flex:2, background:file&&!loading?'var(--accent)':'var(--border)', color:'#fff', border:'none', borderRadius:10, padding:'10px', fontWeight:800, cursor:file?'pointer':'not-allowed', fontFamily:'inherit', fontSize:14 }}>
-            {loading ? 'Importing…' : 'Import Note'}
+          <button onClick={onClose} style={{ flex:1, background:'transparent', border:'1.5px solid var(--border)', borderRadius:10, padding:'10px', fontWeight:700, cursor:'pointer', fontFamily:'inherit', color:'var(--text-muted)' }}>
+            Cancel
+          </button>
+          <button
+            onClick={doImport}
+            disabled={!file || loading}
+            style={{ flex:2, background:file&&!loading?'var(--accent)':'var(--border)', color:'#fff', border:'none', borderRadius:10, padding:'10px', fontWeight:800, cursor:file?'pointer':'not-allowed', fontFamily:'inherit', fontSize:14, display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}
+          >
+            {loading
+              ? <><div style={{ width:14, height:14, border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'#fff', borderRadius:'50%', animation:'spin .8s linear infinite' }}/> Importing…</>
+              : <><Upload size={14}/> Import Note</>
+            }
           </button>
         </div>
       </div>
     </div>
   );
 }
+
+// ─── Filter chips config ──────────────────────────────────────────────────────
+const FILTER_CHIPS = [
+  { id:'all',       label:'All Notes',  icon: StickyNote },
+  { id:'pinned',    label:'Pinned',     icon: Pin        },
+  { id:'starred',   label:'Starred',    icon: Star       },
+  { id:'favorites', label:'Favorites',  icon: Heart      },
+];
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function DashboardPage() {
@@ -246,40 +283,39 @@ export default function DashboardPage() {
   const [activeTag, setActiveTag]       = useState('');
   const [showTagMenu, setShowTagMenu]   = useState(false);
   const [tagMenuPos, setTagMenuPos]     = useState({ top: 0, left: 0 });
+  const [tagSearch, setTagSearch]       = useState('');
   const [showImport, setShowImport]     = useState(false);
   const [colorMenu, setColorMenu]       = useState(null);
 
-  const colorRef  = useRef(null);
-  const tagBtnRef = useRef(null);  // FIX: ref on the button, not the dropdown
-  const tagDropRef = useRef(null); // FIX: separate ref for the dropdown itself
+  const colorRef   = useRef(null);
+  const tagBtnRef  = useRef(null);
+  const tagDropRef = useRef(null);
 
   const { isDark } = useTheme();
   const navigate   = useNavigate();
   const location   = useLocation();
   const activeFolderId = searchParams.get('folder');
 
-  // Auto-set filter based on route
+  // Route-based filter
   useEffect(() => {
     if (location.pathname === '/starred') {
       setActiveFilter('starred');
       setShowTagMenu(false);
-    } else if (location.pathname === '/tags') {
-      setActiveFilter('all');
-      // Don't auto-open menu — let user click the chip
     }
   }, [location.pathname]);
 
-  // FIX: outside-click closes both menus correctly using their own refs
+  // Outside-click closes both menus
   useEffect(() => {
     const h = (e) => {
       if (colorRef.current && !colorRef.current.contains(e.target)) {
         setColorMenu(null);
       }
       if (
-        tagBtnRef.current && !tagBtnRef.current.contains(e.target) &&
+        tagBtnRef.current  && !tagBtnRef.current.contains(e.target) &&
         tagDropRef.current && !tagDropRef.current.contains(e.target)
       ) {
         setShowTagMenu(false);
+        setTagSearch('');
       }
     };
     document.addEventListener('mousedown', h);
@@ -331,7 +367,7 @@ export default function DashboardPage() {
     try {
       const { data } = await API.patch(`/notes/${id}/pin`);
       setNotes(p => p.map(n => n._id === id ? { ...n, isPinned: data.isPinned } : n));
-      toast.success(data.isPinned ? 'Pinned 📌' : 'Unpinned');
+      toast.success(data.isPinned ? 'Pinned' : 'Unpinned');
     } catch { toast.error('Failed'); }
   };
 
@@ -373,33 +409,35 @@ export default function DashboardPage() {
     setColorMenu(null);
   };
 
-  // FIX: calculate dropdown position from button's bounding rect so it appears
-  // correctly regardless of scroll position or filter-bar overflow state
+  // Open tag dropdown positioned below the chip button
   const openTagMenu = () => {
     if (showTagMenu) {
       setShowTagMenu(false);
+      setTagSearch('');
       return;
     }
     if (tagBtnRef.current) {
       const rect = tagBtnRef.current.getBoundingClientRect();
-      setTagMenuPos({
-        top:  rect.bottom + 6,
-        left: rect.left,
-      });
+      setTagMenuPos({ top: rect.bottom + 6, left: rect.left });
     }
+    setTagSearch('');
     setShowTagMenu(true);
   };
 
   const allTags = [...new Set(notes.flatMap(n => n.tags || []).filter(Boolean))];
 
+  const filteredTags = allTags.filter(t =>
+    t.toLowerCase().includes(tagSearch.toLowerCase().replace(/^#/, ''))
+  );
+
   const filtered = notes.filter(n => {
     if (n.isTrashed) return false;
     const q  = searchQuery.toLowerCase();
     const ms = !q || n.title?.toLowerCase().includes(q) || n.plainText?.toLowerCase().includes(q);
-    const mf = activeFilter === 'all'      ? true
-             : activeFilter === 'starred'  ? n.isStarred
-             : activeFilter === 'favorites'? n.isFavorite
-             : activeFilter === 'pinned'   ? n.isPinned
+    const mf = activeFilter === 'all'       ? true
+             : activeFilter === 'starred'   ? n.isStarred
+             : activeFilter === 'favorites' ? n.isFavorite
+             : activeFilter === 'pinned'    ? n.isPinned
              : true;
     const mt = !activeTag || (n.tags || []).includes(activeTag);
     return ms && mf && mt;
@@ -428,7 +466,9 @@ export default function DashboardPage() {
         {/* ── Topbar ── */}
         <header className="db-topbar">
           <div className="db-topbar-left">
-            <button className="db-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18}/></button>
+            <button className="db-menu-btn" onClick={() => setSidebarOpen(true)}>
+              <Menu size={18}/>
+            </button>
             {activeFolderId ? (
               <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                 <button
@@ -441,7 +481,10 @@ export default function DashboardPage() {
                 <span className="page-label" style={{ color:'var(--accent)' }}>{folderName || 'Folder'}</span>
               </div>
             ) : (
-              <span className="page-label">My Notes</span>
+              <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                <NotebookPen size={16} color="var(--accent)"/>
+                <span className="page-label">My Notes</span>
+              </div>
             )}
           </div>
 
@@ -452,6 +495,14 @@ export default function DashboardPage() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex', padding:0 }}
+              >
+                <X size={13}/>
+              </button>
+            )}
           </div>
 
           <div className="topbar-actions">
@@ -465,64 +516,89 @@ export default function DashboardPage() {
         </header>
 
         {/* ── Filter Bar ── */}
-        {/* FIX: tag dropdown is NOT inside this div anymore — it's a portal-like
-            fixed element below, so overflow-x:auto can never clip it             */}
         <div className="filter-bar">
-          {[
-            { id:'all',       l:'📝 All'       },
-            { id:'pinned',    l:'📌 Pinned'    },
-            { id:'starred',   l:'⭐ Starred'   },
-            { id:'favorites', l:'❤️ Favorites' },
-          ].map(f => (
+          {FILTER_CHIPS.map(({ id, label, icon: Icon }) => (
             <button
-              key={f.id}
-              className={`filter-chip${activeFilter === f.id ? ' active' : ''}`}
-              onClick={() => { setActiveFilter(f.id); setActiveTag(''); setShowTagMenu(false); }}
+              key={id}
+              className={`filter-chip${activeFilter === id ? ' active' : ''}`}
+              onClick={() => { setActiveFilter(id); setActiveTag(''); setShowTagMenu(false); }}
             >
-              {f.l}
+              <Icon size={12}/> {label}
             </button>
           ))}
 
-          {/* Tags chip — the button stays in the bar for layout */}
+          {/* Tags chip */}
           <button
             ref={tagBtnRef}
             className={`filter-chip${activeTag ? ' tag-active' : ''}`}
             onClick={openTagMenu}
           >
-            <Tag size={11}/>
+            <Tag size={12}/>
             {activeTag
               ? (activeTag.startsWith('#') ? activeTag : `#${activeTag}`)
               : 'Tags'}
-            <ChevronDown size={11}/>
+            <ChevronDown
+              size={11}
+              style={{ transition:'transform 0.2s', transform: showTagMenu ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            />
           </button>
         </div>
 
-        {/* ── Tag Dropdown (fixed, outside filter-bar) ── */}
+        {/* ── Tag Dropdown (fixed, outside filter-bar overflow) ── */}
         {showTagMenu && (
           <div
             ref={tagDropRef}
             className="tag-drop"
             style={{ top: tagMenuPos.top, left: tagMenuPos.left }}
           >
+            {/* Search bar */}
+            <div className="tag-drop-search">
+              <Search size={12} color="var(--text-light)" style={{ flexShrink:0 }}/>
+              <input
+                autoFocus
+                placeholder="Search tags…"
+                value={tagSearch}
+                onChange={e => setTagSearch(e.target.value)}
+              />
+              {tagSearch && (
+                <button
+                  onClick={() => setTagSearch('')}
+                  style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex', padding:0 }}
+                >
+                  <X size={11}/>
+                </button>
+              )}
+            </div>
+
+            {/* States */}
             {allTags.length === 0 ? (
-              <div className="tag-drop-item" style={{ color:'var(--text-light)', cursor:'default' }}>
-                No tags yet — add them in the Note editor
+              <div className="tag-empty">
+                <Tag size={16} color="var(--text-light)"/>
+                No tags yet — add them in the note editor
+              </div>
+            ) : filteredTags.length === 0 ? (
+              <div className="tag-empty">
+                <Search size={16} color="var(--text-light)"/>
+                No tags match "{tagSearch}"
               </div>
             ) : (
               <>
-                <div
-                  className="tag-drop-item"
-                  onClick={() => { setActiveTag(''); setShowTagMenu(false); }}
-                >
-                  🏷️ All Notes
-                </div>
-                {allTags.map(t => (
+                {!tagSearch && (
+                  <div
+                    className={`tag-drop-item${!activeTag ? ' a' : ''}`}
+                    onClick={() => { setActiveTag(''); setShowTagMenu(false); setTagSearch(''); }}
+                  >
+                    <Layers size={12}/> All Notes
+                  </div>
+                )}
+                {filteredTags.map(t => (
                   <div
                     key={t}
                     className={`tag-drop-item${activeTag === t ? ' a' : ''}`}
-                    onClick={() => { setActiveTag(t); setShowTagMenu(false); }}
+                    onClick={() => { setActiveTag(t); setShowTagMenu(false); setTagSearch(''); }}
                   >
-                    {t.startsWith('#') ? t : `#${t}`}
+                    <Hash size={11}/>
+                    {t.startsWith('#') ? t.slice(1) : t}
                   </div>
                 ))}
               </>
@@ -543,9 +619,9 @@ export default function DashboardPage() {
               <div style={{ display:'flex', gap:8 }}>
                 <button
                   onClick={bulkDelete}
-                  style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', color:'#ef4444', borderRadius:8, padding:'6px 14px', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}
+                  style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', color:'#ef4444', borderRadius:8, padding:'6px 14px', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}
                 >
-                  Delete
+                  <Trash2 size={13}/> Delete
                 </button>
                 <button
                   onClick={() => setSelectedIds([])}
@@ -564,10 +640,19 @@ export default function DashboardPage() {
 
           ) : filtered.length === 0 ? (
             <div className="db-empty">
-              <FilePlus size={36} color="var(--border)"/>
+              <div className="db-empty-icon">
+                {activeTag
+                  ? <Tag size={22} color="var(--text-muted)"/>
+                  : activeFilter === 'starred'   ? <Star size={22} color="var(--text-muted)"/>
+                  : activeFilter === 'favorites' ? <Heart size={22} color="var(--text-muted)"/>
+                  : activeFilter === 'pinned'    ? <Pin size={22} color="var(--text-muted)"/>
+                  : activeFolderId               ? <FolderOpen size={22} color="var(--text-muted)"/>
+                  : <FilePlus size={22} color="var(--text-muted)"/>
+                }
+              </div>
               <h3 style={{ color:'var(--text)', fontWeight:800, fontSize:15 }}>
                 {activeTag
-                  ? `No notes with tag "${activeTag.startsWith('#') ? activeTag : '#' + activeTag}"`
+                  ? `No notes tagged "${activeTag.startsWith('#') ? activeTag : '#' + activeTag}"`
                   : activeFilter !== 'all'
                     ? `No ${activeFilter} notes`
                     : activeFolderId
@@ -587,10 +672,12 @@ export default function DashboardPage() {
 
           ) : (
             <>
-              {/* Pinned section (only when filter = all and tag not active) */}
+              {/* Pinned section */}
               {pinned.length > 0 && activeFilter === 'all' && !activeTag && (
                 <div style={{ marginBottom:24 }}>
-                  <div className="pinned-label"><Pin size={11}/> Pinned</div>
+                  <div className="pinned-label">
+                    <Pin size={11}/> Pinned
+                  </div>
                   <div className="db-grid">
                     {pinned.map((note, i) => (
                       <NoteCard
@@ -610,16 +697,22 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Main notes grid */}
+              {/* Section heading */}
               <div className="section-hd">
                 <h2 className="section-title">
-                  {activeFolderId
-                    ? `📁 ${folderName}`
-                    : activeFilter === 'all'
-                      ? (pinned.length > 0 && unpinned.length > 0 && !activeTag ? 'Other Notes' : 'All Notes')
-                      : activeFilter === 'starred'   ? '⭐ Starred'
-                      : activeFilter === 'favorites' ? '❤️ Favorites'
-                      : '📌 Pinned'}
+                  {activeFolderId ? (
+                    <><FolderOpen size={15} color="var(--accent)"/> {folderName}</>
+                  ) : activeFilter === 'all' ? (
+                    pinned.length > 0 && unpinned.length > 0 && !activeTag
+                      ? <><AlignLeft size={14}/> Other Notes</>
+                      : <><StickyNote size={14}/> All Notes</>
+                  ) : activeFilter === 'starred' ? (
+                    <><Star size={14}/> Starred</>
+                  ) : activeFilter === 'favorites' ? (
+                    <><Heart size={14}/> Favorites</>
+                  ) : (
+                    <><Pin size={14}/> Pinned</>
+                  )}
                 </h2>
                 <span className="count-pill">
                   {(activeFilter === 'pinned' ? pinned : unpinned).length}
@@ -686,28 +779,43 @@ function NoteCard({
 
       <h3 className="note-title">{note.title || 'Untitled Note'}</h3>
 
+      {/* Tags with lucide Hash icon */}
       {note.tags?.length > 0 && (
         <div className="note-tags">
           {note.tags.slice(0, 3).map(t => (
-            <span key={t} className="note-tag">{t.startsWith('#') ? t : `#${t}`}</span>
+            <span key={t} className="note-tag">
+              <Hash size={9}/>
+              {t.startsWith('#') ? t.slice(1) : t}
+            </span>
           ))}
-          {note.tags.length > 3 && <span className="note-tag">+{note.tags.length - 3}</span>}
+          {note.tags.length > 3 && (
+            <span className="note-tag">+{note.tags.length - 3}</span>
+          )}
         </div>
       )}
 
       <p className="note-excerpt">{note.plainText || 'Click to start writing…'}</p>
 
       <div className="note-footer">
+        {/* Date with Clock icon */}
         <span className="note-date">
+          <Clock size={10}/>
           {new Date(note.updatedAt).toLocaleDateString('en-IN', { month:'short', day:'numeric' })}
         </span>
+
         <div className="note-actions" onClick={e => e.stopPropagation()}>
+
+          {/* Star */}
           <button className={`ico-btn${note.isStarred ? ' s' : ''}`} onClick={e => toggleStar(e, note._id)} title="Star">
             <Star size={12} fill={note.isStarred ? 'currentColor' : 'none'}/>
           </button>
+
+          {/* Favorite */}
           <button className={`ico-btn${note.isFavorite ? ' f' : ''}`} onClick={e => toggleFav(e, note._id)} title="Favorite">
             <Heart size={12} fill={note.isFavorite ? 'currentColor' : 'none'}/>
           </button>
+
+          {/* Pin / Unpin */}
           <button className={`ico-btn${note.isPinned ? ' p' : ''}`} onClick={e => togglePin(e, note._id)} title={note.isPinned ? 'Unpin' : 'Pin'}>
             {note.isPinned ? <PinOff size={12}/> : <Pin size={12}/>}
           </button>
@@ -717,7 +825,7 @@ function NoteCard({
             <button
               className="ico-btn"
               onClick={e => { e.stopPropagation(); setColorMenu(colorMenu === note._id ? null : note._id); }}
-              title="Color"
+              title="Change color"
             >
               <Palette size={12}/>
             </button>
@@ -736,11 +844,14 @@ function NoteCard({
             )}
           </div>
 
+          {/* Public / Private */}
           {note.isPublic
-            ? <Globe size={11} color="var(--purple)"/>
-            : <Lock  size={11} color="var(--text-light)"/>
+            ? <Globe size={11} color="var(--purple)" title="Public"/>
+            : <Lock  size={11} color="var(--text-light)" title="Private"/>
           }
-          <button className="ico-btn" onClick={e => trashNote(e, note._id)} title="Delete">
+
+          {/* Trash */}
+          <button className="ico-btn" onClick={e => trashNote(e, note._id)} title="Move to trash">
             <Trash2 size={12}/>
           </button>
         </div>
