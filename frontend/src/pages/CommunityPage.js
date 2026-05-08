@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users, Download, Search, Heart, Clock, TrendingUp, Globe,
   Menu, MessageCircle, Bookmark, X, Send, Upload, FileText,
@@ -146,6 +147,7 @@ const TABS = [
 export default function CommunityPage() {
   // Hindi: theme context — dark/light ke liye
   const { isDark } = useTheme();
+  const navigate = useNavigate();
   const [notes,           setNotes]           = useState([]);
   const [loading,         setLoading]         = useState(true);
   const [searchQ,         setSearchQ]         = useState("");
@@ -376,6 +378,7 @@ export default function CommunityPage() {
                         onSave={() => toggleSave(note._id)}
                         onDownload={() => downloadNote(note._id)}
                         onComment={() => openComments(note)}
+                        onUserClick={(uid) => navigate(`/community/user/${uid}`)}
                         isDownloading={downloading === note._id}
                       />
                     ))}
@@ -410,7 +413,7 @@ export default function CommunityPage() {
   );
 }
 
-function NoteCard({ note, rank, animDelay, onLike, onSave, onDownload, onComment, isDownloading }) {
+function NoteCard({ note, rank, animDelay, onLike, onSave, onDownload, onComment, isDownloading, onUserClick }) {
   return (
     <div className="cm-card" style={{ animationDelay: `${animDelay}s` }}>
       {rank && rank <= 3 && (
@@ -419,7 +422,21 @@ function NoteCard({ note, rank, animDelay, onLike, onSave, onDownload, onComment
       <div className="cm-card-header">
         <div className="cm-avatar">{(note.user?.name || "U")[0].toUpperCase()}</div>
         <div>
-          <div className="cm-author-name">{note.user?.name || "Scholar"}</div>
+          <button
+            onClick={() => onUserClick && note.user?._id && onUserClick(note.user._id)}
+            style={{
+              background: "none", border: "none", padding: 0, cursor: note.user?._id ? "pointer" : "default",
+              textAlign: "left", display: "block",
+            }}
+            title={note.user?._id ? `View ${note.user?.name || "Scholar"}'s profile` : ""}
+          >
+            <div className="cm-author-name" style={{ transition: "color 0.2s", ...(note.user?._id ? {} : {}) }}
+              onMouseEnter={e => { if (note.user?._id) e.target.style.color = "#ff5734"; }}
+              onMouseLeave={e => { e.target.style.color = ""; }}
+            >
+              {note.user?.name || "Scholar"}
+            </div>
+          </button>
           <div className="cm-date">{formatDate(note.createdAt)}</div>
         </div>
       </div>

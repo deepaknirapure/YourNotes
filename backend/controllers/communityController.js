@@ -310,6 +310,72 @@ exports.getUserNotes = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 8b. GET USER PUBLIC PROFILE  (name, avatar, stats, public notes)
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getUserProfile = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User
+      .findById(userId)
+      .select('name avatar totalPublicUploads streak createdAt')
+      .lean();
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const uid = toObjectId(req.user.id);
+
+    // Public notes with like/save counts
+    const notes = await Note.aggregate([
+      { $match: { user: toObjectId(userId), isPublic: true, isTrashed: false } },
+      {
+        $addFields: {
+          likesCount:    { $size: { $ifNull: ['$likes',    []] } },
+          commentsCount: { $size: { $ifNull: ['$comments', []] } },
+          savesCount:    { $size: { $ifNull: ['$saves',    []] } },
+          liked:         { $in: [uid, { $ifNull: ['$likes', []] }] },
+          saved:         { $in: [uid, { $ifNull: ['$saves', []] }] },
+        },
+      },
+      { $sort: { updatedAt: -1 } },
+      {
+        $project: {
+          _id: 1, title: 1, plainText: 1, tags: 1, subject: 1,
+          likesCount: 1, commentsCount: 1, savesCount: 1,
+          downloads: 1, liked: 1, saved: 1, createdAt: 1, updatedAt: 1,
+        },
+      },
+    ]);
+
+    const totalLikes     = notes.reduce((s, n) => s + (n.likesCount  || 0), 0);
+    const totalDownloads = notes.reduce((s, n) => s + (n.downloads   || 0), 0);
+
+    // Unique subjects
+    const subjects = [...new Set(notes.map(n => n.subject).filter(Boolean))];
+
+    res.status(200).json({
+      user: {
+        _id:      user._id,
+        name:     user.name,
+        avatar:   user.avatar,
+        streak:   user.streak,
+        joinedAt: user.createdAt,
+      },
+      stats: {
+        totalNotes:    notes.length,
+        totalLikes,
+        totalDownloads,
+        subjects:      subjects.length,
+      },
+      notes,
+    });
+  } catch (err) {
+    console.error('getUserProfile error:', err);
+    res.status(500).json({ message: 'Failed to load user profile' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 9. DELETE / UN-PUBLISH  (owner only)
 //    - Note model: flip isPublic to false
 //    - CommunityNote model: flip isActive to false

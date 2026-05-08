@@ -13,15 +13,17 @@ const {
   downloadNote,
   uploadNote,
   getUserNotes,
+  getUserProfile,
   getSavedNotes,
   deleteNote,
   reportNote,
 } = require('../controllers/communityController');
 
 // ── Static / prefix routes FIRST (before /:id shadow them) ──────────────────
-router.get('/feed',         protect, getFeed);
-router.get('/saved',        protect, getSavedNotes);
-router.get('/user/:userId', protect, getUserNotes);
+router.get('/feed',                  protect, getFeed);
+router.get('/saved',                 protect, getSavedNotes);
+router.get('/user/:userId/profile',  protect, getUserProfile);
+router.get('/user/:userId',          protect, getUserNotes);
 
 // File-upload route (multipart/form-data)
 router.post('/upload', protect, upload.single('file'), uploadNote);
@@ -32,7 +34,7 @@ router.post('/:id/like',     protect, toggleLike);
 router.post('/:id/save',     protect, toggleSave);
 router.post('/:id/comment',  protect, addComment);
 router.post('/:id/download', protect, downloadNote);
-router.post('/:id/report',    protect, reportNote);
+router.post('/:id/report',   protect, reportNote);
 router.delete('/:id',        protect, deleteNote);
 
 module.exports = router;

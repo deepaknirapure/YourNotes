@@ -21,7 +21,8 @@ const HomePage            = lazy(() => import('./pages/Homepage'));
 const TrashPage           = lazy(() => import('./pages/Trashpage'));
 const FoldersPage         = lazy(() => import('./pages/Folderspage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
-const SharedNotePage      = lazy(() => import('./pages/SharedNotePage'));
+const SharedNotePage         = lazy(() => import('./pages/SharedNotePage'));
+const UserPublicProfilePage  = lazy(() => import('./pages/UserPublicProfilePage'));
 function NotFoundPage() {
   return (
     <div style={{
@@ -152,6 +153,7 @@ function App() {
             <Route path="/profile"          element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="/settings"         element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
             <Route path="/admin"            element={<PrivateRoute><AdminPage /></PrivateRoute>} />
+            <Route path="/community/user/:userId" element={<PrivateRoute><UserPublicProfilePage /></PrivateRoute>} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
