@@ -376,13 +376,21 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
                 <Hash size={13} />
                 <input
                   className="tag-input"
-                  placeholder="add tag…"
+                  placeholder="tag likhko Enter dabao…"
                   value={tagInput}
-                  onChange={e => setTagInput(e.target.value)}
+                  onChange={e => setTagInput(e.target.value.replace(/\s/g, ''))}
                   onKeyDown={e => {
-                    if (e.key === 'Enter' && tagInput.trim()) {
-                      setTags([...tags, tagInput.trim().toLowerCase()]);
+                    if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+                      e.preventDefault();
+                      const newTag = tagInput.trim().toLowerCase();
+                      if (!tags.includes(newTag)) {
+                        setTags([...tags, newTag]);
+                      }
                       setTagInput('');
+                    }
+                    // Backspace se last tag delete karo agar input empty hai
+                    if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
+                      setTags(tags.slice(0, -1));
                     }
                   }}
                 />

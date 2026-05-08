@@ -340,21 +340,26 @@ export default function DashboardPage() {
           {[{id:'all',l:'📝 All'},{id:'pinned',l:'📌 Pinned'},{id:'starred',l:'⭐ Starred'},{id:'favorites',l:'❤️ Favorites'}].map(f=>(
             <button key={f.id} className={`filter-chip${activeFilter===f.id?' active':''}`} onClick={()=>{setActiveFilter(f.id);setActiveTag('');}}>{f.l}</button>
           ))}
-          {allTags.length>0 && (
-            <div style={{position:'relative'}} ref={tagRef}>
-              <button className={`filter-chip${activeTag?' tag-active':''}`} onClick={()=>setShowTagMenu(p=>!p)}>
-                <Tag size={11}/> {activeTag||'Tags'} <ChevronDown size={11}/>
-              </button>
-              {showTagMenu && (
-                <div className="tag-drop">
-                  <div className="tag-drop-item" onClick={()=>{setActiveTag('');setShowTagMenu(false);}}>All tags</div>
-                  {allTags.map(t=>(
-                    <div key={t} className={`tag-drop-item${activeTag===t?' a':''}`} onClick={()=>{setActiveTag(t);setShowTagMenu(false);}}>#{t}</div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Tags dropdown — hamesha dikhega */}
+          <div style={{position:'relative'}} ref={tagRef}>
+            <button className={`filter-chip${activeTag?' tag-active':''}`} onClick={()=>setShowTagMenu(p=>!p)}>
+              <Tag size={11}/> {activeTag ? `#${activeTag}` : 'Tags'} <ChevronDown size={11}/>
+            </button>
+            {showTagMenu && (
+              <div className="tag-drop">
+                {allTags.length === 0 ? (
+                  <div className="tag-drop-item" style={{color:'var(--text-light)',cursor:'default'}}>Koi tag nahi — Note editor mein add karo</div>
+                ) : (
+                  <>
+                    <div className="tag-drop-item" onClick={()=>{setActiveTag('');setShowTagMenu(false);}}>🏷️ All Notes</div>
+                    {allTags.map(t=>(
+                      <div key={t} className={`tag-drop-item${activeTag===t?' a':''}`} onClick={()=>{setActiveTag(t);setShowTagMenu(false);}}>#{t}</div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Content */}
