@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Users, Download, Search, Heart, Clock, TrendingUp, Globe,
   Menu, MessageCircle, Bookmark, X, Send, Upload, FileText,
-  CheckSquare, Square, BookOpen
+  CheckSquare, Square, BookOpen, ExternalLink, UserCircle2, ChevronRight
 } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
@@ -58,14 +58,27 @@ const STYLES = `
   .btn-share { display: flex; align-items: center; gap: 8px; background: #ff5734; color: #fff; border: none; border-radius: 13px; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.25s; font-family: 'Syne', sans-serif; white-space: nowrap; }
   .btn-share:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,87,52,0.3); }
 
+  /* ── Card ── */
   .cm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-  .cm-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 22px; animation: fadeUp 0.35s both; transition: 0.25s; display: flex; flex-direction: column; position: relative; }
-  .cm-card:hover { border-color: #2a2727; transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+  .cm-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 22px; animation: fadeUp 0.35s both; transition: 0.25s; display: flex; flex-direction: column; position: relative; cursor: pointer; }
+  .cm-card:hover { border-color: #ff5734; transform: translateY(-4px); box-shadow: 0 16px 40px rgba(255,87,52,0.12); }
   .cm-card-rank { position: absolute; top: 16px; right: 16px; font-size: 10px; font-weight: 800; font-family: 'Syne', sans-serif; color: #ff5734; background: rgba(255,87,52,0.1); padding: 3px 9px; border-radius: 6px; letter-spacing: 0.5px; }
 
   .cm-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .cm-avatar { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #ff5734, #ff8c74); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0; font-family: 'Syne', sans-serif; }
-  .cm-author-name { font-size: 14px; font-weight: 700; color: var(--text); }
+
+  /* Avatar — real image support */
+  .cm-avatar {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #ff5734, #ff8c74);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0;
+    font-family: 'Syne', sans-serif; overflow: hidden; position: relative;
+  }
+  .cm-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+
+  .cm-author-btn { background: none; border: none; padding: 0; cursor: pointer; text-align: left; }
+  .cm-author-name { font-size: 14px; font-weight: 700; color: var(--text); transition: color 0.2s; }
+  .cm-author-btn:hover .cm-author-name { color: #ff5734; }
   .cm-date { font-size: 11px; color: var(--text-light); font-weight: 500; margin-top: 2px; }
 
   .cm-card-subject { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,87,52,0.08); color: #ff5734; border: 1px solid rgba(255,87,52,0.15); border-radius: 7px; padding: 3px 10px; font-size: 11px; font-weight: 700; margin-bottom: 10px; font-family: 'Syne', sans-serif; letter-spacing: 0.3px; width: fit-content; }
@@ -88,12 +101,56 @@ const STYLES = `
 
   .pg-spinner { width: 28px; height: 28px; border: 3px solid #1e1c1c; border-top-color: #ff5734; border-radius: 50%; animation: spin .7s linear infinite; }
 
+  /* ── Note Detail Modal ── */
+  .nd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s both; backdrop-filter: blur(6px); padding: 20px; }
+  .nd-sheet   { width: 100%; max-width: 640px; background: var(--surface); border-radius: 24px; display: flex; flex-direction: column; animation: slideUp 0.3s both; border: 1px solid var(--border); max-height: 88vh; overflow: hidden; }
+  .nd-header  { padding: 24px 24px 0; flex-shrink: 0; }
+  .nd-body    { flex: 1; overflow-y: auto; padding: 0 24px 20px; scrollbar-width: none; }
+  .nd-body::-webkit-scrollbar { display: none; }
+  .nd-footer  { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
+
+  /* Author row inside note detail */
+  .nd-author-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; position: relative; }
+  .nd-author-info { flex: 1; min-width: 0; }
+  .nd-author-btn  {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: none; padding: 0; cursor: pointer;
+    font-size: 14px; font-weight: 700; color: var(--text); transition: color 0.2s;
+  }
+  .nd-author-btn:hover { color: #ff5734; }
+  .nd-author-date { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+  /* Profile popup on hover/click */
+  .nd-profile-popup {
+    position: absolute; top: 52px; left: 0; z-index: 10;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px; min-width: 220px; box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    animation: fadeUp 0.2s both;
+  }
+  .nd-popup-avatar {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: linear-gradient(135deg,#ff5734,#ff8c74);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: #fff;
+    font-family:'Syne',sans-serif; overflow: hidden; margin-bottom: 10px;
+  }
+  .nd-popup-avatar img { width:100%; height:100%; object-fit:cover; border-radius:14px; }
+  .nd-popup-name   { font-size: 15px; font-weight: 800; color: var(--text); font-family:'Syne',sans-serif; }
+  .nd-popup-sub    { font-size: 11px; color: var(--text-muted); margin-top: 2px; margin-bottom: 12px; }
+  .nd-view-profile-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #ff5734; color: #fff; border: none; border-radius: 10px;
+    padding: 9px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+    font-family:'Syne',sans-serif; transition: 0.2s;
+  }
+  .nd-view-profile-btn:hover { background: #e84826; }
+
+  /* Comments modal (unchanged) */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s both; backdrop-filter: blur(4px); }
   .modal-sheet   { width: 100%; max-width: 600px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 28px; max-height: 70vh; display: flex; flex-direction: column; animation: slideUp 0.3s both; border: 1px solid var(--border); border-bottom: none; }
   .modal-handle  { width: 40px; height: 4px; background: var(--border); border-radius: 4px; margin: 0 auto 20px; }
   .modal-close   { background: var(--bg); border: none; border-radius: 9px; padding: 8px; cursor: pointer; color: var(--text-muted); display: flex; }
   .modal-close:hover { background: var(--border); color: var(--text); }
-
   .comments-list { flex: 1; overflow-y: auto; scrollbar-width: none; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
   .comments-list::-webkit-scrollbar { display: none; }
   .comment-item   { background: var(--bg); border-radius: 12px; padding: 14px 16px; animation: fadeUp 0.2s both; }
@@ -108,6 +165,7 @@ const STYLES = `
   .btn-send:hover { background: #e84826; }
   .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  /* Share modal */
   .share-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s both; backdrop-filter: blur(6px); padding: 20px; }
   .share-modal { width: 100%; max-width: 520px; background: var(--surface); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; gap: 16px; animation: slideUp 0.3s both; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; scrollbar-width: none; }
   .share-modal::-webkit-scrollbar { display: none; }
@@ -135,6 +193,8 @@ const STYLES = `
     .cm-search-wrap { max-width: 100%; }
     .cm-grid        { grid-template-columns: 1fr !important; }
     .cm-stats-bar   { gap: 12px; }
+    .nd-overlay     { padding: 0; align-items: flex-end; }
+    .nd-sheet       { border-radius: 24px 24px 0 0; max-height: 92vh; }
   }
 `;
 
@@ -144,10 +204,23 @@ const TABS = [
   { key: "all",     label: "All Notes",  icon: Globe      },
 ];
 
+function Avatar({ user, size = 40, radius = 12, fontSize = 16 }) {
+  const [imgErr, setImgErr] = useState(false);
+  const isDefault = !user?.avatar || user.avatar.includes("flaticon");
+  const letter = (user?.name || "U")[0].toUpperCase();
+  return (
+    <div className="cm-avatar" style={{ width: size, height: size, borderRadius: radius, fontSize }}>
+      {!isDefault && !imgErr
+        ? <img src={user.avatar} alt={user?.name} onError={() => setImgErr(true)} />
+        : letter}
+    </div>
+  );
+}
+
 export default function CommunityPage() {
-  // Hindi: theme context — dark/light ke liye
   const { isDark } = useTheme();
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
+
   const [notes,           setNotes]           = useState([]);
   const [loading,         setLoading]         = useState(true);
   const [searchQ,         setSearchQ]         = useState("");
@@ -165,9 +238,9 @@ export default function CommunityPage() {
   const [selectedNotes,   setSelectedNotes]   = useState([]);
   const [loadingMyNotes,  setLoadingMyNotes]  = useState(false);
   const [sharing,         setSharing]         = useState(false);
+  const [detailNote,      setDetailNote]      = useState(null); // note detail modal
   const commentInputRef = useRef(null);
 
-  // Fetch feed
   useEffect(() => {
     setLoading(true);
     const sort = activeTab === "all" ? "popular" : activeTab;
@@ -212,26 +285,34 @@ export default function CommunityPage() {
   const totalLikes     = notes.reduce((s, n) => s + (n.likesCount  || 0), 0);
   const totalDownloads = notes.reduce((s, n) => s + (n.downloads   || 0), 0);
 
-  const toggleLike = async (id) => {
+  const updateNote = (id, patch) =>
+    setNotes(prev => prev.map(n => n._id === id ? { ...n, ...patch } : n));
+
+  const toggleLike = async (id, e) => {
+    e?.stopPropagation();
     try {
       const { data } = await API.post(`/community/${id}/like`);
-      setNotes(prev => prev.map(n => n._id === id ? { ...n, liked: data.liked, likesCount: data.likesCount } : n));
+      updateNote(id, { liked: data.liked, likesCount: data.likesCount });
+      if (detailNote?._id === id) setDetailNote(prev => ({ ...prev, liked: data.liked, likesCount: data.likesCount }));
     } catch { toast.error("Action failed"); }
   };
 
-  const toggleSave = async (id) => {
+  const toggleSave = async (id, e) => {
+    e?.stopPropagation();
     try {
       const { data } = await API.post(`/community/${id}/save`);
-      setNotes(prev => prev.map(n => n._id === id ? { ...n, saved: data.saved, savesCount: data.savesCount } : n));
+      updateNote(id, { saved: data.saved, savesCount: data.savesCount });
+      if (detailNote?._id === id) setDetailNote(prev => ({ ...prev, saved: data.saved, savesCount: data.savesCount }));
       toast.success(data.saved ? "Saved to your collection" : "Removed from saved");
     } catch { toast.error("Save failed"); }
   };
 
-  const downloadNote = async (id) => {
+  const downloadNote = async (id, e) => {
+    e?.stopPropagation();
     setDownloading(id);
     try {
       const { data } = await API.post(`/community/${id}/download`);
-      setNotes(prev => prev.map(n => n._id === id ? { ...n, downloads: (n.downloads || 0) + 1 } : n));
+      updateNote(id, { downloads: (notes.find(n => n._id === id)?.downloads || 0) + 1 });
       if (data?.fileUrl) {
         const a = document.createElement("a");
         a.href = data.fileUrl;
@@ -243,7 +324,8 @@ export default function CommunityPage() {
     finally { setDownloading(null); }
   };
 
-  const openComments = async (note) => {
+  const openComments = async (note, e) => {
+    e?.stopPropagation();
     setCommentsNote({ id: note._id, title: note.title });
     setComments([]); setLoadingComments(true);
     try {
@@ -263,7 +345,7 @@ export default function CommunityPage() {
       const { data } = await API.post(`/community/${commentsNote.id}/comment`, { text: commentText.trim() });
       setComments(prev => [...prev, data]);
       setCommentText("");
-      setNotes(prev => prev.map(n => n._id === commentsNote.id ? { ...n, commentsCount: (n.commentsCount || 0) + 1 } : n));
+      updateNote(commentsNote.id, { commentsCount: (notes.find(n => n._id === commentsNote.id)?.commentsCount || 0) + 1 });
     } catch { toast.error("Failed to post comment"); }
     finally { setSendingComment(false); }
   };
@@ -294,6 +376,11 @@ export default function CommunityPage() {
     finally { setSharing(false); setLoading(false); }
   };
 
+  const goToProfile = (userId, e) => {
+    e?.stopPropagation();
+    if (userId) navigate(`/community/user/${userId}`);
+  };
+
   return (
     <div className="pg-wrap">
       <style>{STYLES}</style>
@@ -303,7 +390,7 @@ export default function CommunityPage() {
         <div className="pg-topbar">
           <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={20} /></button>
           <div style={{ padding: 8, borderRadius: 10, background: "#ff5734", display: "flex" }}><Users size={16} color="#fff" /></div>
-          <span style={{ fontSize: 18, fontWeight: 800, fontFamily: "'Syne',sans-serif", color: "#f0ece4", letterSpacing: "-0.3px" }}>Community Hub</span>
+          <span style={{ fontSize: 18, fontWeight: 800, fontFamily: "'Syne',sans-serif", color: "var(--text)", letterSpacing: "-0.3px" }}>Community Hub</span>
           <div style={{ flex: 1 }} />
           <button className="btn-share" onClick={openShareModal}><Upload size={15} /> Add Your Notes</button>
         </div>
@@ -312,10 +399,10 @@ export default function CommunityPage() {
           {/* Stats */}
           <div className="cm-stats-bar">
             {[
-              { icon: <FileText size={16} color="#ff5734" />, val: notes.length,    lbl: "Public Notes"  },
-              { icon: <Heart    size={16} color="#ff5734" />, val: totalLikes,       lbl: "Total Likes"   },
-              { icon: <Download size={16} color="#ff5734" />, val: totalDownloads,   lbl: "Downloads"     },
-              { icon: <BookOpen size={16} color="#ff5734" />, val: allSubjects.length - 1, lbl: "Subjects" },
+              { icon: <FileText size={16} color="#ff5734" />, val: notes.length,         lbl: "Public Notes" },
+              { icon: <Heart    size={16} color="#ff5734" />, val: totalLikes,            lbl: "Total Likes"  },
+              { icon: <Download size={16} color="#ff5734" />, val: totalDownloads,        lbl: "Downloads"    },
+              { icon: <BookOpen size={16} color="#ff5734" />, val: allSubjects.length - 1, lbl: "Subjects"   },
             ].map(({ icon, val, lbl }) => (
               <div className="cm-stat-chip" key={lbl}>
                 <div className="sc-icon">{icon}</div>
@@ -374,11 +461,12 @@ export default function CommunityPage() {
                         key={note._id} note={note}
                         rank={activeTab === "popular" ? i + 1 : null}
                         animDelay={i * 0.04}
-                        onLike={() => toggleLike(note._id)}
-                        onSave={() => toggleSave(note._id)}
-                        onDownload={() => downloadNote(note._id)}
-                        onComment={() => openComments(note)}
-                        onUserClick={(uid) => navigate(`/community/user/${uid}`)}
+                        onCardClick={() => setDetailNote(note)}
+                        onLike={(e)    => toggleLike(note._id, e)}
+                        onSave={(e)    => toggleSave(note._id, e)}
+                        onDownload={(e)=> downloadNote(note._id, e)}
+                        onComment={(e) => openComments(note, e)}
+                        onUserClick={(e) => goToProfile(note.user?._id, e)}
                         isDownloading={downloading === note._id}
                       />
                     ))}
@@ -392,6 +480,21 @@ export default function CommunityPage() {
 
       <MobileNav />
 
+      {/* ── Note Detail Modal ── */}
+      {detailNote && (
+        <NoteDetailModal
+          note={detailNote}
+          onClose={() => setDetailNote(null)}
+          onLike={(e)     => toggleLike(detailNote._id, e)}
+          onSave={(e)     => toggleSave(detailNote._id, e)}
+          onDownload={(e) => downloadNote(detailNote._id, e)}
+          onComment={(e)  => { setDetailNote(null); openComments(detailNote, e); }}
+          onViewProfile={(e) => { setDetailNote(null); goToProfile(detailNote.user?._id, e); }}
+          isDownloading={downloading === detailNote._id}
+        />
+      )}
+
+      {/* ── Comments Modal ── */}
       {commentsNote && (
         <CommentsModal
           note={commentsNote} comments={comments} loading={loadingComments}
@@ -401,6 +504,7 @@ export default function CommunityPage() {
         />
       )}
 
+      {/* ── Share Modal ── */}
       {shareModalOpen && (
         <ShareModal
           myNotes={myNotes} loading={loadingMyNotes}
@@ -413,29 +517,19 @@ export default function CommunityPage() {
   );
 }
 
-function NoteCard({ note, rank, animDelay, onLike, onSave, onDownload, onComment, isDownloading, onUserClick }) {
+/* ─────────────── NoteCard ─────────────── */
+function NoteCard({ note, rank, animDelay, onCardClick, onLike, onSave, onDownload, onComment, onUserClick, isDownloading }) {
   return (
-    <div className="cm-card" style={{ animationDelay: `${animDelay}s` }}>
+    <div className="cm-card" style={{ animationDelay: `${animDelay}s` }} onClick={onCardClick}>
       {rank && rank <= 3 && (
         <div className="cm-card-rank">{rank === 1 ? "🥇 #1" : rank === 2 ? "🥈 #2" : "🥉 #3"}</div>
       )}
       <div className="cm-card-header">
-        <div className="cm-avatar">{(note.user?.name || "U")[0].toUpperCase()}</div>
-        <div>
-          <button
-            onClick={() => onUserClick && note.user?._id && onUserClick(note.user._id)}
-            style={{
-              background: "none", border: "none", padding: 0, cursor: note.user?._id ? "pointer" : "default",
-              textAlign: "left", display: "block",
-            }}
-            title={note.user?._id ? `View ${note.user?.name || "Scholar"}'s profile` : ""}
-          >
-            <div className="cm-author-name" style={{ transition: "color 0.2s", ...(note.user?._id ? {} : {}) }}
-              onMouseEnter={e => { if (note.user?._id) e.target.style.color = "#ff5734"; }}
-              onMouseLeave={e => { e.target.style.color = ""; }}
-            >
-              {note.user?.name || "Scholar"}
-            </div>
+        <Avatar user={note.user} />
+        <div style={{ minWidth: 0 }}>
+          {/* Clickable author name */}
+          <button className="cm-author-btn" onClick={onUserClick} title={`View ${note.user?.name || "Scholar"}'s profile`}>
+            <div className="cm-author-name">{note.user?.name || "Scholar"}</div>
           </button>
           <div className="cm-date">{formatDate(note.createdAt)}</div>
         </div>
@@ -444,11 +538,11 @@ function NoteCard({ note, rank, animDelay, onLike, onSave, onDownload, onComment
         <div className="cm-card-subject"><BookOpen size={10} /> {note.subject}</div>
       )}
       <div className="cm-card-title">{note.title || "Untitled Note"}</div>
-      <div className="cm-card-preview">{note.plainText || "Open this note to explore the full content…"}</div>
+      <div className="cm-card-preview">{note.plainText || "Click to read this note…"}</div>
       <div className="cm-card-footer">
         <div style={{ display: "flex", gap: 6 }}>
           <button className={`cm-act-btn ${note.liked ? "liked" : ""}`} onClick={onLike} title="Like">
-            <Heart size={14} fill={note.liked ? "#ff5734" : "none"} style={note.liked ? { animation: "pulse 0.3s ease" } : {}} />
+            <Heart size={14} fill={note.liked ? "#ff5734" : "none"} />
             {note.likesCount || 0}
           </button>
           <button className="cm-act-btn" onClick={onComment} title="Comments">
@@ -468,6 +562,100 @@ function NoteCard({ note, rank, animDelay, onLike, onSave, onDownload, onComment
   );
 }
 
+/* ─────────────── Note Detail Modal ─────────────── */
+function NoteDetailModal({ note, onClose, onLike, onSave, onDownload, onComment, onViewProfile, isDownloading }) {
+  const [showPopup, setShowPopup] = useState(false);
+  const popupRef = useRef(null);
+
+  // Close popup on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) setShowPopup(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div className="nd-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="nd-sheet">
+        {/* Header */}
+        <div className="nd-header">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            {note.subject && (
+              <div className="cm-card-subject"><BookOpen size={10} /> {note.subject}</div>
+            )}
+            <button className="modal-close" onClick={onClose} style={{ marginLeft: "auto" }}><X size={16} /></button>
+          </div>
+
+          {/* Author row with profile popup */}
+          <div className="nd-author-row" ref={popupRef}>
+            <Avatar user={note.user} size={44} radius={13} fontSize={18} />
+            <div className="nd-author-info">
+              <button
+                className="nd-author-btn"
+                onClick={() => setShowPopup(v => !v)}
+                title="Click to see profile options"
+              >
+                {note.user?.name || "Scholar"}
+                <ChevronRight size={13} style={{ opacity: 0.5, transform: showPopup ? "rotate(90deg)" : "none", transition: "transform 0.2s" }} />
+              </button>
+              <div className="nd-author-date">{formatDate(note.createdAt)}</div>
+            </div>
+
+            {/* Profile popup */}
+            {showPopup && (
+              <div className="nd-profile-popup">
+                <div className="nd-popup-avatar">
+                  <Avatar user={note.user} size={48} radius={14} fontSize={20} />
+                </div>
+                <div className="nd-popup-name">{note.user?.name || "Scholar"}</div>
+                <div className="nd-popup-sub">Community Member</div>
+                <button
+                  className="nd-view-profile-btn"
+                  onClick={(e) => { setShowPopup(false); onViewProfile(e); }}
+                >
+                  <UserCircle2 size={14} /> View Profile <ExternalLink size={12} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div style={{ fontSize: 20, fontWeight: 800, fontFamily: "'Syne',sans-serif", color: "var(--text)", lineHeight: 1.3, marginBottom: 16 }}>
+            {note.title || "Untitled Note"}
+          </div>
+        </div>
+
+        {/* Body — full content */}
+        <div className="nd-body">
+          <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
+            {note.plainText || "No content available for this note."}
+          </p>
+        </div>
+
+        {/* Footer actions */}
+        <div className="nd-footer">
+          <button className={`cm-act-btn ${note.liked ? "liked" : ""}`} onClick={onLike} style={{ flex: 1 }}>
+            <Heart size={14} fill={note.liked ? "#ff5734" : "none"} /> {note.liked ? "Liked" : "Like"} · {note.likesCount || 0}
+          </button>
+          <button className="cm-act-btn" onClick={onComment} style={{ flex: 1 }}>
+            <MessageCircle size={14} /> Comments · {note.commentsCount || 0}
+          </button>
+          <button className={`cm-act-btn ${note.saved ? "saved" : ""}`} onClick={onSave} style={{ flex: 1 }}>
+            <Bookmark size={14} fill={note.saved ? "#ff5734" : "none"} /> {note.saved ? "Saved" : "Save"}
+          </button>
+          <button className="cm-act-btn dl" onClick={onDownload} disabled={isDownloading} style={{ flex: 1 }}>
+            {isDownloading
+              ? <div className="pg-spinner" style={{ width: 13, height: 13, borderWidth: 2, borderTopColor: "#fff" }} />
+              : <><Download size={13} /> Download</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── CommentsModal (unchanged) ─────────────── */
 function CommentsModal({ note, comments, loading, commentText, setCommentText, onSubmit, sending, onClose, inputRef }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -475,8 +663,8 @@ function CommentsModal({ note, comments, loading, commentText, setCommentText, o
         <div className="modal-handle" />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 800, fontFamily: "'Syne',sans-serif", color: "#f0ece4" }}>Comments</div>
-            <div style={{ fontSize: 12, color: "#6b6565", marginTop: 2 }}>{note.title}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, fontFamily: "'Syne',sans-serif", color: "var(--text)" }}>Comments</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{note.title}</div>
           </div>
           <button className="modal-close" onClick={onClose}><X size={16} /></button>
         </div>
@@ -484,7 +672,7 @@ function CommentsModal({ note, comments, loading, commentText, setCommentText, o
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: 40 }}><div className="pg-spinner" /></div>
           ) : comments.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "40px 0", color: "#3d3939" }}>
+            <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-muted)" }}>
               <MessageCircle size={32} style={{ marginBottom: 10, opacity: 0.4 }} />
               <p style={{ fontSize: 13 }}>No comments yet — be the first!</p>
             </div>
@@ -515,6 +703,7 @@ function CommentsModal({ note, comments, loading, commentText, setCommentText, o
   );
 }
 
+/* ─────────────── ShareModal (unchanged) ─────────────── */
 function ShareModal({ myNotes, loading, selected, onToggle, onSubmit, sharing, onClose }) {
   return (
     <div className="share-modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -523,7 +712,7 @@ function ShareModal({ myNotes, loading, selected, onToggle, onSubmit, sharing, o
           <div className="share-modal-title">Share to Community</div>
           <button className="modal-close" onClick={onClose}><X size={16} /></button>
         </div>
-        <p style={{ fontSize: 13, color: "#6b6565", lineHeight: 1.6 }}>
+        <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
           Select notes from your collection to make them public and visible in the community feed.
         </p>
         <div className="share-lbl">Your Private Notes {selected.length > 0 && `· ${selected.length} selected`}</div>
@@ -531,7 +720,7 @@ function ShareModal({ myNotes, loading, selected, onToggle, onSubmit, sharing, o
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: 30 }}><div className="pg-spinner" /></div>
           ) : myNotes.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 30, color: "#3d3939", fontSize: 13 }}>
+            <div style={{ textAlign: "center", padding: 30, color: "var(--text-muted)", fontSize: 13 }}>
               All your notes are already public, or you have no notes yet.
             </div>
           ) : (
@@ -542,7 +731,7 @@ function ShareModal({ myNotes, loading, selected, onToggle, onSubmit, sharing, o
                   {n.subject && <div className="note-pick-sub">{n.subject}</div>}
                 </div>
                 <div style={{ color: "#ff5734", flexShrink: 0 }}>
-                  {selected.includes(n._id) ? <CheckSquare size={18} /> : <Square size={18} color="#3d3939" />}
+                  {selected.includes(n._id) ? <CheckSquare size={18} /> : <Square size={18} color="var(--text-muted)" />}
                 </div>
               </div>
             ))
