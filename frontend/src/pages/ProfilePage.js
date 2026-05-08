@@ -63,20 +63,22 @@ export default function ProfilePage() {
 
   const handleImageUpload = async (file, localUrl) => {
     setUploadingImage(true);
+    setPreviewUrl(localUrl); // optimistic preview
     try {
       const formData = new FormData();
       formData.append("profilePic", file);
-      const { data } = await API.put("/auth/profile-picture", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      // Content-Type header SET MAT KARO manually — browser khud boundary set karta hai
+      // Agar manually set kiya toh multipart boundary missing hoti hai aur upload fail hota hai
+      const { data } = await API.put("/auth/profile-picture", formData);
       const url = data.avatarUrl || data.avatar;
       updateUser?.({ ...user, avatar: url });
       setProfilePic(url);
       setPreviewUrl(null);
       URL.revokeObjectURL(localUrl);
       toast.success("Profile photo updated!");
-    } catch {
-      toast.error("Upload failed. Please try again.");
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Upload failed. Please try again.";
+      toast.error(msg);
       setPreviewUrl(null);
       URL.revokeObjectURL(localUrl);
     } finally {

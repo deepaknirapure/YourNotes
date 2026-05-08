@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, Search, Star, Trash2, Menu, FilePlus, Globe, Lock, CheckCircle2, X } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { Plus, Search, Star, Trash2, Menu, FilePlus, Globe, Lock, CheckCircle2, X, ArrowLeft, FolderOpen } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import API from "../api/axios";
 import NoteEditor from "../components/NoteEditor";
@@ -112,8 +112,10 @@ export default function DashboardPage() {
   const [selectedNote, setSelectedNote] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [folderName, setFolderName] = useState(""); // folder ka naam dikhane ke liye
   // Hindi: isDark se current theme pata karo
   const { isDark } = useTheme();
+  const navigate = useNavigate();
 
   const activeFolderId = searchParams.get("folder");
 
@@ -121,8 +123,18 @@ export default function DashboardPage() {
     setLoading(true);
     try {
       const endpoint = activeFolderId ? `/notes?folder=${activeFolderId}` : "/notes";
-      const { data } = await API.get(endpoint);
-      setNotes(data || []);
+      const [notesRes, foldersRes] = await Promise.all([
+        API.get(endpoint),
+        activeFolderId ? API.get("/folders") : Promise.resolve(null),
+      ]);
+      setNotes(notesRes.data || []);
+      // Folder ka naam dhundho
+      if (activeFolderId && foldersRes) {
+        const folder = (foldersRes.data || []).find(f => f._id === activeFolderId);
+        setFolderName(folder?.name || "Folder");
+      } else {
+        setFolderName("");
+      }
     } catch { toast.error("Failed to load notes"); }
     finally { setLoading(false); }
   }, [activeFolderId]);
@@ -185,7 +197,20 @@ export default function DashboardPage() {
         <header className="db-topbar">
           <div className="db-topbar-left">
             <button className="db-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
-            <span className="page-label">{activeFolderId ? "Folder" : "My Notes"}</span>
+            {activeFolderId ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  onClick={() => navigate('/folders')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', padding: 4 }}
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <FolderOpen size={16} color="var(--accent)" />
+                <span className="page-label" style={{ color: 'var(--accent)' }}>{folderName || "Folder"}</span>
+              </div>
+            ) : (
+              <span className="page-label">My Notes</span>
+            )}
           </div>
 
           <div className="search-box">
@@ -213,7 +238,7 @@ export default function DashboardPage() {
           )}
 
           <div className="section-hd">
-            <h2 className="section-title">{activeFolderId ? "Folder Notes" : "All Notes"}</h2>
+            <h2 className="section-title">{activeFolderId ? `📁 ${folderName}` : "All Notes"}</h2>
             {!loading && <span className="count-pill">{filteredNotes.length}</span>}
           </div>
 
@@ -224,10 +249,14 @@ export default function DashboardPage() {
           ) : filteredNotes.length === 0 ? (
             <div className="db-empty">
               <FilePlus size={40} color="var(--border)" />
-              <h3 style={{ color: 'var(--text)', fontWeight: 800, fontSize: 16 }}>No notes yet</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Create your first note to get started.</p>
+              <h3 style={{ color: 'var(--text)', fontWeight: 800, fontSize: 16 }}>
+                {activeFolderId ? `"${folderName}" folder mein koi note nahi` : "No notes yet"}
+              </h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
+                {activeFolderId ? "Is folder mein pehla note banao" : "Create your first note to get started."}
+              </p>
               <button className="btn-new" onClick={createNote} style={{ marginTop: 4 }}>
-                <Plus size={16} /> Create Note
+                <Plus size={16} /> {activeFolderId ? `Add Note to ${folderName}` : "Create Note"}
               </button>
             </div>
           ) : (
