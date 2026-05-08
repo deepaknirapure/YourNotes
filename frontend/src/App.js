@@ -19,7 +19,6 @@ const CommunityPage       = lazy(() => import('./pages/CommunityPage'));
 const AskAIPage           = lazy(() => import('./pages/AskAIPage'));
 const HomePage            = lazy(() => import('./pages/Homepage'));
 const TrashPage           = lazy(() => import('./pages/Trashpage'));
-const StarredPage         = lazy(() => import('./pages/Starredpage'));
 const FoldersPage         = lazy(() => import('./pages/Folderspage'));
 const AdminPage           = lazy(() => import('./pages/AdminPage'));
 
