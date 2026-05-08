@@ -1,312 +1,151 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowRight, Mail, Lock, Loader2, Sparkles, ShieldCheck, BookOpen, Zap } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Loader2, Sparkles, ShieldCheck, Zap, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700;800;900&display=swap');
-
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes shimmer {
-    0%   { background-position: -200% center; }
-    100% { background-position:  200% center; }
-  }
-  @keyframes floatDot {
-    0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
-    50%       { transform: translateY(-12px) scale(1.1); opacity: 1; }
-  }
-  @keyframes borderPulse {
-    0%, 100% { opacity: 0.5; }
-    50%       { opacity: 1; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+  body { background: #151313; color: #f7f7f5; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
+
+  .login-root { display: flex; min-height: 100vh; min-height: 100dvh; overflow: hidden; background: #151313; }
+
+  /* ── LEFT PANEL ── */
+  .login-left {
+    flex: 1.1; background: linear-gradient(135deg, #1e1b1b 0%, #151313 100%);
+    border-right: 1px solid #2a2525; display: flex; flex-direction: column;
+    justify-content: space-between; padding: 56px; position: relative; overflow: hidden;
   }
 
-  body {
-    background: #0e0c0c;
-    color: #f0ebe4;
-    font-family: 'Geist', sans-serif;
-    margin: 0;
+  .bg-dots {
+    position: absolute; inset: 0; z-index: 0; opacity: 0.08;
+    background-image: radial-gradient(#be94f5 1px, transparent 1px);
+    background-size: 28px 28px;
   }
 
-  .lr-root {
-    display: flex;
-    min-height: 100dvh;
-    background: #0e0c0c;
-    position: relative;
-    overflow: hidden;
+  .accent-blob {
+    position: absolute; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,87,52,0.15) 0%, transparent 70%);
+    top: -80px; right: -80px; z-index: 0;
   }
 
-  /* ── Ambient bg ── */
-  .lr-ambient {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  .brand-logo {
+    font-size: 24px; font-weight: 900; letter-spacing: -0.5px;
+    position: relative; z-index: 1; display: flex; align-items: center; gap: 10px;
+    color: #f7f7f5;
   }
-  .lr-ambient-blob1 {
-    position: absolute; width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(255,87,52,0.07) 0%, transparent 65%);
-    top: -200px; left: -100px; border-radius: 50%;
-  }
-  .lr-ambient-blob2 {
-    position: absolute; width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(255,140,80,0.05) 0%, transparent 65%);
-    bottom: -100px; right: 30%; border-radius: 50%;
-  }
-  .lr-grid {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 40%, transparent 100%);
+  .brand-icon { background: #ff5734; padding: 7px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+
+  .left-content { position: relative; z-index: 1; max-width: 480px; margin-top: 48px; }
+
+  .accent-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255, 87, 52, 0.1); border: 1px solid rgba(255,87,52,0.3);
+    border-radius: 100px; padding: 7px 16px; font-size: 11px; font-weight: 800;
+    color: #ff5734; text-transform: uppercase; margin-bottom: 28px; letter-spacing: 1px;
   }
 
-  /* ── Left ── */
-  .lr-left {
-    flex: 1.15;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 52px 60px;
-    border-right: 1px solid rgba(255,255,255,0.06);
-    position: relative;
-    z-index: 1;
+  .left-title {
+    font-size: clamp(36px, 4vw, 52px); font-weight: 900; color: #f7f7f5; line-height: 1.05;
+    letter-spacing: -2px; margin-bottom: 20px;
+  }
+  .left-title .highlight { color: #ff5734; }
+
+  .features-stack { display: flex; flex-direction: column; gap: 24px; margin-top: 44px; }
+  .feat-item { display: flex; gap: 18px; align-items: flex-start; }
+  .feat-icon {
+    width: 42px; height: 42px; border-radius: 12px; background: #1e1b1b;
+    border: 1px solid #2a2525; display: flex; align-items: center;
+    justify-content: center; color: #be94f5; flex-shrink: 0;
+  }
+  .feat-text h4 { font-size: 15px; font-weight: 800; color: #f7f7f5; margin-bottom: 4px; }
+  .feat-text p { font-size: 13px; color: #8a7f7f; line-height: 1.55; font-weight: 500; }
+
+  .left-footer {
+    position: relative; z-index: 1; border-top: 1px solid #2a2525;
+    padding-top: 24px; display: flex; align-items: center; gap: 18px;
   }
 
-  /* Logo */
-  .lr-logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-  }
-  .lr-logo-mark {
-    width: 34px; height: 34px;
-    background: #ff5734;
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 0 1px rgba(255,87,52,0.4), 0 4px 16px rgba(255,87,52,0.3);
-    flex-shrink: 0;
-  }
-  .lr-logo-text {
-    font-family: 'Instrument Serif', serif;
-    font-size: 22px;
-    letter-spacing: -0.3px;
-    line-height: 1;
-    color: #f0ebe4;
-  }
-  .lr-logo-text span { color: #ff5734; }
-
-  /* Hero */
-  .lr-hero { max-width: 460px; }
-
-  .lr-badge {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: rgba(255,87,52,0.08);
-    border: 1px solid rgba(255,87,52,0.2);
-    border-radius: 100px;
-    padding: 5px 14px 5px 10px;
-    font-size: 11px; font-weight: 700;
-    color: #ff7a5c;
-    text-transform: uppercase; letter-spacing: 0.8px;
-    margin-bottom: 32px;
-  }
-  .lr-badge-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #ff5734;
-    animation: floatDot 2.4s ease-in-out infinite;
-    flex-shrink: 0;
+  /* ── RIGHT PANEL ── */
+  .login-right {
+    flex: 1; background: #151313; display: flex; flex-direction: column;
+    justify-content: center; padding: 56px 8%; position: relative;
+    min-height: 100vh;
   }
 
-  .lr-headline {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(40px, 4.2vw, 58px);
-    line-height: 1.08;
-    letter-spacing: -1px;
-    color: #f0ebe4;
-    margin-bottom: 20px;
-  }
-  .lr-headline em {
-    font-style: italic;
-    color: #ff5734;
-    background: linear-gradient(90deg, #ff5734, #ff8c52, #ff5734);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 4s linear infinite;
+  .form-container {
+    width: 100%; max-width: 400px; margin: 0 auto;
+    animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  .lr-sub {
-    font-size: 16px;
-    color: #7a706a;
-    line-height: 1.7;
-    font-weight: 500;
-    max-width: 360px;
+  .form-header { margin-bottom: 36px; }
+  .form-title { font-size: 34px; font-weight: 900; color: #f7f7f5; letter-spacing: -1.5px; margin-bottom: 10px; }
+  .form-subtitle { font-size: 15px; color: #8a7f7f; font-weight: 500; }
+
+  .input-group { margin-bottom: 20px; }
+  .input-label {
+    display: block; font-size: 11px; font-weight: 800; color: #8a7f7f;
+    text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 8px;
   }
 
-  /* Feature cards */
-  .lr-feats { display: flex; flex-direction: column; gap: 14px; margin-top: 44px; }
+  .input-wrapper { position: relative; }
+  .input-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #4a4040; transition: 0.25s; pointer-events: none; }
 
-  .lr-feat {
-    display: flex; align-items: flex-start; gap: 16px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 14px;
-    padding: 16px 18px;
-    transition: border-color 0.2s;
+  .form-input {
+    width: 100%; padding: 15px 15px 15px 46px; background: #1e1b1b;
+    border: 1.5px solid #2a2525; border-radius: 12px; font-size: 15px; font-weight: 600;
+    color: #f7f7f5; font-family: inherit; transition: 0.25s; outline: none;
   }
-  .lr-feat:hover { border-color: rgba(255,87,52,0.25); }
+  .form-input::placeholder { color: #4a4040; }
+  .form-input:focus { border-color: #ff5734; background: #1e1b1b; box-shadow: 0 0 0 3px rgba(255,87,52,0.12); }
 
-  .lr-feat-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: rgba(255,87,52,0.1);
-    display: flex; align-items: center; justify-content: center;
-    color: #ff7a5c; flex-shrink: 0;
+  .forgot-link {
+    display: block; text-align: right; font-size: 13px; font-weight: 700;
+    color: #be94f5; text-decoration: none; margin-top: -8px; margin-bottom: 28px;
+    transition: 0.2s;
   }
-  .lr-feat-title { font-size: 14px; font-weight: 700; color: #d4cdc6; margin-bottom: 3px; }
-  .lr-feat-desc  { font-size: 12px; color: #5a5050; line-height: 1.55; font-weight: 500; }
+  .forgot-link:hover { color: #ff5734; }
 
-  /* Footer */
-  .lr-footer {
-    display: flex; align-items: center; gap: 16px;
-    padding-top: 28px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+  .btn-submit {
+    width: 100%; padding: 16px; background: #ff5734; color: #fff;
+    border: none; border-radius: 12px; font-size: 15px; font-weight: 900;
+    cursor: pointer; transition: 0.25s; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    letter-spacing: 0.3px;
   }
-  .lr-footer-college { font-size: 13px; color: #4a4040; font-weight: 600; }
-  .lr-footer-yr {
-    font-size: 11px; color: #ff5734; font-weight: 700;
-    background: rgba(255,87,52,0.08);
-    border: 1px solid rgba(255,87,52,0.2);
-    border-radius: 4px; padding: 2px 8px;
-  }
+  .btn-submit:hover:not(:disabled) { background: #e64a2a; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,87,52,0.4); }
+  .btn-submit:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
-  /* ── Right ── */
-  .lr-right {
-    flex: 1;
-    display: flex; align-items: center; justify-content: center;
-    padding: 52px 7%;
-    position: relative; z-index: 1;
-  }
+  .divider { display: flex; align-items: center; gap: 14px; margin: 28px 0; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #2a2525; }
+  .divider span { font-size: 12px; color: #4a4040; font-weight: 700; }
 
-  .lr-form-wrap {
-    width: 100%; max-width: 400px;
-    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: 0.1s;
-  }
-
-  .lr-form-header { margin-bottom: 36px; }
-  .lr-form-title {
-    font-family: 'Instrument Serif', serif;
-    font-size: 38px; font-weight: 400;
-    color: #f0ebe4; letter-spacing: -0.5px;
-    line-height: 1.1; margin-bottom: 10px;
-  }
-  .lr-form-title strong { font-weight: 400; color: #ff5734; }
-  .lr-form-sub { font-size: 14px; color: #5a5050; font-weight: 500; line-height: 1.5; }
-
-  .lr-field { margin-bottom: 18px; }
-  .lr-label {
-    display: block;
-    font-size: 11px; font-weight: 700;
-    color: #4a4040;
-    text-transform: uppercase; letter-spacing: 1.1px;
-    margin-bottom: 8px;
-  }
-  .lr-input-wrap { position: relative; }
-  .lr-input-icon {
-    position: absolute; left: 14px; top: 50%;
-    transform: translateY(-50%); color: #3a3030;
-    pointer-events: none; transition: color 0.2s;
-  }
-  .lr-input {
-    width: 100%;
-    padding: 13px 14px 13px 44px;
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.08);
-    border-radius: 11px;
-    font-size: 14px; font-weight: 500;
-    color: #f0ebe4;
-    font-family: 'Geist', sans-serif;
-    outline: none;
-    transition: all 0.2s;
-  }
-  .lr-input::placeholder { color: #3a3030; }
-  .lr-input:focus {
-    border-color: #ff5734;
-    background: rgba(255,87,52,0.04);
-    box-shadow: 0 0 0 3px rgba(255,87,52,0.1);
-  }
-  .lr-input:focus ~ .lr-input-icon,
-  .lr-input-wrap:focus-within .lr-input-icon { color: #ff7a5c; }
-
-  .lr-forgot {
-    display: block; text-align: right;
-    font-size: 12px; font-weight: 700;
-    color: #4a4040; text-decoration: none;
-    margin-top: -6px; margin-bottom: 26px;
-    transition: color 0.2s;
-  }
-  .lr-forgot:hover { color: #ff7a5c; }
-
-  .lr-btn {
-    width: 100%; padding: 14px;
-    background: #ff5734; color: #fff;
-    border: none; border-radius: 11px;
-    font-family: 'Geist', sans-serif;
-    font-size: 14px; font-weight: 800;
-    cursor: pointer; transition: all 0.22s;
-    display: flex; align-items: center; justify-content: center; gap: 9px;
-    letter-spacing: 0.2px;
-    box-shadow: 0 4px 20px rgba(255,87,52,0.25);
-  }
-  .lr-btn:hover:not(:disabled) {
-    background: #e84a25;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(255,87,52,0.4);
-  }
-  .lr-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-  .lr-sep {
-    display: flex; align-items: center; gap: 12px;
-    margin: 26px 0;
-  }
-  .lr-sep::before, .lr-sep::after {
-    content: ''; flex: 1; height: 1px;
-    background: rgba(255,255,255,0.06);
-  }
-  .lr-sep span { font-size: 11px; color: #3a3030; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
-
-  .lr-register-prompt {
-    text-align: center;
-    font-size: 13px; color: #4a4040; font-weight: 600;
-  }
-  .lr-register-link {
-    color: #ff7a5c; font-weight: 800;
-    text-decoration: none; margin-left: 4px;
-  }
-  .lr-register-link:hover { text-decoration: underline; }
+  .register-prompt { text-align: center; font-size: 14px; color: #8a7f7f; font-weight: 600; }
+  .register-link { color: #ff5734; font-weight: 800; text-decoration: none; }
+  .register-link:hover { text-decoration: underline; }
 
   @media (max-width: 1024px) {
-    .lr-left { display: none; }
-    .lr-right { padding: 40px 24px; background: #0e0c0c; }
+    .login-left { display: none; }
+    .login-right { padding: 40px 28px; }
   }
+
   @media (max-width: 480px) {
-    .lr-right { padding: 32px 20px; }
-    .lr-form-title { font-size: 30px; }
+    .login-right { padding: 32px 20px; }
+    .form-title { font-size: 28px; }
   }
 `;
 
 export default function LoginPage() {
-  const [form, setForm]     = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const { login }   = useAuth();
-  const navigate    = useNavigate();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -319,125 +158,101 @@ export default function LoginPage() {
       navigate('/dashboard');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid credentials.');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const updateField = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
   return (
-    <div className="lr-root">
+    <div className="login-root">
       <style>{STYLES}</style>
 
-      {/* Ambient background */}
-      <div className="lr-ambient">
-        <div className="lr-ambient-blob1" />
-        <div className="lr-ambient-blob2" />
-        <div className="lr-grid" />
-      </div>
+      {/* LEFT PANEL */}
+      <div className="login-left">
+        <div className="bg-dots" />
+        <div className="accent-blob" />
 
-      {/* ── LEFT ── */}
-      <div className="lr-left">
-        <a href="/" className="lr-logo">
-          <div className="lr-logo-mark">
-            <BookOpen size={17} color="#fff" strokeWidth={2.5} />
-          </div>
-          <span className="lr-logo-text">Your<span>Notes</span></span>
-        </a>
+        <div className="brand-logo">
+          <div className="brand-icon"><BookOpen size={20} color="#fff" /></div>
+          Your<span style={{ color: '#ff5734' }}>Notes</span>
+        </div>
 
-        <div className="lr-hero">
-          <div className="lr-badge">
-            <div className="lr-badge-dot" />
-            Smart Note-Taking
-          </div>
-          <h1 className="lr-headline">
-            Think clearer.<br />
-            <em>Study smarter.</em>
-          </h1>
-          <p className="lr-sub">
-            Your notes, flashcards, and AI summaries — all in one minimal workspace built for students.
-          </p>
+        <div className="left-content">
+          <div className="accent-badge"><Zap size={12} fill="#ff5734" /> Smart Workspace</div>
+          <h2 className="left-title">
+            Capture ideas,<br />
+            <span className="highlight">build knowledge.</span>
+          </h2>
 
-          <div className="lr-feats">
-            <div className="lr-feat">
-              <div className="lr-feat-icon"><Sparkles size={18} /></div>
-              <div>
-                <div className="lr-feat-title">AI-Powered Summaries</div>
-                <div className="lr-feat-desc">Auto-generate study materials from any note in seconds.</div>
+          <div className="features-stack">
+            <div className="feat-item">
+              <div className="feat-icon"><Sparkles size={19} /></div>
+              <div className="feat-text">
+                <h4>AI-Powered Summaries</h4>
+                <p>Transform your notes into flashcards and insights instantly with AI.</p>
               </div>
             </div>
-            <div className="lr-feat">
-              <div className="lr-feat-icon"><ShieldCheck size={18} /></div>
-              <div>
-                <div className="lr-feat-title">Private & Secure</div>
-                <div className="lr-feat-desc">Your intellectual work stays yours, always encrypted.</div>
-              </div>
-            </div>
-            <div className="lr-feat">
-              <div className="lr-feat-icon"><Zap size={18} /></div>
-              <div>
-                <div className="lr-feat-title">Instant Flashcards</div>
-                <div className="lr-feat-desc">Turn any topic into a quiz-ready flashcard deck.</div>
+            <div className="feat-item">
+              <div className="feat-icon"><ShieldCheck size={19} /></div>
+              <div className="feat-text">
+                <h4>Private & Secure</h4>
+                <p>Your notes are encrypted and accessible only by you, always.</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="lr-footer">
-          <div className="lr-footer-college">S.V. Polytechnic College, Bhopal</div>
-          <span className="lr-footer-yr">2026</span>
+        <div className="left-footer">
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#4a4040', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 4 }}>Made at</div>
+            <div style={{ fontSize: 13, color: '#f7f7f5', fontWeight: 700 }}>S.V. Polytechnic College, Bhopal</div>
+          </div>
+          <div style={{ width: 1, height: 28, background: '#2a2525' }} />
+          <div style={{ fontSize: 13, color: '#8a7f7f', fontWeight: 600 }}>Est. 2026</div>
         </div>
       </div>
 
-      {/* ── RIGHT ── */}
-      <div className="lr-right">
-        <div className="lr-form-wrap">
-          <div className="lr-form-header">
-            <h2 className="lr-form-title">
-              Welcome<br /><strong>back.</strong>
-            </h2>
-            <p className="lr-form-sub">Sign in to access your notes &amp; workspace.</p>
+      {/* RIGHT PANEL */}
+      <div className="login-right">
+        <div className="form-container">
+          <div className="form-header">
+            <h2 className="form-title">Welcome back</h2>
+            <p className="form-subtitle">Sign in to access your notes & workspace.</p>
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="lr-field">
-              <label className="lr-label">Email Address</label>
-              <div className="lr-input-wrap">
-                <Mail size={16} className="lr-input-icon" />
-                <input
-                  type="email" placeholder="you@example.com"
-                  value={form.email} onChange={set('email')}
-                  className="lr-input" required
-                />
+            <div className="input-group">
+              <label className="input-label">Email Address</label>
+              <div className="input-wrapper">
+                <input type="email" placeholder="you@example.com" value={form.email} onChange={updateField('email')} className="form-input" required />
+                <Mail size={17} className="input-icon" />
               </div>
             </div>
 
-            <div className="lr-field">
-              <label className="lr-label">Password</label>
-              <div className="lr-input-wrap">
-                <Lock size={16} className="lr-input-icon" />
-                <input
-                  type="password" placeholder="••••••••"
-                  value={form.password} onChange={set('password')}
-                  className="lr-input" required
-                />
+            <div className="input-group">
+              <label className="input-label">Password</label>
+              <div className="input-wrapper">
+                <input type="password" placeholder="••••••••" value={form.password} onChange={updateField('password')} className="form-input" required />
+                <Lock size={17} className="input-icon" />
               </div>
             </div>
 
-            <Link to="/forgot-password" className="lr-forgot">Forgot password?</Link>
+            <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
 
-            <button type="submit" disabled={loading} className="lr-btn">
+            <button type="submit" disabled={loading} className="btn-submit">
               {loading
-                ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                : <>Sign In <ArrowRight size={17} strokeWidth={2.5} /></>
+                ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
+                : <>Sign In <ArrowRight size={18} strokeWidth={2.5} /></>
               }
             </button>
           </form>
 
-          <div className="lr-sep"><span>or</span></div>
+          <div className="divider"><span>New here?</span></div>
 
-          <p className="lr-register-prompt">
-            New here?
-            <Link to="/register" className="lr-register-link">Create a free account</Link>
+          <p className="register-prompt">
+            Don't have an account? <Link to="/register" className="register-link">Create one free</Link>
           </p>
         </div>
       </div>
