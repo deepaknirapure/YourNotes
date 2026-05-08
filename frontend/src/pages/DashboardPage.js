@@ -354,7 +354,7 @@ export default function DashboardPage() {
           {/* Tags dropdown — hamesha dikhega */}
           <div style={{position:'relative'}} ref={tagRef}>
             <button className={`filter-chip${activeTag?' tag-active':''}`} onClick={()=>setShowTagMenu(p=>!p)}>
-              <Tag size={11}/> {activeTag ? `#${activeTag}` : 'Tags'} <ChevronDown size={11}/>
+              <Tag size={11}/> {activeTag ? (activeTag.startsWith('#') ? activeTag : `#${activeTag}`) : 'Tags'} <ChevronDown size={11}/>
             </button>
             {showTagMenu && (
               <div className="tag-drop">
@@ -364,7 +364,7 @@ export default function DashboardPage() {
                   <>
                     <div className="tag-drop-item" onClick={()=>{setActiveTag('');setShowTagMenu(false);}}>🏷️ All Notes</div>
                     {allTags.map(t=>(
-                      <div key={t} className={`tag-drop-item${activeTag===t?' a':''}`} onClick={()=>{setActiveTag(t);setShowTagMenu(false);}}>#{t}</div>
+                      <div key={t} className={`tag-drop-item${activeTag===t?' a':''}`} onClick={()=>{setActiveTag(t);setShowTagMenu(false);}}>{t.startsWith('#') ? t : `#${t}`}</div>
                     ))}
                   </>
                 )}
@@ -461,7 +461,7 @@ function NoteCard({ note, i, selectedIds, setSelectedIds, onOpen, toggleStar, to
       <h3 className="note-title">{note.title||'Untitled Note'}</h3>
       {note.tags?.length>0 && (
         <div className="note-tags">
-          {note.tags.slice(0,3).map(t=><span key={t} className="note-tag">#{t}</span>)}
+          {note.tags.slice(0,3).map(t=><span key={t} className="note-tag">{t.startsWith('#') ? t : `#${t}`}</span>)}
           {note.tags.length>3 && <span className="note-tag">+{note.tags.length-3}</span>}
         </div>
       )}

@@ -368,7 +368,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
             <div className="tag-container">
               {tags.map(t => (
                 <span key={t} className="tag-badge">
-                  #{t}
+                  {t.startsWith('#') ? t : `#${t}`}
                   <X size={11} onClick={() => setTags(tags.filter(x => x !== t))} />
                 </span>
               ))}
@@ -382,8 +382,9 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
                   onKeyDown={e => {
                     if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
                       e.preventDefault();
-                      const newTag = tagInput.trim().toLowerCase();
-                      if (!tags.includes(newTag)) {
+                      // # remove karo agar user ne type kiya ho
+                      const newTag = tagInput.trim().toLowerCase().replace(/^#+/, '');
+                      if (newTag && !tags.includes(newTag)) {
                         setTags([...tags, newTag]);
                       }
                       setTagInput('');
