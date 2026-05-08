@@ -66,15 +66,15 @@ const STYLES = `
 
   .cm-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 
-  /* Avatar — real image support */
+  /* Avatar — ROUND (50%) everywhere */
   .cm-avatar {
-    width: 40px; height: 40px; border-radius: 12px;
+    border-radius: 50% !important;
     background: linear-gradient(135deg, #ff5734, #ff8c74);
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0;
+    font-weight: 800; color: #fff; flex-shrink: 0;
     font-family: 'Syne', sans-serif; overflow: hidden; position: relative;
   }
-  .cm-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+  .cm-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; }
 
   .cm-author-btn { background: none; border: none; padding: 0; cursor: pointer; text-align: left; }
   .cm-author-name { font-size: 14px; font-weight: 700; color: var(--text); transition: color 0.2s; }
@@ -109,7 +109,6 @@ const STYLES = `
   .nd-body::-webkit-scrollbar { display: none; }
   .nd-footer  { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
 
-  /* Author row inside note detail */
   .nd-author-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; position: relative; }
   .nd-author-info { flex: 1; min-width: 0; }
   .nd-author-btn  {
@@ -120,21 +119,22 @@ const STYLES = `
   .nd-author-btn:hover { color: #ff5734; }
   .nd-author-date { font-size: 11px; color: var(--text-light); margin-top: 2px; }
 
-  /* Profile popup on hover/click */
+  /* Profile popup */
   .nd-profile-popup {
     position: absolute; top: 52px; left: 0; z-index: 10;
     background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
     padding: 16px; min-width: 220px; box-shadow: 0 20px 60px rgba(0,0,0,0.35);
     animation: fadeUp 0.2s both;
   }
+  /* Popup avatar — also round */
   .nd-popup-avatar {
-    width: 48px; height: 48px; border-radius: 14px;
+    width: 48px; height: 48px; border-radius: 50% !important;
     background: linear-gradient(135deg,#ff5734,#ff8c74);
     display: flex; align-items: center; justify-content: center;
     font-size: 20px; font-weight: 800; color: #fff;
     font-family:'Syne',sans-serif; overflow: hidden; margin-bottom: 10px;
   }
-  .nd-popup-avatar img { width:100%; height:100%; object-fit:cover; border-radius:14px; }
+  .nd-popup-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50% !important; }
   .nd-popup-name   { font-size: 15px; font-weight: 800; color: var(--text); font-family:'Syne',sans-serif; }
   .nd-popup-sub    { font-size: 11px; color: var(--text-muted); margin-top: 2px; margin-bottom: 12px; }
   .nd-view-profile-btn {
@@ -145,7 +145,7 @@ const STYLES = `
   }
   .nd-view-profile-btn:hover { background: #e84826; }
 
-  /* Comments modal (unchanged) */
+  /* Comments modal */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s both; backdrop-filter: blur(4px); }
   .modal-sheet   { width: 100%; max-width: 600px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 28px; max-height: 70vh; display: flex; flex-direction: column; animation: slideUp 0.3s both; border: 1px solid var(--border); border-bottom: none; }
   .modal-handle  { width: 40px; height: 4px; background: var(--border); border-radius: 4px; margin: 0 auto 20px; }
@@ -204,12 +204,16 @@ const TABS = [
   { key: "all",     label: "All Notes",  icon: Globe      },
 ];
 
-function Avatar({ user, size = 40, radius = 12, fontSize = 16 }) {
+/* Avatar — always circular */
+function Avatar({ user, size = 40, fontSize = 16 }) {
   const [imgErr, setImgErr] = useState(false);
   const isDefault = !user?.avatar || user.avatar.includes("flaticon");
   const letter = (user?.name || "U")[0].toUpperCase();
   return (
-    <div className="cm-avatar" style={{ width: size, height: size, borderRadius: radius, fontSize }}>
+    <div
+      className="cm-avatar"
+      style={{ width: size, height: size, fontSize }}
+    >
       {!isDefault && !imgErr
         ? <img src={user.avatar} alt={user?.name} onError={() => setImgErr(true)} />
         : letter}
@@ -238,7 +242,7 @@ export default function CommunityPage() {
   const [selectedNotes,   setSelectedNotes]   = useState([]);
   const [loadingMyNotes,  setLoadingMyNotes]  = useState(false);
   const [sharing,         setSharing]         = useState(false);
-  const [detailNote,      setDetailNote]      = useState(null); // note detail modal
+  const [detailNote,      setDetailNote]      = useState(null);
   const commentInputRef = useRef(null);
 
   useEffect(() => {
@@ -399,10 +403,10 @@ export default function CommunityPage() {
           {/* Stats */}
           <div className="cm-stats-bar">
             {[
-              { icon: <FileText size={16} color="#ff5734" />, val: notes.length,         lbl: "Public Notes" },
-              { icon: <Heart    size={16} color="#ff5734" />, val: totalLikes,            lbl: "Total Likes"  },
-              { icon: <Download size={16} color="#ff5734" />, val: totalDownloads,        lbl: "Downloads"    },
-              { icon: <BookOpen size={16} color="#ff5734" />, val: allSubjects.length - 1, lbl: "Subjects"   },
+              { icon: <FileText size={16} color="#ff5734" />, val: notes.length,          lbl: "Public Notes" },
+              { icon: <Heart    size={16} color="#ff5734" />, val: totalLikes,             lbl: "Total Likes"  },
+              { icon: <Download size={16} color="#ff5734" />, val: totalDownloads,         lbl: "Downloads"    },
+              { icon: <BookOpen size={16} color="#ff5734" />, val: allSubjects.length - 1, lbl: "Subjects"     },
             ].map(({ icon, val, lbl }) => (
               <div className="cm-stat-chip" key={lbl}>
                 <div className="sc-icon">{icon}</div>
@@ -462,11 +466,11 @@ export default function CommunityPage() {
                         rank={activeTab === "popular" ? i + 1 : null}
                         animDelay={i * 0.04}
                         onCardClick={() => setDetailNote(note)}
-                        onLike={(e)    => toggleLike(note._id, e)}
-                        onSave={(e)    => toggleSave(note._id, e)}
-                        onDownload={(e)=> downloadNote(note._id, e)}
-                        onComment={(e) => openComments(note, e)}
-                        onUserClick={(e) => goToProfile(note.user?._id, e)}
+                        onLike={(e)     => toggleLike(note._id, e)}
+                        onSave={(e)     => toggleSave(note._id, e)}
+                        onDownload={(e) => downloadNote(note._id, e)}
+                        onComment={(e)  => openComments(note, e)}
+                        onUserClick={(e)=> goToProfile(note.user?._id, e)}
                         isDownloading={downloading === note._id}
                       />
                     ))}
@@ -480,21 +484,19 @@ export default function CommunityPage() {
 
       <MobileNav />
 
-      {/* ── Note Detail Modal ── */}
       {detailNote && (
         <NoteDetailModal
           note={detailNote}
           onClose={() => setDetailNote(null)}
-          onLike={(e)     => toggleLike(detailNote._id, e)}
-          onSave={(e)     => toggleSave(detailNote._id, e)}
-          onDownload={(e) => downloadNote(detailNote._id, e)}
-          onComment={(e)  => { setDetailNote(null); openComments(detailNote, e); }}
+          onLike={(e)        => toggleLike(detailNote._id, e)}
+          onSave={(e)        => toggleSave(detailNote._id, e)}
+          onDownload={(e)    => downloadNote(detailNote._id, e)}
+          onComment={(e)     => { setDetailNote(null); openComments(detailNote, e); }}
           onViewProfile={(e) => { setDetailNote(null); goToProfile(detailNote.user?._id, e); }}
           isDownloading={downloading === detailNote._id}
         />
       )}
 
-      {/* ── Comments Modal ── */}
       {commentsNote && (
         <CommentsModal
           note={commentsNote} comments={comments} loading={loadingComments}
@@ -504,7 +506,6 @@ export default function CommunityPage() {
         />
       )}
 
-      {/* ── Share Modal ── */}
       {shareModalOpen && (
         <ShareModal
           myNotes={myNotes} loading={loadingMyNotes}
@@ -525,9 +526,8 @@ function NoteCard({ note, rank, animDelay, onCardClick, onLike, onSave, onDownlo
         <div className="cm-card-rank">{rank === 1 ? "🥇 #1" : rank === 2 ? "🥈 #2" : "🥉 #3"}</div>
       )}
       <div className="cm-card-header">
-        <Avatar user={note.user} />
+        <Avatar user={note.user} size={40} fontSize={16} />
         <div style={{ minWidth: 0 }}>
-          {/* Clickable author name */}
           <button className="cm-author-btn" onClick={onUserClick} title={`View ${note.user?.name || "Scholar"}'s profile`}>
             <div className="cm-author-name">{note.user?.name || "Scholar"}</div>
           </button>
@@ -567,7 +567,6 @@ function NoteDetailModal({ note, onClose, onLike, onSave, onDownload, onComment,
   const [showPopup, setShowPopup] = useState(false);
   const popupRef = useRef(null);
 
-  // Close popup on outside click
   useEffect(() => {
     const handler = (e) => {
       if (popupRef.current && !popupRef.current.contains(e.target)) setShowPopup(false);
@@ -579,7 +578,6 @@ function NoteDetailModal({ note, onClose, onLike, onSave, onDownload, onComment,
   return (
     <div className="nd-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="nd-sheet">
-        {/* Header */}
         <div className="nd-header">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             {note.subject && (
@@ -588,9 +586,8 @@ function NoteDetailModal({ note, onClose, onLike, onSave, onDownload, onComment,
             <button className="modal-close" onClick={onClose} style={{ marginLeft: "auto" }}><X size={16} /></button>
           </div>
 
-          {/* Author row with profile popup */}
           <div className="nd-author-row" ref={popupRef}>
-            <Avatar user={note.user} size={44} radius={50} fontSize={18} />
+            <Avatar user={note.user} size={44} fontSize={18} />
             <div className="nd-author-info">
               <button
                 className="nd-author-btn"
@@ -603,11 +600,17 @@ function NoteDetailModal({ note, onClose, onLike, onSave, onDownload, onComment,
               <div className="nd-author-date">{formatDate(note.createdAt)}</div>
             </div>
 
-            {/* Profile popup */}
             {showPopup && (
               <div className="nd-profile-popup">
+                {/* Popup avatar — round via CSS */}
                 <div className="nd-popup-avatar">
-                  <Avatar user={note.user} size={48} radius={14} fontSize={20} />
+                  {(() => {
+                    const isDefault = !note.user?.avatar || note.user.avatar.includes("flaticon");
+                    const letter = (note.user?.name || "U")[0].toUpperCase();
+                    return isDefault
+                      ? letter
+                      : <img src={note.user.avatar} alt={note.user?.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />;
+                  })()}
                 </div>
                 <div className="nd-popup-name">{note.user?.name || "Scholar"}</div>
                 <div className="nd-popup-sub">Community Member</div>
@@ -626,14 +629,12 @@ function NoteDetailModal({ note, onClose, onLike, onSave, onDownload, onComment,
           </div>
         </div>
 
-        {/* Body — full content */}
         <div className="nd-body">
           <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
             {note.plainText || "No content available for this note."}
           </p>
         </div>
 
-        {/* Footer actions */}
         <div className="nd-footer">
           <button className={`cm-act-btn ${note.liked ? "liked" : ""}`} onClick={onLike} style={{ flex: 1 }}>
             <Heart size={14} fill={note.liked ? "#ff5734" : "none"} /> {note.liked ? "Liked" : "Like"} · {note.likesCount || 0}
@@ -655,7 +656,7 @@ function NoteDetailModal({ note, onClose, onLike, onSave, onDownload, onComment,
   );
 }
 
-/* ─────────────── CommentsModal (unchanged) ─────────────── */
+/* ─────────────── CommentsModal ─────────────── */
 function CommentsModal({ note, comments, loading, commentText, setCommentText, onSubmit, sending, onClose, inputRef }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -703,7 +704,7 @@ function CommentsModal({ note, comments, loading, commentText, setCommentText, o
   );
 }
 
-/* ─────────────── ShareModal (unchanged) ─────────────── */
+/* ─────────────── ShareModal ─────────────── */
 function ShareModal({ myNotes, loading, selected, onToggle, onSubmit, sharing, onClose }) {
   return (
     <div className="share-modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
