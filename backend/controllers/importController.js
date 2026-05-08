@@ -4,7 +4,20 @@ const Note = require('../models/Note');
 let pdfParse = null;
 let mammoth  = null;
 
-try { pdfParse = require('pdf-parse'); } catch (e) { console.warn('pdf-parse not available:', e.message); }
+try {
+  const pdfParseModule = require('pdf-parse');
+  // pdf-parse v2.x exports { PDFParse, ... } (object), v1.x exports a function directly
+  if (typeof pdfParseModule === 'function') {
+    pdfParse = pdfParseModule;
+  } else if (pdfParseModule && typeof pdfParseModule.PDFParse === 'function') {
+    // v2.x: wrap PDFParse class into a function compatible with v1 API
+    const PDFParse = pdfParseModule.PDFParse;
+    pdfParse = async (buffer, options) => {
+      const parser = new PDFParse();
+      return parser.parse(buffer, options);
+    };
+  }
+} catch (e) { console.warn('pdf-parse not available:', e.message); }
 try { mammoth  = require('mammoth');   } catch (e) { console.warn('mammoth not available:', e.message); }
 
 /**
