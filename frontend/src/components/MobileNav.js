@@ -7,7 +7,7 @@ const BOTTOM_NAV = [
   { icon: Bot,      label: 'AI',        path: '/ask-ai' },
   { icon: Users,    label: 'Community', path: '/community' },
   { icon: Folder,   label: 'Folders',   path: '/folders' },
-  { icon: Star,     label: 'Starred',   path: '/starred' },
+
 ];
 
 // Hindi: Mobile bottom navigation — CSS variables se theme automatic switch hogi

@@ -9,9 +9,7 @@ import { useTheme } from '../context/ThemeContext';
 const NAV_ITEMS = [
   { icon: Home,       label: 'Home',       path: '/home' },
   { icon: BookOpen,   label: 'Notes',      path: '/dashboard' },
-  { icon: Star,       label: 'Starred',    path: '/starred' },
   { icon: Folder,     label: 'Folders',    path: '/folders' },
-  { icon: Tag,        label: 'Tags',       path: '/tags' },
   { icon: Bot,        label: 'Ask AI',     path: '/ask-ai' },
   { icon: Users,      label: 'Community',  path: '/community' },
   { icon: Trash2,     label: 'Trash',      path: '/trash' },
