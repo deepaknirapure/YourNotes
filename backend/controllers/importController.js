@@ -1,5 +1,12 @@
 const Note = require('../models/Note');
 
+// Top-level require — production mein runtime error avoid karo
+let pdfParse = null;
+let mammoth  = null;
+
+try { pdfParse = require('pdf-parse'); } catch (e) { console.warn('pdf-parse not available:', e.message); }
+try { mammoth  = require('mammoth');   } catch (e) { console.warn('mammoth not available:', e.message); }
+
 /**
  * POST /api/import
  * File se note import karo — TXT, MD, PDF, DOCX support
@@ -13,85 +20,126 @@ exports.importNote = async (req, res) => {
     const { originalname, mimetype, buffer } = req.file;
 
     // File name se title banao (extension hataao)
-    const title = originalname.replace(/\.(txt|md|pdf|docx|doc)$/i, '').trim() || 'Imported Note';
+    const rawTitle = originalname.replace(/\.(txt|md|pdf|docx|doc)$/i, '').trim();
+    const title    = rawTitle || 'Imported Note';
 
     let plainText = '';
     let content   = '';
 
-    // ── TXT / MD — seedha read karo ──
-    if (
-      mimetype === 'text/plain' ||
-      mimetype === 'text/markdown' ||
-      originalname.match(/\.(txt|md)$/i)
-    ) {
+    const isTxt  = mimetype === 'text/plain'
+                || mimetype === 'text/markdown'
+                || /\.(txt|md)$/i.test(originalname);
+    const isPdf  = mimetype === 'application/pdf'
+                || /\.pdf$/i.test(originalname);
+    const isDocx = mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                || mimetype === 'application/msword'
+                || /\.docx?$/i.test(originalname);
+
+    // ── TXT / MD ──────────────────────────────────────────
+    if (isTxt) {
       plainText = buffer.toString('utf-8');
-      // Plain text ko basic HTML mein convert karo (line breaks preserve karo)
-      content = plainText
+      content   = plainText
         .split('\n')
         .map(line => {
-          const trimmed = line.trim();
-          if (!trimmed) return '<p><br></p>';
-          // Markdown headings ko bold text banao (basic support)
-          if (trimmed.startsWith('### ')) return `<p><strong>${trimmed.slice(4)}</strong></p>`;
-          if (trimmed.startsWith('## '))  return `<p><strong>${trimmed.slice(3)}</strong></p>`;
-          if (trimmed.startsWith('# '))   return `<p><strong>${trimmed.slice(2)}</strong></p>`;
-          return `<p>${trimmed}</p>`;
+          const t = line.trim();
+          if (!t) return '<p><br></p>';
+          if (t.startsWith('### ')) return `<h3>${escHtml(t.slice(4))}</h3>`;
+          if (t.startsWith('## '))  return `<h2>${escHtml(t.slice(3))}</h2>`;
+          if (t.startsWith('# '))   return `<h1>${escHtml(t.slice(2))}</h1>`;
+          if (t.startsWith('**') && t.endsWith('**'))
+            return `<p><strong>${escHtml(t.slice(2, -2))}</strong></p>`;
+          if (t.startsWith('- ') || t.startsWith('* '))
+            return `<li>${escHtml(t.slice(2))}</li>`;
+          return `<p>${escHtml(t)}</p>`;
         })
         .join('');
     }
 
-    // ── PDF — text extract karo ──
-    else if (mimetype === 'application/pdf' || originalname.match(/\.pdf$/i)) {
+    // ── PDF ───────────────────────────────────────────────
+    else if (isPdf) {
+      if (!pdfParse) {
+        return res.status(500).json({
+          message: 'PDF parsing not available. Run: npm install pdf-parse in backend.',
+        });
+      }
+
+      let parsed;
       try {
-        // pdf-parse try karo — agar installed hai toh
-        const pdfParse = require('pdf-parse');
-        const parsed   = await pdfParse(buffer);
-        plainText = parsed.text || '';
-        content = plainText
-          .split('\n')
-          .map(l => l.trim() ? `<p>${l.trim()}</p>` : '<p><br></p>')
-          .join('');
+        parsed = await pdfParse(buffer, { max: 0 });
       } catch (pdfErr) {
-        // pdf-parse nahi mila — basic fallback
-        plainText = `[PDF imported: ${originalname}]\n\nPDF content extraction requires pdf-parse package.\nInstall it with: npm install pdf-parse`;
-        content = `<p>[PDF imported: ${originalname}]</p><p>PDF content extraction requires pdf-parse package.</p>`;
+        console.error('pdf-parse error:', pdfErr.message);
+        return res.status(422).json({
+          message: `Could not read this PDF: ${pdfErr.message}`,
+        });
       }
+
+      plainText = (parsed.text || '').trim();
+
+      if (!plainText) {
+        return res.status(422).json({
+          message:
+            'This PDF appears to be scanned/image-based with no extractable text. Please use a text-based PDF.',
+        });
+      }
+
+      // Double newlines = paragraph break; single = space
+      content = plainText
+        .split(/\n{2,}/)
+        .map(para => {
+          const p = para.replace(/\n/g, ' ').trim();
+          if (!p) return '';
+          return `<p>${escHtml(p)}</p>`;
+        })
+        .filter(Boolean)
+        .join('');
     }
 
-    // ── DOCX — text extract karo ──
-    else if (
-      mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-      mimetype === 'application/msword' ||
-      originalname.match(/\.docx?$/i)
-    ) {
+    // ── DOCX ──────────────────────────────────────────────
+    else if (isDocx) {
+      if (!mammoth) {
+        return res.status(500).json({
+          message: 'DOCX parsing not available. Run: npm install mammoth in backend.',
+        });
+      }
+
+      let result;
       try {
-        const mammoth = require('mammoth');
-        const result  = await mammoth.convertToHtml({ buffer });
-        content   = result.value || '';
-        // HTML se plain text banao
-        plainText = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        result = await mammoth.convertToHtml({ buffer });
       } catch (docxErr) {
-        // mammoth nahi mila — basic fallback
-        plainText = `[DOCX imported: ${originalname}]\n\nDOCX content extraction requires mammoth package.\nInstall it with: npm install mammoth`;
-        content = `<p>[DOCX imported: ${originalname}]</p><p>DOCX content extraction requires mammoth package.</p>`;
+        console.error('mammoth error:', docxErr.message);
+        return res.status(422).json({
+          message: `Could not read DOCX: ${docxErr.message}`,
+        });
+      }
+
+      content   = result.value || '';
+      plainText = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+      if (!content.trim()) {
+        return res.status(422).json({ message: 'DOCX file appears to be empty.' });
       }
     }
 
-    // Content too large — trim karo
-    const MAX_CONTENT = 200000; // ~200KB
-    if (content.length > MAX_CONTENT) {
-      content   = content.slice(0, MAX_CONTENT) + '<p><em>[Content truncated — file too large]</em></p>';
-      plainText = plainText.slice(0, MAX_CONTENT);
+    else {
+      return res.status(400).json({
+        message: 'Unsupported file type. Please use TXT, MD, PDF, or DOCX.',
+      });
     }
 
-    // Note create karo
+    // Content too large — trim
+    const MAX = 200000;
+    if (content.length > MAX) {
+      content   = content.slice(0, MAX) + '<p><em>[Content truncated — file too large]</em></p>';
+      plainText = plainText.slice(0, MAX);
+    }
+
     const note = await Note.create({
       title,
       content,
       plainText,
-      user: req.user.id,
-      folder: null,
-      tags: [],
+      user:     req.user.id,
+      folder:   null,
+      tags:     [],
       isPublic: false,
     });
 
@@ -105,3 +153,12 @@ exports.importNote = async (req, res) => {
     res.status(500).json({ message: error.message || 'Import failed. Please try again.' });
   }
 };
+
+// HTML injection se bachao
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
