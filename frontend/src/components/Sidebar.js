@@ -35,7 +35,7 @@ export default function Sidebar({ open, onClose }) {
       <aside className={`s-aside${open ? ' s-open' : ''}`}>
 
         {/* Logo Header */}
-       <Logo size="sm" />
+       <Logo size="sm" className="pr-3 p-4" />
 
         {/* Navigation */}
         <nav className="s-nav">
