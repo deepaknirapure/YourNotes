@@ -258,8 +258,8 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="ln-nav">
         <a href="/" className="ln-logo">
-          <span className="ln-logo-your">Your</span>
-          <span className="ln-logo-notes">Notes</span>
+          
+          <span className="ln-logo-notes">Yournotes</span>
           <span className="ln-logo-dot" />
         </a>
         <div className="ln-nav-links">
@@ -342,11 +342,11 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="ln-footer">
         <div className="ln-footer-logo">
-          <span className="ln-footer-logo-your">Your</span>
-          <span>Notes</span>
+          
+          <span>Yournotes</span>
           <span className="ln-footer-logo-dot" />
         </div>
-        <div className="ln-footer-text">© {new Date().getFullYear()} YourNotes · Free forever</div>
+        <div className="ln-footer-text">© {new Date().getFullYear()} Yournotes · Free forever</div>
       </footer>
     </div>
   );
