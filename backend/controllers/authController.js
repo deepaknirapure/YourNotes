@@ -12,18 +12,8 @@ cloudinary.config({
   api_key:    process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-const nodemailer = require('nodemailer');
-
-// Nodemailer transporter — works with Gmail, Outlook, or any SMTP provider
-const createTransporter = () => nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER || 'deepaknirapure6@gmail.com',
-    pass: process.env.SMTP_PASS || 'cxopueqbbpbfuvew',
-  },
-});
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY || 're_H9vUNzAR_4uv31TtTiLYbsvLBoZFwDWum');
 
 // JWT Helper: User ID se token generate karta hai
 const generateToken = (userId) => {
@@ -128,11 +118,10 @@ const forgotPassword = async (req, res) => {
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    // Nodemailer se email bhej rahe hain
-    const transporter = createTransporter();
-    const mailContent = {
+    // Resend SDK se email bhej rahe hain
+    await resend.emails.send({
+      from: 'YourNotes <onboarding@resend.dev>',
       to: email,
-      from: process.env.FROM_EMAIL || process.env.SMTP_USER,
       subject: 'Password Reset - YourNotes',
       html: `
         <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd;">
@@ -141,9 +130,7 @@ const forgotPassword = async (req, res) => {
           <a href="${resetUrl}" style="background: #4F46E5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
           <p>Ye link 15 minute mein expire ho jayega.</p>
         </div>`
-    };
-
-    await transporter.sendMail(mailContent);
+    });
     res.status(200).json({ message: 'Reset email sent!' });
   } catch (error) {
     res.status(500).json({ message: 'Email service error' });
