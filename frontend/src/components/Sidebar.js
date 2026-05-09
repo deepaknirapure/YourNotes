@@ -1,6 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-
+import { Home, BookOpen, Folder, Bot, Users, Trash2, Settings, X, Sun, Moon, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 let _syneLoaded = false;
 function useSyneFont() {
@@ -13,9 +15,6 @@ function useSyneFont() {
     _syneLoaded = true;
   }, []);
 }
-import { Home, BookOpen, Folder, Bot, Users, Trash2, Settings, X, Sun, Moon, LogOut } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 // Hindi: Navigation items — app ke main pages
 const NAV_ITEMS = [
