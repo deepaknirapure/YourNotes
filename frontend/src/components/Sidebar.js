@@ -1,8 +1,20 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+
+let _syneLoaded = false;
+function useSyneFont() {
+  useEffect(() => {
+    if (_syneLoaded) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap';
+    document.head.appendChild(link);
+    _syneLoaded = true;
+  }, []);
+}
 import { Home, BookOpen, Folder, Bot, Users, Trash2, Settings, X, Sun, Moon, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import Logo from '../components/Logo';
 
 // Hindi: Navigation items — app ke main pages
 const NAV_ITEMS = [
@@ -22,6 +34,7 @@ export default function Sidebar({ open, onClose }) {
   // Hindi: Theme toggle ke liye
   const { isDark, toggleTheme } = useTheme();
 
+  useSyneFont();
   const goTo = (path) => { navigate(path); if (onClose) onClose(); };
   const handleLogout = () => { logout(); navigate('/login'); };
   // Hindi: User ka pehla letter avatar ke liye
@@ -35,9 +48,17 @@ export default function Sidebar({ open, onClose }) {
       <aside className={`s-aside${open ? ' s-open' : ''}`}>
 
         {/* Logo Header */}
-       <div className="pr-3 p-4 pl-4" >
-        <Logo size="sm"/>
+        <div className="s-header">
+          <div className="s-logo" onClick={() => goTo('/home')}>
+            <span className="s-logo-your">Your</span>
+            <span className="s-logo-notes">Notes</span>
+            <div className="s-logo-bar" />
+          </div>
+          <button className="s-close" onClick={onClose} aria-label="Close">
+            <X size={14} />
+          </button>
         </div>
+
         {/* Navigation */}
         <nav className="s-nav">
           {NAV_ITEMS.map(({ icon: Icon, label, path }) => {
@@ -99,11 +120,21 @@ export default function Sidebar({ open, onClose }) {
           padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;
         }
 
-        /* Hindi: Logo — "Your" dark, "Notes" orange */
+        /* Stacked Logo */
         .s-logo{
-          font-size:16px;font-weight:800;letter-spacing:-0.5px;cursor:pointer;user-select:none;
-          background:linear-gradient(90deg,var(--text) 47%,var(--accent) 47%);
-          -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+          display:flex;flex-direction:column;line-height:1;cursor:pointer;user-select:none;
+          font-family:'Syne',sans-serif;
+        }
+        .s-logo-your{
+          font-weight:700;font-size:7px;letter-spacing:0.28em;text-transform:uppercase;
+          color:#e8500a;line-height:1;margin-bottom:2px;
+        }
+        .s-logo-notes{
+          font-weight:800;font-size:22px;letter-spacing:-0.04em;
+          color:var(--text);line-height:0.92;
+        }
+        .s-logo-bar{
+          width:18px;height:2px;background:#e8500a;border-radius:2px;margin-top:4px;
         }
 
         .s-close{
