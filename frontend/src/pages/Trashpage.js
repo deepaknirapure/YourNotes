@@ -306,7 +306,7 @@ export default function TrashPage() {
           {/* FIX 1: .pg-title-section now has proper flex styles defined in STYLES */}
           <div className="pg-title-section">
             <div className="pg-title-icon"><Trash2 size={18} /></div>
-            <h1 className="pg-title">Trash</h1>
+            <span style={{ fontSize: 16, fontWeight: 800, color: c.text }}>Settings</span>
             <span className="pg-count">{notes.length} NOTES</span>
           </div>
 
