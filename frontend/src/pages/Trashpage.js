@@ -183,7 +183,7 @@ export default function TrashPage() {
   const [confirmSelectedForever, setConfirmSelectedForever] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const c = isDark ? DARK : LIGHT;
   useEffect(() => { loadTrash(); }, []);
 
   const loadTrash = async () => {
