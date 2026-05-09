@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
+
 let _syneLoaded = false;
 function useSyneFont() {
   useEffect(() => {
