@@ -6,6 +6,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
+// Hindi: Navigation items list
 const NAV_ITEMS = [
   { icon: Home,       label: 'Home',       path: '/home' },
   { icon: BookOpen,   label: 'Notes',      path: '/dashboard' },
@@ -20,184 +21,200 @@ export default function Sidebar({ open, onClose }) {
   const navigate  = useNavigate();
   const location  = useLocation();
   const { user, logout } = useAuth();
-  // Hindi: Theme context se isDark value lo
+  // Hindi: Theme context se dark mode value lo
   const { isDark, toggleTheme } = useTheme();
 
   const goTo = (path) => { navigate(path); if (onClose) onClose(); };
   const handleLogout = () => { logout(); navigate('/login'); };
+  // Hindi: User ke naam ka pehla letter avatar ke liye
   const initials = user?.name ? user.name[0].toUpperCase() : 'U';
 
   return (
     <>
-      {open && <div className="sidebar-overlay" onClick={onClose} />}
+      {/* Hindi: Mobile overlay — sidebar ke bahar click karne pe close hoga */}
+      {open && <div className="s-overlay" onClick={onClose} />}
 
-      <aside className={`sidebar-main${open ? ' sidebar-open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="sidebar-logo" onClick={() => goTo('/home')}>
-            <div className="logo-mark">
-              <BookOpen size={13} color="#fff" strokeWidth={2.5} />
-            </div>
-            <span className="logo-txt">Your<span className="logo-accent">Notes</span></span>
+      <aside className={`s-aside${open ? ' s-open' : ''}`}>
+        {/* ── Header: Logo ── */}
+        <div className="s-header">
+          <div className="s-logo" onClick={() => goTo('/home')}>
+            {/* Hindi: Text-only logo — "Your" kala, "Notes" orange */}
+            YourNotes
           </div>
-          <button className="sidebar-close-btn" onClick={onClose} aria-label="Close">
-            <X size={16} />
+          <button className="s-close" onClick={onClose} aria-label="Close sidebar">
+            <X size={15} />
           </button>
         </div>
 
-        <nav className="sidebar-nav">
+        {/* ── Navigation ── */}
+        <nav className="s-nav">
           {NAV_ITEMS.map(({ icon: Icon, label, path }) => {
             const isActive = location.pathname === path;
             return (
-              <button key={path} onClick={() => goTo(path)} className={`nav-btn${isActive ? ' active' : ''}`}>
-                <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
+              <button
+                key={path}
+                onClick={() => goTo(path)}
+                className={`s-nav-item${isActive ? ' active' : ''}`}
+              >
+                <Icon size={16} strokeWidth={isActive ? 2.5 : 1.75} />
                 <span>{label}</span>
               </button>
             );
           })}
         </nav>
 
-        <div className="sidebar-footer">
-          <div className="profile-row" onClick={() => goTo('/profile')}>
-            <div className="avatar">
-              {user?.avatar ? <img src={user.avatar} alt="" /> : initials}
+        {/* ── Footer: User profile + actions ── */}
+        <div className="s-footer">
+          {/* Hindi: Profile row — click karne pe profile page khulega */}
+          <div className="s-profile" onClick={() => goTo('/profile')}>
+            <div className="s-avatar">
+              {user?.avatar
+                ? <img src={user.avatar} alt="" />
+                : initials}
             </div>
-            <div className="user-info">
-              <span className="username">{user?.name || 'User'}</span>
-              <span className="user-sub">My account</span>
+            <div className="s-user-info">
+              <span className="s-username">{user?.name || 'User'}</span>
+              <span className="s-usersub">View profile</span>
             </div>
-            <Settings size={13} style={{ color: 'var(--text-light)', flexShrink: 0 }} />
           </div>
 
-          <button onClick={handleLogout} className="logout-btn">
-            <LogOut size={14} /> Sign out
-          </button>
-
-          {/* Hindi: Dark/Light mode toggle button */}
-          <button onClick={toggleTheme} className="theme-toggle-btn">
+          {/* Hindi: Theme toggle */}
+          <button onClick={toggleTheme} className="s-footer-btn">
             {isDark ? <Sun size={14} /> : <Moon size={14} />}
             {isDark ? 'Light Mode' : 'Dark Mode'}
+          </button>
+
+          {/* Hindi: Logout button */}
+          <button onClick={handleLogout} className="s-footer-btn s-logout-btn">
+            <LogOut size={14} /> Sign out
           </button>
         </div>
       </aside>
 
-      {/* Hindi: CSS variables use kar rahe hain — dark/light automatic switch hoga */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+        /* Hindi: DM Sans font import — poore project me yahi font use hoga */
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
 
-        .sidebar-overlay {
+        .s-overlay {
           position: fixed; inset: 0;
-          background: rgba(26,26,26,0.45);
-          backdrop-filter: blur(4px);
+          background: rgba(0,0,0,0.38);
+          backdrop-filter: blur(3px);
           z-index: 299; display: none;
         }
 
-        .sidebar-main {
-          width: 240px; min-width: 240px; height: 100vh; height: 100dvh;
-          background: var(--surface); border-right: 1px solid var(--border);
+        .s-aside {
+          width: 236px; min-width: 236px;
+          height: 100vh; height: 100dvh;
+          background: var(--surface);
+          border-right: 1px solid var(--border);
           display: flex; flex-direction: column;
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: 'DM Sans', sans-serif;
           position: relative; z-index: 300; flex-shrink: 0;
         }
 
-        .sidebar-header {
-          height: 58px; display: flex; align-items: center;
-          justify-content: space-between; padding: 0 18px;
-          border-bottom: 1px solid var(--border); flex-shrink: 0;
+        /* ── Header ── */
+        .s-header {
+          height: 56px;
+          display: flex; align-items: center;
+          justify-content: space-between;
+          padding: 0 16px;
+          border-bottom: 1px solid var(--border);
+          flex-shrink: 0;
         }
 
-        .sidebar-logo {
-          cursor: pointer; display: flex; align-items: center; gap: 8px;
-          font-size: 18px; font-weight: 900; letter-spacing: -0.5px; user-select: none;
+        /* Hindi: Logo — sirf text, koi icon nahi */
+        .s-logo {
+          font-size: 17px; font-weight: 800; letter-spacing: -0.5px;
+          cursor: pointer; user-select: none;
+          /* Orange accent ke liye last 5 characters pe color lagao */
+          background: linear-gradient(90deg, var(--text) 47%, var(--accent) 47%);
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
-        .logo-mark {
-          width: 26px; height: 26px; background: #f97316; border-radius: 6px;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .logo-txt { color: var(--text); }
-        .logo-accent { color: #f97316; }
 
-        .sidebar-close-btn {
-          display: none; background: var(--bg); border: 1px solid var(--border);
-          color: var(--text-muted); padding: 6px; border-radius: 7px;
-          cursor: pointer; align-items: center; justify-content: center; transition: 0.15s;
+        .s-close {
+          display: none; width: 28px; height: 28px;
+          align-items: center; justify-content: center;
+          background: var(--bg); border: 1px solid var(--border);
+          border-radius: 6px; color: var(--text-3); cursor: pointer;
+          transition: all 0.15s;
         }
-        .sidebar-close-btn:hover { border-color: #f97316; color: #f97316; }
+        .s-close:hover { border-color: var(--accent); color: var(--accent); }
 
-        .sidebar-nav {
-          flex: 1; padding: 12px 10px;
+        /* ── Nav ── */
+        .s-nav {
+          flex: 1; padding: 10px 8px;
           display: flex; flex-direction: column; gap: 2px;
           overflow-y: auto; scrollbar-width: none;
         }
-        .sidebar-nav::-webkit-scrollbar { display: none; }
+        .s-nav::-webkit-scrollbar { display: none; }
 
-        .nav-btn {
+        .s-nav-item {
           display: flex; align-items: center; gap: 10px;
-          padding: 9px 12px; color: var(--text-muted);
+          padding: 8px 12px; color: var(--text-3);
           background: transparent; border: none; cursor: pointer;
-          font-size: 13.5px; font-weight: 600; border-radius: 9px;
-          transition: all 0.15s; text-align: left; width: 100%; font-family: inherit;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px; font-weight: 500;
+          border-radius: 10px; transition: all 0.15s;
+          text-align: left; width: 100%;
         }
-        .nav-btn:hover { color: var(--text); background: var(--bg); }
-        .nav-btn.active {
-          color: #f97316 !important; background: rgba(249,115,22,0.08) !important;
+        .s-nav-item:hover { color: var(--text); background: var(--bg); }
+        .s-nav-item.active {
+          color: var(--accent); background: var(--accent-light);
           font-weight: 700;
         }
 
-        .sidebar-footer {
-          padding: 12px; border-top: 1px solid var(--border);
-          display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+        /* ── Footer ── */
+        .s-footer {
+          padding: 10px; border-top: 1px solid var(--border);
+          display: flex; flex-direction: column; gap: 4px;
+          flex-shrink: 0;
         }
 
-        .profile-row {
-          display: flex; align-items: center; gap: 10px; cursor: pointer;
-          padding: 10px; border-radius: 10px; transition: 0.15s;
-          border: 1px solid transparent;
+        .s-profile {
+          display: flex; align-items: center; gap: 10px;
+          padding: 8px; border-radius: 10px; cursor: pointer;
+          transition: all 0.15s; border: 1px solid transparent;
         }
-        .profile-row:hover { background: var(--bg); border-color: var(--border); }
+        .s-profile:hover { background: var(--bg); border-color: var(--border); }
 
-        .avatar {
-          width: 32px; height: 32px; border-radius: 50%;
-          background: #f97316; color: #fff;
+        .s-avatar {
+          width: 30px; height: 30px; border-radius: 50%;
+          background: var(--accent); color: #fff;
           display: flex; align-items: center; justify-content: center;
-          font-weight: 800; font-size: 13px; overflow: hidden; flex-shrink: 0;
+          font-size: 12px; font-weight: 700; overflow: hidden; flex-shrink: 0;
         }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .s-avatar img { width:100%; height:100%; object-fit:cover; }
 
-        .user-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-        .username {
+        .s-user-info { display:flex; flex-direction:column; flex:1; min-width:0; }
+        .s-username {
           font-size: 13px; font-weight: 700; color: var(--text);
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .user-sub { font-size: 11px; color: var(--text-light); font-weight: 600; }
+        .s-usersub { font-size: 11px; color: var(--text-4); font-weight: 500; }
 
-        .logout-btn {
-          display: flex; align-items: center; gap: 7px;
-          background: none; border: none; padding: 7px 10px;
-          font-size: 12px; font-weight: 600; color: var(--text-muted);
-          cursor: pointer; transition: 0.15s; font-family: inherit;
-          border-radius: 7px; width: 100%;
+        .s-footer-btn {
+          display: flex; align-items: center; gap: 8px;
+          background: none; border: none;
+          padding: 7px 10px; font-family: 'DM Sans', sans-serif;
+          font-size: 12px; font-weight: 600; color: var(--text-3);
+          cursor: pointer; border-radius: 8px; width: 100%;
+          transition: all 0.15s;
         }
-        .logout-btn:hover { color: #f97316; background: rgba(249,115,22,0.06); }
+        .s-footer-btn:hover { color: var(--text); background: var(--bg); }
+        .s-logout-btn:hover { color: var(--red); background: var(--red-light); }
 
-        /* Hindi: Theme toggle button */
-        .theme-toggle-btn {
-          display: flex; align-items: center; gap: 7px;
-          background: var(--bg); border: 1px solid var(--border); padding: 7px 10px;
-          font-size: 12px; font-weight: 600; color: var(--text-muted);
-          cursor: pointer; transition: 0.15s; font-family: inherit;
-          border-radius: 7px; width: 100%;
-        }
-        .theme-toggle-btn:hover { border-color: #f97316; color: #f97316; }
-
+        /* ── Mobile ── */
         @media (max-width: 768px) {
-          .sidebar-overlay { display: block; }
-          .sidebar-main {
-            position: fixed; transform: translateX(-100%);
-            box-shadow: 4px 0 24px rgba(0,0,0,0.15);
-            transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+          .s-overlay { display: block; }
+          .s-aside {
+            position: fixed !important; left: 0; top: 0; bottom: 0;
+            transform: translateX(-100%);
+            transition: transform 0.24s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: var(--shadow-lg);
           }
-          .sidebar-main.sidebar-open { transform: translateX(0); }
-          .sidebar-close-btn { display: flex; }
+          .s-aside.s-open { transform: translateX(0); }
+          .s-close { display: flex; }
         }
       `}</style>
     </>

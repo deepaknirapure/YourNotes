@@ -1,211 +1,167 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Key, MailCheck, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Mail, MailCheck, Loader2 } from "lucide-react";
 import API from "../api/axios";
 
+// Hindi: Forgot password page — clean centered card layout
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  body { background:var(--bg,#f7f6f3); color:var(--text,#18181a); font-family:'DM Sans',sans-serif; }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  body { background: var(--surface); color: var(--text); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }
-
-  .auth-root {
-    min-height: 100vh; display: flex; flex-direction: column; 
-    align-items: center; justify-content: center; padding: 24px;
-    background: var(--surface); position: relative;
+  .fp-root {
+    min-height:100vh; min-height:100dvh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:24px; background:var(--bg,#f7f6f3);
   }
 
-  /* Subtle Background Pattern */
-  .bg-pattern {
-    position: absolute; inset: 0; pointer-events: none; z-index: 0;
-    background-image: radial-gradient(#2a2525 1px, transparent 1px);
-    background-size: 32px 32px; opacity: 0.4;
+  /* Hindi: Logo at top */
+  .fp-logo {
+    font-size:18px; font-weight:800; letter-spacing:-0.5px;
+    margin-bottom:36px;
+    background:linear-gradient(90deg,var(--text,#18181a) 47%,#f97316 47%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   }
 
-  .brand-logo {
-    font-size: 24px; font-weight: 800; color: var(--text); 
-    letter-spacing: -0.5px; margin-bottom: 32px; z-index: 1;
-    display: flex; align-items: center; justify-content: center;
+  .fp-card {
+    background:var(--surface,#fff); border:1px solid var(--border,#e9e6e0);
+    border-radius:20px; padding:44px 40px; width:100%; max-width:420px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.06);
+    animation:fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
   }
 
-  .auth-card {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
-    padding: 48px 40px; width: 100%; max-width: 440px; z-index: 1;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 4px 6px -2px rgba(0, 0, 0, 0.01);
-    animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  .fp-icon-wrap {
+    width:52px; height:52px; background:var(--bg,#f7f6f3);
+    border:1px solid var(--border,#e9e6e0); border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 22px; color:var(--text-3,#8a8794);
+  }
+  .fp-icon-wrap.success { background:#f0fdf4; border-color:#bbf7d0; color:#16a34a; }
+
+  .fp-title {
+    font-size:24px; font-weight:800; color:var(--text,#18181a);
+    letter-spacing:-0.5px; text-align:center; margin-bottom:10px;
+  }
+  .fp-sub {
+    font-size:14px; color:var(--text-3,#8a8794); text-align:center;
+    line-height:1.65; margin-bottom:30px;
   }
 
-  .icon-wrap {
-    width: 56px; height: 56px; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 14px; display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 24px; color: var(--text);
+  .fp-field { margin-bottom:18px; }
+  .fp-label { display:block; font-size:11px; font-weight:700; color:var(--text-3,#8a8794); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:7px; }
+  .fp-iw { position:relative; }
+  .fp-ico { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--text-4,#b8b5be); pointer-events:none; display:flex; }
+  .fp-input {
+    width:100%; padding:11px 14px 11px 41px;
+    background:var(--surface,#fff); border:1.5px solid var(--border,#e9e6e0);
+    border-radius:10px; font-family:'DM Sans',sans-serif;
+    font-size:15px; color:var(--text,#18181a); outline:none; transition:all 0.18s;
   }
+  .fp-input::placeholder { color:var(--text-4,#b8b5be); }
+  .fp-input:focus { border-color:#f97316; box-shadow:0 0 0 3px rgba(249,115,22,0.10); }
 
-  .icon-wrap.success {
-    background: #ECFDF5; border-color: #D1FAE5; color: #10B981;
+  .fp-submit {
+    width:100%; padding:13px; background:#18181a; color:#f7f6f3;
+    border:none; border-radius:10px; font-family:'DM Sans',sans-serif;
+    font-size:15px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s;
   }
+  .fp-submit:hover:not(:disabled) { background:#f97316; box-shadow:0 6px 20px rgba(249,115,22,0.25); }
+  .fp-submit:disabled { opacity:0.5; cursor:not-allowed; }
 
-  .auth-title {
-    font-size: 24px; font-weight: 800; color: var(--text); 
-    letter-spacing: -0.5px; text-align: center; margin-bottom: 12px;
+  .fp-back {
+    display:flex; align-items:center; gap:6px;
+    color:var(--text-3,#8a8794); text-decoration:none;
+    font-size:14px; font-weight:600; margin-top:22px;
+    justify-content:center; transition:color 0.15s;
   }
+  .fp-back:hover { color:#f97316; }
 
-  .auth-subtitle {
-    font-size: 14px; color: #8a7f7f; text-align: center; 
-    line-height: 1.6; margin-bottom: 32px;
-  }
-
-  .form-group { margin-bottom: 24px; }
-  
-  .form-label {
-    display: block; font-size: 12px; font-weight: 700; color: #8a7f7f;
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
-  }
-
-  .form-input {
-    width: 100%; padding: 14px 16px; background: var(--bg); 
-    border: 1px solid var(--border); border-radius: 12px; font-size: 15px; 
-    color: var(--text); font-family: inherit; transition: 0.2s; outline: none;
-  }
-  .form-input::placeholder { color: #8a7f7f; }
-  .form-input:focus { border-color: #E55B2D; box-shadow: 0 0 0 3px rgba(229, 91, 45, 0.1); }
-
-  .btn-primary {
-    width: 100%; padding: 14px; background: #f7f7f5; color: var(--text);
-    border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-    font-family: inherit; cursor: pointer; transition: 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-primary:hover:not(:disabled) { background: #E55B2D; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229, 91, 45, 0.2); }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .error-alert {
-    background: #FEF2F2; border: 1px solid #FEE2E2; border-radius: 10px;
-    padding: 12px 16px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 10px;
-  }
-  .error-text { font-size: 13px; color: #EF4444; font-weight: 500; line-height: 1.5; }
-
-  .back-link {
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    color: #8a7f7f; font-size: 14px; font-weight: 600; text-decoration: none;
-    transition: 0.2s; margin-top: 32px;
-  }
-  .back-link:hover { color: var(--text); }
-
-  .footer-text {
-    font-size: 11px; font-weight: 700; color: #8a7f7f; letter-spacing: 2px;
-    text-transform: uppercase; position: absolute; bottom: 32px;
+  @media(max-width:480px) {
+    .fp-card { padding:32px 24px; }
   }
 `;
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
+  // Hindi: Email send karne ka handler
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    if (!email) return setError('Please enter your email address');
     setLoading(true);
-    setError("");
     try {
-      await API.post("/auth/forgot-password", { email });
+      await API.post('/auth/forgot-password', { email });
       setSent(true);
     } catch (err) {
-      setError(err.response?.data?.message || "An unexpected error occurred.");
+      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-root">
+    <div className="fp-root">
       <style>{STYLES}</style>
-      <div className="bg-pattern" />
 
-      {/* Brand Logo */}
-      <div className="brand-logo">
-        Your<span style={{ color: "#E55B2D" }}>Notes</span>.
-      </div>
+      <div className="fp-logo">YourNotes</div>
 
-      <div className="auth-card">
-        {/* Dynamic Header Icon */}
-        <div className={`icon-wrap ${sent ? "success" : ""}`}>
-          {sent ? <MailCheck size={28} strokeWidth={2} /> : <Key size={28} strokeWidth={2} />}
+      <div className="fp-card">
+        <div className={`fp-icon-wrap${sent ? ' success' : ''}`}>
+          {sent ? <MailCheck size={24} /> : <Mail size={24} />}
         </div>
 
-        <h1 className="auth-title">
-          {sent ? "Check your inbox" : "Forgot your password?"}
-        </h1>
-        
-        <p className="auth-subtitle">
-          {sent 
-            ? "We have sent a password recovery link to your email address." 
-            : "Enter the email address associated with your account and we'll send you a link to reset your password."}
-        </p>
-
         {sent ? (
-          <div>
-            <div style={{ background: "#1e1b1b", border: "1px solid #2a2525", padding: "16px", borderRadius: "12px", marginBottom: "32px", textAlign: "center" }}>
-              <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--text)" }}>{email}</span>
-            </div>
-            <p style={{ fontSize: "13px", color: "#8a7f7f", textAlign: "center", marginBottom: "24px" }}>
-              Didn't receive the email? Check your spam folder.
+          <>
+            <h2 className="fp-title">Check your email</h2>
+            <p className="fp-sub">
+              We've sent a password reset link to <strong>{email}</strong>. Please check your inbox and follow the instructions.
             </p>
-            <Link to="/login" style={{ textDecoration: "none" }}>
-              <button className="btn-primary">
-                Return to Login
-              </button>
+            <Link to="/login" className="fp-back">
+              <ArrowLeft size={15} /> Back to sign in
             </Link>
-          </div>
+          </>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <>
+            <h2 className="fp-title">Reset your password</h2>
+            <p className="fp-sub">
+              Enter the email address associated with your account. We'll send you a link to reset your password.
+            </p>
+
             {error && (
-              <div className="error-alert">
-                <AlertCircle size={16} color="#EF4444" style={{ flexShrink: 0, marginTop: "2px" }} />
-                <span className="error-text">{error}</span>
+              <div style={{ background:'var(--red-light,rgba(220,38,38,0.08))', border:'1px solid rgba(220,38,38,0.2)', borderRadius:10, padding:'10px 14px', fontSize:13, color:'var(--red,#dc2626)', marginBottom:16 }}>
+                {error}
               </div>
             )}
 
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                required
-                className="form-input"
-              />
-            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="fp-field">
+                <label className="fp-label">Email address</label>
+                <div className="fp-iw">
+                  <span className="fp-ico"><Mail size={15} /></span>
+                  <input type="email" placeholder="name@example.com" value={email} onChange={e => setEmail(e.target.value)} className="fp-input" required />
+                </div>
+              </div>
+              <button type="submit" disabled={loading} className="fp-submit">
+                {loading
+                  ? <><span style={{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 0.7s linear infinite',flexShrink:0}} /> Sending...</>
+                  : 'Send reset link'
+                }
+              </button>
+            </form>
 
-            <button type="submit" disabled={loading} className="btn-primary">
-              {loading ? (
-                <>
-                  <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
-                  Sending link...
-                </>
-              ) : (
-                "Send Reset Link"
-              )}
-            </button>
-          </form>
+            <Link to="/login" className="fp-back">
+              <ArrowLeft size={15} /> Back to sign in
+            </Link>
+          </>
         )}
-
-        {/* Back Link */}
-        {!sent && (
-          <Link to="/login" className="back-link">
-            <ArrowLeft size={16} /> Back to login
-          </Link>
-        )}
-      </div>
-
-      <div className="footer-text">
-        YOURNOTES · BHOPAL · 2026
       </div>
     </div>
   );

@@ -1,221 +1,203 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowRight, User, Mail, Lock, Loader2, Sparkles, CheckCircle2, Globe, BookOpen } from 'lucide-react';
+import { ArrowRight, User, Mail, Lock, CheckCircle2, Globe, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
+// Hindi: Register page — Login page ke saath same left panel design
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  body { background:#f7f6f3; font-family:'DM Sans',sans-serif; }
 
-  body { background: #f5f5f3; color: #1a1a1a; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .reg-root { display:flex; min-height:100vh; min-height:100dvh; background:#f7f6f3; }
 
-  .reg-root { display: flex; min-height: 100vh; background: #f5f5f3; }
-
+  /* ── Left ── */
   .reg-left {
-    flex: 1.1; background: #ffffff; border-right: 1px solid #e8e6e1;
-    display: flex; flex-direction: column; justify-content: space-between;
-    padding: 56px; position: relative; overflow: hidden;
+    flex:1.05; background:#fff; border-right:1px solid #e9e6e0;
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:52px 56px; position:relative; overflow:hidden;
   }
-  .reg-left-deco {
-    position: absolute; bottom: -100px; right: -100px;
-    width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%);
-    pointer-events: none;
+  .rl-glow {
+    position:absolute; bottom:-120px; right:-120px; width:380px; height:380px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 65%);
+    pointer-events:none; z-index:0;
   }
+  .rl-logo {
+    font-size:18px; font-weight:800; letter-spacing:-0.5px; position:relative; z-index:1;
+    background:linear-gradient(90deg,#18181a 47%,#f97316 47%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .rl-content { position:relative; z-index:1; max-width:420px; }
+  .rl-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#f7f6f3; border:1px solid #e9e6e0;
+    border-radius:999px; padding:5px 14px;
+    font-size:11px; font-weight:700; color:#8a8794;
+    letter-spacing:0.5px; text-transform:uppercase; margin-bottom:26px;
+  }
+  .rl-title { font-size:clamp(28px,3vw,42px); font-weight:800; color:#18181a; line-height:1.1; letter-spacing:-1.2px; margin-bottom:14px; }
+  .rl-title em { color:#f97316; font-style:normal; }
+  .rl-desc { font-size:15px; color:#8a8794; line-height:1.7; margin-bottom:36px; }
+  .rl-feats { display:flex; flex-direction:column; gap:16px; }
+  .rl-feat { display:flex; align-items:flex-start; gap:14px; }
+  .rl-feat-ico { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .rl-feat-title { font-size:14px; font-weight:700; color:#18181a; margin-bottom:2px; }
+  .rl-feat-desc  { font-size:13px; color:#8a8794; line-height:1.5; }
+  .rl-footer { position:relative; z-index:1; border-top:1px solid #e9e6e0; padding-top:22px; font-size:12px; color:#b8b5be; font-weight:500; }
 
-  .brand-logo {
-    font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
-    display: inline-flex; align-items: center; gap: 8px;
-  }
-  .logo-dot { 
-    width: 28px; height: 28px; background: #f97316; border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .left-content { max-width: 440px; }
-  .left-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #f5f5f3; border: 1px solid #e8e6e1;
-    border-radius: 100px; padding: 5px 14px;
-    font-size: 11px; font-weight: 700; color: #888580;
-    letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 28px;
-  }
-  .left-title {
-    font-size: clamp(30px, 3vw, 44px); font-weight: 900; color: #1a1a1a;
-    line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 16px;
-  }
-  .left-title em { color: #f97316; font-style: normal; }
-  .left-desc { font-size: 16px; color: #888580; line-height: 1.65; margin-bottom: 40px; }
-
-  .feat-list { display: flex; flex-direction: column; gap: 18px; }
-  .feat-row { display: flex; align-items: flex-start; gap: 14px; }
-  .feat-icon-box {
-    width: 36px; height: 36px; border-radius: 9px;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .feat-title { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
-  .feat-desc { font-size: 13px; color: #888580; line-height: 1.5; }
-
-  .left-footer {
-    border-top: 1px solid #e8e6e1; padding-top: 24px;
-    font-size: 12px; color: #b0ada6; font-weight: 600;
-  }
-
-  /* RIGHT */
+  /* ── Right ── */
   .reg-right {
-    flex: 1; background: #f5f5f3; display: flex; align-items: center;
-    justify-content: center; padding: 56px 6%;
+    flex:1; background:#f7f6f3; display:flex; align-items:center;
+    justify-content:center; padding:52px 7%;
   }
-  .form-container {
-    width: 100%; max-width: 400px;
-    animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+  .rr-wrap {
+    width:100%; max-width:396px;
+    animation:fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
   }
-  .form-header { margin-bottom: 32px; }
-  .form-title { font-size: 28px; font-weight: 900; color: #1a1a1a; letter-spacing: -1px; margin-bottom: 6px; }
-  .form-subtitle { font-size: 15px; color: #888580; }
+  .rr-head { margin-bottom:30px; }
+  .rr-title { font-size:28px; font-weight:800; color:#18181a; letter-spacing:-0.8px; margin-bottom:6px; }
+  .rr-sub   { font-size:14px; color:#8a8794; }
+  .rr-field { margin-bottom:14px; }
+  .rr-label { display:block; font-size:11px; font-weight:700; color:#8a8794; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:7px; }
+  .rr-iw    { position:relative; }
+  .rr-ico   { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#b8b5be; pointer-events:none; display:flex; }
+  .rr-input {
+    width:100%; padding:11px 14px 11px 41px;
+    background:#fff; border:1.5px solid #e9e6e0;
+    border-radius:10px; font-family:'DM Sans',sans-serif;
+    font-size:15px; font-weight:400; color:#18181a; outline:none; transition:all 0.18s;
+  }
+  .rr-input::placeholder { color:#b8b5be; }
+  .rr-input:focus { border-color:#f97316; box-shadow:0 0 0 3px rgba(249,115,22,0.10); }
+  .rr-submit {
+    width:100%; padding:13px; background:#18181a; color:#f7f6f3;
+    border:none; border-radius:10px; font-family:'DM Sans',sans-serif;
+    font-size:15px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    transition:all 0.2s; margin-top:8px;
+  }
+  .rr-submit:hover:not(:disabled) { background:#f97316; box-shadow:0 6px 20px rgba(249,115,22,0.25); }
+  .rr-submit:disabled { opacity:0.5; cursor:not-allowed; }
+  .rr-login { text-align:center; margin-top:24px; font-size:14px; color:#8a8794; }
+  .rr-login a { color:#f97316; font-weight:700; text-decoration:none; }
+  .rr-login a:hover { text-decoration:underline; }
 
-  .input-group { margin-bottom: 16px; }
-  .input-label {
-    display: block; font-size: 12px; font-weight: 700; color: #888580;
-    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 7px;
-  }
-  .input-wrap { position: relative; }
-  .input-ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #b0ada6; pointer-events: none; }
-  .form-input {
-    width: 100%; padding: 12px 14px 12px 42px;
-    background: #ffffff; border: 1.5px solid #e8e6e1;
-    border-radius: 10px; font-size: 15px; font-weight: 500;
-    color: #1a1a1a; font-family: inherit; outline: none; transition: all 0.18s;
-  }
-  .form-input::placeholder { color: #c8c5be; }
-  .form-input:focus { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.1); }
-
-  .btn-submit {
-    width: 100%; padding: 14px; background: #1a1a1a; color: #fff;
-    border: none; border-radius: 10px; font-size: 15px; font-weight: 800;
-    font-family: inherit; cursor: pointer; transition: all 0.2s; margin-top: 8px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-submit:hover:not(:disabled) { background: #f97316; box-shadow: 0 6px 20px rgba(249,115,22,0.25); }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .login-prompt { text-align: center; margin-top: 24px; font-size: 14px; color: #888580; }
-  .login-link { color: #f97316; font-weight: 700; text-decoration: none; }
-  .login-link:hover { text-decoration: underline; }
-
-  @media(max-width: 960px) {
-    .reg-left { display: none; }
-    .reg-right { background: #fff; padding: 40px 24px; }
+  @media(max-width:900px) {
+    .reg-left { display:none; }
+    .reg-right { background:#fff; padding:40px 24px; min-height:100vh; align-items:flex-start; padding-top:60px; }
+    .rr-wrap::before {
+      content:'YourNotes';
+      display:block; font-size:18px; font-weight:800; letter-spacing:-0.5px;
+      margin-bottom:32px;
+      background:linear-gradient(90deg,#18181a 47%,#f97316 47%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
   }
 `;
 
-const FEATURES = [
-  { icon: CheckCircle2, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', label: 'Smart Organization', desc: 'Create folders, add tags, and keep your subjects perfectly organized.' },
-  { icon: Sparkles,    color: '#f97316', bg: 'rgba(249,115,22,0.1)', label: 'AI Summaries & Flashcards', desc: 'Auto-generate study materials from your notes in one click.' },
-  { icon: Globe,       color: '#10b981', bg: 'rgba(16,185,129,0.1)', label: 'Community Learning', desc: 'Share knowledge and access notes from top students.' },
-];
-
 export default function RegisterPage() {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name:'', email:'', password:'' });
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Hindi: Register form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password) return toast.error('All fields are required');
+    if (!form.name || !form.email || !form.password) return toast.error('Please fill in all fields');
     if (form.password.length < 6) return toast.error('Password must be at least 6 characters');
     setLoading(true);
     try {
       const { data } = await API.post('/auth/register', form);
       login(data.user, data.token);
-      toast.success('Account created! 🎉');
-      navigate('/dashboard');
+      toast.success('Account created!');
+      navigate('/home');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed.');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateField = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+  const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
   return (
     <div className="reg-root">
       <style>{STYLES}</style>
 
+      {/* Left */}
       <div className="reg-left">
-        <div className="reg-left-deco" />
-        <div className="brand-logo">
-          <div className="logo-dot"><BookOpen size={14} color="#fff" strokeWidth={2.5} /></div>
-          <span style={{ color: '#1a1a1a' }}>Your</span><span style={{ color: '#f97316' }}>Notes</span>
-        </div>
-
-        <div className="left-content">
-          <div className="left-badge">✦ Free forever</div>
-          <h2 className="left-title">Start your<br /><em>learning journey.</em></h2>
-          <p className="left-desc">Join students who are organizing their notes, memorizing faster, and acing exams.</p>
-
-          <div className="feat-list">
-            {FEATURES.map((f, i) => (
-              <div key={i} className="feat-row">
-                <div className="feat-icon-box" style={{ background: f.bg, color: f.color }}>
-                  <f.icon size={17} />
-                </div>
-                <div>
-                  <div className="feat-title">{f.label}</div>
-                  <div className="feat-desc">{f.desc}</div>
-                </div>
+        <div className="rl-glow" />
+        <div className="rl-logo">YourNotes</div>
+        <div className="rl-content">
+          <div className="rl-badge"><Sparkles size={10} /> Join thousands of students</div>
+          <h1 className="rl-title">Your notes,<br /><em>organized beautifully.</em></h1>
+          <p className="rl-desc">Create an account and start taking smarter notes today — free forever.</p>
+          <div className="rl-feats">
+            <div className="rl-feat">
+              <div className="rl-feat-ico" style={{background:'rgba(249,115,22,0.10)'}}>
+                <CheckCircle2 size={17} color="#f97316" />
               </div>
-            ))}
+              <div><div className="rl-feat-title">Free to use</div><div className="rl-feat-desc">No subscription or payment required.</div></div>
+            </div>
+            <div className="rl-feat">
+              <div className="rl-feat-ico" style={{background:'rgba(124,58,237,0.10)'}}>
+                <Globe size={17} color="#7c3aed" />
+              </div>
+              <div><div className="rl-feat-title">Share with community</div><div className="rl-feat-desc">Publish notes and discover others' work.</div></div>
+            </div>
+            <div className="rl-feat">
+              <div className="rl-feat-ico" style={{background:'rgba(37,99,235,0.10)'}}>
+                <Sparkles size={17} color="#2563eb" />
+              </div>
+              <div><div className="rl-feat-title">AI study tools</div><div className="rl-feat-desc">Summaries, flashcards, and Q&A built in.</div></div>
+            </div>
           </div>
         </div>
-
-        <div className="left-footer">S.V. Polytechnic College, Bhopal · 2026</div>
+        <div className="rl-footer">S.V. Polytechnic College, Bhopal · 2026</div>
       </div>
 
+      {/* Right */}
       <div className="reg-right">
-        <div className="form-container">
-          <div className="form-header">
-            <h2 className="form-title">Create account</h2>
-            <p className="form-subtitle">Set up your free student workspace</p>
+        <div className="rr-wrap">
+          <div className="rr-head">
+            <h2 className="rr-title">Create account</h2>
+            <p className="rr-sub">Start your free workspace today</p>
           </div>
-
           <form onSubmit={handleSubmit}>
-            <div className="input-group">
-              <label className="input-label">Full Name</label>
-              <div className="input-wrap">
-                <User size={16} className="input-ico" />
-                <input type="text" placeholder="Your full name" value={form.name} onChange={updateField('name')} className="form-input" required />
+            <div className="rr-field">
+              <label className="rr-label">Full Name</label>
+              <div className="rr-iw">
+                <span className="rr-ico"><User size={15} /></span>
+                <input type="text" placeholder="Your full name" value={form.name} onChange={update('name')} className="rr-input" required />
               </div>
             </div>
-            <div className="input-group">
-              <label className="input-label">Email</label>
-              <div className="input-wrap">
-                <Mail size={16} className="input-ico" />
-                <input type="email" placeholder="name@example.com" value={form.email} onChange={updateField('email')} className="form-input" required />
+            <div className="rr-field">
+              <label className="rr-label">Email</label>
+              <div className="rr-iw">
+                <span className="rr-ico"><Mail size={15} /></span>
+                <input type="email" placeholder="name@example.com" value={form.email} onChange={update('email')} className="rr-input" required />
               </div>
             </div>
-            <div className="input-group">
-              <label className="input-label">Password</label>
-              <div className="input-wrap">
-                <Lock size={16} className="input-ico" />
-                <input type="password" placeholder="Min. 6 characters" value={form.password} onChange={updateField('password')} className="form-input" required minLength={6} />
+            <div className="rr-field">
+              <label className="rr-label">Password</label>
+              <div className="rr-iw">
+                <span className="rr-ico"><Lock size={15} /></span>
+                <input type="password" placeholder="Min. 6 characters" value={form.password} onChange={update('password')} className="rr-input" required />
               </div>
             </div>
-
-            <button type="submit" disabled={loading} className="btn-submit">
+            <button type="submit" disabled={loading} className="rr-submit">
               {loading
-                ? <><Loader2 size={17} style={{ animation: 'spin 1s linear infinite' }} /> Creating account...</>
-                : <>Create account <ArrowRight size={17} /></>}
+                ? <><span style={{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 0.7s linear infinite',flexShrink:0}} /> Creating account...</>
+                : <>Create account <ArrowRight size={16} strokeWidth={2.5} /></>}
             </button>
           </form>
-
-          <p className="login-prompt">
-            Already have an account? <Link to="/login" className="login-link">Sign in</Link>
-          </p>
+          <p className="rr-login">Already have an account? <Link to="/login">Sign in</Link></p>
         </div>
       </div>
     </div>

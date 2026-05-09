@@ -5,145 +5,162 @@ import { ArrowRight, Mail, Lock, Loader2, Sparkles, ShieldCheck, BookOpen } from
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
+// Hindi: Landing page styles — DM Sans font use hoga poore project mein
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
-  body { background: #f5f5f3; color: #1a1a1a; font-family: 'Plus Jakarta Sans', sans-serif; }
+  body { background:#f7f6f3; color:#18181a; font-family:'DM Sans',sans-serif; }
 
-  .login-root { display: flex; min-height: 100vh; background: #f5f5f3; }
+  /* ── Root layout ── */
+  .lp-root { display:flex; min-height:100vh; min-height:100dvh; background:#f7f6f3; }
 
-  /* LEFT */
-  .login-left {
-    flex: 1.1; background: #1a1a1a; display: flex; flex-direction: column;
-    justify-content: space-between; padding: 56px; position: relative; overflow: hidden;
+  /* ── Left panel ── */
+  .lp-left {
+    flex:1.05; background:#18181a; display:flex; flex-direction:column;
+    justify-content:space-between; padding:52px 56px;
+    position:relative; overflow:hidden;
   }
-  .left-deco {
-    position: absolute; width: 320px; height: 320px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(249,115,22,0.25) 0%, transparent 70%);
-    top: -80px; right: -80px; pointer-events: none;
+  /* Hindi: Subtle dot pattern background */
+  .lp-left-pattern {
+    position:absolute; inset:0; z-index:0; opacity:0.04;
+    background-image: radial-gradient(#fff 1px, transparent 1px);
+    background-size:28px 28px;
   }
-  .left-deco2 {
-    position: absolute; width: 200px; height: 200px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
-    bottom: 120px; left: -60px; pointer-events: none;
-  }
-
-  .brand-logo {
-    font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
-    position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px;
-  }
-  .brand-logo .logo-dot { 
-    width: 28px; height: 28px; background: #f97316; border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .brand-txt { color: #ffffff; }
-  .brand-accent { color: #f97316; }
-
-  .left-content { position: relative; z-index: 1; }
-  .left-tag {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3);
-    color: #f97316; border-radius: 100px; padding: 5px 14px;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
-    margin-bottom: 28px;
-  }
-  .left-title {
-    font-size: clamp(36px, 4vw, 52px); font-weight: 900; color: #ffffff;
-    line-height: 1.05; letter-spacing: -2px; margin-bottom: 20px;
-  }
-  .left-title em { color: #f97316; font-style: normal; }
-  .left-desc { font-size: 16px; color: rgba(255,255,255,0.5); line-height: 1.65; max-width: 360px; }
-
-  .feat-stack { display: flex; flex-direction: column; gap: 20px; margin-top: 48px; }
-  .feat-item { display: flex; align-items: center; gap: 16px; }
-  .feat-ico {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .feat-text h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
-  .feat-text p { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.5; }
-
-  .left-footer {
-    position: relative; z-index: 1;
-    border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;
-    display: flex; align-items: center; gap: 16px;
-  }
-  .footer-dot { width: 8px; height: 8px; border-radius: 50%; background: #f97316; }
-  .footer-label { font-size: 12px; color: rgba(255,255,255,0.35); font-weight: 600; }
-
-  /* RIGHT */
-  .login-right {
-    flex: 1; background: #f5f5f3; display: flex; align-items: center;
-    justify-content: center; padding: 56px 6%;
+  /* Hindi: Orange accent glow */
+  .lp-left-glow {
+    position:absolute; width:360px; height:360px; border-radius:50%;
+    background:radial-gradient(circle, rgba(249,115,22,0.18) 0%, transparent 65%);
+    top:-100px; right:-100px; z-index:0; pointer-events:none;
   }
 
-  .form-container {
-    width: 100%; max-width: 400px;
-    animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+  /* Hindi: Logo — text only, consistent across all pages */
+  .lp-logo {
+    font-size:18px; font-weight:800; letter-spacing:-0.5px;
+    color:#f7f6f3; position:relative; z-index:1; display:flex; align-items:center;
+  }
+  .lp-logo-accent { color:#f97316; }
+
+  /* Hindi: Main copy area */
+  .lp-copy { position:relative; z-index:1; }
+  .lp-eyebrow {
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(249,115,22,0.12); border:1px solid rgba(249,115,22,0.25);
+    color:#f97316; border-radius:999px; padding:5px 14px;
+    font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
+    margin-bottom:28px;
+  }
+  .lp-headline {
+    font-size:clamp(34px,4vw,52px); font-weight:800; color:#f7f6f3;
+    line-height:1.06; letter-spacing:-1.5px; margin-bottom:18px;
+  }
+  .lp-headline em { color:#f97316; font-style:normal; }
+  .lp-desc { font-size:15px; color:rgba(247,246,243,0.45); line-height:1.7; max-width:340px; }
+
+  /* Hindi: Feature list */
+  .lp-features { display:flex; flex-direction:column; gap:18px; margin-top:44px; }
+  .lp-feat {
+    display:flex; align-items:flex-start; gap:14px;
+  }
+  .lp-feat-icon {
+    width:38px; height:38px; border-radius:10px; flex-shrink:0;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .lp-feat-title { font-size:14px; font-weight:700; color:#f7f6f3; margin-bottom:2px; }
+  .lp-feat-desc  { font-size:13px; color:rgba(247,246,243,0.4); line-height:1.55; }
+
+  /* Hindi: Footer tag */
+  .lp-footer {
+    position:relative; z-index:1;
+    border-top:1px solid rgba(255,255,255,0.07); padding-top:22px;
+    font-size:12px; color:rgba(247,246,243,0.3); font-weight:500;
   }
 
-  .form-header { margin-bottom: 36px; }
-  .form-title { font-size: 30px; font-weight: 900; color: #1a1a1a; letter-spacing: -1px; margin-bottom: 8px; }
-  .form-subtitle { font-size: 15px; color: #888580; }
-
-  .input-group { margin-bottom: 18px; }
-  .input-label {
-    display: block; font-size: 12px; font-weight: 700; color: #888580;
-    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;
+  /* ── Right panel: form ── */
+  .lp-right {
+    flex:1; background:#f7f6f3; display:flex; align-items:center;
+    justify-content:center; padding:52px 7%;
   }
-  .input-wrap { position: relative; }
-  .input-ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #b0ada6; pointer-events: none; }
-  .form-input {
-    width: 100%; padding: 13px 14px 13px 42px;
-    background: #ffffff; border: 1.5px solid #e8e6e1;
-    border-radius: 10px; font-size: 15px; font-weight: 500;
-    color: #1a1a1a; font-family: inherit; outline: none; transition: all 0.18s;
+  .lp-form-wrap {
+    width:100%; max-width:396px;
+    animation:fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
   }
-  .form-input::placeholder { color: #c8c5be; }
-  .form-input:focus { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.1); }
-
-  .forgot-link {
-    display: block; text-align: right; font-size: 13px; font-weight: 700;
-    color: #f97316; text-decoration: none; margin-top: -8px; margin-bottom: 24px;
+  .lp-form-head { margin-bottom:34px; }
+  .lp-form-title {
+    font-size:28px; font-weight:800; color:#18181a;
+    letter-spacing:-0.8px; margin-bottom:6px;
   }
-  .forgot-link:hover { color: #ea6c0a; }
+  .lp-form-sub { font-size:14px; color:#8a8794; font-weight:400; }
 
-  .btn-submit {
-    width: 100%; padding: 14px; background: #1a1a1a; color: #ffffff;
-    border: none; border-radius: 10px; font-size: 15px; font-weight: 800;
-    font-family: inherit; cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 9px;
+  /* Hindi: Input groups */
+  .lp-field { margin-bottom:16px; }
+  .lp-label {
+    display:block; font-size:11px; font-weight:700;
+    color:#8a8794; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:7px;
   }
-  .btn-submit:hover:not(:disabled) {
-    background: #f97316;
-    box-shadow: 0 6px 20px rgba(249,115,22,0.25);
+  .lp-input-wrap { position:relative; }
+  .lp-input-icon {
+    position:absolute; left:13px; top:50%; transform:translateY(-50%);
+    color:#b8b5be; pointer-events:none; display:flex;
   }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .lp-input {
+    width:100%; padding:11px 14px 11px 41px;
+    background:#fff; border:1.5px solid #e9e6e0;
+    border-radius:10px; font-family:'DM Sans',sans-serif;
+    font-size:15px; font-weight:400; color:#18181a; outline:none;
+    transition:all 0.18s;
+  }
+  .lp-input::placeholder { color:#b8b5be; }
+  .lp-input:focus { border-color:#f97316; box-shadow:0 0 0 3px rgba(249,115,22,0.1); }
 
-  .register-prompt { text-align: center; margin-top: 28px; font-size: 14px; color: #888580; }
-  .register-link { color: #f97316; font-weight: 700; text-decoration: none; }
-  .register-link:hover { text-decoration: underline; }
+  .lp-forgot {
+    display:block; text-align:right; font-size:13px; font-weight:600;
+    color:#f97316; text-decoration:none; margin-top:-8px; margin-bottom:22px;
+  }
+  .lp-forgot:hover { color:#ea6c0a; }
 
-  .divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
-  .divider-line { flex: 1; height: 1px; background: #e8e6e1; }
-  .divider-txt { font-size: 12px; font-weight: 600; color: #b0ada6; }
+  .lp-submit {
+    width:100%; padding:13px; background:#18181a; color:#f7f6f3;
+    border:none; border-radius:10px; font-family:'DM Sans',sans-serif;
+    font-size:15px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    transition:all 0.2s;
+  }
+  .lp-submit:hover:not(:disabled) {
+    background:#f97316; box-shadow:0 6px 20px rgba(249,115,22,0.25);
+  }
+  .lp-submit:disabled { opacity:0.5; cursor:not-allowed; }
 
-  @media(max-width: 960px) {
-    .login-left { display: none; }
-    .login-right { padding: 40px 24px; background: #ffffff; min-height: 100vh; }
+  .lp-register { text-align:center; margin-top:26px; font-size:14px; color:#8a8794; }
+  .lp-register a { color:#f97316; font-weight:700; text-decoration:none; }
+  .lp-register a:hover { text-decoration:underline; }
+
+  /* Hindi: Mobile me left panel chhup jayega */
+  @media(max-width:900px) {
+    .lp-left { display:none; }
+    .lp-right { background:#fff; padding:40px 24px; min-height:100vh; align-items:flex-start; padding-top:60px; }
+    /* Hindi: Mobile pe logo dikhao form ke upar */
+    .lp-form-wrap::before {
+      content:'YourNotes';
+      display:block; font-size:18px; font-weight:800; letter-spacing:-0.5px;
+      color:#18181a; margin-bottom:32px;
+      background:linear-gradient(90deg,#18181a 47%,#f97316 47%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
   }
 `;
 
-export default function LoginPage() {
+export default function LandingPage() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Hindi: Login form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) return toast.error('Please fill in all fields');
@@ -160,87 +177,104 @@ export default function LoginPage() {
     }
   };
 
-  const updateField = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+  const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
   return (
-    <div className="login-root">
+    <div className="lp-root">
       <style>{STYLES}</style>
 
-      <div className="login-left">
-        <div className="left-deco" />
-        <div className="left-deco2" />
+      {/* ── Left: Branding panel ── */}
+      <div className="lp-left">
+        <div className="lp-left-pattern" />
+        <div className="lp-left-glow" />
 
-        <div className="brand-logo">
-          <div className="logo-dot">
-            <BookOpen size={14} color="#fff" strokeWidth={2.5} />
-          </div>
-          <span className="brand-txt">Your</span><span className="brand-accent">Notes</span>
+        {/* Hindi: Text-only logo */}
+        <div className="lp-logo">
+          Your<span className="lp-logo-accent">Notes</span>
         </div>
 
-        <div className="left-content">
-          <div className="left-tag"><Sparkles size={11} /> Smart note-taking</div>
-          <h2 className="left-title">Think clearer.<br /><em>Study smarter.</em></h2>
-          <p className="left-desc">Your notes, flashcards, and AI summaries — all in one minimal workspace.</p>
-
-          <div className="feat-stack">
-            <div className="feat-item">
-              <div className="feat-ico"><Sparkles size={18} color="#f97316" /></div>
-              <div className="feat-text">
-                <h4>AI-Powered Summaries</h4>
-                <p>Auto-generate study materials from any note.</p>
+        <div className="lp-copy">
+          <div className="lp-eyebrow">
+            <Sparkles size={10} /> Smart note-taking
+          </div>
+          <h1 className="lp-headline">
+            Think clearer.<br /><em>Study smarter.</em>
+          </h1>
+          <p className="lp-desc">
+            Your notes, flashcards, and AI summaries — all in one minimal workspace.
+          </p>
+          <div className="lp-features">
+            <div className="lp-feat">
+              <div className="lp-feat-icon">
+                <Sparkles size={17} color="#f97316" />
+              </div>
+              <div>
+                <div className="lp-feat-title">AI-Powered Summaries</div>
+                <div className="lp-feat-desc">Auto-generate study materials from any note.</div>
               </div>
             </div>
-            <div className="feat-item">
-              <div className="feat-ico"><ShieldCheck size={18} color="#8b5cf6" /></div>
-              <div className="feat-text">
-                <h4>Private & Secure</h4>
-                <p>Your intellectual work stays yours, always.</p>
+            <div className="lp-feat">
+              <div className="lp-feat-icon">
+                <ShieldCheck size={17} color="#a78bfa" />
+              </div>
+              <div>
+                <div className="lp-feat-title">Private & Secure</div>
+                <div className="lp-feat-desc">Your intellectual work stays yours, always.</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="left-footer">
-          <div className="footer-dot" />
-          <span className="footer-label">S.V. Polytechnic College, Bhopal · 2026</span>
+        <div className="lp-footer">
+          S.V. Polytechnic College, Bhopal · 2026
         </div>
       </div>
 
-      <div className="login-right">
-        <div className="form-container">
-          <div className="form-header">
-            <h2 className="form-title">Welcome back</h2>
-            <p className="form-subtitle">Sign in to your workspace</p>
+      {/* ── Right: Login form ── */}
+      <div className="lp-right">
+        <div className="lp-form-wrap">
+          <div className="lp-form-head">
+            <h2 className="lp-form-title">Welcome back</h2>
+            <p className="lp-form-sub">Sign in to your workspace</p>
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="input-group">
-              <label className="input-label">Email</label>
-              <div className="input-wrap">
-                <Mail size={16} className="input-ico" />
-                <input type="email" placeholder="name@example.com" value={form.email} onChange={updateField('email')} className="form-input" required />
+            <div className="lp-field">
+              <label className="lp-label">Email</label>
+              <div className="lp-input-wrap">
+                <span className="lp-input-icon"><Mail size={15} /></span>
+                <input
+                  type="email" placeholder="name@example.com"
+                  value={form.email} onChange={update('email')}
+                  className="lp-input" required
+                />
               </div>
             </div>
 
-            <div className="input-group">
-              <label className="input-label">Password</label>
-              <div className="input-wrap">
-                <Lock size={16} className="input-ico" />
-                <input type="password" placeholder="••••••••" value={form.password} onChange={updateField('password')} className="form-input" required />
+            <div className="lp-field">
+              <label className="lp-label">Password</label>
+              <div className="lp-input-wrap">
+                <span className="lp-input-icon"><Lock size={15} /></span>
+                <input
+                  type="password" placeholder="••••••••"
+                  value={form.password} onChange={update('password')}
+                  className="lp-input" required
+                />
               </div>
             </div>
 
-            <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+            <Link to="/forgot-password" className="lp-forgot">Forgot password?</Link>
 
-            <button type="submit" disabled={loading} className="btn-submit">
+            <button type="submit" disabled={loading} className="lp-submit">
               {loading
-                ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Signing in...</>
-                : <>Sign in <ArrowRight size={17} strokeWidth={2.5} /></>}
+                ? <><span className="spinner" style={{width:16,height:16,borderWidth:'2px',borderColor:'rgba(255,255,255,0.3)',borderTopColor:'#fff'}} /> Signing in...</>
+                : <>Sign in <ArrowRight size={16} strokeWidth={2.5} /></>
+              }
             </button>
           </form>
 
-          <p className="register-prompt">
-            New here? <Link to="/register" className="register-link">Create an account</Link>
+          <p className="lp-register">
+            New here? <Link to="/register">Create an account</Link>
           </p>
         </div>
       </div>
