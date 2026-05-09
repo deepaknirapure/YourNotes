@@ -3,7 +3,8 @@ import {
   Plus, Search, Star, Trash2, Menu, FilePlus, Globe, Lock,
   CheckCircle2, X, ArrowLeft, FolderOpen, Pin, PinOff,
   Tag, Upload, Palette, Heart, ChevronDown, StickyNote,
-  Hash, Layers, FileText, Clock, NotebookPen, AlignLeft
+  Hash, Layers, FileText, Clock, NotebookPen, MoreVertical,
+  Filter, LayoutGrid, List
 } from "lucide-react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -13,847 +14,326 @@ import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
 import { useTheme } from "../context/ThemeContext";
 
-// ─── Note Colors ──────────────────────────────────────────────────────────────
-const NOTE_COLORS_DARK = {
-  default: { bg: 'var(--surface)',  border: 'var(--border)' },
-  red:     { bg: '#2d1515',         border: '#7f1d1d'        },
-  orange:  { bg: '#2d1a0e',         border: '#7c2d12'        },
-  yellow:  { bg: '#2d2a0e',         border: '#713f12'        },
-  green:   { bg: '#0f2d1a',         border: '#14532d'        },
-  blue:    { bg: '#0f1d2d',         border: '#1e3a5f'        },
-  purple:  { bg: '#1d0f2d',         border: '#4c1d95'        },
-  pink:    { bg: '#2d0f1d',         border: '#831843'        },
-};
-const NOTE_COLORS_LIGHT = {
-  default: { bg: 'var(--surface)',  border: 'var(--border)' },
-  red:     { bg: '#fca5a5',         border: '#ef4444'        },
-  orange:  { bg: '#fdba74',         border: '#f97316'        },
-  yellow:  { bg: '#fde047',         border: '#eab308'        },
-  green:   { bg: '#86efac',         border: '#22c55e'        },
-  blue:    { bg: '#93c5fd',         border: '#3b82f6'        },
-  purple:  { bg: '#d8b4fe',         border: '#a855f7'        },
-  pink:    { bg: '#f9a8d4',         border: '#ec4899'        },
+// --- Design System ---
+const THEME_CONSTANTS = {
+  radius: '10px',
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+  shadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
 };
 
-const COLOR_DOTS = {
-  default:'#64748b', red:'#ef4444', orange:'#f97316',
-  yellow:'#eab308',  green:'#22c55e', blue:'#3b82f6',
-  purple:'#a855f7',  pink:'#ec4899',
-};
+const getGlobalStyles = (isDark) => `
+  :root {
+    --brand-primary: #6366f1;
+    --brand-secondary: #4f46e5;
+    --surface-higher: ${isDark ? '#1e293b' : '#ffffff'};
+    --surface-lower: ${isDark ? '#0f172a' : '#f8fafc'};
+    --border-subtle: ${isDark ? '#334155' : '#e2e8f0'};
+    --text-main: ${isDark ? '#f1f5f9' : '#0f172a'};
+    --text-subtle: ${isDark ? '#94a3b8' : '#64748b'};
+  }
 
-const getStyles = () => `
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes spin    { to { transform:rotate(360deg); } }
-  @keyframes scaleIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+  .app-container {
+    display: flex;
+    height: 100vh;
+    background: var(--surface-lower);
+    color: var(--text-main);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
 
-  .db-wrap  { display:flex; height:100dvh; overflow:hidden; background:var(--bg); font-family:'Plus Jakarta Sans',sans-serif; }
-  .db-main  { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
+  /* Professional Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 10px; }
 
-  /* Topbar */
-  .db-topbar { height:58px; display:flex; align-items:center; justify-content:space-between; padding:0 24px; background:var(--surface); border-bottom:1px solid var(--border); flex-shrink:0; gap:10px; }
-  .db-topbar-left { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-  .db-menu-btn { display:none; background:transparent; border:1px solid var(--border); border-radius:7px; cursor:pointer; padding:7px; color:var(--text-muted); align-items:center; justify-content:center; transition:0.15s; }
-  .db-menu-btn:hover { border-color:var(--accent); color:var(--accent); }
-  .page-label { font-size:14px; font-weight:800; color:var(--text); letter-spacing:-0.3px; white-space:nowrap; }
+  /* Header Design */
+  .main-header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    background: var(--surface-higher);
+    border-bottom: 1px solid var(--border-subtle);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
 
-  .search-box { display:flex; align-items:center; gap:9px; background:var(--bg); border:1.5px solid var(--border); border-radius:9px; padding:7px 14px; width:240px; transition:0.2s; flex-shrink:0; }
-  .search-box:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-light); }
-  .search-box input { border:none; outline:none; background:transparent; width:100%; font-size:13px; font-weight:500; color:var(--text); font-family:inherit; }
-  .search-box input::placeholder { color:var(--text-light); }
+  .search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--surface-lower);
+    border: 1px solid var(--border-subtle);
+    padding: 8px 16px 8px 40px;
+    border-radius: 8px;
+    color: var(--text-main);
+    transition: ${THEME_CONSTANTS.transition};
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
 
-  .topbar-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-  .btn-new { background:var(--text); color:var(--surface); border:none; border-radius:9px; padding:8px 16px; font-weight:700; font-size:13px; cursor:pointer; transition:0.2s; font-family:inherit; display:flex; align-items:center; gap:6px; white-space:nowrap; }
-  .btn-new:hover { background:var(--accent); color:#fff; box-shadow:0 4px 14px rgba(249,115,22,0.25); }
-  .btn-import { background:transparent; border:1.5px solid var(--border); border-radius:9px; padding:7px 14px; font-weight:700; font-size:13px; cursor:pointer; transition:0.2s; font-family:inherit; display:flex; align-items:center; gap:6px; color:var(--text-muted); white-space:nowrap; }
-  .btn-import:hover { border-color:var(--accent); color:var(--accent); }
+  /* Grid Layout */
+  .notes-view-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+  }
 
-  /* Filter Bar */
-  .filter-bar {
-    padding: 10px 24px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  /* Minimal Card Design */
+  .pro-card {
+    background: var(--surface-higher);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: ${THEME_CONSTANTS.transition};
+    position: relative;
+    cursor: pointer;
+  }
+  .pro-card:hover {
+    border-color: var(--brand-primary);
+    transform: translateY(-4px);
+    box-shadow: ${THEME_CONSTANTS.shadow};
+  }
+  .pro-card.selected {
+    border-color: var(--brand-primary);
+    background: ${isDark ? 'rgba(99, 102, 241, 0.05)' : 'rgba(99, 102, 241, 0.02)'};
+  }
+
+  .card-category {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--brand-primary);
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text-main);
+  }
+
+  .card-body {
+    font-size: 13px;
+    color: var(--text-subtle);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: var(--brand-primary);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
+    border: none;
+    cursor: pointer;
+    transition: ${THEME_CONSTANTS.transition};
+  }
+  .btn-primary:hover {
+    background: var(--brand-secondary);
+  }
+
+  /* Chip Navigation */
+  .filter-nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
     overflow-x: auto;
-    overflow-y: visible;
-    scrollbar-width: none;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 50;
+    padding-bottom: 8px;
   }
-  .filter-bar::-webkit-scrollbar { display:none; }
-  .filter-chip { padding:5px 14px; border-radius:100px; border:1.5px solid var(--border); font-size:12px; font-weight:700; cursor:pointer; transition:0.15s; background:transparent; color:var(--text-muted); font-family:inherit; white-space:nowrap; display:flex; align-items:center; gap:5px; }
-  .filter-chip:hover { border-color:var(--text-muted); color:var(--text); }
-  .filter-chip.active { background:var(--text); color:var(--surface); border-color:var(--text); }
-  .filter-chip.tag-active { background:var(--accent); color:#fff; border-color:var(--accent); }
-
-  /* Tag Dropdown */
-  .tag-drop {
-    position: fixed;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 8px;
-    z-index: 9999;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    min-width: 210px;
-    animation: scaleIn 0.15s ease;
-    max-height: 280px;
-    overflow-y: auto;
+  .nav-chip {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface-higher);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-subtle);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: ${THEME_CONSTANTS.transition};
   }
-  .tag-drop-search { display:flex; align-items:center; gap:7px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; padding:6px 10px; margin-bottom:6px; transition:0.15s; }
-  .tag-drop-search:focus-within { border-color:var(--accent); }
-  .tag-drop-search input { border:none; outline:none; background:transparent; width:100%; font-size:12px; font-weight:600; color:var(--text); font-family:inherit; }
-  .tag-drop-search input::placeholder { color:var(--text-light); }
-  .tag-drop-item { padding:7px 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:7px; }
-  .tag-drop-item:hover { background:var(--bg); color:var(--text); }
-  .tag-drop-item.a { color:var(--accent); background:var(--accent-light); }
-  .tag-empty { padding:14px 12px; font-size:12px; color:var(--text-light); text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .nav-chip.active {
+    background: var(--text-main);
+    color: var(--surface-higher);
+    border-color: var(--text-main);
+  }
 
-  /* Content */
-  .db-content { flex:1; overflow-y:auto; padding:24px 28px; scrollbar-width:none; background:var(--bg); }
-  .db-content::-webkit-scrollbar { display:none; }
-  .section-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-  .section-title { font-size:14px; font-weight:800; color:var(--text); letter-spacing:-0.3px; display:flex; align-items:center; gap:7px; }
-  .count-pill { background:var(--bg); border:1px solid var(--border); color:var(--text-muted); font-size:11px; font-weight:700; padding:2px 9px; border-radius:100px; }
-  .pinned-label { font-size:10px; font-weight:900; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
-  .db-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:12px; }
-
-  /* Note Card */
-  .note-card { border:1.5px solid var(--border); border-radius:14px; padding:18px; cursor:pointer; transition:all 0.2s; animation:fadeUp 0.3s both; display:flex; flex-direction:column; position:relative; }
-  .note-card:hover { border-color:var(--accent); box-shadow:0 4px 20px rgba(0,0,0,0.15); transform:translateY(-2px); }
-  .note-card.selected { border-color:var(--accent) !important; border-width:2px; }
-  .note-title  { font-size:14px; font-weight:800; color:var(--text); margin-bottom:6px; line-height:1.35; padding-right:18px; }
-  .note-excerpt{ font-size:12px; color:var(--text-muted); line-height:1.65; margin-bottom:14px; flex:1; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .note-tags   { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
-  .note-tag    { font-size:10px; font-weight:700; padding:2px 8px; border-radius:100px; background:var(--accent-light); color:var(--accent); display:flex; align-items:center; gap:3px; }
-  .note-footer { display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:12px; }
-  .note-date   { font-size:10px; font-weight:600; color:var(--text-light); display:flex; align-items:center; gap:4px; }
-  .note-actions{ display:flex; gap:4px; align-items:center; }
-  .ico-btn { width:26px; height:26px; border-radius:6px; border:1px solid transparent; background:transparent; color:var(--text-light); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:0.15s; }
-  .ico-btn:hover { border-color:var(--border); color:var(--text); background:var(--bg); }
-  .ico-btn.s { color:#f59e0b; }
-  .ico-btn.f { color:#ec4899; }
-  .ico-btn.p { color:var(--accent); }
-  .pin-badge { position:absolute; top:10px; right:10px; color:var(--accent); }
-
-  /* Color Menu */
-  .color-menu { position:absolute; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; gap:6px; flex-wrap:wrap; z-index:200; box-shadow:0 8px 24px rgba(0,0,0,0.35); width:168px; animation:scaleIn 0.15s ease; bottom:100%; right:0; margin-bottom:6px; }
-  .cdot { width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:0.15s; }
-  .cdot:hover,.cdot.sel { border-color:var(--text); transform:scale(1.15); }
-
-  /* Import Modal */
-  .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; }
-  .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:28px; width:100%; max-width:440px; animation:scaleIn 0.2s ease; }
-  .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:40px 20px; text-align:center; cursor:pointer; transition:0.2s; }
-  .drop-zone:hover,.drop-zone.dov { border-color:var(--accent); background:var(--accent-light); }
-  .drop-zone input { display:none; }
-
-  /* Bulk */
-  .bulk-bar { position:sticky; top:0; z-index:50; margin-bottom:16px; padding:10px 18px; background:var(--surface); border-radius:12px; border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 16px rgba(249,115,22,0.1); animation:fadeUp 0.2s ease; }
-  .db-spinner { width:24px; height:24px; border:2.5px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
-  .db-empty { text-align:center; padding:60px 20px; border:1.5px dashed var(--border); border-radius:16px; display:flex; flex-direction:column; align-items:center; gap:12px; }
-  .db-empty-icon { width:56px; height:56px; border-radius:16px; background:var(--bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; }
-
-  @media (max-width:768px) {
-    .db-topbar { padding:0 12px; height:52px; }
-    .search-box { display:none; }
-    .db-menu-btn { display:flex; }
-    .btn-import span { display:none; }
-    .filter-bar { padding:8px 12px; }
-    .db-content { padding:12px; padding-bottom:calc(80px + env(safe-area-inset-bottom)); }
-    .db-grid { grid-template-columns:1fr; gap:10px; }
+  @media (max-width: 768px) {
+    .main-header { padding: 0 16px; }
+    .notes-view-container { padding: 16px; }
+    .search-wrapper { display: none; }
   }
 `;
 
-// ─── Import Modal ─────────────────────────────────────────────────────────────
-function ImportModal({ onClose, onImported }) {
-  const [drag, setDrag]       = useState(false);
-  const [file, setFile]       = useState(null);
-  const [loading, setLoading] = useState(false);
-  const ref = useRef(null);
-
-  const pick = (f) => {
-    const ok = ['application/pdf','text/plain',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/msword'];
-    const ext = f.name.match(/\.(pdf|docx|doc|txt|md)$/i);
-    if (!ok.includes(f.type) && !ext) { toast.error('PDF, DOCX, TXT, MD only'); return; }
-    if (f.size > 10*1024*1024) { toast.error('Max 10MB'); return; }
-    setFile(f);
-  };
-
-  const doImport = async () => {
-    if (!file) return;
-    setLoading(true);
-    try {
-      const fd = new FormData();
-      fd.append('importFile', file);
-      const { data } = await API.post('/import', fd);
-      toast.success(data.message);
-      onImported(data.note);
-      onClose();
-    } catch (e) { toast.error(e?.response?.data?.message || 'Import failed'); }
-    finally { setLoading(false); }
-  };
-
-  return (
-    <div className="overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
-
-        {/* Header — lucide icon */}
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ width:34, height:34, borderRadius:9, background:'var(--accent-light)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <Upload size={16} color="var(--accent)"/>
-            </div>
-            <span style={{ fontWeight:900, fontSize:17, color:'var(--text)' }}>Import Note</span>
-          </div>
-          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex' }}>
-            <X size={18}/>
-          </button>
-        </div>
-
-        <div
-          className={`drop-zone${drag ? ' dov' : ''}`}
-          onClick={() => ref.current?.click()}
-          onDragOver={e => { e.preventDefault(); setDrag(true); }}
-          onDragLeave={() => setDrag(false)}
-          onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) pick(f); }}
-        >
-          <input ref={ref} type="file" accept=".pdf,.docx,.doc,.txt,.md" onChange={e => { if (e.target.files[0]) pick(e.target.files[0]); }}/>
-          <Upload size={32} color="var(--text-light)" style={{ margin:'0 auto 12px', display:'block' }}/>
-          {file ? (
-            <div>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontWeight:800, color:'var(--text)', fontSize:14 }}>
-                <FileText size={14} color="var(--accent)"/> {file.name}
-              </div>
-              <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:4 }}>{(file.size/1024).toFixed(0)} KB</div>
-            </div>
-          ) : (
-            <div>
-              <div style={{ fontWeight:700, color:'var(--text)', fontSize:14 }}>Click or drag & drop</div>
-              <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:6 }}>PDF • DOCX • TXT • MD &nbsp;|&nbsp; Max 10MB</div>
-            </div>
-          )}
-        </div>
-
-        <div style={{ display:'flex', gap:10, marginTop:20 }}>
-          <button onClick={onClose} style={{ flex:1, background:'transparent', border:'1.5px solid var(--border)', borderRadius:10, padding:'10px', fontWeight:700, cursor:'pointer', fontFamily:'inherit', color:'var(--text-muted)' }}>
-            Cancel
-          </button>
-          <button
-            onClick={doImport}
-            disabled={!file || loading}
-            style={{ flex:2, background:file&&!loading?'var(--accent)':'var(--border)', color:'#fff', border:'none', borderRadius:10, padding:'10px', fontWeight:800, cursor:file?'pointer':'not-allowed', fontFamily:'inherit', fontSize:14, display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}
-          >
-            {loading
-              ? <><div style={{ width:14, height:14, border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'#fff', borderRadius:'50%', animation:'spin .8s linear infinite' }}/> Importing…</>
-              : <><Upload size={14}/> Import Note</>
-            }
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Filter chips config ──────────────────────────────────────────────────────
-const FILTER_CHIPS = [
-  { id:'all',       label:'All Notes',  icon: StickyNote },
-  { id:'pinned',    label:'Pinned',     icon: Pin        },
-  { id:'starred',   label:'Starred',    icon: Star       },
-  { id:'favorites', label:'Favorites',  icon: Heart      },
-];
-
-// ─── Main Dashboard ───────────────────────────────────────────────────────────
+// --- Main Component ---
 export default function DashboardPage() {
-  const [searchParams]                  = useSearchParams();
-  const [notes, setNotes]               = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [searchQuery, setSearchQuery]   = useState('');
-  const [selectedNote, setSelectedNote] = useState(null);
-  const [sidebarOpen, setSidebarOpen]   = useState(false);
-  const [selectedIds, setSelectedIds]   = useState([]);
-  const [folderName, setFolderName]     = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [activeTag, setActiveTag]       = useState('');
-  const [showTagMenu, setShowTagMenu]   = useState(false);
-  const [tagMenuPos, setTagMenuPos]     = useState({ top: 0, left: 0 });
-  const [tagSearch, setTagSearch]       = useState('');
-  const [showImport, setShowImport]     = useState(false);
-  const [colorMenu, setColorMenu]       = useState(null);
-
-  const colorRef   = useRef(null);
-  const tagBtnRef  = useRef(null);
-  const tagDropRef = useRef(null);
-
   const { isDark } = useTheme();
-  const navigate   = useNavigate();
-  const location   = useLocation();
-  const activeFolderId = searchParams.get('folder');
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedNote, setSelectedNote] = useState(null);
+  const navigate = useNavigate();
 
-  // Route-based filter
-  useEffect(() => {
-    if (location.pathname === '/starred') {
-      setActiveFilter('starred');
-      setShowTagMenu(false);
-    }
-  }, [location.pathname]);
-
-  // Outside-click closes both menus
-  useEffect(() => {
-    const h = (e) => {
-      if (colorRef.current && !colorRef.current.contains(e.target)) {
-        setColorMenu(null);
-      }
-      if (
-        tagBtnRef.current  && !tagBtnRef.current.contains(e.target) &&
-        tagDropRef.current && !tagDropRef.current.contains(e.target)
-      ) {
-        setShowTagMenu(false);
-        setTagSearch('');
-      }
-    };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, []);
-
+  // Load Data
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const ep = activeFolderId ? `/notes?folder=${activeFolderId}` : '/notes';
-      const [nRes, fRes] = await Promise.all([
-        API.get(ep),
-        activeFolderId ? API.get('/folders') : Promise.resolve(null),
-      ]);
-      setNotes(nRes.data || []);
-      if (activeFolderId && fRes) {
-        const f = (fRes.data || []).find(f => f._id === activeFolderId);
-        setFolderName(f?.name || 'Folder');
-      } else {
-        setFolderName('');
-      }
-    } catch {
-      toast.error('Failed to load notes');
+      const { data } = await API.get('/notes');
+      setNotes(data || []);
+    } catch (e) {
+      toast.error("Connection error");
     } finally {
       setLoading(false);
     }
-  }, [activeFolderId]);
+  }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  const createNote = async () => {
-    try {
-      const { data } = await API.post('/notes', { title:'Untitled Note', content:'', folder:activeFolderId });
-      setNotes(p => [data, ...p]);
-      setSelectedNote(data);
-    } catch { toast.error('Could not create note'); }
-  };
-
-  const toggleStar = async (e, id) => {
-    e.stopPropagation();
-    try {
-      const { data } = await API.patch(`/notes/${id}/star`);
-      setNotes(p => p.map(n => n._id === id ? { ...n, isStarred: data.isStarred } : n));
-    } catch { toast.error('Failed'); }
-  };
-
-  const togglePin = async (e, id) => {
-    e.stopPropagation();
-    try {
-      const { data } = await API.patch(`/notes/${id}/pin`);
-      setNotes(p => p.map(n => n._id === id ? { ...n, isPinned: data.isPinned } : n));
-      toast.success(data.isPinned ? 'Pinned' : 'Unpinned');
-    } catch { toast.error('Failed'); }
-  };
-
-  const toggleFav = async (e, id) => {
-    e.stopPropagation();
-    const note = notes.find(n => n._id === id);
-    const val  = !note.isFavorite;
-    setNotes(p => p.map(n => n._id === id ? { ...n, isFavorite: val } : n));
-    try {
-      await API.patch(`/notes/${id}`, { isFavorite: val });
-    } catch {
-      setNotes(p => p.map(n => n._id === id ? { ...n, isFavorite: !val } : n));
-      toast.error('Failed');
-    }
-  };
-
-  const trashNote = async (e, id) => {
-    e.stopPropagation();
-    try {
-      await API.patch(`/notes/${id}/trash`);
-      setNotes(p => p.filter(n => n._id !== id));
-      toast.success('Moved to trash');
-    } catch { toast.error('Failed'); }
-  };
-
-  const bulkDelete = async () => {
-    try {
-      await Promise.all(selectedIds.map(id => API.patch(`/notes/${id}/trash`)));
-      setNotes(p => p.filter(n => !selectedIds.includes(n._id)));
-      setSelectedIds([]);
-      toast.success(`${selectedIds.length} notes moved to trash`);
-    } catch { toast.error('Bulk delete failed'); }
-  };
-
-  const setColor = async (id, color) => {
-    setNotes(p => p.map(n => n._id === id ? { ...n, color } : n));
-    try { await API.patch(`/notes/${id}`, { color }); }
-    catch { toast.error('Color update failed'); }
-    setColorMenu(null);
-  };
-
-  // Open tag dropdown positioned below the chip button
-  const openTagMenu = () => {
-    if (showTagMenu) {
-      setShowTagMenu(false);
-      setTagSearch('');
-      return;
-    }
-    if (tagBtnRef.current) {
-      const rect = tagBtnRef.current.getBoundingClientRect();
-      setTagMenuPos({ top: rect.bottom + 6, left: rect.left });
-    }
-    setTagSearch('');
-    setShowTagMenu(true);
-  };
-
-  const allTags = [...new Set(notes.flatMap(n => n.tags || []).filter(Boolean))];
-
-  const filteredTags = allTags.filter(t =>
-    t.toLowerCase().includes(tagSearch.toLowerCase().replace(/^#/, ''))
-  );
-
-  const filtered = notes.filter(n => {
+  // Filtering Logic
+  const filteredNotes = notes.filter(n => {
     if (n.isTrashed) return false;
-    const q  = searchQuery.toLowerCase();
-    const ms = !q || n.title?.toLowerCase().includes(q) || n.plainText?.toLowerCase().includes(q);
-    const mf = activeFilter === 'all'       ? true
-             : activeFilter === 'starred'   ? n.isStarred
-             : activeFilter === 'favorites' ? n.isFavorite
-             : activeFilter === 'pinned'    ? n.isPinned
-             : true;
-    const mt = !activeTag || (n.tags || []).includes(activeTag);
-    return ms && mf && mt;
+    const matchesSearch = n.title?.toLowerCase().includes(searchQuery.toLowerCase());
+    if (activeFilter === 'starred') return matchesSearch && n.isStarred;
+    if (activeFilter === 'pinned') return matchesSearch && n.isPinned;
+    return matchesSearch;
   });
 
-  const pinned   = filtered.filter(n =>  n.isPinned);
-  const unpinned = filtered.filter(n => !n.isPinned);
-
   if (selectedNote) {
-    return (
-      <NoteEditor
-        note={selectedNote}
-        onClose={() => setSelectedNote(null)}
-        onUpdate={u => setNotes(p => p.map(n => n._id === u._id ? u : n))}
-      />
-    );
+    return <NoteEditor note={selectedNote} onClose={() => setSelectedNote(null)} />;
   }
 
   return (
-    <div className="db-wrap">
-      <style>{getStyles(isDark)}</style>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="db-main">
-
-        {/* ── Topbar ── */}
-        <header className="db-topbar">
-          <div className="db-topbar-left">
-            <button className="db-menu-btn" onClick={() => setSidebarOpen(true)}>
-              <Menu size={18}/>
-            </button>
-            {activeFolderId ? (
-              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                <button
-                  onClick={() => navigate('/folders')}
-                  style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex', padding:2 }}
-                >
-                  <ArrowLeft size={15}/>
-                </button>
-                <FolderOpen size={15} color="var(--accent)"/>
-                <span className="page-label" style={{ color:'var(--accent)' }}>{folderName || 'Folder'}</span>
-              </div>
-            ) : (
-              <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-                <NotebookPen size={16} color="var(--accent)"/>
-                <span className="page-label">My Notes</span>
-              </div>
-            )}
+    <div className="app-container">
+      <style>{getGlobalStyles(isDark)}</style>
+      <Sidebar />
+      
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <header className="main-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <h1 style={{ fontSize: '18px', fontWeight: 800 }}>Workspace</h1>
+            <div className="search-wrapper">
+              <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+              <input 
+                className="search-input" 
+                placeholder="Find anything..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className="search-box">
-            <Search size={14} color="var(--text-light)"/>
-            <input
-              placeholder="Search notes…"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex', padding:0 }}
-              >
-                <X size={13}/>
-              </button>
-            )}
-          </div>
-
-          <div className="topbar-actions">
-            <button className="btn-import" onClick={() => setShowImport(true)}>
-              <Upload size={14}/><span>Import</span>
-            </button>
-            <button className="btn-new" onClick={createNote}>
-              <Plus size={15} strokeWidth={2.5}/><span>New Note</span>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button className="btn-primary" onClick={() => setSelectedNote({title: '', content: ''})}>
+              <Plus size={18} />
+              <span>Create Note</span>
             </button>
           </div>
         </header>
 
-        {/* ── Filter Bar ── */}
-        <div className="filter-bar">
-          {FILTER_CHIPS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              className={`filter-chip${activeFilter === id ? ' active' : ''}`}
-              onClick={() => { setActiveFilter(id); setActiveTag(''); setShowTagMenu(false); }}
-            >
-              <Icon size={12}/> {label}
-            </button>
-          ))}
+        <div className="notes-view-container">
+          {/* Section Navigation */}
+          <nav className="filter-nav">
+            {['all', 'starred', 'pinned', 'archives'].map(f => (
+              <button 
+                key={f}
+                className={`nav-chip ${activeFilter === f ? 'active' : ''}`}
+                onClick={() => setActiveFilter(f)}
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+          </nav>
 
-          {/* Tags chip */}
-          <button
-            ref={tagBtnRef}
-            className={`filter-chip${activeTag ? ' tag-active' : ''}`}
-            onClick={openTagMenu}
-          >
-            <Tag size={12}/>
-            {activeTag
-              ? (activeTag.startsWith('#') ? activeTag : `#${activeTag}`)
-              : 'Tags'}
-            <ChevronDown
-              size={11}
-              style={{ transition:'transform 0.2s', transform: showTagMenu ? 'rotate(180deg)' : 'rotate(0deg)' }}
-            />
-          </button>
-        </div>
-
-        {/* ── Tag Dropdown (fixed, outside filter-bar overflow) ── */}
-        {showTagMenu && (
-          <div
-            ref={tagDropRef}
-            className="tag-drop"
-            style={{ top: tagMenuPos.top, left: tagMenuPos.left }}
-          >
-            {/* Search bar */}
-            <div className="tag-drop-search">
-              <Search size={12} color="var(--text-light)" style={{ flexShrink:0 }}/>
-              <input
-                autoFocus
-                placeholder="Search tags…"
-                value={tagSearch}
-                onChange={e => setTagSearch(e.target.value)}
-              />
-              {tagSearch && (
-                <button
-                  onClick={() => setTagSearch('')}
-                  style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex', padding:0 }}
-                >
-                  <X size={11}/>
-                </button>
-              )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-subtle)' }}>
+              Recent Documents ({filteredNotes.length})
+            </h2>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <LayoutGrid size={18} color="var(--brand-primary)" style={{ cursor: 'pointer' }} />
+              <List size={18} color="var(--text-subtle)" style={{ cursor: 'pointer' }} />
             </div>
-
-            {/* States */}
-            {allTags.length === 0 ? (
-              <div className="tag-empty">
-                <Tag size={16} color="var(--text-light)"/>
-                No tags yet — add them in the note editor
-              </div>
-            ) : filteredTags.length === 0 ? (
-              <div className="tag-empty">
-                <Search size={16} color="var(--text-light)"/>
-                No tags match "{tagSearch}"
-              </div>
-            ) : (
-              <>
-                {!tagSearch && (
-                  <div
-                    className={`tag-drop-item${!activeTag ? ' a' : ''}`}
-                    onClick={() => { setActiveTag(''); setShowTagMenu(false); setTagSearch(''); }}
-                  >
-                    <Layers size={12}/> All Notes
-                  </div>
-                )}
-                {filteredTags.map(t => (
-                  <div
-                    key={t}
-                    className={`tag-drop-item${activeTag === t ? ' a' : ''}`}
-                    onClick={() => { setActiveTag(t); setShowTagMenu(false); setTagSearch(''); }}
-                  >
-                    <Hash size={11}/>
-                    {t.startsWith('#') ? t.slice(1) : t}
-                  </div>
-                ))}
-              </>
-            )}
           </div>
-        )}
-
-        {/* ── Content ── */}
-        <div className="db-content">
-
-          {/* Bulk action bar */}
-          {selectedIds.length > 0 && (
-            <div className="bulk-bar">
-              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                <CheckCircle2 size={16} color="var(--accent)"/>
-                <span style={{ fontWeight:700, fontSize:13, color:'var(--text)' }}>{selectedIds.length} selected</span>
-              </div>
-              <div style={{ display:'flex', gap:8 }}>
-                <button
-                  onClick={bulkDelete}
-                  style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', color:'#ef4444', borderRadius:8, padding:'6px 14px', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}
-                >
-                  <Trash2 size={13}/> Delete
-                </button>
-                <button
-                  onClick={() => setSelectedIds([])}
-                  style={{ background:'none', border:'1px solid var(--border)', color:'var(--text-muted)', borderRadius:8, padding:'6px 10px', cursor:'pointer', display:'flex', alignItems:'center', fontFamily:'inherit' }}
-                >
-                  <X size={13}/>
-                </button>
-              </div>
-            </div>
-          )}
 
           {loading ? (
-            <div style={{ display:'flex', justifyContent:'center', padding:'80px 0' }}>
-              <div className="db-spinner"/>
-            </div>
-
-          ) : filtered.length === 0 ? (
-            <div className="db-empty">
-              <div className="db-empty-icon">
-                {activeTag
-                  ? <Tag size={22} color="var(--text-muted)"/>
-                  : activeFilter === 'starred'   ? <Star size={22} color="var(--text-muted)"/>
-                  : activeFilter === 'favorites' ? <Heart size={22} color="var(--text-muted)"/>
-                  : activeFilter === 'pinned'    ? <Pin size={22} color="var(--text-muted)"/>
-                  : activeFolderId               ? <FolderOpen size={22} color="var(--text-muted)"/>
-                  : <FilePlus size={22} color="var(--text-muted)"/>
-                }
-              </div>
-              <h3 style={{ color:'var(--text)', fontWeight:800, fontSize:15 }}>
-                {activeTag
-                  ? `No notes tagged "${activeTag.startsWith('#') ? activeTag : '#' + activeTag}"`
-                  : activeFilter !== 'all'
-                    ? `No ${activeFilter} notes`
-                    : activeFolderId
-                      ? `"${folderName}" is empty`
-                      : 'No notes yet'}
-              </h3>
-              <p style={{ color:'var(--text-muted)', fontSize:13 }}>
-                {activeFilter === 'all' && !activeTag ? 'Create or import a note to get started' : 'Try a different filter'}
-              </p>
-              {activeFilter === 'all' && !activeTag && (
-                <div style={{ display:'flex', gap:10, marginTop:4 }}>
-                  <button className="btn-new" onClick={createNote}><Plus size={14}/> Create</button>
-                  <button className="btn-import" onClick={() => setShowImport(true)}><Upload size={14}/> Import</button>
-                </div>
-              )}
-            </div>
-
+            <div style={{ padding: '40px', textAlign: 'center' }}>Loading your workspace...</div>
           ) : (
-            <>
-              {/* Pinned section */}
-              {pinned.length > 0 && activeFilter === 'all' && !activeTag && (
-                <div style={{ marginBottom:24 }}>
-                  <div className="pinned-label">
-                    <Pin size={11}/> Pinned
-                  </div>
-                  <div className="db-grid">
-                    {pinned.map((note, i) => (
-                      <NoteCard
-                        key={note._id} note={note} i={i}
-                        selectedIds={selectedIds} setSelectedIds={setSelectedIds}
-                        onOpen={setSelectedNote}
-                        toggleStar={toggleStar} togglePin={togglePin} toggleFav={toggleFav}
-                        trashNote={trashNote}
-                        colorMenu={colorMenu} setColorMenu={setColorMenu}
-                        setColor={setColor} colorRef={colorRef}
-                      />
-                    ))}
-                  </div>
-                  {unpinned.length > 0 && (
-                    <div style={{ borderTop:'1px solid var(--border)', margin:'20px 0 16px' }}/>
-                  )}
-                </div>
-              )}
-
-              {/* Section heading */}
-              <div className="section-hd">
-                <h2 className="section-title">
-                  {activeFolderId ? (
-                    <><FolderOpen size={15} color="var(--accent)"/> {folderName}</>
-                  ) : activeFilter === 'all' ? (
-                    pinned.length > 0 && unpinned.length > 0 && !activeTag
-                      ? <><AlignLeft size={14}/> Other Notes</>
-                      : <><StickyNote size={14}/> All Notes</>
-                  ) : activeFilter === 'starred' ? (
-                    <><Star size={14}/> Starred</>
-                  ) : activeFilter === 'favorites' ? (
-                    <><Heart size={14}/> Favorites</>
-                  ) : (
-                    <><Pin size={14}/> Pinned</>
-                  )}
-                </h2>
-                <span className="count-pill">
-                  {(activeFilter === 'pinned' ? pinned : unpinned).length}
-                </span>
-              </div>
-
-              <div className="db-grid">
-                {(activeFilter === 'pinned' ? pinned : unpinned).map((note, i) => (
-                  <NoteCard
-                    key={note._id} note={note} i={i}
-                    selectedIds={selectedIds} setSelectedIds={setSelectedIds}
-                    onOpen={setSelectedNote}
-                    toggleStar={toggleStar} togglePin={togglePin} toggleFav={toggleFav}
-                    trashNote={trashNote}
-                    colorMenu={colorMenu} setColorMenu={setColorMenu}
-                    setColor={setColor} colorRef={colorRef}
-                  />
-                ))}
-              </div>
-            </>
+            <div className="notes-grid">
+              {filteredNotes.map((note) => (
+                <CompactNoteCard 
+                  key={note._id} 
+                  note={note} 
+                  onClick={() => setSelectedNote(note)}
+                />
+              ))}
+            </div>
           )}
         </div>
       </main>
-
-      {showImport && (
-        <ImportModal
-          onClose={() => setShowImport(false)}
-          onImported={note => setNotes(p => [note, ...p])}
-        />
-      )}
-
-      <button className="mobile-fab" onClick={createNote} aria-label="Create note">
-        <Plus size={22} strokeWidth={2.5}/>
-      </button>
-      <MobileNav/>
+      <MobileNav />
     </div>
   );
 }
 
-// ─── Note Card ────────────────────────────────────────────────────────────────
-function NoteCard({
-  note, i, selectedIds, setSelectedIds, onOpen,
-  toggleStar, togglePin, toggleFav, trashNote,
-  colorMenu, setColorMenu, setColor, colorRef,
-}) {
-  const { isDark } = useTheme();
-  const NOTE_COLORS = isDark ? NOTE_COLORS_DARK : NOTE_COLORS_LIGHT;
-  const cs  = NOTE_COLORS[note.color] || NOTE_COLORS.default;
-  const sel = selectedIds.includes(note._id);
-
+// --- Card Component ---
+function CompactNoteCard({ note, onClick }) {
   return (
-    <div
-      className={`note-card${sel ? ' selected' : ''}`}
-      style={{ background:cs.bg, borderColor:sel ? 'var(--accent)' : cs.border, animationDelay:`${i * 0.04}s` }}
-      onClick={() =>
-        selectedIds.length > 0
-          ? setSelectedIds(p => p.includes(note._id) ? p.filter(x => x !== note._id) : [...p, note._id])
-          : onOpen(note)
-      }
-    >
-      {note.isPinned && (
-        <div className="pin-badge"><Pin size={12} fill="currentColor"/></div>
-      )}
-
-      <h3 className="note-title">{note.title || 'Untitled Note'}</h3>
-
-      {/* Tags with lucide Hash icon */}
-      {note.tags?.length > 0 && (
-        <div className="note-tags">
-          {note.tags.slice(0, 3).map(t => (
-            <span key={t} className="note-tag">
-              <Hash size={9}/>
-              {t.startsWith('#') ? t.slice(1) : t}
-            </span>
-          ))}
-          {note.tags.length > 3 && (
-            <span className="note-tag">+{note.tags.length - 3}</span>
-          )}
+    <div className="pro-card" onClick={onClick}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <span className="card-category">{note.tags?.[0] || 'Uncategorized'}</span>
+        {note.isPinned && <Pin size={14} color="var(--brand-primary)" fill="var(--brand-primary)" />}
+      </div>
+      
+      <h3 className="card-title">{note.title || 'Untitled'}</h3>
+      <p className="card-body">{note.plainText || 'No content provided yet...'}</p>
+      
+      <div className="card-footer">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-subtle)', fontSize: '11px' }}>
+          <Clock size={12} />
+          {new Date(note.updatedAt).toLocaleDateString()}
         </div>
-      )}
-
-      <p className="note-excerpt">{note.plainText || 'Click to start writing…'}</p>
-
-      <div className="note-footer">
-        {/* Date with Clock icon */}
-        <span className="note-date">
-          <Clock size={10}/>
-          {new Date(note.updatedAt).toLocaleDateString('en-IN', { month:'short', day:'numeric' })}
-        </span>
-
-        <div className="note-actions" onClick={e => e.stopPropagation()}>
-
-          {/* Star */}
-          <button className={`ico-btn${note.isStarred ? ' s' : ''}`} onClick={e => toggleStar(e, note._id)} title="Star">
-            <Star size={12} fill={note.isStarred ? 'currentColor' : 'none'}/>
-          </button>
-
-          {/* Favorite */}
-          <button className={`ico-btn${note.isFavorite ? ' f' : ''}`} onClick={e => toggleFav(e, note._id)} title="Favorite">
-            <Heart size={12} fill={note.isFavorite ? 'currentColor' : 'none'}/>
-          </button>
-
-          {/* Pin / Unpin */}
-          <button className={`ico-btn${note.isPinned ? ' p' : ''}`} onClick={e => togglePin(e, note._id)} title={note.isPinned ? 'Unpin' : 'Pin'}>
-            {note.isPinned ? <PinOff size={12}/> : <Pin size={12}/>}
-          </button>
-
-          {/* Color picker */}
-          <div style={{ position:'relative' }} ref={colorMenu === note._id ? colorRef : null}>
-            <button
-              className="ico-btn"
-              onClick={e => { e.stopPropagation(); setColorMenu(colorMenu === note._id ? null : note._id); }}
-              title="Change color"
-            >
-              <Palette size={12}/>
-            </button>
-            {colorMenu === note._id && (
-              <div className="color-menu" onClick={e => e.stopPropagation()}>
-                {Object.entries(COLOR_DOTS).map(([k, d]) => (
-                  <div
-                    key={k}
-                    className={`cdot${(note.color || 'default') === k ? ' sel' : ''}`}
-                    style={{ background: d }}
-                    title={k}
-                    onClick={() => setColor(note._id, k)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Public / Private */}
-          {note.isPublic
-            ? <Globe size={11} color="var(--purple)" title="Public"/>
-            : <Lock  size={11} color="var(--text-light)" title="Private"/>
-          }
-
-          {/* Trash */}
-          <button className="ico-btn" onClick={e => trashNote(e, note._id)} title="Move to trash">
-            <Trash2 size={12}/>
-          </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <Star size={14} color={note.isStarred ? "#f59e0b" : "var(--text-subtle)"} />
+          <MoreVertical size={14} color="var(--text-subtle)" />
         </div>
       </div>
     </div>
