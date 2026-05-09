@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, BookOpen, Folder, Bot, Users, Trash2, Settings, X, Sun, Moon, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import Logo from '../components/Logo';
 
 // Hindi: Navigation items — app ke main pages
 const NAV_ITEMS = [
@@ -34,14 +35,7 @@ export default function Sidebar({ open, onClose }) {
       <aside className={`s-aside${open ? ' s-open' : ''}`}>
 
         {/* Logo Header */}
-        <div className="s-header">
-          <div className="s-logo" onClick={() => goTo('/home')}>
-            YourNotes
-          </div>
-          <button className="s-close" onClick={onClose} aria-label="Close">
-            <X size={14} />
-          </button>
-        </div>
+        <Logo />
 
         {/* Navigation */}
         <nav className="s-nav">
