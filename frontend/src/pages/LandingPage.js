@@ -93,13 +93,14 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
-  const { token } = useAuth();
+  const { token, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Hindi: Already logged in users ko dashboard par bhejo
+  // Already logged in users ko dashboard par bhejo
+  // loading check zaruri hai — pehle auth state settle ho, phir redirect karo
   useEffect(() => {
-    if (token) navigate('/home', { replace: true });
-  }, [token, navigate]);
+    if (!loading && token) navigate('/home', { replace: true });
+  }, [token, loading, navigate]);
 
   return (
     <div>
