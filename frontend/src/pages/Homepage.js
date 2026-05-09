@@ -1,162 +1,55 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, Search, FileText, Star, Globe, ChevronRight, 
-  Zap, Menu, ArrowUpRight, Sparkles, Clock, LayoutGrid 
-} from 'lucide-react';
+import { Plus, FileText, Star, Globe, Zap, ArrowUpRight, Clock, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import API from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import MobileNav from '../components/MobileNav';
 
-const THEME_STYLES = `
-  :root {
-    --brand-primary: #f97316;
-    --brand-secondary: #8b5cf6;
-    --app-bg: var(--bg);
-    --card-bg: var(--surface);
-    --border-color: var(--border);
-    --text-main: var(--text);
-    --text-dim: var(--text-muted);
-  }
+// Hindi: Dashboard/Home page — user ke notes, stats, aur recent activity
 
-  .home-root { 
-    display: flex; 
-    height: 100dvh; 
-    background: var(--app-bg); 
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
+const STYLES = `
+  .home-root{display:flex;height:100vh;height:100dvh;background:var(--bg);font-family:var(--font,'DM Sans',sans-serif);}
 
-  /* Glassmorphism Header */
-  .pro-header {
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 32px;
-    background: rgba(var(--surface-rgb), 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+  /* Hindi: Hero greeting section */
+  .home-greeting{margin-bottom:28px;}
+  .home-greeting-name{font-size:clamp(22px,3vw,28px);font-weight:800;color:var(--text);letter-spacing:-0.8px;margin-bottom:4px;}
+  .home-greeting-sub{font-size:14px;color:var(--text-3);}
 
-  .main-content { 
-    flex: 1; 
-    overflow-y: auto; 
-    padding: 32px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+  /* Hindi: Stats bento grid */
+  .home-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all 0.18s;}
+  .stat-card:hover{border-color:var(--accent);box-shadow:0 4px 14px var(--accent-ring);transform:translateY(-1px);}
+  .stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .stat-value{font-size:28px;font-weight:900;color:var(--text);letter-spacing:-1.5px;line-height:1;margin-bottom:4px;}
+  .stat-label{font-size:12px;font-weight:600;color:var(--text-3);}
 
-  /* Modern Premium Hero */
-  .premium-hero {
-    background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
-    border-radius: 24px;
-    padding: 48px;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 32px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
+  /* Hindi: Recent notes list */
+  .recent-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .recent-item{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);transition:background 0.15s;cursor:pointer;}
+  .recent-item:last-child{border-bottom:none;}
+  .recent-item:hover{background:var(--bg);}
+  .recent-item-left{display:flex;align-items:center;gap:12px;}
+  .recent-note-icon{width:36px;height:36px;border-radius:9px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .recent-note-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;}
+  .recent-note-meta{font-size:11.5px;color:var(--text-4);display:flex;align-items:center;gap:4px;}
 
-  .premium-hero::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%);
-    pointer-events: none;
-  }
+  /* Hindi: Quick actions row */
+  .quick-actions{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;}
+  .qa-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-family:var(--font,'DM Sans',sans-serif);font-size:13.5px;font-weight:700;color:var(--text-2);cursor:pointer;transition:all 0.15s;}
+  .qa-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+  .qa-btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .qa-btn-primary:hover{background:var(--accent-dark);color:#fff;border-color:var(--accent-dark);}
 
-  .hero-tag {
-    background: rgba(249,115,22,0.2);
-    color: var(--brand-primary);
-    padding: 6px 12px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 16px;
+  @media(max-width:768px){
+    .home-stats{grid-template-columns:repeat(2,1fr);}
+    .quick-actions{gap:8px;}
+    .qa-btn{padding:9px 14px;font-size:13px;}
   }
-
-  /* Bento Grid Stats */
-  .bento-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-bottom: 40px;
-  }
-
-  .bento-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 24px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .bento-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--brand-primary);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
-  }
-
-  /* Activity List Design */
-  .activity-container {
-    background: var(--card-bg);
-    border-radius: 24px;
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-  }
-
-  .activity-item {
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border-color);
-    transition: background 0.2s;
-  }
-
-  .activity-item:hover {
-    background: rgba(var(--brand-primary-rgb), 0.03);
-  }
-
-  .icon-box {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn-create {
-    background: var(--brand-primary);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(249,115,22,0.2);
-  }
-
-  @media (max-width: 768px) {
-    .bento-grid { grid-template-columns: repeat(2, 1fr); }
-    .main-content { padding: 16px; }
-    .premium-hero { padding: 32px 24px; }
+  @media(max-width:400px){
+    .home-stats{grid-template-columns:1fr 1fr;}
+    .stat-card{padding:16px;}
+    .stat-value{font-size:24px;}
   }
 `;
 
@@ -167,116 +60,127 @@ export default function HomePage() {
   const [stats, setStats] = useState({ totalNotes: 0, starred: 0, streak: 0, public: 0 });
   const [recent, setRecent] = useState([]);
 
+  // Hindi: Dashboard stats aur recent notes fetch karo
   useEffect(() => {
-    // Fetch logic remains same as per your API
     API.get('/dashboard').then(res => {
       const d = res.data || {};
-      setStats({ 
-        totalNotes: d.totalNotes || 0, 
-        starred: d.starredNotes || 0, 
+      setStats({
+        totalNotes: d.totalNotes || 0,
+        starred: d.starredNotes || 0,
         streak: d.goals?.currentStreak || 0,
-        public: d.publicNotes || 0 
+        public: d.publicNotes || 0
       });
     }).catch(() => {});
-    API.get('/notes').then(res => setRecent((res.data || []).slice(0, 5))).catch(() => {});
+    API.get('/notes').then(res => setRecent((res.data || []).slice(0, 6))).catch(() => {});
   }, []);
+
+  const firstName = user?.name?.split(' ')[0] || 'there';
+
+  const STAT_CARDS = [
+    { label: 'Total Notes', value: stats.totalNotes, icon: FileText, color: '#f97316', bg: 'rgba(249,115,22,0.09)' },
+    { label: 'Starred',     value: stats.starred,    icon: Star,     color: '#b45309', bg: 'rgba(180,83,9,0.09)' },
+    { label: 'Day Streak',  value: stats.streak,     icon: Zap,      color: '#15803d', bg: 'rgba(21,128,61,0.09)' },
+    { label: 'Public',      value: stats.public,     icon: Globe,    color: '#6d28d9', bg: 'rgba(109,40,217,0.09)' },
+  ];
 
   return (
     <div className="home-root">
-      <style>{THEME_STYLES}</style>
+      <style>{STYLES}</style>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <header className="pro-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button className="menu-btn" onClick={() => setSidebarOpen(true)} style={{ display: 'block' }}>
-              <Menu size={20} />
-            </button>
-            <h1 style={{ fontSize: '18px', fontWeight: 800 }}>Dashboard</h1>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div className="search-bar" style={{ display: 'flex' }}>
-              <Search size={16} />
-              <input placeholder="Quick search (⌘K)" />
-            </div>
-            <button className="btn-create" onClick={() => navigate('/dashboard')}>
-              <Plus size={18} /> New
+      <div className="pg-main">
+        {/* Topbar */}
+        <div className="pg-topbar">
+          <button className="pg-menu-btn" onClick={() => setSidebarOpen(true)}><Menu size={17} /></button>
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)' }}>Home</span>
+          <div style={{ marginLeft: 'auto' }}>
+            <button className="btn-primary" onClick={() => navigate('/dashboard')}>
+              <Plus size={15} /> New Note
             </button>
           </div>
-        </header>
+        </div>
 
-        <main className="main-content">
-          <section className="premium-hero">
-            <div className="hero-tag">
-              <Sparkles size={14} /> AI-Powered Workspace
+        {/* Content */}
+        <div className="pg-content">
+
+          {/* Greeting */}
+          <div className="home-greeting">
+            <div className="home-greeting-name">Good day, {firstName} 👋</div>
+            <div className="home-greeting-sub">
+              {stats.streak > 0
+                ? `You're on a ${stats.streak}-day streak. Keep going!`
+                : 'Start writing to begin your streak today.'}
             </div>
-            <h2 style={{ fontSize: '36px', fontWeight: 800, marginBottom: '16px' }}>
-              Welcome back, {user?.name?.split(' ')[0]}
-            </h2>
-            <p style={{ opacity: 0.7, maxWidth: '500px', marginBottom: '32px', lineHeight: 1.6 }}>
-              Your knowledge base is growing. You've maintained a <strong>{stats.streak} day streak</strong>. 
-              Keep the momentum going!
-            </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button className="btn-create" onClick={() => navigate('/ask-ai')}>
-                Ask Intelligence
-              </button>
-              <button style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px 24px', borderRadius: '12px', color: 'white', fontWeight: 600 }}>
-                Review Flashcards
-              </button>
-            </div>
-          </section>
+          </div>
 
-          <section className="bento-grid">
-            <StatCard label="Total Notes" value={stats.totalNotes} icon={FileText} color="#f97316" />
-            <StatCard label="Starred" value={stats.starred} icon={Star} color="#f59e0b" />
-            <StatCard label="Day Streak" value={stats.streak} icon={Zap} color="#10b981" />
-            <StatCard label="Public" value={stats.public} icon={Globe} color="#8b5cf6" />
-          </section>
-
-          <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800 }}>Recent Activity</h3>
-            <button onClick={() => navigate('/dashboard')} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'var(--brand-primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              View Archive <ChevronRight size={16} />
+          {/* Quick Actions */}
+          <div className="quick-actions">
+            <button className="qa-btn qa-btn-primary" onClick={() => navigate('/dashboard')}>
+              <Plus size={15} /> New Note
+            </button>
+            <button className="qa-btn" onClick={() => navigate('/ask-ai')}>
+              Ask AI
+            </button>
+            <button className="qa-btn" onClick={() => navigate('/community')}>
+              Community
+            </button>
+            <button className="qa-btn" onClick={() => navigate('/folders')}>
+              Folders
             </button>
           </div>
 
-          <div className="activity-container">
-            {recent.map((note, i) => (
-              <div key={i} className="activity-item">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div className="icon-box" style={{ background: 'rgba(249,115,22,0.1)', color: '#f97316' }}>
-                    <FileText size={18} />
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '15px' }}>{note.title || 'Untitled'}</div>
-                    <div style={{ fontSize: '12px', opacity: 0.6, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Clock size={12} /> {new Date(note.updatedAt).toLocaleDateString()}
-                    </div>
-                  </div>
+          {/* Stats */}
+          <div className="home-stats">
+            {STAT_CARDS.map(({ label, value, icon: Icon, color, bg }) => (
+              <div key={label} className="stat-card">
+                <div className="stat-icon" style={{ background: bg }}>
+                  <Icon size={17} color={color} />
                 </div>
-                <button style={{ background: 'none', border: 'none', color: 'var(--text-dim)' }}>
-                  <ArrowUpRight size={18} />
-                </button>
+                <div className="stat-value">{value}</div>
+                <div className="stat-label">{label}</div>
               </div>
             ))}
           </div>
-        </main>
-      </div>
-      <MobileNav />
-    </div>
-  );
-}
 
-function StatCard({ label, value, icon: Icon, color }) {
-  return (
-    <div className="bento-card">
-      <div className="icon-box" style={{ background: `${color}15`, color: color, marginBottom: '16px' }}>
-        <Icon size={20} />
+          {/* Recent Notes */}
+          <div className="section-header">
+            <span className="section-title">Recent Notes</span>
+            <button className="btn-ghost" onClick={() => navigate('/dashboard')}>
+              View all <ArrowUpRight size={14} />
+            </button>
+          </div>
+
+          <div className="recent-card">
+            {recent.length === 0 ? (
+              <div className="empty-state" style={{ padding: '40px 24px' }}>
+                <FileText size={32} />
+                <h4>No notes yet</h4>
+                <p>Create your first note to get started</p>
+              </div>
+            ) : (
+              recent.map((note, i) => (
+                <div key={i} className="recent-item" onClick={() => navigate('/dashboard')}>
+                  <div className="recent-item-left">
+                    <div className="recent-note-icon">
+                      <FileText size={16} />
+                    </div>
+                    <div>
+                      <div className="recent-note-title">{note.title || 'Untitled Note'}</div>
+                      <div className="recent-note-meta">
+                        <Clock size={11} />
+                        {new Date(note.updatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowUpRight size={15} color="var(--text-4)" />
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
-      <div style={{ fontSize: '32px', fontWeight: 900, marginBottom: '4px' }}>{value}</div>
-      <div style={{ fontSize: '13px', fontWeight: 600, opacity: 0.6 }}>{label}</div>
+
+      <MobileNav />
     </div>
   );
 }
