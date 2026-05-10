@@ -1,15 +1,35 @@
-const Note = require('../models/Note');
+'use strict';
 
-// Top-level require
-let pdfParse = null;
-let mammoth  = null;
+const Note        = require('../models/Note');
+const cloudinary  = require('cloudinary').v2;
+const streamifier = require('streamifier');
 
-try { pdfParse = require('pdf-parse'); } catch (e) { console.warn('pdf-parse not available:', e.message); }
-try { mammoth  = require('mammoth');   } catch (e) { console.warn('mammoth not available:', e.message); }
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Optional: text-based parsers
+let mammoth = null;
+try { mammoth = require('mammoth'); } catch (e) { console.warn('mammoth not available:', e.message); }
+
+// Helper: Buffer → Cloudinary
+const uploadToCloudinary = (buffer, resourceType = 'raw', folder = 'yournotes/imports') => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: resourceType },
+      (error, result) => (error ? reject(error) : resolve(result))
+    );
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+};
 
 /**
  * POST /api/import
- * File se note import karo — TXT, MD, PDF, DOCX support
+ * PDF → Cloudinary upload → iframe embed (exact original view)
+ * DOCX → mammoth HTML conversion
+ * TXT/MD → plain text with markdown-to-HTML
  */
 exports.importNote = async (req, res) => {
   try {
@@ -18,8 +38,6 @@ exports.importNote = async (req, res) => {
     }
 
     const { originalname, mimetype, buffer } = req.file;
-
-    // File name se title banao (extension hataao)
     const rawTitle = originalname.replace(/\.(txt|md|pdf|docx|doc)$/i, '').trim();
     const title    = rawTitle || 'Imported Note';
 
@@ -35,8 +53,56 @@ exports.importNote = async (req, res) => {
                 || mimetype === 'application/msword'
                 || /\.docx?$/i.test(originalname);
 
-    // ── TXT / MD ──────────────────────────────────────────
-    if (isTxt) {
+    // ── PDF: Upload as-is to Cloudinary, embed as iframe ─────────────────────
+    if (isPdf) {
+      let pdfUrl = null;
+
+      try {
+        const uploadResult = await uploadToCloudinary(buffer, 'raw', 'yournotes/imports');
+        pdfUrl = uploadResult.secure_url;
+      } catch (uploadErr) {
+        console.error('Cloudinary upload error:', uploadErr.message);
+        return res.status(500).json({
+          message: 'Could not upload PDF. Please check Cloudinary configuration.',
+        });
+      }
+
+      // Extract plain text for AI features (best-effort)
+      try {
+        const pdfParse = require('pdf-parse');
+        const parsed   = await pdfParse(buffer, { max: 0 });
+        plainText      = (parsed.text || '').replace(/\s+/g, ' ').trim();
+      } catch (_) {
+        plainText = `PDF imported: ${title}`;
+      }
+
+      // Embed PDF exactly as-is via iframe
+      content = `<div style="width:100%;margin:0 0 16px 0;"><iframe src="${escHtml(pdfUrl)}" style="width:100%;height:85vh;min-height:500px;border:none;border-radius:8px;" title="${escHtml(title)}"></iframe></div><p style="font-size:13px;color:#888;"><a href="${escHtml(pdfUrl)}" target="_blank" rel="noopener noreferrer">🔗 Open PDF in new tab</a></p>`;
+    }
+
+    // ── DOCX ─────────────────────────────────────────────────────────────────
+    else if (isDocx) {
+      if (!mammoth) {
+        return res.status(500).json({
+          message: 'DOCX parsing not available. Run: npm install mammoth in backend.',
+        });
+      }
+      let result;
+      try {
+        result = await mammoth.convertToHtml({ buffer });
+      } catch (docxErr) {
+        console.error('mammoth error:', docxErr.message);
+        return res.status(422).json({ message: `Could not read DOCX: ${docxErr.message}` });
+      }
+      content   = result.value || '';
+      plainText = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      if (!content.trim()) {
+        return res.status(422).json({ message: 'DOCX file appears to be empty.' });
+      }
+    }
+
+    // ── TXT / MD ─────────────────────────────────────────────────────────────
+    else if (isTxt) {
       plainText = buffer.toString('utf-8');
       content   = plainText
         .split('\n')
@@ -55,153 +121,15 @@ exports.importNote = async (req, res) => {
         .join('');
     }
 
-    // ── PDF ───────────────────────────────────────────────
-    else if (isPdf) {
-      if (!pdfParse) {
-        return res.status(500).json({
-          message: 'PDF parsing not available. Run: npm install pdf-parse in backend.',
-        });
-      }
-
-      // Custom pagerender — har text item ke beech proper space dalo
-      // Yeh Hindi/Devanagari aur other scripts ke liye zaroori hai
-      const renderPage = (pageData) => {
-        const renderOptions = {
-          normalizeWhitespace: true,
-          disableCombineTextItems: false,
-        };
-        return pageData.getTextContent(renderOptions).then((textContent) => {
-          let lastY = null;
-          let lastX = null;
-          let text  = '';
-
-          for (const item of textContent.items) {
-            const { str, transform } = item;
-            if (!str) continue;
-
-            const x = transform[4];
-            const y = transform[5];
-
-            if (lastY === null) {
-              // First item
-              text += str;
-            } else if (Math.abs(y - lastY) > 5) {
-              // New line (y position changed significantly)
-              text += '\n' + str;
-            } else {
-              // Same line — check horizontal gap
-              // If gap > ~1 char width, insert a space
-              const gap = x - lastX;
-              if (gap > 1) {
-                text += ' ' + str;
-              } else {
-                text += str;
-              }
-            }
-
-            lastY = y;
-            lastX = x + (item.width || 0);
-          }
-
-          return text + '\n';
-        });
-      };
-
-      let parsed;
-      try {
-        parsed = await pdfParse(buffer, { max: 0, pagerender: renderPage });
-      } catch (pdfErr) {
-        console.error('pdf-parse error:', pdfErr.message);
-        return res.status(422).json({
-          message: `Could not read this PDF: ${pdfErr.message}`,
-        });
-      }
-
-      plainText = (parsed.text || '').trim();
-
-      if (!plainText) {
-        return res.status(422).json({
-          message:
-            'This PDF appears to be scanned/image-based with no extractable text. Please use a text-based PDF.',
-        });
-      }
-
-      // Clean up extracted text:
-      // 1. Multiple spaces → single space
-      // 2. Space before punctuation fix
-      // 3. Preserve line breaks for paragraph detection
-      plainText = plainText
-        .replace(/[ \t]+/g, ' ')           // multiple spaces → one
-        .replace(/ \n/g, '\n')             // trailing spaces before newline
-        .replace(/\n /g, '\n')             // leading spaces after newline
-        .replace(/\n{3,}/g, '\n\n')        // 3+ newlines → 2
-        .trim();
-
-      // Convert to HTML paragraphs
-      const lines = plainText.split('\n');
-      const htmlParts = [];
-      let currentPara = [];
-
-      const flushPara = () => {
-        if (currentPara.length === 0) return;
-        const text = currentPara.join(' ').replace(/\s+/g, ' ').trim();
-        if (!text) { currentPara = []; return; }
-        htmlParts.push(`<p>${escHtml(text)}</p>`);
-        currentPara = [];
-      };
-
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) {
-          flushPara();
-          continue;
-        }
-        currentPara.push(line);
-        // Flush if next line is empty (paragraph boundary)
-        if (!(lines[i + 1] || '').trim()) {
-          flushPara();
-        }
-      }
-      flushPara();
-      content = htmlParts.join('') || `<p>${escHtml(plainText)}</p>`;
-    }
-
-    // ── DOCX ──────────────────────────────────────────────
-    else if (isDocx) {
-      if (!mammoth) {
-        return res.status(500).json({
-          message: 'DOCX parsing not available. Run: npm install mammoth in backend.',
-        });
-      }
-
-      let result;
-      try {
-        result = await mammoth.convertToHtml({ buffer });
-      } catch (docxErr) {
-        console.error('mammoth error:', docxErr.message);
-        return res.status(422).json({
-          message: `Could not read DOCX: ${docxErr.message}`,
-        });
-      }
-
-      content   = result.value || '';
-      plainText = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-
-      if (!content.trim()) {
-        return res.status(422).json({ message: 'DOCX file appears to be empty.' });
-      }
-    }
-
     else {
       return res.status(400).json({
-        message: 'Unsupported file type. Please use TXT, MD, PDF, or DOCX.',
+        message: 'Unsupported file type. Please use PDF, DOCX, TXT, or MD.',
       });
     }
 
-    // Content too large — trim
     const MAX = 200000;
     if (content.length > MAX) {
-      content   = content.slice(0, MAX) + '<p><em>[Content truncated — file too large]</em></p>';
+      content   = content.slice(0, MAX) + '<p><em>[Content truncated]</em></p>';
       plainText = plainText.slice(0, MAX);
     }
 
@@ -226,7 +154,6 @@ exports.importNote = async (req, res) => {
   }
 };
 
-// HTML injection se bachao
 function escHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
