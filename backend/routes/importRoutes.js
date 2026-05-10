@@ -1,14 +1,14 @@
 const express = require('express');
-const router = express.Router();
-const multer = require('multer');
+const router  = express.Router();
+const multer  = require('multer');
 const { protect } = require('../middleware/authMiddleware');
 const { importNote } = require('../controllers/importController');
 
-// Import ke liye alag multer — txt, md, pdf, docx accept karo
 const storage = multer.memoryStorage();
+
 const importUpload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB (images can be bigger)
   fileFilter: (_req, file, cb) => {
     const allowed = [
       'text/plain',
@@ -16,12 +16,16 @@ const importUpload = multer({
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'application/msword',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
     ];
-    const ext = file.originalname.match(/\.(txt|md|pdf|docx|doc)$/i);
+    const ext = file.originalname.match(/\.(txt|md|pdf|docx|doc|jpg|jpeg|png|webp)$/i);
     if (allowed.includes(file.mimetype) || ext) {
       cb(null, true);
     } else {
-      cb(new Error('Only TXT, MD, PDF, DOCX files are allowed'), false);
+      cb(new Error('Unsupported file type. Use PDF, DOCX, TXT, MD, JPG, or PNG.'), false);
     }
   },
 });

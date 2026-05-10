@@ -146,11 +146,38 @@ const getStyles = () => `
   .cdot:hover,.cdot.sel { border-color:var(--text); transform:scale(1.15); }
 
   /* Import Modal */
-  .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; }
-  .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:28px; width:100%; max-width:440px; animation:scaleIn 0.2s ease; }
-  .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:40px 20px; text-align:center; cursor:pointer; transition:0.2s; }
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; backdrop-filter:blur(4px); }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:28px; width:100%; max-width:520px; animation:scaleIn 0.2s ease; max-height:90vh; overflow-y:auto; }
+  .modal::-webkit-scrollbar { display:none; }
+  .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:32px 20px; text-align:center; cursor:pointer; transition:0.2s; position:relative; }
   .drop-zone:hover,.drop-zone.dov { border-color:var(--accent); background:var(--accent-light); }
   .drop-zone input { display:none; }
+  .file-type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:14px 0; }
+  .file-type-chip { display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 6px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); cursor:default; transition:0.15s; }
+  .file-type-chip:hover { border-color:var(--accent); }
+  .file-type-chip .ft-icon { font-size:20px; }
+  .file-type-chip .ft-label { font-size:10px; font-weight:800; color:var(--text-muted); letter-spacing:0.5px; }
+  .import-preview { margin:14px 0; padding:12px 14px; border-radius:10px; border:1.5px solid var(--accent); background:var(--accent-light); display:flex; align-items:center; gap:10px; }
+  .import-preview .prev-icon { font-size:22px; flex-shrink:0; }
+  .import-preview .prev-info { flex:1; min-width:0; }
+  .import-preview .prev-name { font-size:13px; font-weight:800; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .import-preview .prev-size { font-size:11px; color:var(--text-muted); margin-top:2px; }
+  .import-preview .prev-remove { width:24px; height:24px; border-radius:6px; border:none; background:transparent; cursor:pointer; color:var(--text-muted); display:flex; align-items:center; justify-content:center; transition:0.15s; }
+  .import-preview .prev-remove:hover { background:rgba(239,68,68,0.1); color:#ef4444; }
+  .ai-ops-section { margin-top:14px; }
+  .ai-ops-title { font-size:11px; font-weight:900; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+  .ai-ops-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .ai-op-btn { display:flex; align-items:center; gap:7px; padding:9px 12px; border-radius:9px; border:1.5px solid var(--border); background:var(--bg); cursor:pointer; transition:0.15s; font-family:inherit; text-align:left; }
+  .ai-op-btn:hover:not(:disabled) { border-color:var(--accent); background:var(--accent-light); }
+  .ai-op-btn:disabled { opacity:0.45; cursor:not-allowed; }
+  .ai-op-btn .op-icon { font-size:16px; flex-shrink:0; }
+  .ai-op-btn .op-text { font-size:11px; font-weight:700; color:var(--text); }
+  .ai-op-btn .op-desc { font-size:10px; color:var(--text-muted); margin-top:1px; }
+  .ai-result-box { margin-top:14px; padding:14px; border-radius:10px; border:1px solid var(--border); background:var(--bg); }
+  .ai-result-box .res-header { display:flex; align-items:center; gap:7px; margin-bottom:10px; }
+  .ai-result-box .res-title { font-size:12px; font-weight:800; color:var(--accent); }
+  .ai-result-box .res-content { font-size:12px; color:var(--text-muted); line-height:1.7; white-space:pre-wrap; max-height:180px; overflow-y:auto; }
+  .ai-result-box .res-content::-webkit-scrollbar { display:none; }
 
   /* Bulk */
   .bulk-bar { position:sticky; top:0; z-index:50; margin-bottom:16px; padding:10px 18px; background:var(--surface); border-radius:12px; border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 16px rgba(249,115,22,0.1); animation:fadeUp 0.2s ease; }
@@ -169,21 +196,55 @@ const getStyles = () => `
   }
 `;
 
+// ─── File type config ─────────────────────────────────────────────────────────
+const FILE_TYPES = [
+  { ext: 'PDF',  icon: '📄', mime: ['application/pdf'],                                                                            color: '#f97316', desc: 'PDF Document'   },
+  { ext: 'DOCX', icon: '📝', mime: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/msword'], color: '#3b82f6', desc: 'Word Document'  },
+  { ext: 'TXT',  icon: '📋', mime: ['text/plain','text/markdown'],                                                                  color: '#22c55e', desc: 'Text / Markdown' },
+  { ext: 'JPG',  icon: '🖼️', mime: ['image/jpeg','image/jpg'],                                                                      color: '#a855f7', desc: 'JPEG Image'     },
+  { ext: 'PNG',  icon: '🖼️', mime: ['image/png'],                                                                                   color: '#ec4899', desc: 'PNG Image'      },
+  { ext: 'WEBP', icon: '🖼️', mime: ['image/webp'],                                                                                  color: '#06b6d4', desc: 'WebP Image'     },
+];
+
+const AI_OPS = [
+  { id:'summarize',  icon:'✨', label:'Summarize',   desc:'Quick summary'     },
+  { id:'flashcards', icon:'🃏', label:'Flashcards',  desc:'Study cards'       },
+  { id:'quiz',       icon:'🧠', label:'Quiz',        desc:'Test yourself'     },
+  { id:'explain',    icon:'💡', label:'Explain',     desc:'Simple explanation' },
+];
+
+function getFileIcon(file) {
+  if (!file) return '📁';
+  const ext = file.name.match(/\.(pdf|docx?|txt|md|jpg|jpeg|png|webp)$/i)?.[1]?.toLowerCase();
+  if (ext === 'pdf')  return '📄';
+  if (ext === 'docx' || ext === 'doc') return '📝';
+  if (ext === 'txt' || ext === 'md')   return '📋';
+  if (/^(jpg|jpeg|png|webp)$/.test(ext)) return '🖼️';
+  return '📁';
+}
+
 // ─── Import Modal ─────────────────────────────────────────────────────────────
 function ImportModal({ onClose, onImported }) {
-  const [drag, setDrag]       = useState(false);
-  const [file, setFile]       = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [drag, setDrag]           = useState(false);
+  const [file, setFile]           = useState(null);
+  const [loading, setLoading]     = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [importedNote, setImportedNote] = useState(null); // note after import
+  const [aiResult, setAiResult]   = useState(null);       // { op, content }
   const ref = useRef(null);
 
+  const ALLOWED_MIME = FILE_TYPES.flatMap(t => t.mime);
+  const ALLOWED_EXT  = /\.(pdf|docx?|txt|md|jpg|jpeg|png|webp)$/i;
+
   const pick = (f) => {
-    const ok = ['application/pdf','text/plain',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/msword'];
-    const ext = f.name.match(/\.(pdf|docx|doc|txt|md)$/i);
-    if (!ok.includes(f.type) && !ext) { toast.error('PDF, DOCX, TXT, MD only'); return; }
-    if (f.size > 10*1024*1024) { toast.error('Max 10MB'); return; }
+    if (!ALLOWED_MIME.includes(f.type) && !ALLOWED_EXT.test(f.name)) {
+      toast.error('Unsupported file. Use PDF, DOCX, TXT, MD, JPG, or PNG');
+      return;
+    }
+    if (f.size > 20*1024*1024) { toast.error('Max 20MB'); return; }
     setFile(f);
+    setImportedNote(null);
+    setAiResult(null);
   };
 
   const doImport = async () => {
@@ -194,68 +255,187 @@ function ImportModal({ onClose, onImported }) {
       fd.append('importFile', file);
       const { data } = await API.post('/import', fd);
       toast.success(data.message);
+      setImportedNote(data.note);
       onImported(data.note);
-      onClose();
     } catch (e) { toast.error(e?.response?.data?.message || 'Import failed'); }
     finally { setLoading(false); }
   };
+
+  const doAI = async (op) => {
+    if (!importedNote) return;
+    setAiLoading(true);
+    setAiResult(null);
+    try {
+      if (op === 'explain') {
+        // Custom explain using ask endpoint
+        const { data } = await API.post('/ai/ask', {
+          message: `Explain the following content in simple, clear language:\n\n${importedNote.plainText?.slice(0,4000) || importedNote.title}`,
+        });
+        setAiResult({ op: 'explain', content: data.reply || data.answer || 'No response' });
+      } else {
+        const { data } = await API.post(`/ai/${op}/${importedNote._id}`);
+        if (op === 'summarize') {
+          setAiResult({ op, content: data.summary });
+        } else if (op === 'flashcards') {
+          const cards = data.flashcards || [];
+          setAiResult({ op, content: cards.map((c,i) => `Q${i+1}: ${c.question}\nA: ${c.answer}`).join('\n\n') });
+        } else if (op === 'quiz') {
+          const qs = data.questions || [];
+          setAiResult({ op, content: qs.map((q,i) => `Q${i+1}: ${q.question}\n${(q.options||[]).map((o,j)=>`  ${String.fromCharCode(65+j)}) ${o}`).join('\n')}\n✓ ${q.answer||q.correct||''}`).join('\n\n') });
+        }
+      }
+    } catch (e) { toast.error(e?.response?.data?.message || 'AI operation failed'); }
+    finally { setAiLoading(false); }
+  };
+
+  const aiOpLabel = { summarize:'Summary', flashcards:'Flashcards', quiz:'Quiz', explain:'Explanation' };
 
   return (
     <div className="overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
 
-        {/* Header — lucide icon */}
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+        {/* Header */}
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:18 }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ width:34, height:34, borderRadius:9, background:'var(--accent-light)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <Upload size={16} color="var(--accent)"/>
+            <div style={{ width:36, height:36, borderRadius:10, background:'var(--accent-light)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>
+              📂
             </div>
-            <span style={{ fontWeight:900, fontSize:17, color:'var(--text)' }}>Import Note</span>
+            <div>
+              <div style={{ fontWeight:900, fontSize:16, color:'var(--text)' }}>Import File</div>
+              <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:1 }}>Upload & apply AI on any file</div>
+            </div>
           </div>
-          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex' }}>
+          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', display:'flex', padding:4 }}>
             <X size={18}/>
           </button>
         </div>
 
-        <div
-          className={`drop-zone${drag ? ' dov' : ''}`}
-          onClick={() => ref.current?.click()}
-          onDragOver={e => { e.preventDefault(); setDrag(true); }}
-          onDragLeave={() => setDrag(false)}
-          onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) pick(f); }}
-        >
-          <input ref={ref} type="file" accept=".pdf,.docx,.doc,.txt,.md" onChange={e => { if (e.target.files[0]) pick(e.target.files[0]); }}/>
-          <Upload size={32} color="var(--text-light)" style={{ margin:'0 auto 12px', display:'block' }}/>
-          {file ? (
-            <div>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontWeight:800, color:'var(--text)', fontSize:14 }}>
-                <FileText size={14} color="var(--accent)"/> {file.name}
-              </div>
-              <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:4 }}>{(file.size/1024).toFixed(0)} KB</div>
+        {/* Supported types row */}
+        <div className="file-type-grid">
+          {FILE_TYPES.map(t => (
+            <div key={t.ext} className="file-type-chip">
+              <span className="ft-icon">{t.icon}</span>
+              <span className="ft-label">{t.ext}</span>
             </div>
-          ) : (
-            <div>
-              <div style={{ fontWeight:700, color:'var(--text)', fontSize:14 }}>Click or drag & drop</div>
-              <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:6 }}>PDF • DOCX • TXT • MD &nbsp;|&nbsp; Max 10MB</div>
-            </div>
-          )}
+          ))}
         </div>
 
-        <div style={{ display:'flex', gap:10, marginTop:20 }}>
-          <button onClick={onClose} style={{ flex:1, background:'transparent', border:'1.5px solid var(--border)', borderRadius:10, padding:'10px', fontWeight:700, cursor:'pointer', fontFamily:'inherit', color:'var(--text-muted)' }}>
-            Cancel
-          </button>
+        {/* Drop zone */}
+        {!file && (
+          <div
+            className={`drop-zone${drag ? ' dov' : ''}`}
+            onClick={() => ref.current?.click()}
+            onDragOver={e => { e.preventDefault(); setDrag(true); }}
+            onDragLeave={() => setDrag(false)}
+            onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) pick(f); }}
+          >
+            <input ref={ref} type="file"
+              accept=".pdf,.docx,.doc,.txt,.md,.jpg,.jpeg,.png,.webp"
+              onChange={e => { if (e.target.files[0]) pick(e.target.files[0]); }}
+            />
+            <Upload size={28} color="var(--text-light)" style={{ margin:'0 auto 10px', display:'block' }}/>
+            <div style={{ fontWeight:700, color:'var(--text)', fontSize:14 }}>Click or drag & drop</div>
+            <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:6 }}>PDF · DOCX · TXT · MD · JPG · PNG · WEBP &nbsp;|&nbsp; Max 20MB</div>
+          </div>
+        )}
+
+        {/* File preview */}
+        {file && (
+          <div className="import-preview">
+            <span className="prev-icon">{getFileIcon(file)}</span>
+            <div className="prev-info">
+              <div className="prev-name">{file.name}</div>
+              <div className="prev-size">{(file.size/1024).toFixed(0)} KB · {file.type || 'file'}</div>
+            </div>
+            <button className="prev-remove" onClick={() => { setFile(null); setImportedNote(null); setAiResult(null); }}>
+              <X size={14}/>
+            </button>
+          </div>
+        )}
+
+        {/* Import button */}
+        {file && !importedNote && (
           <button
             onClick={doImport}
-            disabled={!file || loading}
-            style={{ flex:2, background:file&&!loading?'var(--accent)':'var(--border)', color:'#fff', border:'none', borderRadius:10, padding:'10px', fontWeight:800, cursor:file?'pointer':'not-allowed', fontFamily:'inherit', fontSize:14, display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}
+            disabled={loading}
+            style={{ width:'100%', marginTop:12, background: loading ? 'var(--border)' : 'var(--accent)', color:'#fff', border:'none', borderRadius:10, padding:'11px', fontWeight:800, cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'inherit', fontSize:14, display:'flex', alignItems:'center', justifyContent:'center', gap:8, transition:'0.2s' }}
           >
             {loading
               ? <><div style={{ width:14, height:14, border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'#fff', borderRadius:'50%', animation:'spin .8s linear infinite' }}/> Importing…</>
-              : <><Upload size={14}/> Import Note</>
+              : <><Upload size={14}/> Import as Note</>
             }
           </button>
-        </div>
+        )}
+
+        {/* ✅ Imported successfully — AI operations */}
+        {importedNote && (
+          <>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:12, padding:'10px 14px', borderRadius:10, background:'rgba(34,197,94,0.08)', border:'1px solid rgba(34,197,94,0.25)' }}>
+              <span style={{ fontSize:16 }}>✅</span>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:12, fontWeight:800, color:'#22c55e' }}>Imported successfully!</div>
+                <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:1 }}>"{importedNote.title}" added to your notes</div>
+              </div>
+              <button onClick={onClose} style={{ fontSize:11, fontWeight:700, color:'var(--accent)', background:'none', border:'none', cursor:'pointer', fontFamily:'inherit' }}>
+                View Note
+              </button>
+            </div>
+
+            <div className="ai-ops-section">
+              <div className="ai-ops-title">
+                <span>✨</span> AI Operations on this file
+              </div>
+              <div className="ai-ops-grid">
+                {AI_OPS.map(op => (
+                  <button
+                    key={op.id}
+                    className="ai-op-btn"
+                    disabled={aiLoading}
+                    onClick={() => doAI(op.id)}
+                  >
+                    <span className="op-icon">{aiLoading && aiResult?.op === op.id ? '⏳' : op.icon}</span>
+                    <div>
+                      <div className="op-text">{op.label}</div>
+                      <div className="op-desc">{op.desc}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* AI loading spinner */}
+            {aiLoading && (
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:12, padding:'12px 14px', borderRadius:10, background:'var(--bg)', border:'1px solid var(--border)' }}>
+                <div style={{ width:16, height:16, border:'2px solid var(--border)', borderTopColor:'var(--accent)', borderRadius:'50%', animation:'spin .8s linear infinite', flexShrink:0 }}/>
+                <span style={{ fontSize:12, color:'var(--text-muted)', fontWeight:600 }}>Running AI analysis…</span>
+              </div>
+            )}
+
+            {/* AI result */}
+            {aiResult && !aiLoading && (
+              <div className="ai-result-box">
+                <div className="res-header">
+                  <span style={{ fontSize:16 }}>{AI_OPS.find(o=>o.id===aiResult.op)?.icon || '✨'}</span>
+                  <span className="res-title">{aiOpLabel[aiResult.op] || 'Result'}</span>
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(aiResult.content); toast.success('Copied!'); }}
+                    style={{ marginLeft:'auto', fontSize:11, fontWeight:700, color:'var(--text-muted)', background:'none', border:'none', cursor:'pointer', fontFamily:'inherit' }}
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div className="res-content">{aiResult.content}</div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Footer cancel */}
+        {!importedNote && (
+          <button onClick={onClose} style={{ width:'100%', marginTop:10, background:'transparent', border:'1.5px solid var(--border)', borderRadius:10, padding:'9px', fontWeight:700, cursor:'pointer', fontFamily:'inherit', color:'var(--text-muted)', fontSize:13 }}>
+            Cancel
+          </button>
+        )}
       </div>
     </div>
   );
