@@ -63,9 +63,53 @@ exports.importNote = async (req, res) => {
         });
       }
 
+      // Custom pagerender — har text item ke beech proper space dalo
+      // Yeh Hindi/Devanagari aur other scripts ke liye zaroori hai
+      const renderPage = (pageData) => {
+        const renderOptions = {
+          normalizeWhitespace: true,
+          disableCombineTextItems: false,
+        };
+        return pageData.getTextContent(renderOptions).then((textContent) => {
+          let lastY = null;
+          let lastX = null;
+          let text  = '';
+
+          for (const item of textContent.items) {
+            const { str, transform } = item;
+            if (!str) continue;
+
+            const x = transform[4];
+            const y = transform[5];
+
+            if (lastY === null) {
+              // First item
+              text += str;
+            } else if (Math.abs(y - lastY) > 5) {
+              // New line (y position changed significantly)
+              text += '\n' + str;
+            } else {
+              // Same line — check horizontal gap
+              // If gap > ~1 char width, insert a space
+              const gap = x - lastX;
+              if (gap > 1) {
+                text += ' ' + str;
+              } else {
+                text += str;
+              }
+            }
+
+            lastY = y;
+            lastX = x + (item.width || 0);
+          }
+
+          return text + '\n';
+        });
+      };
+
       let parsed;
       try {
-        parsed = await pdfParse(buffer, { max: 0 });
+        parsed = await pdfParse(buffer, { max: 0, pagerender: renderPage });
       } catch (pdfErr) {
         console.error('pdf-parse error:', pdfErr.message);
         return res.status(422).json({
@@ -82,17 +126,25 @@ exports.importNote = async (req, res) => {
         });
       }
 
-      // PDF text extraction improved:
-      // - Lines ending with punctuation = paragraph end
-      // - Short lines (< 60 chars) likely headings or standalone lines
-      // - Double newlines = definitely new paragraph
+      // Clean up extracted text:
+      // 1. Multiple spaces → single space
+      // 2. Space before punctuation fix
+      // 3. Preserve line breaks for paragraph detection
+      plainText = plainText
+        .replace(/[ \t]+/g, ' ')           // multiple spaces → one
+        .replace(/ \n/g, '\n')             // trailing spaces before newline
+        .replace(/\n /g, '\n')             // leading spaces after newline
+        .replace(/\n{3,}/g, '\n\n')        // 3+ newlines → 2
+        .trim();
+
+      // Convert to HTML paragraphs
       const lines = plainText.split('\n');
       const htmlParts = [];
       let currentPara = [];
 
       const flushPara = () => {
         if (currentPara.length === 0) return;
-        const text = currentPara.join(' ').trim();
+        const text = currentPara.join(' ').replace(/\s+/g, ' ').trim();
         if (!text) { currentPara = []; return; }
         htmlParts.push(`<p>${escHtml(text)}</p>`);
         currentPara = [];
@@ -101,28 +153,17 @@ exports.importNote = async (req, res) => {
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) {
-          // Empty line = paragraph break
           flushPara();
           continue;
         }
-        // Short line that looks like a heading (all caps, or very short with next line empty)
-        const nextLine = (lines[i + 1] || '').trim();
-        const isHeading = line.length < 80 && (
-          line === line.toUpperCase() && line.length > 3 ||
-          (!nextLine && currentPara.length === 0)
-        );
-        if (isHeading && currentPara.length === 0) {
-          htmlParts.push(`<h3>${escHtml(line)}</h3>`);
-          continue;
-        }
         currentPara.push(line);
-        // Flush on sentence end if next line starts with capital (new paragraph signal)
-        if (/[.!?]$/.test(line) && nextLine && /^[A-Z]/.test(nextLine)) {
+        // Flush if next line is empty (paragraph boundary)
+        if (!(lines[i + 1] || '').trim()) {
           flushPara();
         }
       }
       flushPara();
-      content = htmlParts.join('');
+      content = htmlParts.join('') || `<p>${escHtml(plainText)}</p>`;
     }
 
     // ── DOCX ──────────────────────────────────────────────
