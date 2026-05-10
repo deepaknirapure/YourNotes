@@ -1,23 +1,10 @@
 const Note = require('../models/Note');
 
-// Top-level require — production mein runtime error avoid karo
+// Top-level require
 let pdfParse = null;
 let mammoth  = null;
 
-try {
-  const pdfParseModule = require('pdf-parse');
-  // pdf-parse v2.x exports { PDFParse, ... } (object), v1.x exports a function directly
-  if (typeof pdfParseModule === 'function') {
-    pdfParse = pdfParseModule;
-  } else if (pdfParseModule && typeof pdfParseModule.PDFParse === 'function') {
-    // v2.x: wrap PDFParse class into a function compatible with v1 API
-    const PDFParse = pdfParseModule.PDFParse;
-    pdfParse = async (buffer, options) => {
-      const parser = new PDFParse();
-      return parser.parse(buffer, options);
-    };
-  }
-} catch (e) { console.warn('pdf-parse not available:', e.message); }
+try { pdfParse = require('pdf-parse'); } catch (e) { console.warn('pdf-parse not available:', e.message); }
 try { mammoth  = require('mammoth');   } catch (e) { console.warn('mammoth not available:', e.message); }
 
 /**
@@ -95,16 +82,47 @@ exports.importNote = async (req, res) => {
         });
       }
 
-      // Double newlines = paragraph break; single = space
-      content = plainText
-        .split(/\n{2,}/)
-        .map(para => {
-          const p = para.replace(/\n/g, ' ').trim();
-          if (!p) return '';
-          return `<p>${escHtml(p)}</p>`;
-        })
-        .filter(Boolean)
-        .join('');
+      // PDF text extraction improved:
+      // - Lines ending with punctuation = paragraph end
+      // - Short lines (< 60 chars) likely headings or standalone lines
+      // - Double newlines = definitely new paragraph
+      const lines = plainText.split('\n');
+      const htmlParts = [];
+      let currentPara = [];
+
+      const flushPara = () => {
+        if (currentPara.length === 0) return;
+        const text = currentPara.join(' ').trim();
+        if (!text) { currentPara = []; return; }
+        htmlParts.push(`<p>${escHtml(text)}</p>`);
+        currentPara = [];
+      };
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) {
+          // Empty line = paragraph break
+          flushPara();
+          continue;
+        }
+        // Short line that looks like a heading (all caps, or very short with next line empty)
+        const nextLine = (lines[i + 1] || '').trim();
+        const isHeading = line.length < 80 && (
+          line === line.toUpperCase() && line.length > 3 ||
+          (!nextLine && currentPara.length === 0)
+        );
+        if (isHeading && currentPara.length === 0) {
+          htmlParts.push(`<h3>${escHtml(line)}</h3>`);
+          continue;
+        }
+        currentPara.push(line);
+        // Flush on sentence end if next line starts with capital (new paragraph signal)
+        if (/[.!?]$/.test(line) && nextLine && /^[A-Z]/.test(nextLine)) {
+          flushPara();
+        }
+      }
+      flushPara();
+      content = htmlParts.join('');
     }
 
     // ── DOCX ──────────────────────────────────────────────
