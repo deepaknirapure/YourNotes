@@ -525,5 +525,4 @@ export const AUTH_STYLES = `
   }
 `;
 
-// AUTH_SHARED_STYLES as alias — same styles, used by pages that import from styles/auth.css.js
 export const AUTH_SHARED_STYLES = AUTH_STYLES;
