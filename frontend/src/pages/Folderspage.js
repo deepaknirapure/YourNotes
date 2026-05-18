@@ -21,7 +21,7 @@ const STYLES = `
   .pg-wrap { display:flex; height:100dvh; overflow:hidden; background:var(--bg); font-family:'Plus Jakarta Sans',sans-serif; }
   .pg-main { flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0; }
 
-  .pg-topbar { height:70px; display:flex; align-items:center; padding:0 32px; background:var(--bg); border-bottom:1px solid var(--border); flex-shrink:0; gap:16px; }
+  .pg-topbar { height:68px; display:flex; align-items:center; padding:0 32px; background:var(--bg); border-bottom:1px solid var(--border); flex-shrink:0; gap:16px; }
   .pg-menu-btn { display:none; background:var(--border); border:none; border-radius:12px; cursor:pointer; padding:10px; color:var(--text); }
   .pg-title-icon { width:34px; height:34px; border-radius:10px; background:var(--surface); display:flex; align-items:center; justify-content:center; color:#ff5734; }
   .pg-title { font-size:20px; font-weight:900; color:var(--text); letter-spacing:-1px; }
@@ -34,7 +34,7 @@ const STYLES = `
 
   .fp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:24px; }
 
-  .fp-card { background:var(--bg); border:1px solid var(--border); border-radius:24px; padding:24px; cursor:pointer; animation:fadeUp 0.4s both; transition:0.3s; position:relative; }
+  .fp-card { background:var(--bg); border:1px solid var(--border); border-radius:20px; padding:24px; cursor:pointer; animation:fadeUp 0.4s both; transition:0.3s; position:relative; }
   .fp-card:hover { border-color:var(--text); transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.08); }
   .fp-icon-wrap { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
   .fp-name { font-size:16px; font-weight:900; color:var(--text); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
