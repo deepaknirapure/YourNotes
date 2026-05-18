@@ -1,58 +1,34 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { KeyRound, Eye, EyeOff, CheckCircle2, Lock, ArrowLeft } from 'lucide-react';
+import { KeyRound, Lock, CheckCircle2, ArrowLeft } from 'lucide-react';
 import API from '../api/axios';
 import toast from 'react-hot-toast';
+import { AUTH_SHARED_STYLES } from '../styles/auth.css.js';
 
-// Hindi: Reset password page — same auth card layout
-
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg,#f9f8f6);color:var(--text,#111110);-webkit-font-smoothing:antialiased;}
-
-  .auth-root{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg,#f9f8f6);}
-  .auth-header{height:60px;display:flex;align-items:center;padding:0 32px;border-bottom:1px solid var(--border,#e8e5df);background:var(--surface,#fff);}
-  .auth-logo{font-size:17px;font-weight:800;letter-spacing:-0.5px;color:var(--text,#111110);text-decoration:none;}
-  .auth-logo span{color:#f97316;}
-  .auth-center{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 20px;}
-  .auth-card{width:100%;max-width:400px;background:var(--surface,#fff);border:1px solid var(--border,#e8e5df);border-radius:20px;padding:40px;box-shadow:0 4px 20px rgba(0,0,0,0.05);animation:fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both;}
-
-  .rp-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;}
-  .rp-title{font-size:22px;font-weight:800;color:var(--text,#111110);letter-spacing:-0.5px;text-align:center;margin-bottom:8px;}
-  .rp-sub{font-size:13.5px;color:var(--text-3,#87857d);text-align:center;line-height:1.65;margin-bottom:28px;}
-
-  .auth-label{display:block;font-size:11px;font-weight:700;color:var(--text-3,#87857d);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:7px;}
-  .auth-field{margin-bottom:16px;}
-  .auth-iw{position:relative;}
-  .auth-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-4,#b5b2aa);display:flex;pointer-events:none;}
-  .auth-input{width:100%;padding:10px 40px 10px 40px;background:var(--bg,#f9f8f6);border:1.5px solid var(--border,#e8e5df);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text,#111110);outline:none;transition:all 0.15s;}
-  .auth-input::placeholder{color:var(--text-4,#b5b2aa);}
-  .auth-input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,0.1);background:var(--surface,#fff);}
-  .pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3,#87857d);cursor:pointer;display:flex;padding:0;}
-
-  .auth-submit{width:100%;padding:12px;background:#111110;color:#fff;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;}
-  .auth-submit:hover:not(:disabled){background:#f97316;box-shadow:0 5px 18px rgba(249,115,22,0.28);}
-  .auth-submit:disabled{opacity:0.5;cursor:not-allowed;}
-
-  .fp-back{display:flex;align-items:center;gap:6px;color:var(--text-3,#87857d);text-decoration:none;font-size:13.5px;font-weight:600;margin-top:22px;justify-content:center;transition:color 0.15s;}
-  .fp-back:hover{color:#f97316;}
-
-  @media(max-width:480px){.auth-card{padding:28px 20px;border-radius:16px;}}
-`;
+function getStrength(pw) {
+  if (!pw) return 0;
+  let s = 0;
+  if (pw.length >= 6)  s++;
+  if (pw.length >= 10) s++;
+  if (/[A-Z]/.test(pw) || /[0-9]/.test(pw)) s++;
+  return s;
+}
 
 export default function ResetPasswordPage() {
-  const { token } = useParams();
-  const navigate = useNavigate();
-  const [password, setPassword]   = useState('');
-  const [confirm, setConfirm]     = useState('');
-  const [showPw, setShowPw]       = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [done, setDone]           = useState(false);
+  const { token }   = useParams();
+  const navigate    = useNavigate();
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm]   = useState('');
+  const [showPw, setShowPw]     = useState(false);
+  const [loading, setLoading]   = useState(false);
+  const [done, setDone]         = useState(false);
 
-  // Hindi: Password reset submit handler
+  const strength = getStrength(password);
+  const strengthClass = strength === 1 ? 'filled-weak' : strength === 2 ? 'filled-fair' : strength === 3 ? 'filled-strong' : '';
+
+  const match = confirm && password === confirm;
+  const mismatch = confirm && password !== confirm;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password.length < 6) return toast.error('Password must be at least 6 characters');
@@ -61,7 +37,7 @@ export default function ResetPasswordPage() {
     try {
       await API.post('/auth/reset-password', { token, password });
       setDone(true);
-      toast.success('Password updated! Redirecting to login...');
+      toast.success('Password updated! Redirecting…');
       setTimeout(() => navigate('/login'), 2500);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Reset link is expired or invalid');
@@ -70,53 +46,117 @@ export default function ResetPasswordPage() {
     }
   };
 
+  const EyeIcon = () => showPw
+    ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>
+    : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+
   return (
-    <div className="auth-root">
-      <style>{STYLES}</style>
-      <header className="auth-header">
-        <Link to="/" className="auth-logo">Your<span>Notes</span></Link>
-      </header>
+    <div className="auth-page">
+      <style>{AUTH_SHARED_STYLES}</style>
+
+      <nav className="auth-nav">
+        <a href="/" className="auth-nav-logo">
+          <div className="auth-nav-mark">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <path d="M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z" fill="white" fillOpacity="0.9"/>
+            </svg>
+          </div>
+          <span className="auth-nav-name">Your<span>Notes</span></span>
+        </a>
+        <Link to="/login" className="auth-nav-back">
+          <ArrowLeft size={13} />
+          Back to sign in
+        </Link>
+      </nav>
 
       <div className="auth-center">
         <div className="auth-card">
-          <div className="rp-icon" style={{ background: done ? 'rgba(21,128,61,0.09)' : 'rgba(249,115,22,0.09)' }}>
-            {done ? <CheckCircle2 size={22} color="#15803d" /> : <KeyRound size={22} color="#f97316" />}
-          </div>
-          <h2 className="rp-title">{done ? 'Password Updated!' : 'Set New Password'}</h2>
-          <p className="rp-sub">{done ? 'Your password has been updated. Redirecting you to sign in...' : 'Create a new strong password for your account.'}</p>
 
           {done ? (
-            <Link to="/login" className="auth-submit" style={{ textDecoration: 'none', justifyContent: 'center' }}>
-              Go to Sign in
-            </Link>
+            <>
+              <div className="ac-icon-wrap" style={{ background: 'rgba(22,163,74,0.08)' }}>
+                <CheckCircle2 size={22} color="#16a34a" />
+              </div>
+              <h2 className="ac-title">Password updated!</h2>
+              <p className="ac-sub">
+                Your password has been reset successfully. You'll be redirected to sign in shortly.
+              </p>
+              <Link to="/login" className="ar-btn" style={{ textDecoration: 'none' }}>
+                Go to sign in
+              </Link>
+            </>
           ) : (
-            <form onSubmit={handleSubmit}>
-              <div className="auth-field">
-                <label className="auth-label">New Password</label>
-                <div className="auth-iw">
-                  <span className="auth-ico"><Lock size={15} /></span>
-                  <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Minimum 6 characters" required className="auth-input" />
-                  <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)}>
-                    {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
+            <>
+              <div className="ac-icon-wrap" style={{ background: 'rgba(249,115,22,0.08)' }}>
+                <KeyRound size={22} color="#f97316" />
               </div>
-              <div className="auth-field">
-                <label className="auth-label">Confirm Password</label>
-                <div className="auth-iw">
-                  <span className="auth-ico"><Lock size={15} /></span>
-                  <input type={showPw ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Re-enter new password" required className="auth-input" />
-                </div>
-              </div>
-              <button type="submit" disabled={loading} className="auth-submit">
-                {loading
-                  ? <><span style={{width:15,height:15,border:'2px solid rgba(255,255,255,0.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'spin 0.7s linear infinite'}} /> Updating...</>
-                  : 'Reset Password'}
-              </button>
-            </form>
-          )}
+              <h2 className="ac-title">Set new password</h2>
+              <p className="ac-sub">
+                Create a strong new password for your account.
+              </p>
 
-          {!done && <Link to="/login" className="fp-back"><ArrowLeft size={14} /> Back to sign in</Link>}
+              <form onSubmit={handleSubmit}>
+                <div className="ar-field">
+                  <label className="ar-label">New password</label>
+                  <div className="ar-iw">
+                    <span className="ar-ico"><Lock size={15} /></span>
+                    <input
+                      type={showPw ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="Minimum 6 characters"
+                      required
+                      className="ar-input has-right-icon"
+                      autoComplete="new-password"
+                    />
+                    <button type="button" className="ar-ico-right" onClick={() => setShowPw(!showPw)} aria-label="Toggle password">
+                      <EyeIcon />
+                    </button>
+                  </div>
+                  {password && (
+                    <div className="pw-strength">
+                      {[1,2,3].map(i => (
+                        <div key={i} className={`pw-seg ${i <= strength ? strengthClass : ''}`} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="ar-field">
+                  <label className="ar-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>Confirm password</span>
+                    {match && <span style={{ color: 'var(--green)', fontSize: 10, fontWeight: 700, letterSpacing: 0, textTransform: 'none' }}>✓ Passwords match</span>}
+                    {mismatch && <span style={{ color: 'var(--red)', fontSize: 10, fontWeight: 700, letterSpacing: 0, textTransform: 'none' }}>✗ Does not match</span>}
+                  </label>
+                  <div className="ar-iw">
+                    <span className="ar-ico"><Lock size={15} /></span>
+                    <input
+                      type={showPw ? 'text' : 'password'}
+                      value={confirm}
+                      onChange={e => setConfirm(e.target.value)}
+                      placeholder="Re-enter new password"
+                      required
+                      className="ar-input"
+                      style={mismatch ? { borderColor: 'var(--red)', boxShadow: '0 0 0 3px rgba(220,38,38,0.10)' } : match ? { borderColor: 'var(--green)', boxShadow: '0 0 0 3px rgba(22,163,74,0.10)' } : {}}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" disabled={loading} className="ar-btn" style={{ marginTop: 4 }}>
+                  {loading
+                    ? <><span className="ar-spinner" /> Updating…</>
+                    : 'Reset password'
+                  }
+                </button>
+              </form>
+
+              <Link to="/login" className="ac-back">
+                <ArrowLeft size={13} />
+                Back to sign in
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>
