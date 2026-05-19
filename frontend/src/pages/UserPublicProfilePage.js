@@ -10,15 +10,15 @@ import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp  { from { ; (16px) } to { opacity: 1; transform: translateY(0) } }
-  @keyframes fadeIn  { from { } to { opacity: 1 } }
+  @keyframes fadeUp  { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+  @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
   @keyframes spin    { to { transform: rotate(360deg) } }
-  @keyframes shimmer { 0% { background-0 } 100% { background-position: 600px 0 } }
-  @keyframes pulse   { 0%,100% { (1) } 50% { transform: scale(1.15) } }
+  @keyframes shimmer { 0% { background-position: -600px 0 } 100% { background-position: 600px 0 } }
+  @keyframes pulse   { 0%,100% { transform: scale(1) } 50% { transform: scale(1.15) } }
 
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; }
 
   .up-wrap  { display: flex; height: 100dvh; overflow: hidden; background: var(--bg); }
   .up-main  { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
@@ -32,7 +32,7 @@ const STYLES = `
     display: flex; align-items: center; gap: 8px; background: var(--surface);
     border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px;
     color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: 0.2s; font-family: 'DM Sans', sans-serif;
+    transition: 0.2s; font-family: 'Plus Jakarta Sans', sans-serif;
   }
   .up-back-btn:hover { border-color: #ff5734; color: #ff5734; }
   .up-menu-btn {
@@ -66,7 +66,7 @@ const STYLES = `
     background: rgba(255,255,255,0.2);
     display: flex; align-items: center; justify-content: center;
     font-size: 36px; font-weight: 800; color: #fff;
-    font-family: 'Syne', sans-serif; object-fit: cover; overflow: hidden;
+    font-family: 'Plus Jakarta Sans', sans-serif; object-fit: cover; overflow: hidden;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
   }
   .up-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -75,10 +75,10 @@ const STYLES = `
     background: #fff; border-radius: 10px; padding: 4px 8px;
     display: flex; align-items: center; gap: 4px;
     font-size: 12px; font-weight: 800; color: #ff5734;
-    font-family: 'Syne', sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-family: 'Plus Jakarta Sans', sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
 
-  .up-name { font-size: 28px; font-weight: 800; color: #fff; font-family: 'Syne', sans-serif; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .up-name { font-size: 28px; font-weight: 800; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.5px; margin-bottom: 6px; }
   .up-joined { font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 500; display: flex; align-items: center; gap: 6px; }
 
   /* Stats row */
@@ -91,15 +91,15 @@ const STYLES = `
   }
   .up-stat-card:hover { border-color: #ff5734; transform: translateY(-3px); }
   .up-stat-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,87,52,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
-  .up-stat-val { font-size: 24px; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--text); }
+  .up-stat-val { font-size: 24px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); }
   .up-stat-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-top: 2px; }
 
   /* Notes section */
   .up-notes-section { padding: 0 5vw 80px; }
   .up-section-hd { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
-  .up-section-hd h3 { font-size: 13px; font-weight: 800; font-family: 'Syne', sans-serif; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text); }
+  .up-section-hd h3 { font-size: 13px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text); }
   .up-section-line { flex: 1; height: 1px; background: var(--border); }
-  .up-section-count { font-size: 10px; font-weight: 800; font-family: 'Syne', sans-serif; color: #ff5734; background: rgba(255,87,52,0.1); padding: 3px 10px; border-radius: 6px; }
+  .up-section-count { font-size: 10px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; color: #ff5734; background: rgba(255,87,52,0.1); padding: 3px 10px; border-radius: 6px; }
 
   .up-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
 
@@ -115,18 +115,18 @@ const STYLES = `
     background: rgba(255,87,52,0.08); color: #ff5734;
     border: 1px solid rgba(255,87,52,0.15); border-radius: 7px;
     padding: 3px 10px; font-size: 11px; font-weight: 700; margin-bottom: 10px;
-    font-family: 'Syne', sans-serif; letter-spacing: 0.3px; width: fit-content;
+    font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: 0.3px; width: fit-content;
   }
-  .up-note-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.35; font-family: 'Syne', sans-serif; }
+  .up-note-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.35; font-family: 'Plus Jakarta Sans', sans-serif; }
   .up-note-preview { font-size: 13px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.65; margin-bottom: 16px; flex: 1; }
 
-  .up-note-footer { display: flex; align-items: center; justify-content: space-between; padding-; border-top: 1px solid var(--border); }
+  .up-note-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
   .up-note-actions { display: flex; gap: 6px; }
   .up-act-btn {
     display: flex; align-items: center; gap: 5px; border: none; border-radius: 8px;
     padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
     transition: 0.2s; background: var(--bg); color: var(--text-muted);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
   .up-act-btn:hover { background: var(--border); color: var(--text); }
   .up-act-btn.liked { background: rgba(255,87,52,0.12); color: #ff5734; }
@@ -146,7 +146,7 @@ const STYLES = `
 
   /* Empty state */
   .up-empty { text-align: center; padding: 60px 20px; }
-  .up-empty h3 { font-size: 16px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--text-muted); margin-bottom: 8px; }
+  .up-empty h3 { font-size: 16px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-muted); margin-bottom: 8px; }
   .up-empty p  { font-size: 13px; color: var(--text-light); line-height: 1.6; }
 
   .up-spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: #ff5734; border-radius: 50%; animation: spin .7s linear infinite; }
@@ -251,7 +251,7 @@ export default function UserPublicProfilePage() {
             <ArrowLeft size={15} /> Back to Community
           </button>
           {user && (
-            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-muted)", marginLeft: 4, fontFamily: "'Syne', sans-serif" }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-muted)", marginLeft: 4, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {user.name}'s Profile
             </span>
           )}
@@ -259,7 +259,6 @@ export default function UserPublicProfilePage() {
 
         <div className="up-content">
           {loading ? (
-            /* Skeleton */
             <div>
               <div style={{ background: "linear-gradient(135deg, #ff5734, #ff8c74)", height: 180 }} />
               <div style={{ padding: "0 5vw", marginTop: -24, marginBottom: 36 }}>
@@ -309,8 +308,8 @@ export default function UserPublicProfilePage() {
               <div className="up-stats">
                 <div className="up-stats-grid">
                   {[
-                    { icon: <FileText size={17} color="#ff5734" />, val: stats.totalNotes,    lbl: "Public Notes",  delay: 0    },
-                    { icon: <Heart    size={17} color="#ff5734" />, val: stats.totalLikes,    lbl: "Total Likes",   delay: 0.07 },
+                    { icon: <FileText size={17} color="#ff5734" />, val: stats.totalNotes,     lbl: "Public Notes", delay: 0    },
+                    { icon: <Heart    size={17} color="#ff5734" />, val: stats.totalLikes,     lbl: "Total Likes",  delay: 0.07 },
                     { icon: <Download size={17} color="#ff5734" />, val: stats.totalDownloads, lbl: "Downloads",    delay: 0.14 },
                     { icon: <BookOpen size={17} color="#ff5734" />, val: stats.subjects,       lbl: "Subjects",     delay: 0.21 },
                   ].map(({ icon, val, lbl, delay }) => (
