@@ -13,11 +13,11 @@ import MobileNav from "../components/MobileNav";
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp  { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
-  @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes fadeUp  { from { ; (14px) } to { opacity: 1; transform: translateY(0) } }
+  @keyframes fadeIn  { from { } to { opacity: 1 } }
   @keyframes spin    { to { transform: rotate(360deg) } }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(40px) } to { opacity: 1; transform: translateY(0) } }
-  @keyframes pulse   { 0%,100% { transform: scale(1) } 50% { transform: scale(1.2) } }
+  @keyframes slideUp { from { ; (40px) } to { opacity: 1; transform: translateY(0) } }
+  @keyframes pulse   { 0%,100% { (1) } 50% { transform: scale(1.2) } }
 
   body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; }
 
@@ -84,7 +84,7 @@ const STYLES = `
   .cm-card-title   { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.35; font-family: 'Plus Jakarta Sans', sans-serif; }
   .cm-card-preview { font-size: 13px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.65; margin-bottom: 20px; flex: 1; }
 
-  .cm-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--border); }
+  .cm-card-footer { display: flex; align-items: center; justify-content: space-between; padding-; border-top: 1px solid var(--border); }
   .cm-act-btn { display: flex; align-items: center; gap: 6px; border: none; border-radius: 9px; padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; background: var(--bg); color: var(--text-muted); font-family: 'Plus Jakarta Sans', sans-serif; }
   .cm-act-btn:hover:not(:disabled) { background: var(--border); color: var(--text); }
   .cm-act-btn.liked  { background: rgba(255,87,52,0.12); color: #ff5734; }
@@ -102,7 +102,7 @@ const STYLES = `
 
   /* ── Note Detail Modal ── */
   .nd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s both; backdrop-filter: blur(6px); padding: 20px; }
-  .nd-sheet   { width: 100%; max-width: 640px; background: var(--surface); border-radius: 24px; display: flex; flex-direction: column; animation: slideUp 0.3s both; border: 1px solid var(--border); max-height: 88vh; overflow: hidden; }
+  .nd-sheet   { ; max-width: 640px; background: var(--surface); border-radius: 24px; display: flex; flex-direction: column; animation: slideUp 0.3s both; border: 1px solid var(--border); max-height: 88vh; overflow: hidden; }
   .nd-header  { padding: 24px 24px 0; flex-shrink: 0; }
   .nd-body    { flex: 1; overflow-y: auto; padding: 0 24px 20px; scrollbar-width: none; }
   .nd-body::-webkit-scrollbar { display: none; }
@@ -146,7 +146,7 @@ const STYLES = `
 
   /* Comments modal */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s both; backdrop-filter: blur(4px); }
-  .modal-sheet   { width: 100%; max-width: 600px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 28px; max-height: 70vh; display: flex; flex-direction: column; animation: slideUp 0.3s both; border: 1px solid var(--border); border-bottom: none; }
+  .modal-sheet   { ; max-width: 600px; background: var(--surface); border-radius: 24px 24px 0 0; padding: 28px; max-height: 70vh; display: flex; flex-direction: column; animation: slideUp 0.3s both; border: 1px solid var(--border); border-bottom: none; }
   .modal-handle  { width: 40px; height: 4px; background: var(--border); border-radius: 4px; margin: 0 auto 20px; }
   .modal-close   { background: var(--bg); border: none; border-radius: 9px; padding: 8px; cursor: pointer; color: var(--text-muted); display: flex; }
   .modal-close:hover { background: var(--border); color: var(--text); }
@@ -157,7 +157,7 @@ const STYLES = `
   .comment-text   { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
   .comment-time   { font-size: 10px; color: var(--text-light); margin-top: 6px; font-weight: 500; }
   .comment-input-row { display: flex; gap: 10px; align-items: flex-end; }
-  .comment-input { flex: 1; background: var(--bg); border: 1px solid #2a2727; border-radius: 12px; padding: 12px 16px; color: var(--text); font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif; outline: none; resize: none; min-height: 44px; max-height: 100px; transition: 0.2s; }
+  .comment-input { flex: 1; background: var(--bg); border: 1px solid #2a2727; border-radius: 12px; padding: 12px 16px; color: var(--text); font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif; outline: none; resize: none; min-; max-height: 100px; transition: 0.2s; }
   .comment-input:focus { border-color: #ff5734; }
   .comment-input::placeholder { color: var(--text-light); }
   .btn-send { background: #ff5734; color: #fff; border: none; border-radius: 12px; padding: 12px 18px; cursor: pointer; transition: 0.2s; flex-shrink: 0; display: flex; }
@@ -166,7 +166,7 @@ const STYLES = `
 
   /* Share modal */
   .share-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s both; backdrop-filter: blur(6px); padding: 20px; }
-  .share-modal { width: 100%; max-width: 520px; background: var(--surface); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; gap: 16px; animation: slideUp 0.3s both; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; scrollbar-width: none; }
+  .share-modal { ; max-; background: var(--surface); border-radius: 24px; padding: 30px; display: flex; flex-direction: column; gap: 16px; animation: slideUp 0.3s both; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; scrollbar-width: none; }
   .share-modal::-webkit-scrollbar { display: none; }
   .share-modal-title { font-size: 18px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); }
   .notes-pick-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; scrollbar-width: none; }

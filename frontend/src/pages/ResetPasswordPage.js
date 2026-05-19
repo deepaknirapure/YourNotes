@@ -137,7 +137,7 @@ export default function ResetPasswordPage() {
                       placeholder="Re-enter new password"
                       required
                       className="ar-input"
-                      style={mismatch ? { borderColor: 'var(--red)', boxShadow: '0 0 0 3px rgba(220,38,38,0.10)' } : match ? { borderColor: 'var(--green)', boxShadow: '0 0 0 3px rgba(22,163,74,0.10)' } : {}}
+                      style={mismatch ? { } : match ? { borderColor: 'var(--green)', boxShadow: '0 0 0 3px rgba(22,163,74,0.10)' } : {}}
                       autoComplete="new-password"
                     />
                   </div>

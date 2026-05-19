@@ -22,9 +22,9 @@ export default function SharedNotePage() {
     
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    @keyframes ynFadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes ynSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes ynPulse { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+    @keyframes ynFadeUp { from { ; (24px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes ynSpin { from { (0deg); } to { transform: rotate(360deg); } }
+    @keyframes ynPulse { 0%,100% { ; } 50% { opacity:.3; } }
 
     body { background: #0a0a0a; }
 
@@ -39,7 +39,7 @@ export default function SharedNotePage() {
     .yn-note-content ul,.yn-note-content ol { margin: .8em 0 .8em 1.6em; color: rgba(255,255,255,.55); line-height: 1.8; }
     .yn-note-content code { background: rgba(229,91,45,.1); border: 1px solid rgba(229,91,45,.2); padding: 2px 7px; border-radius: 5px; font-size: 13px; color: #E55B2D; }
     .yn-note-content pre { background: #111; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 16px; margin: 1em 0; overflow-x: auto; }
-    .yn-note-content blockquote { border-left: 3px solid #E55B2D; padding-left: 16px; margin: 1em 0; color: rgba(255,255,255,.45); font-style: italic; }
+    .yn-note-content blockquote { border-solid #E55B2D; padding-left: 16px; margin: 1em 0; color: rgba(255,255,255,.45); font-style: italic; }
     .yn-note-content strong { color: var(--text); font-weight: 700; }
     .yn-note-content a { color: #E55B2D; }
 

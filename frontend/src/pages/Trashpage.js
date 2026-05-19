@@ -9,7 +9,7 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
+  @keyframes fadeUp { from { ; (12px) } to { opacity: 1; transform: translateY(0) } }
   @keyframes spin { to { transform: rotate(360deg) } }
   
   body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -40,7 +40,7 @@ const STYLES = `
   }
   .pg-title { 
     font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -0.6px; 
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; ; text-overflow: ellipsis;
   }
   .pg-count { 
     background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
@@ -120,7 +120,7 @@ const STYLES = `
   .pg-card-preview { font-size: 13.5px; color: var(--text-muted); line-height: 1.7; margin-bottom: 18px; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500; }
   .pg-card-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--text-light); margin-bottom: 18px; letter-spacing: 0.02em; text-transform: uppercase; }
   
-  .pg-card-footer { display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 18px; }
+  .pg-card-footer { display: flex; gap: 8px; border-solid var(--border); padding-top: 18px; }
   
   .pg-btn-sm { 
     flex: 1; border: none; border-radius: 10px; padding: 10px 8px; 
@@ -146,7 +146,7 @@ const STYLES = `
   }
   .modal-box { 
     background: var(--surface); border: 1.5px solid var(--border); border-radius: 24px; 
-    padding: 36px; max-width: 420px; width: 100%; color: var(--text); text-align: center; 
+    padding: 36px; max-; width: 100%; color: var(--text); text-align: center; 
     animation: fadeUp 0.25s ease;
   }
   .modal-icon { width: 56px; height: 56px; border-radius: 16px; background: rgba(239,68,68,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }

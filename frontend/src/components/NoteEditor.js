@@ -110,7 +110,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
 
         .editor-root {
           display: flex; flex-direction: column;
-          height: 100vh; height: 100dvh;
+          ; height: 100dvh;
           background: var(--bg);
           font-family: 'Plus Jakarta Sans', sans-serif;
           overflow: hidden; color: var(--text);
@@ -132,7 +132,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
           display: flex; align-items: center; justify-content: center;
           transition: all 0.15s; flex-shrink: 0;
         }
-        .back-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+        .back-btn:hover { border-(--accent); color: var(--accent); background: var(--accent-light); }
 
         .save-status {
           font-size: 11px; font-weight: 700; color: var(--text-muted);
@@ -277,7 +277,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
         .flashcard-q { font-weight: 800; color: var(--text); font-size: 14px; margin-bottom: 9px; }
         .flashcard-a {
           color: var(--text-muted); font-size: 13px; line-height: 1.6;
-          border-top: 1px solid var(--border); padding-top: 10px;
+          border-solid var(--border); padding-top: 10px;
         }
         .quiz-card {
           background: var(--surface); padding: 20px 22px;
@@ -290,7 +290,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
           margin-bottom: 6px; font-size: 13px; font-weight: 600;
           color: var(--text); cursor: pointer; transition: all 0.15s;
         }
-        .quiz-option:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+        .quiz-option:hover { border-(--accent); color: var(--accent); background: var(--accent-light); }
         .empty-ai {
           text-align: center; color: var(--text-muted);
           padding: 60px 20px; font-size: 14px; font-weight: 600;
@@ -309,7 +309,7 @@ export default function NoteEditor({ note, onUpdate, onClose }) {
         }
 
         @keyframes spin    { to { transform: rotate(360deg); } }
-        @keyframes fadeIn  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn  { from { ; (8px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
       {/* Header */}

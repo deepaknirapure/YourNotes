@@ -256,7 +256,7 @@ const getThemeVars = (isDark) => `
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   * { box-sizing: border-box; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+  @keyframes fadeUp { from { ; (10px) } to { opacity: 1; transform: none } }
   .pg-menu-btn { display: none !important; }
   .st-container { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
   .st-card { animation: fadeUp 0.35s both; }

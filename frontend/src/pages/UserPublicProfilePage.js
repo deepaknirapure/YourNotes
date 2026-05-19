@@ -12,11 +12,11 @@ import MobileNav from "../components/MobileNav";
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp  { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
-  @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes fadeUp  { from { ; (16px) } to { opacity: 1; transform: translateY(0) } }
+  @keyframes fadeIn  { from { } to { opacity: 1 } }
   @keyframes spin    { to { transform: rotate(360deg) } }
-  @keyframes shimmer { 0% { background-position: -600px 0 } 100% { background-position: 600px 0 } }
-  @keyframes pulse   { 0%,100% { transform: scale(1) } 50% { transform: scale(1.15) } }
+  @keyframes shimmer { 0% { background-0 } 100% { background-position: 600px 0 } }
+  @keyframes pulse   { 0%,100% { (1) } 50% { transform: scale(1.15) } }
 
   body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
 
@@ -120,7 +120,7 @@ const STYLES = `
   .up-note-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.35; font-family: 'Syne', sans-serif; }
   .up-note-preview { font-size: 13px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.65; margin-bottom: 16px; flex: 1; }
 
-  .up-note-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--border); }
+  .up-note-footer { display: flex; align-items: center; justify-content: space-between; padding-; border-top: 1px solid var(--border); }
   .up-note-actions { display: flex; gap: 6px; }
   .up-act-btn {
     display: flex; align-items: center; gap: 5px; border: none; border-radius: 8px;

@@ -22,9 +22,9 @@ const STYLES = `
   --aai-font:        'Plus Jakarta Sans', sans-serif;
 }
 
-@keyframes aai-fadeUp { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+@keyframes aai-fadeUp { from { ; (10px) } to { opacity:1; transform:translateY(0) } }
 @keyframes aai-spin   { to { transform:rotate(360deg) } }
-@keyframes aai-pulse  { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes aai-pulse  { 0%,100%{} 50%{opacity:0.4} }
 
 .aai-root {
   display: flex;
@@ -53,7 +53,7 @@ const STYLES = `
   border-radius: var(--aai-radius-sm); cursor: pointer; color: var(--text-muted);
   transition: all 0.15s; flex-shrink: 0;
 }
-.aai-icon-btn:hover { border-color: var(--aai-accent); color: var(--aai-accent); background: var(--aai-accent-dim); }
+.aai-icon-btn:hover { border-(--aai-accent); color: var(--aai-accent); background: var(--aai-accent-dim); }
 
 .aai-brand { display: flex; align-items: center; gap: 9px; flex: 1; }
 .aai-brand-logo {
@@ -70,7 +70,7 @@ const STYLES = `
   cursor: pointer; transition: all 0.15s; font-family: var(--aai-font);
   white-space: nowrap; flex-shrink: 0;
 }
-.aai-new-btn:hover { border-color: var(--aai-accent); color: var(--aai-accent); background: var(--aai-accent-dim); }
+.aai-new-btn:hover { border-(--aai-accent); color: var(--aai-accent); background: var(--aai-accent-dim); }
 
 /* ── Shell ── */
 .aai-shell { flex: 1; display: flex; overflow: hidden; min-height: 0; }
@@ -123,12 +123,12 @@ const STYLES = `
   flex-shrink: 0; color: var(--text-muted); transition: 0.15s;
 }
 .aai-hist-item.active .aai-hist-icon {
-  background: var(--aai-accent-dim); color: var(--aai-accent); border-color: var(--aai-accent);
+  background: var(--aai-accent-dim); (--aai-accent); border-color: var(--aai-accent);
 }
 .aai-hist-info { flex: 1; min-width: 0; }
 .aai-hist-title {
   font-size: 12px; font-weight: 700; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; ; text-overflow: ellipsis;
 }
 .aai-hist-item.active .aai-hist-title { color: var(--aai-accent); }
 .aai-hist-date { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
@@ -180,7 +180,7 @@ const STYLES = `
   font-size: 12px; font-weight: 700; color: var(--text-muted);
   cursor: pointer; transition: all 0.15s; font-family: var(--aai-font);
 }
-.aai-welcome-chip:hover { border-color: var(--aai-accent); color: var(--aai-accent); background: var(--aai-accent-dim); }
+.aai-welcome-chip:hover { border-(--aai-accent); color: var(--aai-accent); background: var(--aai-accent-dim); }
 
 .aai-msg { display: flex; gap: 12px; align-items: flex-start; animation: aai-fadeUp 0.3s ease-out both; }
 .aai-msg.user { flex-direction: row-reverse; }
@@ -201,7 +201,7 @@ const STYLES = `
 
 .aai-file-ref {
   display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700;
-  margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); opacity: 0.85;
+  margin-; padding-; border-bottom: 1px solid rgba(255,255,255,0.2); opacity: 0.85;
 }
 
 .aai-typing { display: flex; gap: 5px; align-items: center; padding: 4px 2px; }
@@ -215,7 +215,7 @@ const STYLES = `
   padding: 14px 24px;
   padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
 }
-.aai-input-inner { max-width: 780px; margin: 0 auto; width: 100%; }
+.aai-input-inner { max-; margin: 0 auto; width: 100%; }
 
 .aai-chips-row {
   display: flex; gap: 6px; margin-bottom: 11px;
@@ -227,7 +227,7 @@ const STYLES = `
   padding: 5px 13px; font-size: 11px; font-weight: 700; color: var(--text-muted);
   cursor: pointer; transition: all 0.15s; white-space: nowrap; font-family: var(--aai-font);
 }
-.aai-chip:hover { border-color: var(--aai-accent); color: var(--aai-accent); background: var(--aai-accent-dim); }
+.aai-chip:hover { border-(--aai-accent); color: var(--aai-accent); background: var(--aai-accent-dim); }
 
 .aai-file-tag {
   display: flex; align-items: center; gap: 7px;
@@ -257,7 +257,7 @@ const STYLES = `
 .aai-textarea {
   flex: 1; background: transparent; border: none; font-size: 14px;
   font-weight: 500; color: var(--text); outline: none; resize: none;
-  line-height: 1.6; font-family: var(--aai-font); max-height: 120px; min-height: 22px;
+  line-; font-family: var(--aai-font); max-; min-height: 22px;
 }
 .aai-textarea::placeholder { color: var(--text-muted); }
 

@@ -14,8 +14,8 @@ const COLORS = ["#ff5734", "#4F46E5", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  @keyframes fadeUp  { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
-  @keyframes scaleIn { from { opacity:0; transform:scale(0.96) } to { opacity:1; transform:scale(1) } }
+  @keyframes fadeUp  { from { ; (12px) } to { opacity:1; transform:translateY(0) } }
+  @keyframes scaleIn { from { ; (0.96) } to { opacity:1; transform:scale(1) } }
   @keyframes spin    { to { transform:rotate(360deg) } }
 
   .pg-wrap { display:flex; height:100dvh; overflow:hidden; background:var(--bg); font-family:'Plus Jakarta Sans',sans-serif; }
@@ -37,7 +37,7 @@ const STYLES = `
   .fp-card { background:var(--bg); border:1px solid var(--border); border-radius:20px; padding:24px; cursor:pointer; animation:fadeUp 0.4s both; transition:0.3s; position:relative; }
   .fp-card:hover { border-color:var(--text); transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.08); }
   .fp-icon-wrap { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
-  .fp-name { font-size:16px; font-weight:900; color:var(--text); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fp-name { font-size:16px; font-weight:900; color:var(--text); margin-bottom:4px; white-space:nowrap; ; text-overflow:ellipsis; }
   .fp-count { font-size:12px; color:#8a7f7f; font-weight:700; margin-bottom:14px; }
   .fp-menu-btn { position:absolute; top:16px; right:16px; background:var(--bg); border:1px solid var(--border); color:var(--text-muted); cursor:pointer; padding:6px; border-radius:10px; transition:0.2s; }
   .fp-menu-btn:hover { color:#ff5734; border-color:#ff5734; }
@@ -69,14 +69,14 @@ const STYLES = `
 
   .n-check { width:19px; height:19px; border-radius:5px; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:0.15s; }
   .note-item.sel .n-check { background:#ff5734; border-color:#ff5734; }
-  .n-title { font-size:13px; font-weight:700; color:var(--text); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .n-title { font-size:13px; font-weight:700; color:var(--text); flex:1; white-space:nowrap; ; text-overflow:ellipsis; }
   .n-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:100px; background:var(--border); color:var(--text-muted); flex-shrink:0; }
   .n-badge.other { background:rgba(245,158,11,0.12); color:#f59e0b; }
   .n-date { font-size:11px; color:var(--text-light); font-weight:600; flex-shrink:0; }
 
-  .modal-footer { display:flex; gap:10px; margin-top:14px; flex-shrink:0; padding-top:14px; border-top:1px solid var(--border); }
+  .modal-footer { display:flex; gap:10px; margin-; flex-shrink:0; padding-; border-top:1px solid var(--border); }
   .btn-cancel { flex:1; background:transparent; border:1.5px solid var(--border); border-radius:10px; padding:10px; font-weight:700; cursor:pointer; font-family:inherit; color:var(--text-muted); transition:0.15s; }
-  .btn-cancel:hover { border-color:var(--text); color:var(--text); }
+  .btn-cancel:hover { border-(--text); color:var(--text); }
   .btn-add { flex:2; background:#ff5734; color:#fff; border:none; border-radius:10px; padding:10px; font-weight:900; cursor:pointer; font-family:inherit; font-size:13px; transition:0.2s; }
   .btn-add:disabled { background:var(--border); cursor:not-allowed; color:var(--text-muted); }
   .btn-add:not(:disabled):hover { box-shadow:0 4px 14px rgba(255,87,52,0.3); }

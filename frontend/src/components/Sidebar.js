@@ -107,8 +107,8 @@ export default function Sidebar({ open, onClose }) {
         .s-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.32);backdrop-filter:blur(2px);z-index:299;display:none;}
 
         .s-aside{
-          width:var(--sidebar-w,240px);min-width:var(--sidebar-w,240px);
-          height:100vh;height:100dvh;
+          (--sidebar-w,240px);min-width:var(--sidebar-w,240px);
+          ;height:100dvh;
           background:var(--surface);border-right:1px solid var(--border);
           display:flex;flex-direction:column;
           font-family:var(--font,'DM Sans',sans-serif);
@@ -142,7 +142,7 @@ export default function Sidebar({ open, onClose }) {
           background:var(--bg);border:1px solid var(--border);border-radius:5px;
           color:var(--text-3);cursor:pointer;transition:all 0.15s;flex-shrink:0;
         }
-        .s-close:hover{border-color:var(--accent);color:var(--accent);}
+        .s-close:hover{border-(--accent);color:var(--accent);}
 
         .s-nav{flex:1;padding:8px 8px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;scrollbar-width:none;}
         .s-nav::-webkit-scrollbar{display:none;}
@@ -172,7 +172,7 @@ export default function Sidebar({ open, onClose }) {
         .s-avatar img{width:100%;height:100%;object-fit:cover;}
 
         .s-user-info{display:flex;flex-direction:column;flex:1;min-width:0;}
-        .s-username{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .s-username{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;;text-overflow:ellipsis;}
         .s-usersub{font-size:11px;color:var(--text-4);font-weight:500;}
 
         .s-footer-actions{display:flex;flex-direction:column;gap:1px;}

@@ -465,7 +465,7 @@ export default function ProfilePage() {
 
             {/* ── Sign Out ── */}
             <div className="pr-card" style={{ ...cardStyle(c), borderColor: isDark ? "#3a1010" : "#fecaca", background: isDark ? "#1a0808" : "#fff9f9" }}>
-              <div style={{ ...sectionTitle(c), color: "#ef4444" }}><LogOut size={15} style={{ color: "#ef4444" }} /> Sign Out</div>
+              <div style={{ ...sectionTitle(c), }}><LogOut size={15} style={{ color: "#ef4444" }} /> Sign Out</div>
               <p style={{ fontSize: 13, color: c.textMuted, marginBottom: 16, lineHeight: 1.6 }}>
                 Sign out from your account. Your notes and data will remain safe and accessible on your next login.
               </p>
@@ -558,7 +558,7 @@ const BASE_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   * { box-sizing: border-box; }
   @keyframes spin { to { transform: rotate(360deg) } }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+  @keyframes fadeUp { from { ; (10px) } to { opacity: 1; transform: none } }
   .pg-menu-btn { display: none !important; }
   .yn-spinner { width: 26px; height: 26px; border: 3px solid rgba(255,255,255,0.25); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
   .yn-spinner-sm { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }

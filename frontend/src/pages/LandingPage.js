@@ -8,10 +8,10 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-  @keyframes fadeUp { from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);} }
-  @keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
-  @keyframes lineGrow { from{transform:scaleX(0);}to{transform:scaleX(1);} }
-  @keyframes floatDot { 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-8px);} }
+  @keyframes fadeUp { from{;(24px);}to{opacity:1;transform:translateY(0);} }
+  @keyframes fadeIn { from{;}to{opacity:1;} }
+  @keyframes lineGrow { from{(0);}to{transform:scaleX(1);} }
+  @keyframes floatDot { 0%,100%{(0px);} 50%{transform:translateY(-8px);} }
 
   :root {
     --ln-bg:       #f8f7f4;
@@ -98,7 +98,7 @@ const STYLES = `
     padding: 13px 24px; border-radius: 12px; font-size: 14.5px; font-weight: 600;
     transition: all 0.15s; background: var(--ln-bg2); font-family: var(--ln-font);
   }
-  .ln-cta-secondary:hover { border-color: var(--ln-text); color: var(--ln-text); transform: translateY(-1px); }
+  .ln-cta-secondary:hover { border-(--ln-text); color: var(--ln-text); transform: translateY(-1px); }
 
   /* STATS BAR */
   .ln-stats {

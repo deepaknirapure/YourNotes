@@ -20,7 +20,7 @@ const STYLES = `
     border-radius: var(--r-md); font-family: var(--font); font-size: 13px; font-weight: 700;
     color: var(--text-2); cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
-  .qa-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .qa-btn:hover { border-(--accent); color: var(--accent); background: var(--accent-light); }
   .qa-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .qa-btn.primary:hover { background: var(--accent-dark); color: #fff; border-color: var(--accent-dark); }
 

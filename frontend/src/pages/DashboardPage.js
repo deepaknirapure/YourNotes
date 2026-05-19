@@ -47,10 +47,10 @@ const DB_STYLES = `
 
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 
-  @keyframes fadeUp  { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeUp  { from { ; (8px); } to { opacity:1; transform:translateY(0); } }
   @keyframes spin    { to { transform:rotate(360deg); } }
-  @keyframes scaleIn { from { opacity:0; transform:scale(0.94); } to { opacity:1; transform:scale(1); } }
-  @keyframes slideIn { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:translateX(0); } }
+  @keyframes scaleIn { from { ; (0.94); } to { opacity:1; transform:scale(1); } }
+  @keyframes slideIn { from { ; (-6px); } to { opacity:1; transform:translateX(0); } }
 
   /* ── Layout Shell ── */
   .db-wrap { display:flex; height:100dvh; overflow:hidden; background:var(--bg); font-family:'Geist',var(--font,sans-serif); }
@@ -71,7 +71,7 @@ const DB_STYLES = `
     color:var(--text-muted); align-items:center; justify-content:center; transition:0.15s;
     flex-shrink:0;
   }
-  .db-menu-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .db-menu-btn:hover { border-(--accent); color:var(--accent); }
 
   .page-breadcrumb { display:flex; align-items:center; gap:6px; }
   .page-icon-wrap {
@@ -111,8 +111,8 @@ const DB_STYLES = `
     display:flex; align-items:center; justify-content:center;
     transition:all 0.15s;
   }
-  .btn-icon:hover { border-color:var(--border-hover); color:var(--text); background:var(--bg); }
-  .btn-icon.active { border-color:var(--accent); color:var(--accent); background:var(--accent-light); }
+  .btn-icon:hover { border-(--border-hover); color:var(--text); background:var(--bg); }
+  .btn-icon.active { border-(--accent); color:var(--accent); background:var(--accent-light); }
   .btn-import {
     display:flex; align-items:center; gap:6px;
     background:transparent; border:1.5px solid var(--border);
@@ -121,7 +121,7 @@ const DB_STYLES = `
     color:var(--text-muted); font-family:inherit; white-space:nowrap;
     transition:all 0.15s;
   }
-  .btn-import:hover { border-color:var(--border-hover); color:var(--text); }
+  .btn-import:hover { border-(--border-hover); color:var(--text); }
   .btn-new {
     display:flex; align-items:center; gap:6px;
     background:var(--text); color:var(--surface);
@@ -152,7 +152,7 @@ const DB_STYLES = `
     background:var(--text); color:var(--surface);
     border-color:var(--text);
   }
-  .f-chip.tag-active { background:var(--accent-light); color:var(--accent); border-color:var(--accent-ring); }
+  .f-chip.tag-active { background:var(--accent-light); (--accent); border-color:var(--accent-ring); }
 
   /* ── Tag Dropdown ── */
   .tag-drop {
@@ -271,7 +271,7 @@ const DB_STYLES = `
   }
   .note-footer {
     display:flex; justify-content:space-between; align-items:center;
-    padding-top:12px; border-top:1px solid var(--border); margin-top:auto;
+    padding-; border-solid var(--border); margin-top:auto;
   }
   .note-date { font-size:10.5px; font-weight:500; color:var(--text-light); display:flex; align-items:center; gap:4px; }
   .note-actions { display:flex; gap:2px; align-items:center; opacity:0; transition:opacity 0.15s; }
@@ -293,8 +293,8 @@ const DB_STYLES = `
   .note-row:hover::before { background:var(--accent); }
   .note-row.selected { border-color:var(--accent); border-width:2px; }
   .note-row-body { flex:1; min-width:0; }
-  .note-row-title { font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .note-row-excerpt { font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .note-row-title { font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:2px; white-space:nowrap; ; text-overflow:ellipsis; }
+  .note-row-excerpt { font-size:12px; color:var(--text-muted); white-space:nowrap; ; text-overflow:ellipsis; }
   .note-row-meta { display:flex; align-items:center; gap:8px; flex-shrink:0; }
   .note-row .note-actions { opacity:0; transition:opacity 0.15s; }
   .note-row:hover .note-actions { opacity:1; }
@@ -335,7 +335,7 @@ const DB_STYLES = `
 
   /* ── Import Modal ── */
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; backdrop-filter:blur(2px); }
-  .modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:28px; width:100%; max-width:420px; animation:scaleIn 0.2s ease; box-shadow:var(--shadow-lg); }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:28px; ; max-width:420px; animation:scaleIn 0.2s ease; box-shadow:var(--shadow-lg); }
   .drop-zone { border:2px dashed var(--border); border-radius:12px; padding:36px 20px; text-align:center; cursor:pointer; transition:all 0.2s; }
   .drop-zone:hover,.drop-zone.dov { border-color:var(--accent); background:var(--accent-light); }
   .drop-zone input { display:none; }
