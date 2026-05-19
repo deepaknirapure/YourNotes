@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
-  Settings, Sun, Moon, Monitor, Menu, User, ChevronRight,
-  Bell, Shield, Palette, Info, ExternalLink
+  Settings, Sun, Moon, Menu, User, ChevronRight,
+  Shield, Palette, Info
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -270,4 +270,3 @@ const STYLES = `
     .theme-grid { grid-template-columns: 1fr !important; }
   }
 `;
-

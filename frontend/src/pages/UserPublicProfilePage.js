@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Heart, Download, MessageCircle, BookOpen,
-  Flame, Calendar, FileText, Globe, Bookmark, Menu, Zap
+  Flame, Calendar, FileText, Globe, Bookmark, Menu
 } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";

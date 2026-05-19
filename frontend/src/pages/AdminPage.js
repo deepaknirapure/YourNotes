@@ -164,7 +164,7 @@ const TABS = [
 
 // ─── MAIN ADMIN PAGE ──────────────────────────────────────────────────────────
 export default function AdminPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate         = useNavigate();
 
   const [activeTab,  setActiveTab]  = useState('overview');

@@ -4,7 +4,7 @@ import {
   CheckCircle2, X, ArrowLeft, FolderOpen, Pin, PinOff,
   Tag, Upload, Palette, Heart, ChevronDown, StickyNote,
   Hash, Layers, FileText, Clock, NotebookPen, AlignLeft,
-  LayoutGrid, LayoutList, Sparkles, TrendingUp
+  LayoutGrid, LayoutList
 } from "lucide-react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";

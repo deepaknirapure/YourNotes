@@ -9,7 +9,6 @@ import API from "../api/axios";
 import toast from "react-hot-toast";
 import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
-import { useTheme } from "../context/ThemeContext";
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
@@ -222,7 +221,6 @@ function Avatar({ user, size = 40, fontSize = 16 }) {
 }
 
 export default function CommunityPage() {
-  const { isDark } = useTheme();
   const navigate   = useNavigate();
 
   const [notes,           setNotes]           = useState([]);

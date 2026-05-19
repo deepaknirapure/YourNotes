@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, BookOpen, Bot, Folder, Star, Users } from 'lucide-react';
+import { Home, BookOpen, Bot, Folder, Users } from 'lucide-react';
 
 const BOTTOM_NAV = [
   { icon: Home,     label: 'Home',      path: '/home' },

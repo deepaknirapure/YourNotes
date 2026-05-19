@@ -26,7 +26,7 @@ const UserPublicProfilePage  = lazy(() => import('./pages/UserPublicProfilePage'
 function NotFoundPage() {
   return (
     <div style={{
-      height: '100vh', height: '100dvh',
+      height: '100dvh',
       background: 'var(--bg)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
@@ -42,7 +42,7 @@ function NotFoundPage() {
 function PageLoader() {
   return (
     <div style={{
-      height: '100vh', height: '100dvh',
+      height: '100dvh',
       background: 'var(--bg)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
