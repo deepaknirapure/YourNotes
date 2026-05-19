@@ -1,0 +1,1 @@
+export { AUTH_SHARED_STYLES } from '../components/AuthLayout';
