@@ -22,7 +22,7 @@ const handleValidation = (req, res, next) => {
 // VALIDATION RULES
 // ─────────────────────────────────────────────────────────────────────────────
 
-// 1. Account Registration Validation
+// 1. Account Registration Validation (phone aur phoneVerified bhi ab required hain)
 const validateRegister = [
   body('name')
     .trim()
@@ -35,6 +35,11 @@ const validateRegister = [
   body('password')
     .notEmpty().withMessage('Password is required')
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+  body('phone')
+    .notEmpty().withMessage('Mobile number required hai')
+    .matches(/^\+[1-9]\d{6,14}$/).withMessage('Valid phone number daalo (format: +91XXXXXXXXXX)'),
+  body('phoneVerified')
+    .equals('true').withMessage('Mobile number verify karna zaroori hai'),
   handleValidation,
 ];
 

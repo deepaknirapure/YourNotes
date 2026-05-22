@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
  * Hindi Comment:
  * Ye final User Model hai. Isme authentication, forgot password logic, 
  * gamification (streaks), aur community features (saved notes) sab integrated hain.
+ * NEW: phone aur OTP verification fields add kiye gaye hain.
  */
 
 const userSchema = new mongoose.Schema(
@@ -28,10 +29,15 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: 6,
     },
+    // NEW: Mobile number for OTP verification
+    phone: {
+      type: String,
+      default: null,
+    },
     // Profile image URL
     avatar: {
       type: String,
-      default: 'https://cdn-icons-png.flaticon.com/512/149/149071.png', // Default profile icon
+      default: 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
     },
     /**
      * Gamification Section:
@@ -67,18 +73,16 @@ const userSchema = new mongoose.Schema(
     },
     /**
      * Community Integration:
-     * User ne kitni notes public ki hain aur doosron ki kaunsi notes save ki hain.
      */
     totalPublicUploads: {
       type: Number,
       default: 0,
     },
     savedCommunityNotes: [
-      { type: mongoose.Schema.Types.ObjectId, ref: 'Note' } // 'Note' model se hi link kiya hai
+      { type: mongoose.Schema.Types.ObjectId, ref: 'Note' }
     ],
     /**
-     * NEW: Forgot Password Security
-     * In fields ka use token-based password reset ke liye hoga.
+     * Forgot Password Security
      */
     resetPasswordToken: {
       type: String,
@@ -90,9 +94,6 @@ const userSchema = new mongoose.Schema(
     },
     /**
      * Admin System:
-     * role: 'user' ya 'admin' — admin ke paas special powers hain
-     * isBanned: true hone par user login nahi kar sakta
-     * banReason: admin ne kyun ban kiya
      */
     role: {
       type: String,
@@ -106,12 +107,24 @@ const userSchema = new mongoose.Schema(
     banReason: {
       type: String,
       default: '',
-    }
+    },
+    /**
+     * NEW: OTP Verification Fields
+     * Phone OTP registration ke liye in-memory store nahi, DB mein store karte hain
+     */
+    otpCode: {
+      type: String,
+      default: undefined,
+    },
+    otpExpire: {
+      type: Date,
+      default: undefined,
+    },
   },
-  { timestamps: true } // createdAt aur updatedAt fields auto-manage hongi
+  { timestamps: true }
 );
 
-// Search Index: Email par search fast karne ke liye
+// Search Index
 userSchema.index({ email: 1 });
 
 module.exports = mongoose.model('User', userSchema);
