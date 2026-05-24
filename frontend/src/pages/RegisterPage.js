@@ -1,52 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ArrowRight, User, Mail, Lock, CheckCircle2, Globe, Sparkles, Phone, ShieldCheck } from 'lucide-react';
+import { ArrowRight, User, Mail, Lock, CheckCircle2, Globe, Sparkles, Phone, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
-// ── Design tokens — Settings page se match kiye ──────────────────────────────
+// ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
-  bg:        '#111010',
-  surface:   '#1a1919',
-  surface2:  '#211f1f',
-  border:    '#2a2828',
-  border2:   '#333130',
-  text:      '#f5f5f4',
-  textMuted: '#888580',
-  textLight: '#555250',
-  accent:    '#f97316',
-  accentLow: 'rgba(249,115,22,0.10)',
-  accentMid: 'rgba(249,115,22,0.18)',
-  green:     '#10b981',
-  greenLow:  'rgba(16,185,129,0.08)',
-  greenBorder:'rgba(16,185,129,0.22)',
-  font:      "'Plus Jakarta Sans', sans-serif",
+  bg:          '#0d0c0c',
+  surface:     '#161514',
+  surface2:    '#1e1c1b',
+  surface3:    '#252321',
+  border:      '#2c2a28',
+  border2:     '#363330',
+  text:        '#f2f1ef',
+  textMuted:   '#7d7975',
+  textLight:   '#4a4745',
+  accent:      '#f97316',
+  accentHover: '#ea6c04',
+  accentLow:   'rgba(249,115,22,0.09)',
+  accentMid:   'rgba(249,115,22,0.16)',
+  accentBorder:'rgba(249,115,22,0.22)',
+  green:       '#10b981',
+  greenLow:    'rgba(16,185,129,0.08)',
+  greenBorder: 'rgba(16,185,129,0.22)',
+  red:         '#ef4444',
+  font:        "'Plus Jakarta Sans', sans-serif",
 };
 
-// ── Reusable field ────────────────────────────────────────────────────────────
-function Field({ label, hint, children }) {
+// ── Field wrapper ─────────────────────────────────────────────────────────────
+function Field({ label, hint, error, children }) {
   return (
-    <div style={{ marginBottom: 16 }}>
-      <label style={{ display: 'block', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em',
-        textTransform: 'uppercase', color: T.textMuted, marginBottom: 7 }}>
-        {label}
-      </label>
+    <div style={{ marginBottom: 18 }}>
+      {label && (
+        <label style={{
+          display: 'block', fontSize: 11, fontWeight: 800, letterSpacing: '0.06em',
+          textTransform: 'uppercase', color: error ? T.red : T.textMuted, marginBottom: 7,
+        }}>
+          {label}
+        </label>
+      )}
       {children}
-      {hint && <p style={{ marginTop: 5, fontSize: 11, color: T.textLight }}>{hint}</p>}
+      {error && (
+        <p style={{ marginTop: 5, fontSize: 11.5, color: T.red, fontWeight: 600 }}>⚠ {error}</p>
+      )}
+      {hint && !error && (
+        <p style={{ marginTop: 5, fontSize: 11.5, color: T.textLight }}>{hint}</p>
+      )}
     </div>
   );
 }
 
-function InputBox({ icon, rightSlot, style, ...props }) {
+// ── Input box ─────────────────────────────────────────────────────────────────
+function InputBox({ icon, rightSlot, error, style, ...props }) {
   const [focus, setFocus] = useState(false);
+  const borderColor = error ? T.red : focus ? T.accent : T.border;
+  const shadowColor = error
+    ? 'rgba(239,68,68,0.12)'
+    : focus ? 'rgba(249,115,22,0.12)' : 'none';
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center',
-      background: T.surface2, border: `1.5px solid ${focus ? T.accent : T.border}`,
-      borderRadius: 12, transition: 'border-color 0.18s', ...style }}>
+    <div style={{
+      position: 'relative', display: 'flex', alignItems: 'center',
+      background: T.surface2,
+      border: `1.5px solid ${borderColor}`,
+      borderRadius: 12,
+      boxShadow: focus || error ? `0 0 0 3px ${shadowColor}` : 'none',
+      transition: 'border-color 0.18s, box-shadow 0.18s', ...style,
+    }}>
       {icon && (
-        <span style={{ position: 'absolute', left: 13, color: focus ? T.accent : T.textLight,
-          transition: 'color 0.18s', pointerEvents: 'none', display: 'flex' }}>
+        <span style={{
+          position: 'absolute', left: 13,
+          color: error ? T.red : focus ? T.accent : T.textLight,
+          transition: 'color 0.18s', pointerEvents: 'none', display: 'flex',
+        }}>
           {icon}
         </span>
       )}
@@ -56,9 +82,10 @@ function InputBox({ icon, rightSlot, style, ...props }) {
         onBlur={e => { setFocus(false); props.onBlur?.(e); }}
         style={{
           flex: 1, background: 'transparent', border: 'none', outline: 'none',
-          padding: `12px 14px 12px ${icon ? '40px' : '14px'}`,
+          padding: `13px 14px 13px ${icon ? '41px' : '14px'}`,
           fontFamily: T.font, fontSize: 14, color: T.text,
           paddingRight: rightSlot ? 44 : 14,
+          ...props.style,
         }}
       />
       {rightSlot}
@@ -66,40 +93,48 @@ function InputBox({ icon, rightSlot, style, ...props }) {
   );
 }
 
-// ── Step bar ──────────────────────────────────────────────────────────────────
+// ── Step indicator ────────────────────────────────────────────────────────────
 function StepBar({ step }) {
-  const steps = ['Mobile', 'OTP', 'Details'];
+  const steps = [
+    { label: 'Mobile', icon: <Phone size={13} /> },
+    { label: 'OTP', icon: <ShieldCheck size={13} /> },
+    { label: 'Details', icon: <User size={13} /> },
+  ];
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, marginBottom: 28 }}>
-      {steps.map((label, i) => {
+    <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 32 }}>
+      {steps.map(({ label, icon }, i) => {
         const num    = i + 1;
         const done   = step > num;
         const active = step === num;
         return (
           <div key={label} style={{ display: 'flex', alignItems: 'flex-start', flex: i < 2 ? 1 : 0 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
               <div style={{
-                width: 32, height: 32, borderRadius: '50%',
-                background: done || active ? T.accent : T.surface2,
-                border: `2px solid ${done || active ? T.accent : T.border}`,
+                width: 34, height: 34, borderRadius: '50%',
+                background: done ? T.green : active ? T.accent : T.surface2,
+                border: `2px solid ${done ? T.green : active ? T.accent : T.border}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 800,
                 color: done || active ? '#fff' : T.textLight,
-                transition: 'all 0.25s',
-                fontFamily: T.font,
+                transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+                fontFamily: T.font, fontSize: 12, fontWeight: 800,
+                boxShadow: active ? `0 0 0 4px ${T.accentLow}` : 'none',
               }}>
-                {done ? '✓' : num}
+                {done ? <CheckCircle2 size={15} /> : active ? icon : <span style={{ fontSize: 11, fontWeight: 800 }}>{num}</span>}
               </div>
-              <span style={{ fontSize: 10, fontWeight: active ? 800 : 500,
-                color: active ? T.accent : T.textLight, letterSpacing: '0.03em',
-                textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+              <span style={{
+                fontSize: 10, fontWeight: active || done ? 800 : 500,
+                color: active ? T.accent : done ? T.green : T.textLight,
+                letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap',
+              }}>
                 {label}
               </span>
             </div>
             {i < 2 && (
-              <div style={{ flex: 1, height: 2, margin: '15px 8px 0',
-                background: step > num ? T.accent : T.border, borderRadius: 2,
-                transition: 'background 0.3s' }} />
+              <div style={{
+                flex: 1, height: 2, margin: '16px 8px 0',
+                background: step > num ? T.green : T.border,
+                borderRadius: 2, transition: 'background 0.4s',
+              }} />
             )}
           </div>
         );
@@ -108,45 +143,73 @@ function StepBar({ step }) {
   );
 }
 
-// ── Password strength ─────────────────────────────────────────────────────────
+// ── Password strength meter ───────────────────────────────────────────────────
 function PwStrength({ pw }) {
+  if (!pw) return null;
   let s = 0;
   if (pw.length >= 6) s++;
   if (pw.length >= 10) s++;
-  if (/[A-Z]/.test(pw) || /[0-9]/.test(pw)) s++;
-  const colors = ['', '#ef4444', '#f59e0b', '#10b981'];
-  if (!pw) return null;
+  if (/[A-Z]/.test(pw) && /[0-9]/.test(pw)) s++;
+  const meta = [
+    null,
+    { color: '#ef4444', label: 'Weak' },
+    { color: '#f59e0b', label: 'Fair' },
+    { color: '#10b981', label: 'Strong' },
+  ];
   return (
-    <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
-      {[1,2,3].map(i => (
-        <div key={i} style={{ flex: 1, height: 3, borderRadius: 2,
-          background: i <= s ? colors[s] : T.border, transition: 'background 0.3s' }} />
-      ))}
+    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 4, flex: 1 }}>
+        {[1, 2, 3].map(i => (
+          <div key={i} style={{
+            flex: 1, height: 3, borderRadius: 99,
+            background: i <= s ? meta[s].color : T.border,
+            transition: 'background 0.3s',
+          }} />
+        ))}
+      </div>
+      <span style={{ fontSize: 10, fontWeight: 700, color: meta[s].color, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+        {meta[s].label}
+      </span>
     </div>
   );
 }
 
-// ── Btn ───────────────────────────────────────────────────────────────────────
-function Btn({ loading, children, ...props }) {
+// ── Primary button ────────────────────────────────────────────────────────────
+function Btn({ loading, children, style, ...props }) {
   return (
-    <button {...props} style={{
-      width: '100%', padding: '13px 20px', borderRadius: 12, border: 'none',
-      background: loading ? T.border : T.accent,
-      color: loading ? T.textMuted : '#fff',
-      fontFamily: T.font, fontSize: 14, fontWeight: 800,
-      cursor: loading ? 'not-allowed' : 'pointer',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-      transition: 'background 0.2s, transform 0.1s',
-      marginTop: 8,
-      ...props.style,
-    }}
-      onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#ea6c04'; }}
-      onMouseLeave={e => { if (!loading) e.currentTarget.style.background = T.accent; }}
-      onMouseDown={e => { if (!loading) e.currentTarget.style.transform = 'scale(0.98)'; }}
+    <button
+      {...props}
+      disabled={loading || props.disabled}
+      style={{
+        width: '100%', padding: '14px 20px', borderRadius: 12, border: 'none',
+        background: loading || props.disabled ? T.surface3 : T.accent,
+        color: loading || props.disabled ? T.textMuted : '#fff',
+        fontFamily: T.font, fontSize: 14, fontWeight: 800,
+        cursor: loading || props.disabled ? 'not-allowed' : 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        transition: 'background 0.2s, transform 0.12s, box-shadow 0.2s',
+        marginTop: 10, letterSpacing: '0.01em',
+        boxShadow: !loading && !props.disabled ? '0 4px 14px rgba(249,115,22,0.25)' : 'none',
+        ...style,
+      }}
+      onMouseEnter={e => { if (!loading && !props.disabled) { e.currentTarget.style.background = T.accentHover; e.currentTarget.style.boxShadow = '0 6px 20px rgba(249,115,22,0.35)'; } }}
+      onMouseLeave={e => { if (!loading && !props.disabled) { e.currentTarget.style.background = T.accent; e.currentTarget.style.boxShadow = '0 4px 14px rgba(249,115,22,0.25)'; } }}
+      onMouseDown={e => { if (!loading && !props.disabled) e.currentTarget.style.transform = 'scale(0.975)'; }}
       onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
     >
-      {children}
+      {loading
+        ? <><Spinner /> {typeof children === 'string' ? children : 'Please wait…'}</>
+        : children}
     </button>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+      style={{ animation: 'spin 0.8s linear infinite' }}>
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+    </svg>
   );
 }
 
@@ -154,384 +217,591 @@ function Btn({ loading, children, ...props }) {
 // REGISTER PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 export default function RegisterPage() {
-  const [step, setStep]           = useState(1);
-  const [phone, setPhone]         = useState('');
-  const [cc, setCc]               = useState('+91');
-  const [otp, setOtp]             = useState(['','','','','','']);
+  const [step, setStep]                   = useState(1);
+  const [phone, setPhone]                 = useState('');
+  const [cc, setCc]                       = useState('+91');
+  const [otp, setOtp]                     = useState(['', '', '', '', '', '']);
   const [phoneVerified, setPhoneVerified] = useState(false);
-  const [form, setForm]           = useState({ name:'', email:'', password:'' });
-  const [showPw, setShowPw]       = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [timer, setTimer]         = useState(0);
-  const { login } = useAuth();
-  const navigate  = useNavigate();
-  const fullPhone = `${cc}${phone.replace(/^0/,'')}`;
+  const [form, setForm]                   = useState({ name: '', email: '', password: '' });
+  const [errors, setErrors]               = useState({});
+  const [showPw, setShowPw]               = useState(false);
+  const [loading, setLoading]             = useState(false);
+  const [timer, setTimer]                 = useState(0);
+  const timerRef                          = useRef(null);
+  const { login }  = useAuth();
+  const navigate   = useNavigate();
+  const fullPhone  = `${cc}${phone.replace(/^0/, '')}`;
 
-  const startTimer = () => {
+  // ── Cleanup timer on unmount ──────────────────────────────────────────────
+  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
     setTimer(30);
-    const iv = setInterval(() => setTimer(t => { if(t<=1){clearInterval(iv);return 0;} return t-1; }), 1000);
+    timerRef.current = setInterval(() => {
+      setTimer(t => {
+        if (t <= 1) { clearInterval(timerRef.current); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+  }, []);
+
+  // ── Validate phone ────────────────────────────────────────────────────────
+  const validatePhone = () => {
+    if (cc === '+91' && !/^\d{10}$/.test(phone)) {
+      setErrors({ phone: '10 digit ka valid Indian number daalo' });
+      return false;
+    }
+    if (phone.length < 7) {
+      setErrors({ phone: 'Valid phone number daalo' });
+      return false;
+    }
+    setErrors({});
+    return true;
   };
 
+  // ── Step 1: Send OTP ──────────────────────────────────────────────────────
   const handleSendOTP = async (e) => {
     e.preventDefault();
-    if (!/^\d{10}$/.test(phone)) return toast.error('10 digit ka valid number daalo');
+    if (!validatePhone()) return;
     setLoading(true);
     try {
-      await API.post('/auth/send-otp', { phone: fullPhone });
-      toast.success('OTP bhej diya!');
-      setStep(2); startTimer();
-    } catch(err) { toast.error(err.response?.data?.message || 'OTP bhejne mein error'); }
-    finally { setLoading(false); }
+      const res = await API.post('/auth/send-otp', { phone: fullPhone });
+      // Dev mode mein OTP console pe aata hai — toast mein bhi dikhao
+      if (res.data.devOtp) {
+        toast.success(`[DEV] OTP: ${res.data.devOtp}`, { duration: 15000, icon: '🔑' });
+      } else {
+        toast.success('OTP bhej diya! Check karo SMS.');
+      }
+      setStep(2);
+      startTimer();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'OTP bhejne mein error. Dobara try karo.';
+      toast.error(msg);
+      setErrors({ phone: msg });
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ── Step 2: Verify OTP ────────────────────────────────────────────────────
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     const otpStr = otp.join('');
-    if (otpStr.length !== 6) return toast.error('6 digit ka OTP daalo');
+    if (otpStr.length !== 6) {
+      setErrors({ otp: '6 digit ka OTP daalo' });
+      return;
+    }
     setLoading(true);
     try {
       await API.post('/auth/verify-otp', { phone: fullPhone, otp: otpStr });
       toast.success('Phone verify ho gaya! 🎉');
-      setPhoneVerified(true); setStep(3);
-    } catch(err) { toast.error(err.response?.data?.message || 'OTP galat hai'); }
-    finally { setLoading(false); }
+      setPhoneVerified(true);
+      setStep(3);
+      setErrors({});
+    } catch (err) {
+      const msg = err.response?.data?.message || 'OTP galat hai ya expire ho gaya.';
+      toast.error(msg);
+      setErrors({ otp: msg });
+      // Wrong OTP pe boxes clear karo
+      setOtp(['', '', '', '', '', '']);
+      setTimeout(() => document.getElementById('otp-0')?.focus(), 50);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ── OTP input handlers ────────────────────────────────────────────────────
   const handleOtpChange = (i, v) => {
     if (!/^\d*$/.test(v)) return;
-    const n = [...otp]; n[i] = v.slice(-1); setOtp(n);
-    if (v && i < 5) document.getElementById(`otp-${i+1}`)?.focus();
+    const n = [...otp];
+    n[i] = v.slice(-1);
+    setOtp(n);
+    setErrors({});
+    if (v && i < 5) {
+      setTimeout(() => document.getElementById(`otp-${i + 1}`)?.focus(), 0);
+    }
   };
+
   const handleOtpKey = (i, e) => {
-    if (e.key === 'Backspace' && !otp[i] && i > 0) document.getElementById(`otp-${i-1}`)?.focus();
+    if (e.key === 'Backspace') {
+      if (otp[i]) {
+        // Clear current box
+        const n = [...otp]; n[i] = ''; setOtp(n);
+      } else if (i > 0) {
+        // Move to previous
+        document.getElementById(`otp-${i - 1}`)?.focus();
+      }
+    } else if (e.key === 'ArrowLeft' && i > 0) {
+      document.getElementById(`otp-${i - 1}`)?.focus();
+    } else if (e.key === 'ArrowRight' && i < 5) {
+      document.getElementById(`otp-${i + 1}`)?.focus();
+    }
   };
-  const handleOtpPaste = (e) => {
-    const p = e.clipboardData.getData('text').replace(/\D/g,'').slice(0,6);
-    if (p.length === 6) { setOtp(p.split('')); document.getElementById('otp-5')?.focus(); }
+
+  // FIX: paste on any individual box — spread from that box or from start
+  const handleOtpPaste = (e, startIndex = 0) => {
     e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6 - startIndex);
+    if (!pasted) return;
+    const n = [...otp];
+    for (let j = 0; j < pasted.length; j++) {
+      n[startIndex + j] = pasted[j];
+    }
+    setOtp(n);
+    setErrors({});
+    const nextFocus = Math.min(startIndex + pasted.length, 5);
+    setTimeout(() => document.getElementById(`otp-${nextFocus}`)?.focus(), 0);
+  };
+
+  // ── Resend OTP ────────────────────────────────────────────────────────────
+  const handleResend = async () => {
+    if (timer > 0 || loading) return;
+    setLoading(true);
+    try {
+      const res = await API.post('/auth/send-otp', { phone: fullPhone });
+      if (res.data.devOtp) {
+        toast.success(`[DEV] New OTP: ${res.data.devOtp}`, { duration: 15000, icon: '🔑' });
+      } else {
+        toast.success('Naya OTP bhej diya!');
+      }
+      setOtp(['', '', '', '', '', '']);
+      setErrors({});
+      startTimer();
+      setTimeout(() => document.getElementById('otp-0')?.focus(), 50);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Retry failed. Dobara try karo.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Step 3: Register ──────────────────────────────────────────────────────
+  const validateForm = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = 'Naam required hai';
+    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Valid email daalo';
+    if (form.password.length < 6) e.password = 'Password minimum 6 characters ka hona chahiye';
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name||!form.email||!form.password) return toast.error('Sabhi fields fill karo');
-    if (form.password.length < 6) return toast.error('Password 6+ characters ka hona chahiye');
-    if (!phoneVerified) return toast.error('Phone verify karo pehle');
+    if (!validateForm()) return;
+    if (!phoneVerified) { toast.error('Phone verify karo pehle'); return; }
     setLoading(true);
     try {
-      const { data } = await API.post('/auth/register', { ...form, phone: fullPhone, phoneVerified: 'true' });
+      const { data } = await API.post('/auth/register', {
+        ...form,
+        phone: fullPhone,
+        phoneVerified: true,   // FIX: boolean true, not string 'true'
+      });
       login(data.user, data.token);
       toast.success('Account ban gaya! Welcome 🎉');
       navigate('/home');
-    } catch(err) { toast.error(err.response?.data?.message || 'Registration fail ho gayi'); }
-    finally { setLoading(false); }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Registration fail ho gayi. Dobara try karo.';
+      toast.error(msg);
+      if (msg.toLowerCase().includes('email')) setErrors({ email: msg });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const upd = k => e => setForm({...form, [k]: e.target.value});
+  const upd = k => e => { setForm({ ...form, [k]: e.target.value }); setErrors(prev => ({ ...prev, [k]: '' })); };
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: ${T.bg}; }
-        .reg-root { display:flex; min-height:100vh; font-family:${T.font}; background:${T.bg}; }
-        /* Left panel */
+        html, body { background: ${T.bg}; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(16px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .reg-root { display: flex; min-height: 100vh; font-family: ${T.font}; background: ${T.bg}; }
+
+        /* ── Left panel ── */
         .reg-left {
-          width: 420px; flex-shrink: 0; display:flex; flex-direction:column;
-          padding: 36px 40px; background: ${T.surface}; border-right: 1px solid ${T.border};
+          width: 400px; flex-shrink: 0; display: flex; flex-direction: column;
+          padding: 36px 38px; background: ${T.surface}; border-right: 1px solid ${T.border};
           position: relative; overflow: hidden;
         }
-        .reg-left-noise {
-          position:absolute; inset:0; pointer-events:none;
-          background: radial-gradient(ellipse 70% 50% at 20% 30%, rgba(249,115,22,0.06) 0%, transparent 70%),
-                      radial-gradient(ellipse 60% 60% at 80% 80%, rgba(249,115,22,0.04) 0%, transparent 65%);
+        .reg-left-glow {
+          position: absolute; inset: 0; pointer-events: none;
+          background:
+            radial-gradient(ellipse 80% 60% at 15% 25%, rgba(249,115,22,0.07) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 50% at 85% 85%, rgba(249,115,22,0.04) 0%, transparent 65%);
         }
-        /* Right panel */
+        .reg-left-grid {
+          position: absolute; inset: 0; pointer-events: none; opacity: 0.025;
+          background-image: linear-gradient(${T.textMuted} 1px, transparent 1px),
+                            linear-gradient(90deg, ${T.textMuted} 1px, transparent 1px);
+          background-size: 32px 32px;
+        }
+
+        /* ── Right panel ── */
         .reg-right {
-          flex: 1; display:flex; align-items:center; justify-content:center;
-          padding: 40px 24px; overflow-y:auto;
+          flex: 1; display: flex; align-items: center; justify-content: center;
+          padding: 40px 24px; overflow-y: auto;
         }
-        .reg-form-wrap { width:100%; max-width: 420px; }
-        /* Feature cards */
+        .reg-form-wrap { width: 100%; max-width: 420px; animation: fadeUp 0.35s ease; }
+
+        /* ── Feature cards ── */
         .feat-card {
-          display:flex; align-items:flex-start; gap:14px;
-          padding: 14px 16px; border-radius: 14px;
+          display: flex; align-items: flex-start; gap: 13px;
+          padding: 13px 15px; border-radius: 12px;
           background: ${T.surface2}; border: 1px solid ${T.border};
-          margin-bottom: 10px;
+          margin-bottom: 9px; transition: border-color 0.2s;
         }
-        .feat-icon {
-          width:36px; height:36px; border-radius:10px; flex-shrink:0;
-          display:flex; align-items:center; justify-content:center;
-        }
-        /* OTP boxes */
+        .feat-card:hover { border-color: ${T.border2}; }
+
+        /* ── OTP boxes ── */
+        .otp-row { display: flex; gap: 9px; justify-content: center; margin-bottom: 8px; }
         .otp-box {
-          width:46px; height:54px; text-align:center; font-size:22px; font-weight:800;
-          border-radius:12px; border:2px solid ${T.border}; background:${T.surface2};
-          color:${T.text}; outline:none; font-family:${T.font};
-          transition: border-color 0.18s, box-shadow 0.18s;
+          width: 48px; height: 56px; text-align: center; font-size: 22px; font-weight: 800;
+          border-radius: 12px; border: 2px solid ${T.border}; background: ${T.surface2};
+          color: ${T.text}; outline: none; font-family: ${T.font};
+          transition: border-color 0.18s, box-shadow 0.18s, transform 0.12s;
+          caret-color: ${T.accent};
         }
-        .otp-box:focus { border-color:${T.accent}; box-shadow: 0 0 0 3px rgba(249,115,22,0.15); }
-        .otp-box.filled { border-color:${T.accent}; }
-        /* Country select */
+        .otp-box:focus {
+          border-color: ${T.accent};
+          box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+          transform: scale(1.04);
+        }
+        .otp-box.filled { border-color: ${T.accent}; background: ${T.accentLow}; }
+        .otp-box.error  { border-color: ${T.red}; box-shadow: 0 0 0 3px rgba(239,68,68,0.12); }
+
+        /* ── Country code select ── */
         .cc-select {
-          background:transparent; border:none; outline:none;
-          color:${T.textMuted}; font-size:13px; font-weight:700;
-          font-family:${T.font}; cursor:pointer; padding: 12px 0 12px 13px;
+          background: transparent; border: none; outline: none;
+          color: ${T.textMuted}; font-size: 13px; font-weight: 700;
+          font-family: ${T.font}; cursor: pointer; padding: 13px 0 13px 13px;
+          flex-shrink: 0;
         }
-        .cc-select option { background:#1a1919; color:${T.text}; }
-        /* Phone divider */
-        .cc-divider { width:1px; height:22px; background:${T.border}; flex-shrink:0; }
-        /* Link style */
-        a.auth-link { color:${T.accent}; text-decoration:none; font-weight:700; }
-        a.auth-link:hover { text-decoration:underline; }
-        /* Resend btn */
+        .cc-select option { background: #1a1919; color: ${T.text}; }
+        .cc-divider { width: 1px; height: 22px; background: ${T.border}; flex-shrink: 0; margin: 0 4px; }
+
+        /* ── Step animation ── */
+        .step-content { animation: slideIn 0.28s ease; }
+
+        /* ── Links ── */
+        a.auth-link { color: ${T.accent}; text-decoration: none; font-weight: 700; }
+        a.auth-link:hover { text-decoration: underline; }
+
+        /* ── Resend ── */
         .resend-btn {
-          background:none; border:none; cursor:pointer; padding:0;
-          color:${T.accent}; font-size:13px; font-family:${T.font}; font-weight:700;
-          text-decoration:underline;
+          background: none; border: none; cursor: pointer; padding: 0;
+          color: ${T.accent}; font-size: 13px; font-family: ${T.font}; font-weight: 700;
         }
-        .resend-btn:disabled { color:${T.textLight}; cursor:not-allowed; text-decoration:none; }
-        @media(max-width:768px){
-          .reg-left { display:none; }
-          .reg-right { padding:24px 16px; }
+        .resend-btn:disabled { color: ${T.textLight}; cursor: default; }
+
+        /* ── Phone already verified notice ── */
+        .verified-badge {
+          display: flex; align-items: center; gap: 9px; padding: 11px 14px;
+          border-radius: 12px; background: ${T.greenLow};
+          border: 1px solid ${T.greenBorder}; margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+          .reg-left { display: none; }
+          .reg-right { padding: 28px 18px; align-items: flex-start; padding-top: 48px; }
         }
       `}</style>
 
       <div className="reg-root">
-        {/* ── LEFT PANEL ─────────────────────────────────────────────── */}
+        {/* ══════════ LEFT PANEL ══════════ */}
         <div className="reg-left">
-          <div className="reg-left-noise" />
+          <div className="reg-left-glow" />
+          <div className="reg-left-grid" />
 
           {/* Logo */}
-          <a href="/" style={{ display:'flex', alignItems:'center', gap:10, textDecoration:'none', zIndex:1, marginBottom:'auto' }}>
-            <div style={{ width:36, height:36, borderRadius:10, background:T.accent,
-              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', zIndex: 1 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, background: T.accent,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              boxShadow: '0 4px 12px rgba(249,115,22,0.3)',
+            }}>
               <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-                <path d="M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z" fill="white" fillOpacity="0.95"/>
+                <path d="M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z" fill="white" fillOpacity="0.95" />
               </svg>
             </div>
-            <span style={{ fontSize:18, fontWeight:900, color:T.text, letterSpacing:'-0.3px' }}>YourNotes</span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: T.text, letterSpacing: '-0.3px' }}>YourNotes</span>
           </a>
 
-          {/* Main content */}
-          <div style={{ zIndex:1, paddingTop:48, paddingBottom:32 }}>
-            {/* Pill */}
-            <div style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'6px 12px',
-              borderRadius:50, background:T.accentLow, border:`1px solid rgba(249,115,22,0.2)`,
-              marginBottom:20 }}>
-              <span style={{ width:6, height:6, borderRadius:'50%', background:T.accent, display:'block' }} />
-              <span style={{ fontSize:11, fontWeight:700, color:T.accent, letterSpacing:'0.04em',
-                textTransform:'uppercase' }}>Join thousands of students</span>
+          {/* Hero content */}
+          <div style={{ zIndex: 1, paddingTop: 52, paddingBottom: 28, flex: 1 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 12px',
+              borderRadius: 50, background: T.accentLow, border: `1px solid ${T.accentBorder}`,
+              marginBottom: 20,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: T.accent, display: 'block' }} />
+              <span style={{ fontSize: 10, fontWeight: 800, color: T.accent, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                Join thousands of students
+              </span>
             </div>
 
-            <h1 style={{ fontSize:30, fontWeight:900, color:T.text, lineHeight:1.2,
-              letterSpacing:'-0.5px', marginBottom:12 }}>
+            <h1 style={{ fontSize: 28, fontWeight: 900, color: T.text, lineHeight: 1.22, letterSpacing: '-0.5px', marginBottom: 12 }}>
               Your notes,<br />
-              <span style={{ color:T.accent }}>beautifully organized.</span>
+              <span style={{ color: T.accent }}>beautifully organized.</span>
             </h1>
-            <p style={{ fontSize:14, color:T.textMuted, lineHeight:1.7, marginBottom:32 }}>
-              Create your free account and start taking smarter notes today — no subscription needed.
+            <p style={{ fontSize: 14, color: T.textMuted, lineHeight: 1.75, marginBottom: 30 }}>
+              Create your free account and start taking smarter notes — no subscription needed, ever.
             </p>
 
-            {/* Feature cards */}
             {[
-              { icon:<CheckCircle2 size={17} color="#f97316"/>, bg:'rgba(249,115,22,0.08)', border:'rgba(249,115,22,0.15)',
-                title:'Free forever', sub:'No subscription or payment required, ever.' },
-              { icon:<Globe size={17} color="#a78bfa"/>, bg:'rgba(139,92,246,0.08)', border:'rgba(139,92,246,0.15)',
-                title:'Community sharing', sub:"Publish notes and discover others' work." },
-              { icon:<Sparkles size={17} color="#60a5fa"/>, bg:'rgba(59,130,246,0.08)', border:'rgba(59,130,246,0.15)',
-                title:'AI study tools', sub:'Summaries, flashcards, and Q&A built in.' },
+              { icon: <CheckCircle2 size={16} color="#f97316" />, bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.14)', title: 'Free forever', sub: 'No payment required — always free.' },
+              { icon: <Globe size={16} color="#a78bfa" />, bg: 'rgba(139,92,246,0.08)', border: 'rgba(139,92,246,0.14)', title: 'Community sharing', sub: "Publish notes, discover others' work." },
+              { icon: <Sparkles size={16} color="#60a5fa" />, bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.14)', title: 'AI study tools', sub: 'Summaries, flashcards & Q&A built in.' },
             ].map(f => (
               <div key={f.title} className="feat-card">
-                <div className="feat-icon" style={{ background:f.bg, border:`1px solid ${f.border}` }}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: f.bg, border: `1px solid ${f.border}` }}>
                   {f.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize:13, fontWeight:800, color:T.text, marginBottom:2 }}>{f.title}</div>
-                  <div style={{ fontSize:12, color:T.textMuted, lineHeight:1.5 }}>{f.sub}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: T.text, marginBottom: 2 }}>{f.title}</div>
+                  <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>{f.sub}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Footer */}
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between',
-            borderTop:`1px solid ${T.border}`, paddingTop:16, zIndex:1 }}>
-            <span style={{ fontSize:11, color:T.textLight }}>S.V. Polytechnic College, Bhopal · 2026</span>
-            <span style={{ display:'flex', alignItems:'center', gap:5, fontSize:11, color:T.textMuted, fontWeight:600 }}>
-              <svg width="7" height="7" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="#16a34a"/></svg>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: `1px solid ${T.border}`, paddingTop: 15, zIndex: 1 }}>
+            <span style={{ fontSize: 11, color: T.textLight }}>S.V. Polytechnic College, Bhopal · 2026</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: T.textMuted, fontWeight: 600 }}>
+              <svg width="7" height="7" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="#16a34a" /></svg>
               Free to join
             </span>
           </div>
         </div>
 
-        {/* ── RIGHT PANEL ────────────────────────────────────────────── */}
+        {/* ══════════ RIGHT PANEL ══════════ */}
         <div className="reg-right">
           <div className="reg-form-wrap">
+
             {/* Header */}
-            <div style={{ marginBottom:28 }}>
-              <div style={{ fontSize:11, fontWeight:800, color:T.accent, letterSpacing:'0.06em',
-                textTransform:'uppercase', marginBottom:6 }}>Get started</div>
-              <h2 style={{ fontSize:26, fontWeight:900, color:T.text, letterSpacing:'-0.4px', marginBottom:6 }}>
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: T.accent, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 6 }}>
+                Get started — it's free
+              </div>
+              <h2 style={{ fontSize: 24, fontWeight: 900, color: T.text, letterSpacing: '-0.4px', marginBottom: 6 }}>
                 Create your account
               </h2>
-              <p style={{ fontSize:13, color:T.textMuted, lineHeight:1.6 }}>
-                Start your free workspace — takes less than a minute.
+              <p style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.65 }}>
+                Phone verify karo, account banao — 2 minutes mein shuru.
               </p>
             </div>
 
             <StepBar step={step} />
 
-            {/* ── STEP 1: Mobile Number ─────────────────────────── */}
+            {/* ══ STEP 1: Mobile number ══ */}
             {step === 1 && (
-              <form onSubmit={handleSendOTP}>
-                <Field label="Mobile Number" hint="Is number pe OTP bheja jayega">
-                  <div style={{ display:'flex', alignItems:'center', background:T.surface2,
-                    border:`1.5px solid ${T.border}`, borderRadius:12, overflow:'hidden' }}>
-                    <select className="cc-select" value={cc} onChange={e=>setCc(e.target.value)}>
-                      <option value="+91">🇮🇳 +91</option>
-                      <option value="+1">🇺🇸 +1</option>
-                      <option value="+44">🇬🇧 +44</option>
-                      <option value="+971">🇦🇪 +971</option>
-                      <option value="+61">🇦🇺 +61</option>
-                    </select>
-                    <div className="cc-divider" />
-                    <input
-                      type="tel" placeholder="10-digit number"
-                      value={phone}
-                      onChange={e=>setPhone(e.target.value.replace(/\D/g,'').slice(0,10))}
-                      style={{ flex:1, background:'transparent', border:'none', outline:'none',
-                        padding:'12px 14px', fontFamily:T.font, fontSize:14, color:T.text }}
-                      required autoComplete="tel"
-                    />
-                    {phone.length === 10 && (
-                      <span style={{ paddingRight:12, color:T.green }}>
-                        <CheckCircle2 size={16} />
-                      </span>
-                    )}
-                  </div>
-                </Field>
-                <Btn loading={loading} type="submit" disabled={loading}>
-                  {loading ? 'OTP bhej rahe hain…' : <><Phone size={15}/> OTP Bhejo <ArrowRight size={15} strokeWidth={2.5}/></>}
-                </Btn>
-              </form>
-            )}
-
-            {/* ── STEP 2: OTP ───────────────────────────────────── */}
-            {step === 2 && (
-              <form onSubmit={handleVerifyOTP}>
-                <div style={{ textAlign:'center', marginBottom:20 }}>
-                  <div style={{ fontSize:13, color:T.textMuted, marginBottom:4 }}>
-                    6-digit code bheja gaya:
-                  </div>
-                  <div style={{ fontSize:14, fontWeight:700, color:T.text }}>{fullPhone}</div>
-                </div>
-
-                <div style={{ display:'flex', gap:8, justifyContent:'center', marginBottom:20 }}
-                  onPaste={handleOtpPaste}>
-                  {otp.map((d,i) => (
-                    <input
-                      key={i} id={`otp-${i}`}
-                      type="text" inputMode="numeric" maxLength={1}
-                      value={d}
-                      onChange={e=>handleOtpChange(i,e.target.value)}
-                      onKeyDown={e=>handleOtpKey(i,e)}
-                      className={`otp-box${d?' filled':''}`}
-                      autoFocus={i===0}
-                    />
-                  ))}
-                </div>
-
-                <Btn loading={loading} type="submit" disabled={loading}>
-                  {loading ? 'Verify ho raha hai…' : <><ShieldCheck size={15}/> OTP Verify Karo <ArrowRight size={15} strokeWidth={2.5}/></>}
-                </Btn>
-
-                <div style={{ textAlign:'center', marginTop:16, fontSize:13, color:T.textMuted }}>
-                  OTP nahi mila?{' '}
-                  <button type="button" className="resend-btn"
-                    disabled={timer>0||loading}
-                    onClick={async()=>{
-                      setLoading(true);
-                      try{
-                        await API.post('/auth/send-otp',{phone:fullPhone});
-                        toast.success('Naya OTP bhej diya!');
-                        setOtp(['','','','','','']); startTimer();
-                      }catch(err){toast.error(err.response?.data?.message||'Retry failed');}
-                      finally{setLoading(false);}
+              <div className="step-content">
+                <form onSubmit={handleSendOTP}>
+                  <Field label="Mobile Number" hint="Is number pe OTP bheja jayega" error={errors.phone}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', background: T.surface2,
+                      border: `1.5px solid ${errors.phone ? T.red : T.border}`, borderRadius: 12, overflow: 'hidden',
+                      transition: 'border-color 0.18s',
                     }}>
-                    {timer>0?`Resend (${timer}s)`:'Dobara Bhejo'}
-                  </button>
-                </div>
+                      <select className="cc-select" value={cc} onChange={e => setCc(e.target.value)}>
+                        <option value="+91">🇮🇳 +91</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+971">🇦🇪 +971</option>
+                        <option value="+61">🇦🇺 +61</option>
+                        <option value="+65">🇸🇬 +65</option>
+                        <option value="+60">🇲🇾 +60</option>
+                      </select>
+                      <div className="cc-divider" />
+                      <input
+                        type="tel"
+                        placeholder={cc === '+91' ? '10-digit number' : 'Phone number'}
+                        value={phone}
+                        onChange={e => {
+                          setPhone(e.target.value.replace(/\D/g, '').slice(0, cc === '+91' ? 10 : 12));
+                          setErrors({});
+                        }}
+                        style={{
+                          flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                          padding: '13px 12px', fontFamily: T.font, fontSize: 14, color: T.text,
+                        }}
+                        autoComplete="tel"
+                        autoFocus
+                      />
+                      {((cc === '+91' && phone.length === 10) || (cc !== '+91' && phone.length >= 7)) && (
+                        <span style={{ paddingRight: 12, color: T.green, display: 'flex' }}>
+                          <CheckCircle2 size={16} />
+                        </span>
+                      )}
+                    </div>
+                  </Field>
 
-                <div style={{ textAlign:'center', marginTop:10 }}>
-                  <button type="button"
-                    onClick={()=>{setStep(1);setOtp(['','','','','','']);}}
-                    style={{ background:'none', border:'none', cursor:'pointer',
-                      color:T.textLight, fontSize:12, fontFamily:T.font }}>
-                    ← Number change karna hai?
-                  </button>
-                </div>
-              </form>
+                  <Btn loading={loading} type="submit">
+                    <>
+                      <Phone size={15} />
+                      {loading ? 'OTP bhej rahe hain…' : 'OTP Bhejo'}
+                      {!loading && <ArrowRight size={15} strokeWidth={2.5} />}
+                    </>
+                  </Btn>
+                </form>
+              </div>
             )}
 
-            {/* ── STEP 3: Details ───────────────────────────────── */}
+            {/* ══ STEP 2: OTP verification ══ */}
+            {step === 2 && (
+              <div className="step-content">
+                <form onSubmit={handleVerifyOTP}>
+                  {/* Phone display */}
+                  <div style={{
+                    textAlign: 'center', marginBottom: 22, padding: '12px 16px',
+                    background: T.surface2, borderRadius: 12, border: `1px solid ${T.border}`,
+                  }}>
+                    <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 3 }}>OTP bheja gaya:</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: T.text, letterSpacing: '0.03em' }}>{fullPhone}</div>
+                  </div>
+
+                  {/* OTP boxes */}
+                  <Field error={errors.otp}>
+                    <div className="otp-row">
+                      {otp.map((d, i) => (
+                        <input
+                          key={i}
+                          id={`otp-${i}`}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={d}
+                          onChange={e => handleOtpChange(i, e.target.value)}
+                          onKeyDown={e => handleOtpKey(i, e)}
+                          onPaste={e => handleOtpPaste(e, i)}   // FIX: paste from any box
+                          className={`otp-box${d ? ' filled' : ''}${errors.otp ? ' error' : ''}`}
+                          autoFocus={i === 0}
+                          autoComplete="one-time-code"
+                        />
+                      ))}
+                    </div>
+                  </Field>
+
+                  <Btn loading={loading} type="submit" disabled={otp.join('').length !== 6}>
+                    <>
+                      <ShieldCheck size={15} />
+                      {loading ? 'Verify ho raha hai…' : 'OTP Verify Karo'}
+                      {!loading && <ArrowRight size={15} strokeWidth={2.5} />}
+                    </>
+                  </Btn>
+
+                  {/* Resend + back */}
+                  <div style={{ textAlign: 'center', marginTop: 18, fontSize: 13, color: T.textMuted }}>
+                    OTP nahi mila?{' '}
+                    <button type="button" className="resend-btn" disabled={timer > 0 || loading} onClick={handleResend}>
+                      {timer > 0 ? `Resend (${timer}s)` : 'Dobara Bhejo'}
+                    </button>
+                  </div>
+                  <div style={{ textAlign: 'center', marginTop: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => { setStep(1); setOtp(['', '', '', '', '', '']); setErrors({}); }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textLight, fontSize: 12, fontFamily: T.font, fontWeight: 600 }}
+                    >
+                      ← Number change karna hai?
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* ══ STEP 3: Account details ══ */}
             {step === 3 && (
-              <form onSubmit={handleSubmit}>
+              <div className="step-content">
                 {/* Verified badge */}
-                <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 14px',
-                  borderRadius:12, background:T.greenLow, border:`1px solid ${T.greenBorder}`,
-                  marginBottom:20 }}>
+                <div className="verified-badge">
                   <ShieldCheck size={15} color={T.green} />
-                  <span style={{ fontSize:13, fontWeight:700, color:T.green }}>{fullPhone} — Verified ✓</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: T.green }}>{fullPhone} — Verified ✓</span>
                 </div>
 
-                <Field label="Full Name">
-                  <InputBox icon={<User size={15}/>} type="text" placeholder="Your full name"
-                    value={form.name} onChange={upd('name')} required autoComplete="name" />
-                </Field>
+                <form onSubmit={handleSubmit}>
+                  <Field label="Full Name" error={errors.name}>
+                    <InputBox
+                      icon={<User size={15} />}
+                      type="text"
+                      placeholder="Apna pura naam likhoo"
+                      value={form.name}
+                      onChange={upd('name')}
+                      error={errors.name}
+                      required
+                      autoComplete="name"
+                      autoFocus
+                    />
+                  </Field>
 
-                <Field label="Email Address">
-                  <InputBox icon={<Mail size={15}/>} type="email" placeholder="name@example.com"
-                    value={form.email} onChange={upd('email')} required autoComplete="email" />
-                </Field>
+                  <Field label="Email Address" error={errors.email}>
+                    <InputBox
+                      icon={<Mail size={15} />}
+                      type="email"
+                      placeholder="name@example.com"
+                      value={form.email}
+                      onChange={upd('email')}
+                      error={errors.email}
+                      required
+                      autoComplete="email"
+                    />
+                  </Field>
 
-                <Field label="Password">
-                  <InputBox
-                    icon={<Lock size={15}/>}
-                    type={showPw?'text':'password'}
-                    placeholder="Minimum 6 characters"
-                    value={form.password} onChange={upd('password')}
-                    required autoComplete="new-password"
-                    rightSlot={
-                      <button type="button"
-                        onClick={()=>setShowPw(!showPw)}
-                        style={{ position:'absolute', right:12, background:'none', border:'none',
-                          cursor:'pointer', color:T.textMuted, display:'flex', padding:0 }}>
-                        {showPw
-                          ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>
-                          : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        }
-                      </button>
-                    }
-                  />
-                  <PwStrength pw={form.password} />
-                </Field>
+                  <Field label="Password" error={errors.password}>
+                    <InputBox
+                      icon={<Lock size={15} />}
+                      type={showPw ? 'text' : 'password'}
+                      placeholder="Minimum 6 characters"
+                      value={form.password}
+                      onChange={upd('password')}
+                      error={errors.password}
+                      required
+                      autoComplete="new-password"
+                      rightSlot={
+                        <button
+                          type="button"
+                          onClick={() => setShowPw(p => !p)}
+                          style={{ position: 'absolute', right: 12, background: 'none', border: 'none', cursor: 'pointer', color: T.textMuted, display: 'flex', padding: 0 }}
+                          title={showPw ? 'Hide password' : 'Show password'}
+                        >
+                          {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </button>
+                      }
+                    />
+                    <PwStrength pw={form.password} />
+                  </Field>
 
-                <p style={{ fontSize:12, color:T.textLight, marginBottom:4, lineHeight:1.6 }}>
-                  Account banane par aap hamare{' '}
-                  <a href="/terms" className="auth-link" style={{ fontSize:12 }}>Terms</a>
-                  {' '}aur{' '}
-                  <a href="/privacy" className="auth-link" style={{ fontSize:12 }}>Privacy Policy</a>
-                  {' '}se agree karte hain.
-                </p>
+                  <p style={{ fontSize: 11.5, color: T.textLight, marginBottom: 4, lineHeight: 1.65 }}>
+                    Account banane par aap hamare{' '}
+                    <a href="/terms" className="auth-link" style={{ fontSize: 11.5 }}>Terms</a>
+                    {' '}aur{' '}
+                    <a href="/privacy" className="auth-link" style={{ fontSize: 11.5 }}>Privacy Policy</a>
+                    {' '}se agree karte hain.
+                  </p>
 
-                <Btn loading={loading} type="submit" disabled={loading}>
-                  {loading ? 'Account ban raha hai…' : <>Account Banao <ArrowRight size={15} strokeWidth={2.5}/></>}
-                </Btn>
-              </form>
+                  <Btn loading={loading} type="submit">
+                    <>
+                      {loading ? 'Account ban raha hai…' : 'Account Banao'}
+                      {!loading && <ArrowRight size={15} strokeWidth={2.5} />}
+                    </>
+                  </Btn>
+                </form>
+              </div>
             )}
 
-            <p style={{ textAlign:'center', fontSize:13, color:T.textMuted, marginTop:20 }}>
+            <p style={{ textAlign: 'center', fontSize: 13, color: T.textMuted, marginTop: 22 }}>
               Account hai pehle se?{' '}
               <Link to="/login" className="auth-link">Sign in karo</Link>
             </p>
