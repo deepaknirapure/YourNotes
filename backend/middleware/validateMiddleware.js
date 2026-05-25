@@ -1,28 +1,14 @@
 const { body, validationResult } = require('express-validator');
 
-/**
- * Hindi Comment:
- * Ye middleware check karta hai ki user ne jo data form mein bhara hai wo sahi format mein hai ya nahi.
- * Isse hamara server "Bad Requests" se bacha rehta hai.
- */
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ERROR HANDLER HELPER
-// ─────────────────────────────────────────────────────────────────────────────
 const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // Hindi: Hum sirf pehla error message bhej rahe hain frontend ko (Clean UI ke liye)
     return res.status(400).json({ message: errors.array()[0].msg });
   }
   next();
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// VALIDATION RULES
-// ─────────────────────────────────────────────────────────────────────────────
-
-// 1. Account Registration Validation (phone aur phoneVerified bhi ab required hain)
+// 1. Account Registration Validation
 const validateRegister = [
   body('name')
     .trim()
@@ -38,8 +24,12 @@ const validateRegister = [
   body('phone')
     .notEmpty().withMessage('Mobile number required hai')
     .matches(/^\+[1-9]\d{6,14}$/).withMessage('Valid phone number daalo (format: +91XXXXXXXXXX)'),
+  // FIX: boolean true ya string 'true' dono accept karo
   body('phoneVerified')
-    .equals('true').withMessage('Mobile number verify karna zaroori hai'),
+    .custom((value) => {
+      if (value === true || value === 'true') return true;
+      throw new Error('Mobile number verify karna zaroori hai');
+    }),
   handleValidation,
 ];
 
@@ -50,13 +40,13 @@ const validateLogin = [
   handleValidation,
 ];
 
-// 3. NEW: Password Reset Request (Forgot Password)
+// 3. Password Reset Request
 const validateForgot = [
   body('email').trim().isEmail().withMessage('Valid email is required for reset link'),
   handleValidation,
 ];
 
-// 4. NEW: Reset Password Execution
+// 4. Reset Password
 const validateReset = [
   body('password').isLength({ min: 6 }).withMessage('New password must be at least 6 characters'),
   handleValidation,
@@ -72,7 +62,7 @@ const validateNote = [
   handleValidation,
 ];
 
-// 6. NEW: Community Upload Validation
+// 6. Community Upload Validation
 const validateCommunityUpload = [
   body('title').trim().notEmpty().withMessage('Title is required for public sharing'),
   body('subject').trim().notEmpty().withMessage('Please specify a subject (e.g. Physics)'),
