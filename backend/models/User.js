@@ -108,18 +108,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-    /**
-     * NEW: OTP Verification Fields
-     * Phone OTP registration ke liye in-memory store nahi, DB mein store karte hain
-     */
-    otpCode: {
-      type: String,
-      default: undefined,
-    },
-    otpExpire: {
-      type: Date,
-      default: undefined,
-    },
+
   },
   { timestamps: true }
 );

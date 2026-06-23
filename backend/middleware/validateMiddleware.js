@@ -21,15 +21,6 @@ const validateRegister = [
   body('password')
     .notEmpty().withMessage('Password is required')
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-  body('phone')
-    .notEmpty().withMessage('Mobile number required hai')
-    .matches(/^\+[1-9]\d{6,14}$/).withMessage('Valid phone number daalo (format: +91XXXXXXXXXX)'),
-  // FIX: boolean true ya string 'true' dono accept karo
-  body('phoneVerified')
-    .custom((value) => {
-      if (value === true || value === 'true') return true;
-      throw new Error('Mobile number verify karna zaroori hai');
-    }),
   handleValidation,
 ];
 

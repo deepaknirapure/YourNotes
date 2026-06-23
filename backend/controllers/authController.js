@@ -25,26 +25,17 @@ const generateToken = (userId) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone, phoneVerified } = req.body;
-
-    // Phone verification mandatory hai
-    if (!phone || !phoneVerified) {
-      return res.status(400).json({ message: 'Mobile number verify karna zaroori hai' });
-    }
+    const { name, email, password } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'Email already registered' });
-
-    // Check karo phone already registered toh nahi
-    const phoneExists = await User.findOne({ phone, password: { $exists: true, $ne: null } });
-    if (phoneExists) return res.status(400).json({ message: 'Mobile number pehle se registered hai' });
 
     // Password Hashing
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // User creation with phone
-    const user = await User.create({ name, email, password: hashedPassword, phone });
+    // User creation
+    const user = await User.create({ name, email, password: hashedPassword });
 
     // Hindi: Naye user ke liye default folders create karna (Project Requirement)
     const defaultFolders = [
