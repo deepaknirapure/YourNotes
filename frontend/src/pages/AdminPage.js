@@ -27,7 +27,7 @@ const initials = (name = '?') =>
 
 /* ─────────────────────────── CSS injection ──────────────────────── */
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Geist:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -243,7 +243,7 @@ export default function AdminPage() {
       borderRadius: 6, padding: size === 'sm' ? '3px 9px' : '5px 12px',
       fontSize: size === 'sm' ? 11 : 12, fontWeight: 700,
       letterSpacing: '0.01em', whiteSpace: 'nowrap',
-      fontFamily: "'Geist', sans-serif",
+      fontFamily: 'var(--font)',
     }}>
       {Icon && <Icon size={10} strokeWidth={2.5} />}{label}
     </span>
@@ -263,7 +263,7 @@ export default function AdminPage() {
         opacity: disabled ? 0.4 : 1,
         display: 'inline-flex', alignItems: 'center', gap: 5,
         transition: 'all 0.15s cubic-bezier(.4,0,.2,1)',
-        whiteSpace: 'nowrap', fontFamily: "'Geist', sans-serif",
+        whiteSpace: 'nowrap', fontFamily: 'var(--font)',
         letterSpacing: '0.01em',
       }}
     >
@@ -283,7 +283,7 @@ export default function AdminPage() {
         }} />
         <Activity size={14} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: c.accent }} />
       </div>
-      <span style={{ fontSize: 13, fontFamily: "'Geist', sans-serif", letterSpacing: '0.02em' }}>Loading data…</span>
+      <span style={{ fontSize: 13, fontFamily: 'var(--font)', letterSpacing: '0.02em' }}>Loading data…</span>
     </div>
   );
 
@@ -297,14 +297,14 @@ export default function AdminPage() {
       }}>
         <Icon size={24} strokeWidth={1.5} />
       </div>
-      <div style={{ fontWeight: 700, fontSize: 14, color: c.text2, fontFamily: "'Syne', sans-serif" }}>{title}</div>
-      <div style={{ fontSize: 13, color: c.text3, fontFamily: "'Geist', sans-serif" }}>{sub}</div>
+      <div style={{ fontWeight: 700, fontSize: 14, color: c.text2, fontFamily: 'var(--font)' }}>{title}</div>
+      <div style={{ fontSize: 13, color: c.text3, fontFamily: 'var(--font)' }}>{sub}</div>
     </div>
   );
 
   const Pagination = ({ page, pages, onChange, total }) => (
     <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between', marginTop: 18, alignItems: 'center' }}>
-      <span style={{ fontSize: 12, color: c.text3, fontFamily: "'DM Mono', monospace" }}>
+      <span style={{ fontSize: 12, color: c.text3, fontFamily: 'var(--font)' }}>
         {total ? `${fmt(total)} total` : `Page ${page} of ${pages}`}
       </span>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -320,7 +320,7 @@ export default function AdminPage() {
           }}
         ><ChevronLeft size={15} /></button>
         <span style={{
-          fontFamily: "'DM Mono', monospace", fontSize: 12, color: c.text3,
+          fontFamily: 'var(--font)', fontSize: 12, color: c.text3,
           padding: '0 10px', minWidth: 80, textAlign: 'center',
         }}>
           {page} / {pages}
@@ -344,7 +344,7 @@ export default function AdminPage() {
     background: c.surface2, border: `1px solid ${c.border}`,
     borderRadius: 10, padding: '9px 13px 9px 38px',
     fontSize: 13, color: c.text,
-    fontFamily: "'Geist', sans-serif", transition: 'border-color 0.15s',
+    fontFamily: 'var(--font)', transition: 'border-color 0.15s',
     width: '100%',
   };
 
@@ -358,7 +358,7 @@ export default function AdminPage() {
         borderRadius: 8, padding: '7px 14px',
         fontSize: 12, fontWeight: 600,
         cursor: 'pointer', transition: 'all 0.15s',
-        fontFamily: "'Geist', sans-serif", letterSpacing: '0.02em',
+        fontFamily: 'var(--font)', letterSpacing: '0.02em',
       }}
     >{label}</button>
   );
@@ -384,7 +384,7 @@ export default function AdminPage() {
         <span style={{
           fontSize: 10, fontWeight: 700, color: c.text3,
           textTransform: 'uppercase', letterSpacing: '0.1em',
-          fontFamily: "'Geist', sans-serif",
+          fontFamily: 'var(--font)',
         }}>{label}</span>
         <div style={{
           width: 32, height: 32, borderRadius: 9,
@@ -398,9 +398,9 @@ export default function AdminPage() {
       <div style={{
         fontSize: 30, fontWeight: 800, color: valueColor || c.text,
         letterSpacing: '-1.5px', lineHeight: 1,
-        fontFamily: "'Syne', sans-serif",
+        fontFamily: 'var(--font)',
       }}>{fmt(value)}</div>
-      {sub && <div style={{ fontSize: 11, color: c.text3, fontFamily: "'Geist', sans-serif" }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, color: c.text3, fontFamily: 'var(--font)' }}>{sub}</div>}
     </div>
   );
 
@@ -411,13 +411,13 @@ export default function AdminPage() {
         background: c.accentL, border: `1.5px solid ${c.accent}30`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontWeight: 800, fontSize: 12, color: c.accent,
-        overflow: 'hidden', fontFamily: "'Syne', sans-serif",
+        overflow: 'hidden', fontFamily: 'var(--font)',
       }}>
         {avatar ? <img src={avatar} alt="" style={{ width: 36, height: 36, objectFit: 'cover' }} /> : initials(name)}
       </div>
       <div>
-        <div style={{ fontWeight: 600, fontSize: 13, color: c.text, fontFamily: "'Geist', sans-serif" }}>{name}</div>
-        <div style={{ fontSize: 11, color: c.text3, marginTop: 1, fontFamily: "'DM Mono', monospace" }}>{email}</div>
+        <div style={{ fontWeight: 600, fontSize: 13, color: c.text, fontFamily: 'var(--font)' }}>{name}</div>
+        <div style={{ fontSize: 11, color: c.text3, marginTop: 1, fontFamily: 'var(--font)' }}>{email}</div>
       </div>
     </div>
   );
@@ -426,12 +426,12 @@ export default function AdminPage() {
     textAlign: 'left', fontSize: 10, fontWeight: 700, color: c.text3,
     textTransform: 'uppercase', letterSpacing: '0.10em',
     padding: '11px 18px', borderBottom: `1px solid ${c.border}`,
-    background: c.surface2, fontFamily: "'Geist', sans-serif",
+    background: c.surface2, fontFamily: 'var(--font)',
   };
   const td = {
     padding: '14px 18px', fontSize: 13, color: c.text2,
     borderBottom: `1px solid ${c.border}`, verticalAlign: 'middle',
-    fontFamily: "'Geist', sans-serif",
+    fontFamily: 'var(--font)',
   };
 
   const Card = ({ children, style = {} }) => (
@@ -451,9 +451,9 @@ export default function AdminPage() {
       <div>
         <h2 style={{
           fontWeight: 800, fontSize: 22, color: c.text, margin: 0,
-          fontFamily: "'Syne', sans-serif", letterSpacing: '-0.5px',
+          fontFamily: 'var(--font)', letterSpacing: '-0.5px',
         }}>{title}</h2>
-        {sub && <p style={{ fontSize: 13, color: c.text3, marginTop: 4, fontFamily: "'Geist', sans-serif" }}>{sub}</p>}
+        {sub && <p style={{ fontSize: 13, color: c.text3, marginTop: 4, fontFamily: 'var(--font)' }}>{sub}</p>}
       </div>
       {action}
     </div>
@@ -472,7 +472,7 @@ export default function AdminPage() {
   return (
     <div style={{
       minHeight: '100dvh', background: c.bg,
-      fontFamily: "'Geist', sans-serif", color: c.text,
+      fontFamily: 'var(--font)', color: c.text,
     }}>
 
       {/* ── Top bar ─────────────────────────────────────────────── */}
@@ -494,10 +494,10 @@ export default function AdminPage() {
             <Shield size={18} color="#fff" strokeWidth={2.5} />
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: 15, color: c.text, fontFamily: "'Syne', sans-serif", letterSpacing: '-0.3px', lineHeight: 1.2 }}>
+            <div style={{ fontWeight: 800, fontSize: 15, color: c.text, fontFamily: 'var(--font)', letterSpacing: '-0.3px', lineHeight: 1.2 }}>
               Admin Panel
             </div>
-            <div style={{ fontSize: 10, color: c.text3, fontFamily: "'DM Mono', monospace", letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 10, color: c.text3, fontFamily: 'var(--font)', letterSpacing: '0.05em' }}>
               YOURNOTES — CONTROL CENTER
             </div>
           </div>
@@ -506,12 +506,12 @@ export default function AdminPage() {
             border: `1px solid ${c.accent}30`,
             borderRadius: 6, padding: '2px 9px',
             fontSize: 10, fontWeight: 800, letterSpacing: '0.08em',
-            fontFamily: "'DM Mono', monospace",
+            fontFamily: 'var(--font)',
           }}>ADMIN</div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12, color: c.text3, fontFamily: "'DM Mono', monospace", marginRight: 4 }}>
+          <span style={{ fontSize: 12, color: c.text3, fontFamily: 'var(--font)', marginRight: 4 }}>
             {user?.email}
           </span>
           <button
@@ -533,7 +533,7 @@ export default function AdminPage() {
               borderRadius: 9, padding: '7px 14px',
               fontSize: 13, fontWeight: 600, color: c.text2, cursor: 'pointer',
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              transition: 'all 0.15s', fontFamily: "'Geist', sans-serif",
+              transition: 'all 0.15s', fontFamily: 'var(--font)',
             }}
           >
             <ArrowLeft size={14} />Back
@@ -559,7 +559,7 @@ export default function AdminPage() {
               color: tab === key ? c.accent : c.text3,
               borderBottom: tab === key ? `2px solid ${c.accent}` : '2px solid transparent',
               transition: 'all 0.15s', display: 'inline-flex', alignItems: 'center', gap: 7,
-              fontFamily: "'Geist', sans-serif",
+              fontFamily: 'var(--font)',
               letterSpacing: '0.01em',
             }}
           >
@@ -571,7 +571,7 @@ export default function AdminPage() {
                 color: alert ? '#fff' : c.accent,
                 borderRadius: 999, padding: '1px 7px',
                 fontSize: 10, fontWeight: 800,
-                fontFamily: "'DM Mono', monospace",
+                fontFamily: 'var(--font)',
               }}>{fmt(count)}</span>
             )}
           </button>
@@ -599,7 +599,7 @@ export default function AdminPage() {
 
               {/* Quick nav cards */}
               <div style={{ marginBottom: 16 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: c.text4, textTransform: 'uppercase', letterSpacing: '0.10em', marginBottom: 12, fontFamily: "'Geist', sans-serif" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: c.text4, textTransform: 'uppercase', letterSpacing: '0.10em', marginBottom: 12, fontFamily: 'var(--font)' }}>
                   Quick Actions
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 12 }}>
@@ -630,8 +630,8 @@ export default function AdminPage() {
                         <Icon size={20} strokeWidth={1.75} />
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: 14, color: c.text, fontFamily: "'Syne', sans-serif", letterSpacing: '-0.2px' }}>{label}</div>
-                        <div style={{ fontSize: 12, color: c.text3, marginTop: 3, fontFamily: "'Geist', sans-serif" }}>{sub}</div>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: c.text, fontFamily: 'var(--font)', letterSpacing: '-0.2px' }}>{label}</div>
+                        <div style={{ fontSize: 12, color: c.text3, marginTop: 3, fontFamily: 'var(--font)' }}>{sub}</div>
                       </div>
                       <ChevronRight size={16} style={{ color: c.text4, flexShrink: 0 }} />
                     </button>
@@ -705,7 +705,7 @@ export default function AdminPage() {
                             <div>
                               <Badge label="Banned" color={c.red} bg={c.redL} icon={Ban} />
                               {u.banReason && (
-                                <div style={{ fontSize: 11, color: c.text3, marginTop: 5, maxWidth: 160, fontFamily: "'Geist', sans-serif" }}>
+                                <div style={{ fontSize: 11, color: c.text3, marginTop: 5, maxWidth: 160, fontFamily: 'var(--font)' }}>
                                   {u.banReason}
                                 </div>
                               )}
@@ -714,7 +714,7 @@ export default function AdminPage() {
                             <Badge label="Active" color={c.green} bg={c.greenL} icon={CheckCircle} />
                           )}
                         </td>
-                        <td style={{ ...td, fontSize: 12, color: c.text3, fontFamily: "'DM Mono', monospace" }}>
+                        <td style={{ ...td, fontSize: 12, color: c.text3, fontFamily: 'var(--font)' }}>
                           {ago(u.createdAt)}
                         </td>
                         <td style={{ ...td, textAlign: 'right' }}>
@@ -793,13 +793,13 @@ export default function AdminPage() {
                           {n.subject && (
                             <div style={{ fontSize: 11, color: c.accent, marginTop: 3, fontWeight: 600 }}>{n.subject}</div>
                           )}
-                          <div style={{ fontSize: 11, color: c.text4, marginTop: 3, fontFamily: "'DM Mono', monospace" }}>
+                          <div style={{ fontSize: 11, color: c.text4, marginTop: 3, fontFamily: 'var(--font)' }}>
                             {ago(n.createdAt)}
                           </div>
                         </td>
                         <td style={td}>
                           <div style={{ fontWeight: 600, fontSize: 12, color: c.text }}>{n.user?.name || '—'}</div>
-                          <div style={{ fontSize: 11, color: c.text3, overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: "'DM Mono', monospace" }}>
+                          <div style={{ fontSize: 11, color: c.text3, overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'var(--font)' }}>
                             {n.user?.email || ''}
                           </div>
                         </td>
@@ -807,16 +807,16 @@ export default function AdminPage() {
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: c.text2 }}>
                               <Heart size={11} style={{ color: c.red }} />
-                              <b style={{ fontFamily: "'DM Mono', monospace" }}>{fmt(n.likesCount)}</b>
+                              <b style={{ fontFamily: 'var(--font)' }}>{fmt(n.likesCount)}</b>
                             </span>
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: c.text2 }}>
                               <Download size={11} style={{ color: c.blue }} />
-                              <b style={{ fontFamily: "'DM Mono', monospace" }}>{fmt(n.downloads)}</b>
+                              <b style={{ fontFamily: 'var(--font)' }}>{fmt(n.downloads)}</b>
                             </span>
                             {n.reportsCount > 0 && (
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: c.red, fontWeight: 700 }}>
                                 <Flag size={11} />
-                                <b style={{ fontFamily: "'DM Mono', monospace" }}>{fmt(n.reportsCount)}</b>
+                                <b style={{ fontFamily: 'var(--font)' }}>{fmt(n.reportsCount)}</b>
                               </span>
                             )}
                           </div>
@@ -877,12 +877,12 @@ export default function AdminPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 800, fontSize: 15, color: c.text, fontFamily: "'Syne', sans-serif" }}>
+                          <span style={{ fontWeight: 800, fontSize: 15, color: c.text, fontFamily: 'var(--font)' }}>
                             {n.title || 'Untitled'}
                           </span>
                           <Badge label={`${fmt(n.reportsCount)} reports`} color={c.red} bg={c.redL} icon={Flag} />
                         </div>
-                        <div style={{ fontSize: 12, color: c.text3, marginBottom: 12, fontFamily: "'Geist', sans-serif", display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ fontSize: 12, color: c.text3, marginBottom: 12, fontFamily: 'var(--font)', display: 'flex', alignItems: 'center', gap: 10 }}>
                           <span>By <strong style={{ color: c.text2 }}>{n.user?.name}</strong></span>
                           <span style={{ color: c.border2 }}>·</span>
                           <span>{ago(n.createdAt)}</span>
@@ -896,7 +896,7 @@ export default function AdminPage() {
                               background: c.redL, color: c.red,
                               borderRadius: 6, padding: '3px 10px',
                               fontSize: 11, fontWeight: 600,
-                              fontFamily: "'Geist', sans-serif",
+                              fontFamily: 'var(--font)',
                               display: 'inline-flex', alignItems: 'center', gap: 5,
                             }}>
                               <AlertCircle size={10} />
@@ -905,7 +905,7 @@ export default function AdminPage() {
                             </span>
                           ))}
                           {n.reports?.length > 4 && (
-                            <span style={{ fontSize: 11, color: c.text3, padding: '3px 6px', fontFamily: "'DM Mono', monospace" }}>
+                            <span style={{ fontSize: 11, color: c.text3, padding: '3px 6px', fontFamily: 'var(--font)' }}>
                               +{n.reports.length - 4} more
                             </span>
                           )}
@@ -948,8 +948,8 @@ export default function AdminPage() {
                     display: 'flex', alignItems: 'center', gap: 10,
                   }}>
                     <Bot size={15} style={{ color: c.purple }} />
-                    <span style={{ fontWeight: 700, fontSize: 14, color: c.text, fontFamily: "'Syne', sans-serif" }}>Top AI Users</span>
-                    <span style={{ fontSize: 12, color: c.text3, fontFamily: "'Geist', sans-serif" }}>— this hour</span>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: c.text, fontFamily: 'var(--font)' }}>Top AI Users</span>
+                    <span style={{ fontSize: 12, color: c.text3, fontFamily: 'var(--font)' }}>— this hour</span>
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
@@ -968,7 +968,7 @@ export default function AdminPage() {
                         const pct = (u.aiCallsThisHour / max) * 100;
                         return (
                           <tr key={u._id} className="admin-row" style={{ transition: 'background 0.1s' }}>
-                            <td style={{ ...td, fontFamily: "'DM Mono', monospace", fontSize: 13, color: c.text3, fontWeight: 700 }}>
+                            <td style={{ ...td, fontFamily: 'var(--font)', fontSize: 13, color: c.text3, fontWeight: 700 }}>
                               {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
                             </td>
                             <td style={td}><AvatarCell name={u.name} email={u.email} /></td>
@@ -983,11 +983,11 @@ export default function AdminPage() {
                                 <span style={{
                                   fontWeight: 800, color: c.purple,
                                   fontSize: 14, minWidth: 28,
-                                  fontFamily: "'DM Mono', monospace",
+                                  fontFamily: 'var(--font)',
                                 }}>{u.aiCallsThisHour}</span>
                               </div>
                             </td>
-                            <td style={{ ...td, fontSize: 12, color: c.text3, fontFamily: "'DM Mono', monospace" }}>
+                            <td style={{ ...td, fontSize: 12, color: c.text3, fontFamily: 'var(--font)' }}>
                               {u.aiCallsResetAt ? ago(u.aiCallsResetAt) : '—'}
                             </td>
                           </tr>
@@ -1038,8 +1038,8 @@ export default function AdminPage() {
                   <Ban size={20} strokeWidth={2} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: 17, color: c.text, fontFamily: "'Syne', sans-serif" }}>Ban User</div>
-                  <div style={{ fontSize: 12, color: c.text3, marginTop: 2, fontFamily: "'DM Mono', monospace" }}>{banModal.name}</div>
+                  <div style={{ fontWeight: 800, fontSize: 17, color: c.text, fontFamily: 'var(--font)' }}>Ban User</div>
+                  <div style={{ fontSize: 12, color: c.text3, marginTop: 2, fontFamily: 'var(--font)' }}>{banModal.name}</div>
                 </div>
               </div>
               <button
@@ -1055,11 +1055,11 @@ export default function AdminPage() {
               </button>
             </div>
 
-            <p style={{ fontSize: 13, color: c.text2, marginBottom: 20, lineHeight: 1.65, fontFamily: "'Geist', sans-serif" }}>
+            <p style={{ fontSize: 13, color: c.text2, marginBottom: 20, lineHeight: 1.65, fontFamily: 'var(--font)' }}>
               Is user ka account suspend ho jayega. Woh login nahi kar payega jab tak unban na karo.
             </p>
 
-            <label style={{ fontSize: 11, fontWeight: 700, color: c.text3, display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: "'Geist', sans-serif" }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: c.text3, display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font)' }}>
               Ban Reason (optional)
             </label>
             <input
@@ -1083,7 +1083,7 @@ export default function AdminPage() {
                   background: c.surface2, border: `1px solid ${c.border}`,
                   borderRadius: 10, padding: '10px 20px',
                   fontSize: 13, fontWeight: 600, color: c.text2,
-                  cursor: 'pointer', fontFamily: "'Geist', sans-serif",
+                  cursor: 'pointer', fontFamily: 'var(--font)',
                 }}
               >Cancel</button>
               <ActionBtn label="Confirm Ban" onClick={handleBan} color={c.red} icon={Ban} variant="solid" />
